@@ -1,0 +1,165 @@
+/* ═══════════════════════════════════════════════════════
+   Miku GTK3 Theme — Tokyo Night × Hatsune Miku
+   Global coherent color system for all GTK3 apps
+   Base theme: adw-gtk3-dark
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Named Color Definitions (GTK3 Legacy) ── */
+@define-color theme_bg_color #15161E;
+@define-color theme_fg_color #C0CAF5;
+@define-color theme_base_color #1A1B26;
+@define-color theme_text_color #C0CAF5;
+@define-color theme_selected_bg_color #33E0E0;
+@define-color theme_selected_fg_color #1A1B26;
+
+/* ── Named Color Definitions (adw-gtk3 compatibility) ── */
+@define-color accent_color #33E0E0;
+@define-color accent_bg_color #33E0E0;
+@define-color accent_fg_color #15161E;
+
+@define-color destructive_color #F7768E;
+@define-color destructive_bg_color #F7768E;
+@define-color destructive_fg_color #15161E;
+
+@define-color success_color #7DCFFF;
+@define-color success_bg_color #7DCFFF;
+@define-color success_fg_color #15161E;
+
+@define-color warning_color #E0AF68;
+@define-color warning_bg_color #E0AF68;
+@define-color warning_fg_color #15161E;
+
+@define-color error_color #F7768E;
+@define-color error_bg_color #F7768E;
+@define-color error_fg_color #15161E;
+
+@define-color window_bg_color #15161E;
+@define-color window_fg_color #C0CAF5;
+
+@define-color view_bg_color #1A1B26;
+@define-color view_fg_color #C0CAF5;
+
+@define-color headerbar_bg_color #15161E;
+@define-color headerbar_fg_color #C0CAF5;
+@define-color headerbar_border_color transparent;
+
+@define-color card_bg_color #1A1B26;
+@define-color card_fg_color #C0CAF5;
+@define-color card_shade_color rgba(0, 0, 0, 0.36);
+
+@define-color popover_bg_color #1A1B26;
+@define-color popover_fg_color #C0CAF5;
+
+@define-color dialog_bg_color #15161E;
+@define-color dialog_fg_color #C0CAF5;
+
+/* ── Global Foreground ── */
+* {
+    color: #C0CAF5;
+}
+
+/* ── Window Chrome ── */
+window {
+    border-radius: 12px;
+}
+window.csd {
+    border-radius: 12px;
+    box-shadow: none;
+    border: 1px solid rgba(51, 224, 224, 0.15);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SELECTIONS — Only on leaf/row widgets, never on 
+   containers that have children menus or popups.
+   ═══════════════════════════════════════════════════════ */
+
+/* Treeview rows (Thunar sidebar, list view) */
+treeview:selected,
+treeview:selected * {
+    background-color: #33E0E0;
+    color: #1A1B26;
+}
+
+/* Icon view (Thunar grid, ExoIconView) */
+iconview:selected,
+iconview:selected *,
+.view:selected,
+.view:selected *,
+ExoIconView:selected,
+ExoIconView:selected * {
+    background-color: #33E0E0;
+    color: #1A1B26;
+}
+
+/* Generic row selections (other GTK3 apps) */
+row:selected,
+row:selected * {
+    background-color: #33E0E0;
+    color: #1A1B26;
+}
+
+/* Text selections inside entries/textviews */
+entry selection,
+textview selection {
+    background-color: #33E0E0;
+    color: #1A1B26;
+}
+
+/* ═══════════════════════════════════════════════════════
+   MENUS — Use :hover, never :selected.
+   Only the individual hovered item highlights, not 
+   the whole dropdown container.
+   ═══════════════════════════════════════════════════════ */
+
+/* Top menubar item hover (File, Edit, View...) */
+menubar > menuitem:hover {
+    background-color: #33E0E0;
+    color: #1A1B26;
+}
+menubar > menuitem:hover > label,
+menubar > menuitem:hover > image {
+    color: #1A1B26;
+}
+
+/* Dropdown menu container — force dark bg, light text */
+.menu,
+menu {
+    background-color: #1A1B26;
+    color: #C0CAF5;
+}
+
+/* Individual dropdown menu item hover */
+.menu menuitem:hover,
+menu menuitem:hover {
+    background-color: #33E0E0;
+    color: #1A1B26;
+}
+.menu menuitem:hover > *,
+menu menuitem:hover > * {
+    color: #1A1B26;
+}
+
+/* Ensure non-hovered menu items stay light */
+.menu menuitem,
+menu menuitem {
+    color: #C0CAF5;
+}
+.menu menuitem > *,
+menu menuitem > * {
+    color: #C0CAF5;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ICONS — Global symbolic rendering
+   ═══════════════════════════════════════════════════════ */
+image {
+    -gtk-icon-style: symbolic;
+    color: #33E0E0; /* Miku Teal */
+}
+
+*:selected image,
+*:hover > image,
+button:hover image,
+row:hover image {
+    color: #1A1B26; /* Dark background inversion */
+}

@@ -20,7 +20,7 @@ exec_always {
     gsettings set org.gnome.desktop.interface cursor-size $cursor_size
     gsettings set org.gnome.desktop.sound theme-name "Pop"
     gsettings set org.gnome.desktop.interface gtk-theme adw-gtk3-dark
-    gsettings set org.gnome.desktop.interface icon-theme MikuTela-dark
+    gsettings set org.gnome.desktop.interface icon-theme TokyoNight-SE
     gsettings set org.gnome.desktop.interface color-scheme prefer-dark
     dbus-update-activation-environment --systemd GTK_THEME=adw-gtk3-dark XCURSOR_THEME=$cursor_theme XCURSOR_SIZE=$cursor_size
 }

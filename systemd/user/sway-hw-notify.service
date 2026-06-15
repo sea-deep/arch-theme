@@ -1,0 +1,11 @@
+[Unit]
+Description=Sway Hardware Notification Daemon
+After=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/env python3 %h/.config/sway/hw-notifier.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

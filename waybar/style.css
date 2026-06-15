@@ -11,7 +11,7 @@ window#waybar {
     color: #C0CAF5;
 }
 
-#window, #clock, #hardware, #network, #tray, #custom-swaync, #bluetooth {
+#window, #clock, #hardware, #network, #tray, #custom-swaync, #bluetooth, #custom-power {
     background-color: #1A1B26;
     padding: 0 14px;
     margin: 0 4px;
@@ -41,7 +41,7 @@ window#waybar {
     transition: all 0.2s ease;
 }
 
-#workspaces:hover, #window:hover, #clock:hover, #hardware:hover, #network:hover, #tray:hover, #custom-swaync:hover, #bluetooth:hover {
+#workspaces:hover, #window:hover, #clock:hover, #hardware:hover, #network:hover, #tray:hover, #custom-swaync:hover, #bluetooth:hover, #custom-power:hover {
     border: 2px solid #33E0E0;
 }
 
@@ -94,6 +94,12 @@ window#waybar {
 
 #custom-swaync {
     color: #33E0E0;
+    padding-right: 16px;
+    padding-left: 12px;
+}
+
+#custom-power {
+    color: #F7768E;
     padding-right: 16px;
     padding-left: 12px;
 }

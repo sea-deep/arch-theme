@@ -1,0 +1,243 @@
+@define-color bg-col #1A1B26;
+@define-color bg-col-light #15161E;
+@define-color border-col #15161E;
+@define-color selected-col #39c5bb;
+@define-color blue #7DCFFF;
+@define-color fg-col #C0CAF5;
+@define-color urgent-col #F7768E;
+
+* {
+  font-family: "FiraCode Nerd Font";
+}
+
+.notification-row {
+  outline: none;
+}
+
+.notification-row:focus,
+.notification-row:hover {
+  background: transparent;
+}
+
+.notification {
+  border-radius: 12px;
+  margin: 10px;
+  background: transparent;
+  padding: 0;
+}
+
+.notification-content {
+  background: @bg-col;
+  padding: 6px;
+  border-radius: 12px;
+  border: 2px solid @border-col;
+  transition: all 0.2s ease;
+}
+
+.notification-content:hover {
+  border: 2px solid @selected-col;
+}
+
+.notification-default-action,
+.notification-action {
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  background: transparent;
+  border: none;
+  color: @fg-col;
+}
+
+.notification-default-action:hover,
+.notification-action:hover {
+  -gtk-icon-effect: none;
+  background: transparent;
+}
+
+.notification-default-action {
+  border-radius: 12px;
+}
+
+.summary {
+  font-size: 14px;
+  font-weight: bold;
+  background: transparent;
+  color: @selected-col;
+  text-shadow: none;
+  padding-top: 6px;
+  margin-top: 2px;
+  min-height: 18px;
+}
+
+.time {
+  font-size: 12px;
+  font-weight: bold;
+  background: transparent;
+  color: @fg-col;
+  text-shadow: none;
+  margin-right: 18px;
+}
+
+.body {
+  font-size: 12px;
+  font-weight: normal;
+  background: transparent;
+  color: @fg-col;
+  text-shadow: none;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+/* Side panel */
+.control-center {
+  background: @bg-col;
+  border: 2px solid @selected-col;
+  border-radius: 12px;
+  min-width: 250px;
+  max-width: 250px;
+}
+
+.control-center-list {
+  background: transparent;
+}
+
+.control-center-list-placeholder {
+  opacity: 0.5;
+}
+
+.floating-notifications {
+  background: transparent;
+}
+
+.blank-window {
+  background: transparent;
+}
+
+.widget-title {
+  color: @selected-col;
+  background: @bg-col;
+  padding: 5px 10px;
+  margin: 10px 10px 5px 10px;
+  font-size: 1.2rem;
+  border-radius: 12px;
+}
+
+.widget-title button {
+  background: @bg-col-light;
+  color: @fg-col;
+  border-radius: 8px;
+  border: 1px solid @border-col;
+  padding: 4px 8px;
+}
+
+.widget-title button:hover {
+  background: @selected-col;
+  color: @bg-col;
+}
+
+/* Widget Styling */
+.widget-dnd {
+  margin: 10px;
+  font-size: 1.1rem;
+}
+
+.widget-dnd > switch {
+  background: @bg-col-light;
+  border: 1px solid @border-col;
+  border-radius: 12px;
+}
+
+.widget-dnd > switch:checked {
+  background: @selected-col;
+}
+
+.widget-dnd > switch slider {
+  background: @fg-col;
+  border-radius: 12px;
+}
+
+.widget-volume, .widget-backlight {
+  background: @bg-col;
+  color: @fg-col;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 12px;
+  border: 1px solid @border-col;
+}
+
+.widget-volume label,
+.widget-volume label:disabled,
+.widget-backlight label,
+.widget-backlight label:disabled,
+.per-app-volume,
+.per-app-volume label,
+.per-app-volume label:disabled,
+.per-app-volume * {
+  color: @fg-col;
+}
+
+scale trough {
+  border-radius: 8px;
+  background: @bg-col-light;
+}
+
+scale highlight {
+  border-radius: 8px;
+  background: @selected-col;
+}
+
+scale slider {
+  background: @fg-col;
+  border-radius: 100%;
+}
+
+.notification-group {
+  background: transparent;
+  border: none;
+}
+
+.notification-group > * {
+  background: transparent;
+  border: none;
+}
+
+.notification-row .notification-background {
+  padding: 0;
+}
+
+.notification-group .notification-group-headers {
+  margin: 0 10px;
+}
+
+.notification-group .notification-group-headers .notification-group-header {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.control-center .control-center-list {
+  padding: 4px;
+}
+
+.close-button {
+  background: transparent;
+  color: @fg-col;
+  text-shadow: none;
+  padding: 0;
+  border-radius: 100%;
+  margin-top: 16px;
+  margin-right: 16px;
+  box-shadow: none;
+  border: none;
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.close-button:hover {
+  box-shadow: none;
+  background: @urgent-col;
+  color: @bg-col;
+  transition: all 0.15s ease-in-out;
+  border: none;
+}

@@ -1,0 +1,78 @@
+# Beautified Teal & Charcoal Powerline
+
+add_newline = false
+
+# The Layout: Pill start -> User/Host -> Directory -> Languages/Git -> Time -> Prompt
+format = """
+[](#39c5bb)\
+$os\
+$username\
+[@](bg:#39c5bb fg:#1a1b26)\
+$hostname\
+[](bg:#414868 fg:#39c5bb)\
+$directory\
+[](bg:#bb9af7 fg:#414868)\
+$c\
+$nodejs\
+$dart\
+$git_branch\
+$git_status\
+[](fg:#bb9af7)\
+$cmd_duration
+$character"""
+
+[os]
+disabled = false
+style = "bg:#39c5bb fg:#1a1b26"
+format = "[$symbol]($style)"
+
+[os.symbols]
+Arch = "󰣇 "
+
+[username]
+show_always = true
+style_user = "bg:#39c5bb fg:#1a1b26 bold"
+format = '[$user]($style)'
+
+[hostname]
+ssh_only = false
+style = "bg:#39c5bb fg:#1a1b26 bold"
+format = '[$hostname ]($style)'
+
+[directory]
+style = "bg:#414868 fg:#c0caf5"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[c]
+symbol = " "
+style = "bg:#bb9af7 fg:#1a1b26"
+format = '[ $symbol]($style)'
+
+[nodejs]
+symbol = " "
+style = "bg:#bb9af7 fg:#1a1b26"
+format = '[ $symbol]($style)'
+
+[dart]
+symbol = " "
+style = "bg:#bb9af7 fg:#1a1b26"
+format = '[ $symbol]($style)'
+
+[git_branch]
+symbol = "󰊢 "
+style = "bg:#bb9af7 fg:#1a1b26 bold"
+format = '[ $symbol$branch ]($style)'
+
+[git_status]
+style = "bg:#bb9af7 fg:#1a1b26"
+format = '[$all_status$ahead_behind ]($style)'
+
+[cmd_duration]
+min_time = 2_000
+format = " [󱎫 $duration](bold #e0af68)"
+
+[character]
+success_symbol = "[ ❯](bold #39c5bb)"
+error_symbol = "[ ❯](bold #f7768e)"

@@ -9,7 +9,7 @@
     "spacing": 4,
     "modules-left": ["sway/workspaces", "sway/mode", "sway/window"],
     "modules-center": ["clock"],
-    "modules-right": ["group/hardware", "tray", "custom/swaync"],
+    "modules-right": ["group/hardware", "tray", "custom/swaync", "custom/power"],
 
     "group/hardware": {
         "orientation": "horizontal",
@@ -99,5 +99,10 @@
         "on-click": "swaync-client -t -sw",
         "on-click-right": "swaync-client -d -sw",
         "escape": true
+    },
+    "custom/power": {
+        "format": "<span color='#f7768e'> </span>",
+        "tooltip": false,
+        "on-click": "wlogout --protocol layer-shell -b 5 -T 400 -B 400"
     }
 }

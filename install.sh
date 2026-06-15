@@ -43,7 +43,7 @@ PACKAGES=(
     # Core Environment
     "sway" "swaybg" "waybar" "rofi-wayland" "kitty" "thunar"
     # System/UX Utilities
-    "swayidle" "swaylock" "brightnessctl" "swaync" "polkit-kde-agent" "network-manager-applet"
+    "swayidle" "swaylock" "brightnessctl" "swaync" "wlogout" "polkit-kde-agent" "network-manager-applet"
     # Clipboard
     "wl-clipboard" "cliphist"
     # Default Apps
@@ -89,7 +89,7 @@ backup_and_symlink() {
 }
 
 # Config directories
-for config in sway waybar kitty rofi swaync gtk-3.0 gtk-4.0; do
+for config in sway waybar kitty rofi swaync wlogout gtk-3.0 gtk-4.0; do
     backup_and_symlink "$DOTFILES_DIR/$config" "$HOME/.config/$config"
 done
 

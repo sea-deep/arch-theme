@@ -1,0 +1,44 @@
+# TokyoNight swaylock-effects config
+ignore-empty-password
+show-failed-attempts
+
+# Blur the current screen (requires swaylock-effects)
+screenshots
+clock
+effect-blur=7x5
+effect-vignette=0.5:0.5
+
+# Tokyo Night Background Overlay
+color=1a1b2680
+
+# Ring Colors
+ring-color=bb9af7
+inside-color=1a1b26
+line-color=1a1b2600
+
+# Typing Colors
+ring-clear-color=9ece6a
+inside-clear-color=1a1b26
+line-clear-color=1a1b2600
+
+# Verification Colors
+ring-ver-color=7aa2f7
+inside-ver-color=1a1b26
+line-ver-color=1a1b2600
+
+# Wrong Colors
+ring-wrong-color=f7768e
+inside-wrong-color=1a1b26
+line-wrong-color=1a1b2600
+
+# Keypress Colors
+key-hl-color=7dcfff
+bs-hl-color=f7768e
+
+# Font
+font=JetBrainsMono Nerd Font
+text-color=c0caf5
+text-clear-color=9ece6a
+text-caps-lock-color=e0af68
+text-ver-color=7aa2f7
+text-wrong-color=f7768e

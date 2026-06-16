@@ -100,6 +100,11 @@ magick "$WORKING_FILE" -blur 0x25 fully_blurred.png
 echo "Applying final compositing..."
 magick "$WORKING_FILE" fully_blurred.png final_mask.png -composite "$OUTPUT"
 
+# Generate corresponding Swaylock background (1080p + Tokyo Night 60% tint)
+OUTPUT_LOCK="${OUTPUT%.*}_lock.${OUTPUT##*.}"
+echo "Generating matching Swaylock background..."
+magick "$WORKING_FILE" -blur 0x40 -fill "#1a1b26" -colorize 60% -resize 1920x1080 "$OUTPUT_LOCK"
+
 echo "Cleaning up..."
 rm mask_top_solid.png mask_top_fade.png mask_top_rest.png mask_top_full.png
 rm mask_bottom_rest.png mask_bottom_fade.png mask_bottom_full.png
@@ -112,6 +117,7 @@ if [ -f "$TEMP_RESIZED" ]; then
 fi
 
 echo "==========================================="
-echo "Done! Frosted glass wallpaper saved as:"
-echo "$OUTPUT"
+echo "Done! Generated files:"
+echo "1) Desktop: $OUTPUT"
+echo "2) Lockscreen: $OUTPUT_LOCK"
 echo "==========================================="

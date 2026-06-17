@@ -6,6 +6,7 @@ export VISUAL="nvim"
 export TERMINAL="kitty"
 export CHROME_EXECUTABLE="/bin/brave"
 export GTK_THEME="adw-gtk3-dark"
+export QT_QPA_PLATFORMTHEME="gtk3"
 
 # --- PATH ---
 export JAVA_HOME="/usr/lib/jvm/java-21-openjdk"

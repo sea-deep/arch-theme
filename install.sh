@@ -89,7 +89,7 @@ backup_and_symlink() {
 }
 
 # Config directories
-for config in sway waybar kitty rofi swaync wlogout gtk-3.0 gtk-4.0; do
+for config in sway swaylock waybar kitty rofi swaync wlogout btop gtk-3.0 gtk-4.0; do
     backup_and_symlink "$DOTFILES_DIR/$config" "$HOME/.config/$config"
 done
 

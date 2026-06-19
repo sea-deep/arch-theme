@@ -30,12 +30,12 @@ default_border pixel 2px
 default_floating_border pixel 2px
 corner_radius 10
 
-# class                 border  bground   text    indicator child_border
-client.focused          #39c5bb #39c5bb00 #1a1b26 #bb9af7   #39c5bb
-client.focused_inactive #414868 #41486800 #c0caf5 #bb9af7   #414868
-client.unfocused        #1a1b26 #1a1b2600 #c0caf5 #bb9af7   #1a1b26
-client.urgent           #f7768e #f7768e00 #c0caf5 #bb9af7   #f7768e
-client.placeholder      #bb9af7 #bb9af700 #1a1b26 #bb9af7   #bb9af7
+# class                 border  bground text    indicator child_border
+client.focused          #39c5bb #39c5bb #1a1b26 #bb9af7   #39c5bb
+client.focused_inactive #414868 #414868 #c0caf5 #bb9af7   #414868
+client.unfocused        #1a1b26 #1a1b26 #c0caf5 #bb9af7   #1a1b26
+client.urgent           #f7768e #f7768e #c0caf5 #bb9af7   #f7768e
+client.placeholder      #bb9af7 #bb9af7 #1a1b26 #bb9af7   #bb9af7
 
 blur enable
 blur_radius 1
@@ -287,11 +287,8 @@ exec swaync
 
 # Toggle Notification Center Side Panel
 bindsym $mod+n exec swaync-client -t -sw
-# Sync environment variables to D-Bus and Systemd for GTK apps and Portals
+# Sync environment variables to D-Bus for GTK apps
 exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
-exec systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
-exec systemctl --user start sway-session.target
-exec_always killall xdg-desktop-portal-wlr xdg-desktop-portal 2>/dev/null; /usr/lib/xdg-desktop-portal-wlr & /usr/lib/xdg-desktop-portal &
 include /etc/sway/config.d/*
 
 # Run autotiling to automatically create spiral/dwindle layouts

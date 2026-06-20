@@ -290,6 +290,8 @@ exec swaync
 bindsym $mod+n exec swaync-client -t -sw
 # Sync environment variables to D-Bus for GTK apps
 exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
+# Start the Sway session target to satisfy xdg-desktop-portal dependencies for Wayland screensharing
+exec systemctl --user start sway-session.target
 include /etc/sway/config.d/*
 
 # Run autotiling to automatically create spiral/dwindle layouts
@@ -317,7 +319,7 @@ bindsym $mod+period exec ~/.config/sway/rofi-manager.sh emoji
 
 # --- Idle Inhibition & Media Rules ---
 # Prevent screen sleep while any audio is playing (Requires sway-audio-idle-inhibit package)
-exec_always killall sway-audio-idle-inhibit 2>/dev/null; sway-audio-idle-inhibit
+exec_always sh -c 'pkill -x sway-audio-idle-inhibit; sway-audio-idle-inhibit'
 
 # Automatically prevent screen sleep whenever ANY application goes fullscreen (e.g., YouTube video)
 for_window [class=".*"] inhibit_idle fullscreen

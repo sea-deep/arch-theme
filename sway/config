@@ -7,7 +7,7 @@
 ### Variables
 #
 # Default Font for Sway UI (Titles, Bars, etc.)
-font pango:JetBrainsMono Nerd Font 10
+font pango:IBM Plex Sans 10
 
 # Default Cursor Theme
 set $cursor_theme breeze_cursors
@@ -22,6 +22,7 @@ exec_always {
     gsettings set org.gnome.desktop.interface gtk-theme adw-gtk3-dark
     gsettings set org.gnome.desktop.interface icon-theme TokyoNight-SE
     gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+    gsettings set org.gnome.desktop.interface font-name 'IBM Plex Sans 10'
     dbus-update-activation-environment --systemd GTK_THEME=adw-gtk3-dark XCURSOR_THEME=$cursor_theme XCURSOR_SIZE=$cursor_size
 }
 

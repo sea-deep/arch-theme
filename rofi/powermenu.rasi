@@ -23,5 +23,5 @@ element {
 }
 
 element-text {
-    font: "IBM Plex Sans 13";
+    font: "IBM Plex Sans SmBld 13";
 }

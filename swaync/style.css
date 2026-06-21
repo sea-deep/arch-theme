@@ -7,7 +7,7 @@
 @define-color urgent-col #F7768E;
 
 * {
-  font-family: "IBM Plex Sans";
+  font-family: "IBM Plex Sans SmBld";
 }
 
 .notification-row {

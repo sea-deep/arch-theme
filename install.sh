@@ -45,13 +45,13 @@ PACKAGES=(
     # Display Manager
     "lemurs"
     # System/UX Utilities
-    "swayidle" "swaylock" "brightnessctl" "swaync" "wlogout" "polkit-kde-agent" "network-manager-applet"
+    "swayidle" "swaylock" "brightnessctl" "swaync" "wlogout" "polkit-kde-agent" "network-manager-applet" "sway-audio-idle-inhibit-git" "xdg-desktop-portal" "xdg-desktop-portal-wlr"
     # Clipboard
     "wl-clipboard" "cliphist"
     # Default Apps
     "zen-browser-bin" "zed" "neovim" "zathura" "zathura-pdf-mupdf" "imv" "mpv" "xarchiver" "vesktop"
     # Theming & Fonts
-    "adw-gtk-theme" "ttf-jetbrains-mono-nerd" "librsvg" "npm"
+    "adw-gtk-theme" "ttf-ibm-plex" "ttf-firacode-nerd" "librsvg" "npm"
 )
 yay -S --needed --noconfirm "${PACKAGES[@]}"
 log_success "Dependencies installed!"
@@ -91,7 +91,7 @@ backup_and_symlink() {
 }
 
 # Config directories
-for config in sway swaylock waybar kitty rofi swaync wlogout btop environment.d qt5ct qt6ct tlpui gtk-3.0 gtk-4.0; do
+for config in sway swaylock waybar kitty rofi swaync wlogout btop environment.d qt5ct qt6ct tlpui gtk-3.0 gtk-4.0 fontconfig; do
     backup_and_symlink "$DOTFILES_DIR/$config" "$HOME/.config/$config"
 done
 

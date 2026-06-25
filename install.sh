@@ -20,7 +20,7 @@ fi
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-log_info "Welcome to the Antigravity Arch Dotfiles Installer!"
+log_info "Welcome to the Miku Arch Dotfiles Installer!"
 sleep 1
 
 # --- 1. Install AUR Helper (yay) ---
@@ -41,7 +41,7 @@ fi
 log_info "Installing dependencies..."
 PACKAGES=(
     # Core Environment
-    "sway" "swaybg" "waybar" "rofi-wayland" "kitty" "thunar"
+    "swayfx" "swaybg" "waybar" "rofi-wayland" "kitty" "thunar"
     # Display Manager
     "lemurs"
     # System/UX Utilities
@@ -109,14 +109,14 @@ log_success "Wallpaper installed!"
 # --- 7. Custom Icons & Desktop Launchers ---
 log_info "Symlinking custom icons and desktop files..."
 backup_and_symlink "$DOTFILES_DIR/icons/YAMIS-enlarged" "$HOME/.local/share/icons/YAMIS-enlarged"
-backup_and_symlink "$DOTFILES_DIR/applications/antigravity.desktop" "$HOME/.local/share/applications/antigravity.desktop"
+backup_and_symlink "$DOTFILES_DIR/applications/miku.desktop" "$HOME/.local/share/applications/miku.desktop"
 gtk-update-icon-cache -f -t "$HOME/.local/share/icons/YAMIS-enlarged" || true
 log_success "Custom icons linked!"
 
 # --- 8. System Configurations & Patch Scripts ---
 log_info "Installing system configurations and patch scripts..."
-sudo cp "$DOTFILES_DIR/scripts/install-antigravity-tray-patch.sh" "/usr/local/bin/install-antigravity-tray-patch.sh"
-sudo chmod +x "/usr/local/bin/install-antigravity-tray-patch.sh"
+sudo cp "$DOTFILES_DIR/scripts/install-miku-tray-patch.sh" "/usr/local/bin/install-miku-tray-patch.sh"
+sudo chmod +x "/usr/local/bin/install-miku-tray-patch.sh"
 
 log_info "Restoring TLP power management system config..."
 if [ -f "$DOTFILES_DIR/etc/tlp.conf" ]; then

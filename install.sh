@@ -43,7 +43,7 @@ PACKAGES=(
     # Core Environment
     "sway" "swaybg" "waybar" "rofi-wayland" "kitty" "thunar"
     # Display Manager
-    "greetd" "greetd-tuigreet"
+    "lemurs"
     # System/UX Utilities
     "swayidle" "swaylock" "brightnessctl" "swaync" "wlogout" "polkit-kde-agent" "network-manager-applet"
     # Clipboard
@@ -124,27 +124,23 @@ if [ -f "$DOTFILES_DIR/etc/tlp.conf" ]; then
     sudo chmod 644 "/etc/tlp.conf"
 fi
 
-log_info "Setting up greetd + tuigreet display manager..."
-sudo mkdir -p /etc/greetd
-sudo mkdir -p /etc/systemd/system/greetd.service.d
+log_info "Setting up Lemurs display manager..."
+sudo mkdir -p /etc/lemurs
+sudo mkdir -p /etc/lemurs/wayland
 
 # Config (symlink so repo changes apply instantly)
-sudo ln -sf "$DOTFILES_DIR/greetd/config.toml" /etc/greetd/config.toml
+sudo ln -sf "$DOTFILES_DIR/lemurs/config.toml" /etc/lemurs/config.toml
 
 # PAM config (copy — symlinks in /etc/pam.d can cause issues)
-sudo cp "$DOTFILES_DIR/greetd/greetd-pam" /etc/pam.d/greetd
-sudo chmod 644 /etc/pam.d/greetd
+sudo cp "$DOTFILES_DIR/lemurs/pam" /etc/pam.d/lemurs
+sudo chmod 644 /etc/pam.d/lemurs
 
-# Systemd override (symlink)
-sudo ln -sf "$DOTFILES_DIR/greetd/greetd-override.conf" /etc/systemd/system/greetd.service.d/override.conf
-
-# TTY colors script for Miku dark background
-sudo cp "$DOTFILES_DIR/greetd/tty-colors.sh" /etc/greetd/tty-colors.sh
-sudo chmod +x /etc/greetd/tty-colors.sh
-
-# Disable ly if it was previously enabled, enable greetd
+# Disable old display managers
 sudo systemctl disable ly.service 2>/dev/null || true
-sudo systemctl enable greetd.service
+sudo systemctl disable greetd.service 2>/dev/null || true
+
+# Enable lemurs
+sudo systemctl enable lemurs.service
 sudo systemctl daemon-reload
 log_success "System scripts and configs installed!"
 

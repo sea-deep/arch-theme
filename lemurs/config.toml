@@ -92,8 +92,7 @@ show_background = false
 # Allow to set the default background color for the login shell
 color = "#1a1b26"
 # Settings for the background block's borders
-show_border = true
-border_color = "#ff007c"
+show_border = false
 
 [power_controls]
 # The margin between hints
@@ -198,11 +197,11 @@ remember = true
 show_movers = true
 
 # Mover's color and modifiers whilst the selector is unfocused
-mover_color = "dark gray"
+mover_color = "#414868"
 mover_modifiers = ""
 
 # Mover's color and modifiers whilst the selector is focused
-mover_color_focused = "#ff007c"
+mover_color_focused = "#39c5bb"
 mover_modifiers_focused = "bold"
 
 # The characters used to display the movers. Suggestions are:
@@ -221,22 +220,22 @@ mover_margin = 1
 show_neighbours = true
 
 # Neighbours' color and modifiers whilst the selector is unfocused
-neighbour_color = "dark gray"
+neighbour_color = "#414868"
 neighbour_modifiers = ""
 
 # Neighbours' color and modifiers whilst the selector is focused
-neighbour_color_focused = "gray"
+neighbour_color_focused = "#a9b1d6"
 neighbour_modifiers_focused = ""
 
 # Margin between neighbours and selected
 neighbour_margin = 1
 
 # Selected's color and modifiers whilst the selector is unfocused
-selected_color = "gray"
+selected_color = "#a9b1d6"
 selected_modifiers = "underlined"
 
 # Selected's color and modifiers whilst the selector is focused
-selected_color_focused = "#0db9d7"
+selected_color_focused = "#39c5bb"
 selected_modifiers_focused = "bold"
 
 # The length of the name of the desktop environment which is displayed.
@@ -247,12 +246,12 @@ no_envs_text = "No environments..."
 
 # The color and modifiers of the 'no desktop environments available text'
 # whilst the selector is unfocused
-no_envs_color = "white"
+no_envs_color = "#c0caf5"
 no_envs_modifiers = ""
 
 # The color and modifiers of the 'no desktop environments available text'
 # whilst the selector is focused
-no_envs_color_focused = "red"
+no_envs_color_focused = "#f7768e"
 no_envs_modifiers_focused = ""
 
 [username_field]
@@ -267,19 +266,15 @@ show_title = true
 title = "Login"
 
 # The title's color and modifiers whilst the username field is unfocused
-title_color = "#0db9d7"
-content_color = "#0db9d7"
+title_color = "#7dcfff"
+content_color = "#414868"
 
 # The title's color and modifiers whilst the username field is focused
-title_color_focused = "#ff007c"
-content_color_focused = "#0db9d7"
+title_color_focused = "#7aa2f7"
+content_color_focused = "#c0caf5"
 
 # Enables showing the borders
-show_border = true
-# The borders' color and modifiers whilst the username field is unfocused
-border_color = "#ff007c"
-# The borders' color and modifiers whilst the username field is focused
-border_color_focused = "#ff007c"
+show_border = false
 
 # Constrain the width of the username field
 use_max_width = true
@@ -300,19 +295,15 @@ show_title = true
 title = "Password"
 
 # The title's color and modifiers whilst the password field is unfocused
-title_color = "#0db9d7"
-content_color = "#0db9d7"
+title_color = "#7dcfff"
+content_color = "#414868"
 
 # The title's color and modifiers whilst the password field is focused
-title_color_focused = "#ff007c"
-content_color_focused = "#0db9d7"
+title_color_focused = "#7aa2f7"
+content_color_focused = "#c0caf5"
 
 # Enables showing the borders
-show_border = true
-# The borders' color and modifiers whilst the password field is unfocused
-border_color = "#ff007c"
-# The borders' color and modifiers whilst the password field is focused
-border_color_focused = "#ff007c"
+show_border = false
 
 # Constrain the width of the password field
 use_max_width = true

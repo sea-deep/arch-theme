@@ -112,13 +112,12 @@ window#waybar {
 }
 
 #custom-swaync {
-    color: #33e0e0;
+    color: #bb9af7;
     padding-right: 16px;
     padding-left: 12px;
 }
-
 #custom-power {
-    color: #39c5bb;
+    color: #f7768e;
     padding-right: 16px;
     padding-left: 12px;
 }

@@ -29,7 +29,7 @@
         "max-length": 50
     },
     "clock": {
-        "format": "<span color='#39c5bb'>󰥔</span>  {:%I:%M %p   <span color='#39c5bb'>󰃭</span>  %b %e}",
+        "format": "<span color='#bb9af7'>󰥔</span>  {:%I:%M %p   <span color='#7aa2f7'>󰃭</span>  %b %e}",
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
     },
     "custom/battery": {
@@ -40,8 +40,8 @@
         "format": "{}"
     },
     "network": {
-        "format-wifi": "<span color='#39c5bb'>󰤨</span>   {essid}",
-        "format-ethernet": "<span color='#39c5bb'>󰈀</span>   {ipaddr}/{cidr}",
+        "format-wifi": "<span color='#7dcfff'>󰤨</span>   {essid}",
+        "format-ethernet": "<span color='#7dcfff'>󰈀</span>   {ipaddr}/{cidr}",
         "tooltip-format": "{ifname} via {gwaddr} 󰊗",
         "format-linked": "{ifname} (No IP) 󰈀",
         "format-disconnected": "<span color='#F7768E'>󰤭</span>   Disconnected",
@@ -49,8 +49,8 @@
     },
     "pulseaudio": {
         "tooltip": false,
-        "format": "<span color='#39c5bb'>{icon}</span>  {volume}%",
-        "format-bluetooth": "<span color='#39c5bb'>{icon}󰂰</span>  {volume}%",
+        "format": "<span color='#7aa2f7'>{icon}</span>  {volume}%",
+        "format-bluetooth": "<span color='#7aa2f7'>{icon}󰂰</span>  {volume}%",
         "format-bluetooth-muted": "<span color='#F7768E'>󰖁󰂰</span>",
         "format-muted": "<span color='#F7768E'>󰖁</span>  Muted",
         "format-icons": {
@@ -67,16 +67,16 @@
     },
     "backlight": {
         "tooltip": false,
-        "format": "<span color='#39c5bb'>{icon}</span>  {percent}%",
+        "format": "<span color='#e0af68'>{icon}</span>  {percent}%",
         "format-icons": ["󰃞", "󰃟", "󰃠"],
         "on-click-middle": "~/.config/waybar/toggle_idle.sh",
         "on-scroll-up": "brightnessctl set 1%+",
         "on-scroll-down": "brightnessctl set 1%-"
     },
     "bluetooth": {
-        "format": "<span color='#39c5bb'>󰂯</span>  {status}",
+        "format": "<span color='#bb9af7'>󰂯</span>  {status}",
         "format-disabled": "<span color='#F7768E'>󰂲</span>  Disabled",
-        "format-connected": "<span color='#39c5bb'>󰂱</span>  {num_connections}",
+        "format-connected": "<span color='#bb9af7'>󰂱</span>  {num_connections}",
         "tooltip-format": "{controller_alias}\t{controller_address}",
         "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
         "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
@@ -84,7 +84,7 @@
     },
     "custom/swaync": {
         "tooltip": false,
-        "format": "<span color='#39c5bb'> {icon} </span>",
+        "format": "<span color='#bb9af7'> {icon} </span>",
         "format-icons": {
             "notification": "󱅫",
             "none": "󰂚",

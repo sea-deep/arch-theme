@@ -205,7 +205,7 @@ A top-mounted, rounded-pill-style bar with transparent spacing between modules.
 |----------|-------|------|
 | Font | `FiraCode Nerd Font` | 4 |
 | Font Weight | 600 (SemiBold) | 5 |
-| Font Size | 14px | 6 |
+| Font Size | 16px | 6 |
 | Module Background | `#1a1b26` | 23 |
 | Module Border | `2px solid #15161e` | 27 |
 | Module Border Radius | 12px | 26 |

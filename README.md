@@ -112,7 +112,7 @@ The file `fontconfig/conf.d/99-user-fonts.conf` ensures that **all applications*
 
 | Generic Family | Resolves To |
 |---------------|-------------|
-| `sans-serif` | IBM Plex Sans SmBld |
+| `sans-serif` | IBM Plex Sans |
 | `serif` | IBM Plex Serif |
 | `monospace` | FiraCode Nerd Font |
 

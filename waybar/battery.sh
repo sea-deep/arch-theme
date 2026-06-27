@@ -61,12 +61,12 @@ if [ -n "$tlp_profile" ]; then
     tooltip="${tooltip}\nPower Profile: ${tlp_profile}"
 fi
 
-text="<span color='#39c5bb'>$icon</span>  ${total_cap}%"
 class_name=$(echo "$status" | tr '[:upper:]' '[:lower:]')
 
 jq -c -n \
-  --arg text "$text" \
+  --arg text "${total_cap}%" \
+  --arg alt "$icon" \
   --arg tooltip "$(echo -e "$tooltip")" \
   --arg class "$class_name" \
   --argjson percentage "$total_cap" \
-  '{"text": $text, "tooltip": $tooltip, "class": $class, "percentage": $percentage}'
+  '{"text": $text, "alt": $alt, "tooltip": $tooltip, "class": $class, "percentage": $percentage}'

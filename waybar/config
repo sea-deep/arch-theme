@@ -37,7 +37,7 @@
         "on-click": "~/.config/waybar/tlp_menu.sh",
         "return-type": "json",
         "interval": 10,
-        "format": "{}"
+        "format": "<span color='#39c5bb'>{alt}</span> {text}"
     },
     "network": {
         "format-wifi": "<span color='#7dcfff'>󰤨</span>   {essid}",

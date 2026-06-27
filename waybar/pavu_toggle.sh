@@ -10,6 +10,10 @@ fi
 pavucontrol &
 PAVU_PID=$!
 
+# Wait half a second for pavucontrol to actually map to the screen and grab focus.
+# Without this delay, Waybar fires a focus event BEFORE pavucontrol appears, instantly killing it.
+sleep 0.5
+
 # Use swaymsg to listen to window focus events.
 # We unbuffer jq so it processes events in real-time.
 swaymsg -t subscribe -m '["window"]' | jq --unbuffered '.change' | while read -r event; do

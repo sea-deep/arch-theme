@@ -64,7 +64,7 @@ fi
 text="<span color='#39c5bb'>$icon</span>  ${total_cap}%"
 class_name=$(echo "$status" | tr '[:upper:]' '[:lower:]')
 
-jq -n \
+jq -c -n \
   --arg text "$text" \
   --arg tooltip "$(echo -e "$tooltip")" \
   --arg class "$class_name" \

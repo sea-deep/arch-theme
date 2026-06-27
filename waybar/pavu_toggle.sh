@@ -7,9 +7,9 @@ if pgrep -x pavucontrol > /dev/null; then
     exit 0
 fi
 
-# Bind Escape globally to kill pavucontrol and then unbind itself!
-# This fulfills the request to close it with Esc from anywhere without focus.
-swaymsg 'bindsym Escape exec "pkill pavucontrol; swaymsg unbindsym Escape"'
+# Bind Escape globally to kill pavucontrol. When pavucontrol is killed, the script 
+# resumes and executes the cleanup (unbindsym) automatically.
+swaymsg 'bindsym Escape exec pkill pavucontrol'
 
 # Launch pavucontrol and wait for it to close
 pavucontrol

@@ -20,8 +20,8 @@ selected=$(echo -e "$options" | rofi -dmenu -i -p "Power Profile" \
 
 # If the user selected a valid option, apply it
 if [ -n "$selected" ]; then
-    # Strip the icon prefix to get just the profile name (e.g., 'performance')
-    profile=$(echo "$selected" | awk '{print $2}')
+    # Extract the word at the end of the line (e.g., 'performance', 'power-saver')
+    profile=$(echo "$selected" | grep -oE '[a-z-]+$')
 
     if [ -n "$profile" ]; then
         # We use kitty to prompt for sudo since tlp requires root permissions.

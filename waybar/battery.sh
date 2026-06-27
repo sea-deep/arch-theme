@@ -64,6 +64,9 @@ fi
 text="<span color='#39c5bb'>$icon</span>  ${total_cap}%"
 class_name=$(echo "$status" | tr '[:upper:]' '[:lower:]')
 
-cat <<EOF
-{"text": "$text", "tooltip": "$tooltip", "class": "$class_name", "percentage": $total_cap}
-EOF
+jq -n \
+  --arg text "$text" \
+  --arg tooltip "$(echo -e "$tooltip")" \
+  --arg class "$class_name" \
+  --argjson percentage "$total_cap" \
+  '{"text": $text, "tooltip": $tooltip, "class": $class, "percentage": $percentage}'

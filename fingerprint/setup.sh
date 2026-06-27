@@ -9,7 +9,7 @@
 #   python-validity  →  Hardware USB driver (talks to the sensor chip)
 #   open-fprintd     →  D-Bus daemon (replaces the standard fprintd)
 #   fprintd-clients  →  CLI tools (fprintd-enroll, fprintd-verify, etc.)
-#   pam-fprint-grosshack  →  PAM module for simultaneous password+fingerprint
+#   pam-fprint-grosshack  →  PAM module for simultaneous password+fingerprint (used for sudo/swaylock; excluded from Lemurs login)
 #
 # NOTE: This script must be run AFTER install.sh (needs yay).
 # ============================================================================

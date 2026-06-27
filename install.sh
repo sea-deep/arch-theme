@@ -57,7 +57,7 @@ PACKAGES=(
     # Display Manager
     "lemurs"
     # System/UX Utilities
-    "swayidle" "swaylock" "brightnessctl" "swaync" "wlogout" "polkit-kde-agent" "network-manager-applet" "sway-audio-idle-inhibit-git" "xdg-desktop-portal" "xdg-desktop-portal-wlr"
+    "swayidle" "swaylock" "brightnessctl" "swaync" "wlogout" "polkit-kde-agent" "network-manager-applet" "sway-audio-idle-inhibit-git" "xdg-desktop-portal" "xdg-desktop-portal-wlr" "jq"
     # Clipboard
     "wl-clipboard" "cliphist"
     # Default Apps
@@ -97,8 +97,12 @@ backup_and_symlink() {
     
     if [ -e "$DEST" ] || [ -L "$DEST" ]; then
         if [ ! -L "$DEST" ]; then
-            log_info "Backing up existing $DEST to ${DEST}.bak"
-            mv "$DEST" "${DEST}.bak"
+            local BAK="${DEST}.bak"
+            if [ -e "$BAK" ]; then
+                BAK="${DEST}_$(date +%Y%m%d_%H%M%S).bak"
+            fi
+            log_info "Backing up existing $DEST to $BAK"
+            mv "$DEST" "$BAK"
         else
             rm "$DEST"
         fi

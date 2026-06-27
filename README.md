@@ -662,6 +662,8 @@ arch-theme/
 │
 ├── ⚙️ qt5ct/ & qt6ct/           # Qt theme configurations
 ├── 🖼️ icons/                    # Custom icon theme (YAMIS-enlarged)
+├── 📁 Thunar/                   # Thunar file manager settings (custom actions/shortcuts)
+├── 📁 xfce4/                    # Xfce4/Thunar system registry configuration XMLs
 ├── 🏠 applications/             # Custom .desktop launchers
 ├── 📜 scripts/                  # Utility scripts
 ├── 🖥️ systemd/                  # User systemd services

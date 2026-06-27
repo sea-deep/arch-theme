@@ -16,13 +16,14 @@ sleep 0.5
 
 # Use swaymsg to listen to window focus events.
 # We unbuffer jq so it processes events in real-time.
-swaymsg -t subscribe -m '["window"]' | jq --unbuffered '.change' | while read -r event; do
-    if [[ "$event" == '"focus"' ]]; then
-        # When focus changes, check which app is currently focused
-        focused_app=$(swaymsg -t get_tree | jq -r '.. | select(.type? == "con" and .focused? == true) | .app_id')
+swaymsg -t subscribe -m '["window"]' | jq --unbuffered -c '.' | while read -r event; do
+    change=$(echo "$event" | jq -r '.change')
+    if [[ "$change" == "focus" ]]; then
+        # Extract the app_id or class of the window that just received focus
+        app_id=$(echo "$event" | jq -r '.container.app_id // .container.window_properties.class // empty')
         
-        # If the newly focused app is NOT pavucontrol, kill pavucontrol and exit the script
-        if [[ "$focused_app" != "org.pulseaudio.pavucontrol" ]]; then
+        # If the window that just got focus is NOT pavucontrol, close the popup!
+        if [[ "$app_id" != "org.pulseaudio.pavucontrol" && "$app_id" != "pavucontrol" ]]; then
             pkill -x pavucontrol
             break
         fi

@@ -1,5 +1,5 @@
-@define-color bg-col rgba(26, 27, 38, 0.85);
-@define-color bg-col-light rgba(36, 40, 59, 0.85);
+@define-color bg-col #1A1B26;
+@define-color bg-col-light #24283B;
 @define-color border-col #24283b;
 @define-color selected-col #39c5bb;
 @define-color blue #7aa2f7;

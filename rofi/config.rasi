@@ -1,5 +1,5 @@
 configuration {
-    font: "IBM Plex Sans SmBld 12";
+    font: "IBM Plex Sans 12";
     show-icons: true;
     icon-theme: "YAMIS-enlarged";
     hover-select: true;
@@ -55,7 +55,7 @@ inputbar {
 prompt {
     background-color: transparent;
     text-color: @bg-selected;
-    font: "IBM Plex Sans SmBld 14";
+    font: "IBM Plex Sans 14";
     vertical-align: 0.5;
 }
 

@@ -104,7 +104,7 @@ This setup uses **two font families** with a strict separation of concerns:
 | Context | Font | Weight | Where to Change |
 |---------|------|--------|-----------------|
 | **System UI** | IBM Plex Sans | SemiBold (600) | `sway/config` line 10, `gtk-3.0/settings.ini`, `gtk-4.0/settings.ini` |
-| **Monospace / Code** | FiraCode Nerd Font | SemiBold (600) | `kitty/kitty.conf` line 6, `waybar/style.css` line 4 |
+| **Monospace / Code** | FiraCode Nerd Font | Regular (400) | `kitty/kitty.conf` line 6, `waybar/style.css` line 4 |
 
 ### Font Fallback Chain (Fontconfig)
 
@@ -112,7 +112,7 @@ The file `fontconfig/conf.d/99-user-fonts.conf` ensures that **all applications*
 
 | Generic Family | Resolves To |
 |---------------|-------------|
-| `sans-serif` | IBM Plex Sans |
+| `sans-serif` | IBM Plex Sans SmBld |
 | `serif` | IBM Plex Serif |
 | `monospace` | FiraCode Nerd Font |
 

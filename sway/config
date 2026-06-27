@@ -23,6 +23,7 @@ exec_always {
     gsettings set org.gnome.desktop.interface icon-theme TokyoNight-SE
     gsettings set org.gnome.desktop.interface color-scheme prefer-dark
     gsettings set org.gnome.desktop.interface font-name 'IBM Plex Sans SemiBold 10'
+    gsettings set org.gnome.desktop.interface monospace-font-name 'FiraCode Nerd Font 10'
     dbus-update-activation-environment --systemd GTK_THEME=adw-gtk3-dark XCURSOR_THEME=$cursor_theme XCURSOR_SIZE=$cursor_size
 }
 

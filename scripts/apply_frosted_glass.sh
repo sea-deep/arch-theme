@@ -25,23 +25,34 @@ else
     OUTPUT="$2"
 fi
 
-# 3. Check Dimensions
+# 3. Check input image dimensions
 DIMENSIONS=$(magick identify -format "%wx%h" "$INPUT" 2>/dev/null || echo "error")
 if [ "$DIMENSIONS" == "error" ]; then
     echo "Error: Could not read image dimensions. Is it a valid image file?"
     exit 1
 fi
 
-TARGET_W=3840
-TARGET_H=2160
+# 4. Auto-detect display resolution from Sway (or fall back to manual input)
+if command -v swaymsg &> /dev/null && swaymsg -t get_outputs &> /dev/null; then
+    DETECTED=$(swaymsg -t get_outputs | jq -r '.[0] | "\(.current_mode.width)x\(.current_mode.height)"')
+    TARGET_W=$(echo "$DETECTED" | cut -dx -f1)
+    TARGET_H=$(echo "$DETECTED" | cut -dx -f2)
+    echo "Auto-detected display resolution: ${TARGET_W}x${TARGET_H}"
+else
+    echo "Could not auto-detect display resolution (Sway not running?)."
+    read -p "Enter target resolution (e.g. 1920x1080): " MANUAL_RES
+    TARGET_W=$(echo "$MANUAL_RES" | cut -dx -f1)
+    TARGET_H=$(echo "$MANUAL_RES" | cut -dx -f2)
+fi
+
 WORKING_FILE="$INPUT"
 TEMP_RESIZED="temp_resized_$$.png"
 
 if [ "$DIMENSIONS" != "${TARGET_W}x${TARGET_H}" ]; then
-    echo "Warning: Image is $DIMENSIONS. The frosted glass mask requires ${TARGET_W}x${TARGET_H} (4K)."
+    echo "Warning: Image is $DIMENSIONS. Target is ${TARGET_W}x${TARGET_H}."
     echo "How would you like to resize it?"
-    echo "  1) Crop to Fill (Preserves aspect ratio, cuts off edges to fit 4K)"
-    echo "  2) Stretch to Fit (Distorts aspect ratio to force it into 4K)"
+    echo "  1) Crop to Fill (Preserves aspect ratio, cuts off edges to fit)"
+    echo "  2) Stretch to Fit (Distorts aspect ratio to force it)"
     echo "  3) Abort"
     read -p "Select option [1-3]: " RESIZE_OPT
 
@@ -62,7 +73,7 @@ if [ "$DIMENSIONS" != "${TARGET_W}x${TARGET_H}" ]; then
             ;;
     esac
 else
-    echo "Image is already 4K! Proceeding..."
+    echo "Image already matches display resolution! Proceeding..."
 fi
 
 echo ""
@@ -103,7 +114,7 @@ magick "$WORKING_FILE" fully_blurred.png final_mask.png -composite "$OUTPUT"
 # Generate corresponding Swaylock background (1080p + Tokyo Night 60% tint)
 OUTPUT_LOCK="${OUTPUT%.*}_lock.${OUTPUT##*.}"
 echo "Generating matching Swaylock background..."
-magick "$WORKING_FILE" -blur 0x40 -fill "#1a1b26" -colorize 60% -resize 1920x1080 "$OUTPUT_LOCK"
+magick "$WORKING_FILE" -blur 0x40 -fill "#1a1b26" -colorize 60% -resize ${TARGET_W}x${TARGET_H} "$OUTPUT_LOCK"
 
 echo "Cleaning up..."
 rm mask_top_solid.png mask_top_fade.png mask_top_rest.png mask_top_full.png

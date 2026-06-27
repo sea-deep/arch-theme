@@ -463,33 +463,36 @@ An ImageMagick pipeline that takes **any wallpaper** and converts it into two th
 ┌─────────────────────────────────────────────────┐
 │  1. INPUT IMAGE                                 │
 │     ↓                                           │
-│  2. Resize to 4K (3840×2160) if needed          │
+│  2. Auto-detect display resolution via Sway IPC │
+│     (falls back to manual input if no session)  │
+│     ↓                                           │
+│  3. Resize to display resolution if needed      │
 │     • Option A: Crop to fill (preserves ratio)  │
 │     • Option B: Stretch to fit                  │
 │     ↓                                           │
-│  3. Generate edge masks:                        │
+│  4. Generate edge masks:                        │
 │     • Top:    80px solid white + 30px fade       │
 │     • Bottom: 30px fade                          │
 │     • Left:   30px fade                          │
 │     • Right:  30px fade                          │
 │     ↓                                           │
-│  4. Composite masks via Screen blending          │
+│  5. Composite masks via Screen blending          │
 │     ↓                                           │
-│  5. Apply 25px Gaussian blur to masked regions   │
+│  6. Apply 25px Gaussian blur to masked regions   │
 │     ↓                                           │
-│  6. OUTPUT: Desktop wallpaper (4K)               │
+│  7. OUTPUT: Desktop wallpaper (native res)       │
 │     ↓                                           │
-│  7. BONUS: Generate lockscreen variant           │
+│  8. BONUS: Generate lockscreen variant           │
 │     • 40px blur + 60% Tokyo Night tint           │
-│     • Downscaled to 1920×1080                    │
+│     • Same native resolution                     │
 └─────────────────────────────────────────────────┘
 ```
 
 **Output files:**
 | File | Resolution | Description |
 |------|-----------|-------------|
-| `<output>.png` | 3840×2160 | Desktop wallpaper with frosted glass edges |
-| `<output>_lock.png` | 1920×1080 | Lock screen — blurred & tinted Tokyo Night |
+| `<output>.png` | Auto-detected | Desktop wallpaper with frosted glass edges |
+| `<output>_lock.png` | Auto-detected | Lock screen — blurred & tinted Tokyo Night |
 
 > **To use a new wallpaper:** Run this script on any image, then copy the outputs into `wallpapers/` and update the path in `sway/config` line 65.
 

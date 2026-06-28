@@ -96,7 +96,7 @@ PACKAGES=(
     # Clipboard
     "wl-clipboard" "cliphist"
     # Default Apps
-    "zen-browser-bin" "zed" "neovim" "zathura" "zathura-pdf-mupdf" "imv" "mpv" "xarchiver" "vesktop"
+    "zen-browser-bin" "zed" "neovim" "zathura" "zathura-pdf-mupdf" "imv" "mpv" "xarchiver" "vesktop" "snapshot"
     # Theming & Fonts
     "adw-gtk-theme" "ttf-ibm-plex" "ttf-firacode-nerd" "librsvg" "npm"
 )

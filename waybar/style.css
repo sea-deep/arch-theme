@@ -17,6 +17,7 @@ window#waybar {
 #hardware,
 #network,
 #tray,
+#custom-autosleep,
 #custom-swaync,
 #bluetooth,
 #custom-power {
@@ -57,6 +58,7 @@ window#waybar {
 #hardware:hover,
 #network:hover,
 #tray:hover,
+#custom-autosleep:hover,
 #custom-swaync:hover,
 #bluetooth:hover,
 #custom-power:hover {

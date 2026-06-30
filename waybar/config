@@ -9,7 +9,7 @@
     "spacing": 4,
     "modules-left": ["sway/workspaces", "sway/mode", "sway/window"],
     "modules-center": ["clock"],
-    "modules-right": ["tray", "custom/swaync", "group/hardware", "custom/power"],
+    "modules-right": ["custom/autosleep", "tray", "custom/swaync", "group/hardware", "custom/power"],
 
     "group/hardware": {
         "orientation": "horizontal",
@@ -108,5 +108,13 @@
         "on-click": "~/.config/rofi/powermenu.sh",
         "exec": "echo ''",
         "interval": "once"
+    },
+    "custom/autosleep": {
+        "exec-if": "pgrep -x swayidle",
+        "exec": "echo '{\"text\": \"󰒲\", \"tooltip\": \"Autosleep is ON\\nClick to disable\"}'",
+        "return-type": "json",
+        "interval": 2,
+        "format": "<span color='#bb9af7'>{text}</span>",
+        "on-click": "~/.config/waybar/toggle_idle.sh"
     }
 }

@@ -110,11 +110,11 @@
         "interval": "once"
     },
     "custom/autosleep": {
-        "exec-if": "pgrep -x swayidle",
-        "exec": "echo '{\"text\": \"󰒲\", \"tooltip\": \"Autosleep is ON\\nClick to disable\"}'",
+        "exec-if": "test -f ~/.config/sway/.autosleep_disabled",
+        "exec": "echo '{\"text\": \"󰅶\", \"tooltip\": \"Autosleep is OFF (Caffeine Mode)\\nClick to enable\"}'",
         "return-type": "json",
         "interval": 2,
-        "format": "<span color='#bb9af7'> {text} </span>",
+        "format": "<span color='#e0af68'> {text} </span>",
         "on-click": "~/.config/waybar/toggle_idle.sh"
     },
     "custom/capslock": {

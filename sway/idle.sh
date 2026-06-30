@@ -2,6 +2,11 @@
 # Kill any existing swayidle instance to ensure we only have one running
 pkill -x swayidle
 
+STATE_FILE="/tmp/autosleep_disabled"
+if [ -f "$STATE_FILE" ]; then
+    exit 0
+fi
+
 swayidle -w \
          timeout 180 'brightnessctl -s set 10' resume 'brightnessctl -r' \
          timeout 300 "swaylock -f -i $HOME/Pictures/wallpapers/satisfaction_waybar_blur_lock.png" \

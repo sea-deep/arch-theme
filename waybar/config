@@ -9,7 +9,7 @@
     "spacing": 4,
     "modules-left": ["sway/workspaces", "sway/mode", "sway/window"],
     "modules-center": ["clock"],
-    "modules-right": ["keyboard-state", "custom/autosleep", "tray", "custom/swaync", "group/hardware", "custom/power"],
+    "modules-right": ["custom/capslock", "custom/autosleep", "tray", "custom/swaync", "group/hardware", "custom/power"],
 
     "group/hardware": {
         "orientation": "horizontal",
@@ -117,14 +117,11 @@
         "format": "<span color='#bb9af7'> {text} </span>",
         "on-click": "~/.config/waybar/toggle_idle.sh"
     },
-    "keyboard-state": {
-        "capslock": true,
-        "format": {
-            "capslock": "{icon}"
-        },
-        "format-icons": {
-            "locked": "<span color='#f7768e'> 󰪛 </span>",
-            "unlocked": ""
-        }
+    "custom/capslock": {
+        "exec-if": "grep -q '1' /sys/class/leds/*capslock/brightness 2>/dev/null",
+        "exec": "echo '{\"text\": \"󰪛\", \"tooltip\": \"Caps Lock is ON\"}'",
+        "return-type": "json",
+        "interval": 1,
+        "format": "<span color='#f7768e'> {text} </span>"
     }
 }

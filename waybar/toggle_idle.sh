@@ -1,5 +1,5 @@
 #!/bin/bash
-STATE_FILE="/tmp/autosleep_disabled"
+STATE_FILE="$HOME/.config/sway/.autosleep_disabled"
 
 if pgrep -x swayidle > /dev/null; then
     pkill -x swayidle

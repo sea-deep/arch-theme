@@ -2,7 +2,7 @@
 # Kill any existing swayidle instance to ensure we only have one running
 pkill -x swayidle
 
-STATE_FILE="/tmp/autosleep_disabled"
+STATE_FILE="$HOME/.config/sway/.autosleep_disabled"
 if [ -f "$STATE_FILE" ]; then
     exit 0
 fi

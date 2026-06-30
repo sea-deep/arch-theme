@@ -17,6 +17,7 @@ window#waybar {
 #hardware,
 #network,
 #tray,
+#custom-capslock,
 #custom-autosleep,
 #custom-swaync,
 #bluetooth,
@@ -58,6 +59,7 @@ window#waybar {
 #hardware:hover,
 #network:hover,
 #tray:hover,
+#custom-capslock:hover,
 #custom-autosleep:hover,
 #custom-swaync:hover,
 #bluetooth:hover,
@@ -115,6 +117,11 @@ window#waybar {
 
 #custom-swaync {
     color: #bb9af7;
+    padding-right: 16px;
+    padding-left: 12px;
+}
+#custom-capslock {
+    color: #f7768e;
     padding-right: 16px;
     padding-left: 12px;
 }

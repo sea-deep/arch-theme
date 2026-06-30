@@ -114,7 +114,7 @@
         "exec": "echo '{\"text\": \"󰒲\", \"tooltip\": \"Autosleep is ON\\nClick to disable\"}'",
         "return-type": "json",
         "interval": 2,
-        "format": "<span color='#bb9af7'>{text}</span>",
+        "format": "<span color='#bb9af7'> {text} </span>",
         "on-click": "~/.config/waybar/toggle_idle.sh"
     }
 }

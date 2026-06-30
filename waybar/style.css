@@ -118,6 +118,11 @@ window#waybar {
     padding-right: 16px;
     padding-left: 12px;
 }
+#custom-autosleep {
+    color: #bb9af7;
+    padding-right: 16px;
+    padding-left: 12px;
+}
 #custom-power {
     color: #f7768e;
     padding-right: 16px;

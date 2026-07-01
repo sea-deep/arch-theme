@@ -245,7 +245,7 @@ mode "resize" {
     bindsym $mod+Control+Down resize shrink height 10px
 
     # Screen Recording (Start/Stop wf-recorder)
-    bindsym $mod+Shift+r exec bash -c 'killall -s SIGINT wf-recorder || (mkdir -p ~/Videos/Recordings && wf-recorder -f ~/Videos/Recordings/recording_$(date +"%Y%m%d_%H%M%S").mp4)'
+    bindsym $mod+Shift+r exec ~/.config/sway/toggle_recorder.sh
     bindsym $right resize grow width 10px
 
     # Ditto, with arrow keys

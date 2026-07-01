@@ -114,6 +114,7 @@
         "exec": "echo '{\"text\": \"󰑊 REC\", \"tooltip\": \"Recording... Click to stop\"}'",
         "return-type": "json",
         "interval": 1,
+        "signal": 9,
         "format": "<span color='#f7768e'> {text} </span>",
         "on-click": "killall -s SIGINT wf-recorder"
     },

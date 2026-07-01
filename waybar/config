@@ -9,7 +9,7 @@
     "spacing": 4,
     "modules-left": ["sway/workspaces", "sway/mode", "sway/window"],
     "modules-center": ["clock"],
-    "modules-right": ["custom/capslock", "custom/autosleep", "tray", "custom/swaync", "group/hardware", "custom/power"],
+    "modules-right": ["custom/recorder", "custom/capslock", "custom/autosleep", "tray", "custom/swaync", "group/hardware", "custom/power"],
 
     "group/hardware": {
         "orientation": "horizontal",
@@ -108,6 +108,14 @@
         "on-click": "~/.config/rofi/powermenu.sh",
         "exec": "echo ''",
         "interval": "once"
+    },
+    "custom/recorder": {
+        "exec-if": "pgrep -x wf-recorder",
+        "exec": "echo '{\"text\": \"󰑊 REC\", \"tooltip\": \"Recording... Click to stop\"}'",
+        "return-type": "json",
+        "interval": 1,
+        "format": "<span color='#f7768e'> {text} </span>",
+        "on-click": "killall -s SIGINT wf-recorder"
     },
     "custom/autosleep": {
         "exec-if": "test -f ~/.config/sway/.autosleep_disabled",

@@ -94,7 +94,7 @@ PACKAGES=(
     # System/UX Utilities
     "swayidle" "swaylock" "brightnessctl" "swaync" "wlogout" "polkit-kde-agent" "network-manager-applet" "sway-audio-idle-inhibit-git" "xdg-desktop-portal" "xdg-desktop-portal-wlr" "jq"
     # Showcase & Terminal Tools
-    "wf-recorder" "pipes.sh" "fastfetch"
+    "wf-recorder" "pipes.sh" "fastfetch" "ddgr"
     # Clipboard
     "wl-clipboard" "cliphist"
     # Default Apps

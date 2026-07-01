@@ -96,7 +96,7 @@ PACKAGES=(
     # Showcase & Terminal Tools
     "wf-recorder" "pipes.sh" "fastfetch" "ddgr"
     # Clipboard
-    "wl-clipboard" "cliphist"
+    "wl-clipboard" "clipse"
     # Default Apps
     "zen-browser-bin" "zed" "neovim" "zathura" "zathura-pdf-mupdf" "imv" "mpv" "xarchiver" "vesktop" "snapshot"
     # Theming & Fonts

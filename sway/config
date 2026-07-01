@@ -240,9 +240,12 @@ mode "resize" {
     # right will grow the containers width
     # up will shrink the containers height
     # down will grow the containers height
-    bindsym $left resize shrink width 10px
-    bindsym $down resize grow height 10px
-    bindsym $up resize shrink height 10px
+    bindsym $mod+Control+Left resize shrink width 10px
+    bindsym $mod+Control+Up resize grow height 10px
+    bindsym $mod+Control+Down resize shrink height 10px
+
+    # Screen Recording (Start/Stop wf-recorder)
+    bindsym $mod+Shift+r exec bash -c 'killall -s SIGINT wf-recorder || (mkdir -p ~/Videos/Recordings && wf-recorder -f ~/Videos/Recordings/recording_$(date +"%Y%m%d_%H%M%S").mp4)'
     bindsym $right resize grow width 10px
 
     # Ditto, with arrow keys

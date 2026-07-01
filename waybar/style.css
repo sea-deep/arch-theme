@@ -18,6 +18,7 @@ window#waybar {
 #network,
 #tray,
 #custom-recorder,
+#custom-clipse,
 #custom-capslock,
 #custom-autosleep,
 #custom-swaync,
@@ -61,6 +62,7 @@ window#waybar {
 #network:hover,
 #tray:hover,
 #custom-recorder:hover,
+#custom-clipse:hover,
 #custom-capslock:hover,
 #custom-autosleep:hover,
 #custom-swaync:hover,
@@ -128,6 +130,11 @@ window#waybar {
 }
 #custom-capslock {
     color: #f7768e;
+    padding-right: 16px;
+    padding-left: 12px;
+}
+#custom-clipse {
+    color: #bb9af7;
     padding-right: 16px;
     padding-left: 12px;
 }

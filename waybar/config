@@ -9,7 +9,7 @@
     "spacing": 4,
     "modules-left": ["sway/workspaces", "sway/mode", "sway/window"],
     "modules-center": ["clock"],
-    "modules-right": ["custom/recorder", "custom/capslock", "custom/autosleep", "tray", "custom/swaync", "group/hardware", "custom/power"],
+    "modules-right": ["custom/recorder", "custom/clipse", "custom/capslock", "custom/autosleep", "tray", "custom/swaync", "group/hardware", "custom/power"],
 
     "group/hardware": {
         "orientation": "horizontal",
@@ -132,5 +132,12 @@
         "return-type": "json",
         "interval": 1,
         "format": "<span color='#f7768e'> {text} </span>"
+    },
+    "custom/clipse": {
+        "exec": "echo '{\"text\": \"󰅌\", \"tooltip\": \"Clipboard Manager\"}'",
+        "return-type": "json",
+        "interval": "once",
+        "format": "<span color='#bb9af7'> {text} </span>",
+        "on-click": "~/.config/sway/clipse-toggle.sh"
     }
 }

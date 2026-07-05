@@ -34,21 +34,23 @@ else
     
     case $chosen in
         "Full Screen")
-            wf-recorder -f "$FILENAME" &
+            wf-recorder -f "$FILENAME" > /tmp/wf_recorder.log 2>&1 &
             ;;
-        "Selected Region")
-            GEOMETRY=$(XCURSOR_THEME=$CURSOR XCURSOR_SIZE=32 slurp)
-            if [ -n "$GEOMETRY" ]; then
-                wf-recorder -g "$GEOMETRY" -f "$FILENAME" &
+        "Selected Region"|"Specific Window")
+            if [ "$chosen" = "Selected Region" ]; then
+                GEOMETRY=$(XCURSOR_THEME=$CURSOR XCURSOR_SIZE=32 slurp)
             else
-                exit 0
+                GEOMETRY=$(swaymsg -t get_tree | jq -r '.. | select(.pid? and .visible?) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' | XCURSOR_THEME=$CURSOR XCURSOR_SIZE=32 slurp)
             fi
-            ;;
-        "Specific Window")
-            # Filter windows via swaymsg and let user select one with slurp
-            GEOMETRY=$(swaymsg -t get_tree | jq -r '.. | select(.pid? and .visible?) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' | XCURSOR_THEME=$CURSOR XCURSOR_SIZE=32 slurp)
+            
             if [ -n "$GEOMETRY" ]; then
-                wf-recorder -g "$GEOMETRY" -f "$FILENAME" &
+                # Ensure width and height are even to prevent ffmpeg/x264 crashes
+                IFS=' x,' read -r X Y W H <<< "$GEOMETRY"
+                W=$(( W % 2 == 1 ? W - 1 : W ))
+                H=$(( H % 2 == 1 ? H - 1 : H ))
+                GEOMETRY="${X},${Y} ${W}x${H}"
+                
+                wf-recorder -g "$GEOMETRY" -f "$FILENAME" > /tmp/wf_recorder.log 2>&1 &
             else
                 exit 0
             fi

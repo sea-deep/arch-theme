@@ -19,10 +19,50 @@ if pgrep -x wf-recorder > /dev/null; then
         ) &
     fi
 else
+    # Show selection menu before generating filename or starting
+    options="Full Screen\nSelected Region\nSpecific Window"
+    chosen="$(echo -e "$options" | rofi -dmenu -i -p "Record Screen")"
+    
+    if [ -z "$chosen" ]; then
+        exit 0
+    fi
+    
+    CURSOR=$(grep 'set $cursor_theme' ~/.config/sway/config | awk '{print $3}')
+    
     mkdir -p "$HOME/Videos/Recordings"
     FILENAME="$HOME/Videos/Recordings/recording_$(date +'%Y%m%d_%H%M%S').mp4"
-    echo "$FILENAME" > /tmp/wf_recorder_file
-    wf-recorder -f "$FILENAME" &
+    
+    case $chosen in
+        "Full Screen")
+            wf-recorder -f "$FILENAME" &
+            ;;
+        "Selected Region")
+            GEOMETRY=$(XCURSOR_THEME=$CURSOR XCURSOR_SIZE=32 slurp)
+            if [ -n "$GEOMETRY" ]; then
+                wf-recorder -g "$GEOMETRY" -f "$FILENAME" &
+            else
+                exit 0
+            fi
+            ;;
+        "Specific Window")
+            # Filter windows via swaymsg and let user select one with slurp
+            GEOMETRY=$(swaymsg -t get_tree | jq -r '.. | select(.pid? and .visible?) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' | XCURSOR_THEME=$CURSOR XCURSOR_SIZE=32 slurp)
+            if [ -n "$GEOMETRY" ]; then
+                wf-recorder -g "$GEOMETRY" -f "$FILENAME" &
+            else
+                exit 0
+            fi
+            ;;
+        *)
+            exit 0
+            ;;
+    esac
+    
+    # Give it a fraction of a second to start
     sleep 0.2
-    pkill -RTMIN+9 waybar
+    
+    if pgrep -x wf-recorder > /dev/null; then
+        echo "$FILENAME" > /tmp/wf_recorder_file
+        pkill -RTMIN+9 waybar
+    fi
 fi

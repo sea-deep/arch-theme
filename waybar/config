@@ -26,7 +26,7 @@
         "format": "{name}"
     },
     "sway/window": {
-        "max-length": 50
+        "max-length": 40
     },
     "clock": {
         "format": "<span color='#bb9af7'>󰥔</span>  {:%I:%M %p   <span color='#7aa2f7'>󰃭</span>  %b %e}",
@@ -48,7 +48,8 @@
         "format-alt": "{ifname}: {ipaddr}/{cidr}"
     },
     "pulseaudio": {
-        "tooltip": false,
+        "tooltip": true,
+        "tooltip-format": "Scroll: Adjust Volume\nLeft Click: Pavucontrol\nMiddle Click: Mute/Unmute",
         "format": "<span color='#7aa2f7'>{icon}</span>   {volume}%",
         "format-bluetooth": "<span color='#7aa2f7'>{icon}󰂰</span>   {volume}%",
         "format-bluetooth-muted": "<span color='#F7768E'>󰖁󰂰</span>",
@@ -66,7 +67,8 @@
         "on-click-middle": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
     },
     "backlight": {
-        "tooltip": false,
+        "tooltip": true,
+        "tooltip-format": "Scroll: Adjust Brightness\nMiddle Click: Toggle Caffeine Mode",
         "format": "<span color='#e0af68'>{icon}</span>   {percent}%",
         "format-icons": ["󰃞", "󰃟", "󰃠"],
         "on-click-middle": "~/.config/waybar/toggle_idle.sh",
@@ -83,7 +85,7 @@
         "on-click": "pkill blueman-manager || blueman-manager"
     },
     "custom/swaync": {
-        "tooltip": false,
+        "tooltip": true,
         "format": "<span color='#bb9af7'> {icon} </span>",
         "format-icons": {
             "notification": "󱅫",
@@ -100,18 +102,20 @@
         "exec": "swaync-client -swb",
         "on-click": "swaync-client -t -sw",
         "on-click-right": "swaync-client -d -sw",
+        "on-click-middle": "swaync-client -d -sw",
         "escape": true
     },
     "custom/power": {
         "format": "  ",
-        "tooltip": false,
+        "tooltip": true,
         "on-click": "~/.config/rofi/powermenu.sh",
-        "exec": "echo ''",
+        "return-type": "json",
+        "exec": "echo '{\"tooltip\": \"Power Menu\"}'",
         "interval": "once"
     },
     "custom/recorder": {
         "exec-if": "pgrep -x wf-recorder",
-        "exec": "echo '{\"text\": \"\", \"tooltip\": \"Recording... Click to stop\"}'",
+        "exec": "echo '{\"text\": \"\", \"tooltip\": \"Recording...\\n\\nLeft Click: Stop Recording\"}'",
         "return-type": "json",
         "interval": 1,
         "signal": 9,
@@ -120,7 +124,7 @@
     },
     "custom/autosleep": {
         "exec-if": "test -f ~/.config/sway/.autosleep_disabled",
-        "exec": "echo '{\"text\": \"󰅶\", \"tooltip\": \"Autosleep is OFF (Caffeine Mode)\\nClick to enable\"}'",
+        "exec": "echo '{\"text\": \"󰅶\", \"tooltip\": \"Autosleep is OFF (Caffeine Mode)\\n\\nLeft Click: Enable Autosleep\"}'",
         "return-type": "json",
         "interval": 2,
         "format": "<span color='#e0af68'> {text} </span>",

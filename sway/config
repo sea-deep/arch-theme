@@ -286,6 +286,9 @@ bindsym $mod+r mode "resize"
     # Screen Recording (Start/Stop wf-recorder)
     bindsym $mod+Shift+r exec ~/.config/sway/toggle_recorder.sh
 
+    # Press PrintScreen to open the screenshot menu (Full/Region/Window)
+    bindsym Print exec ~/.config/sway/screenshot.sh menu
+    
     # Press Super+PrintScreen to instantly copy your entire screen to the clipboard
     bindsym $mod+Print exec ~/.config/sway/screenshot.sh full
 

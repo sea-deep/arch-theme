@@ -26,7 +26,7 @@ window#waybar {
 #custom-power {
     background-color: #1a1b26;
     padding: 0 14px;
-    margin: 0 4px;
+    margin: 0;
     border-radius: 12px;
     border: 2px solid #15161e;
     transition: all 0.2s ease;
@@ -34,6 +34,16 @@ window#waybar {
 
 #hardware {
     padding: 0 6px;
+}
+
+#custom-recorder,
+#custom-clipse,
+#custom-capslock,
+#custom-autosleep,
+#custom-swaync,
+#custom-power {
+    padding-right: 8px;
+    padding-left: 4px;
 }
 
 #pulseaudio,
@@ -49,7 +59,7 @@ window#waybar {
 #workspaces {
     background-color: #1a1b26;
     padding: 0 4px;
-    margin: 0 4px;
+    margin: 0;
     border-radius: 12px;
     border: 2px solid #15161e;
     transition: all 0.2s ease;
@@ -121,32 +131,19 @@ window#waybar {
 
 #custom-swaync {
     color: #bb9af7;
-    padding-right: 16px;
-    padding-left: 12px;
 }
-#custom-recorder {
-    padding-right: 16px;
-    padding-left: 12px;
-}
+
 #custom-capslock {
     color: #f7768e;
-    padding-right: 16px;
-    padding-left: 12px;
 }
 #custom-clipse {
     color: #bb9af7;
-    padding-right: 16px;
-    padding-left: 12px;
 }
 #custom-autosleep {
     color: #bb9af7;
-    padding-right: 16px;
-    padding-left: 12px;
 }
 #custom-power {
     color: #f7768e;
-    padding-right: 16px;
-    padding-left: 12px;
 }
 
 #window.empty,

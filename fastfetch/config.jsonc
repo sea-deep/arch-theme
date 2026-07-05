@@ -7,18 +7,65 @@
   "modules": [
     "title",
     "separator",
-    "os",
-    "kernel",
-    "uptime",
-    "packages",
-    "shell",
-    "wm",
-    "terminal",
-    "cpu",
-    "gpu",
-    "memory",
-    "disk",
+    {
+      "type": "os",
+      "key": "󰣇 "
+    },
+    {
+      "type": "kernel",
+      "key": " "
+    },
+    {
+      "type": "uptime",
+      "key": "󰔚 "
+    },
+    {
+      "type": "packages",
+      "key": "󰏖 "
+    },
+    {
+      "type": "shell",
+      "key": " "
+    },
+    {
+      "type": "wm",
+      "key": " "
+    },
+    {
+      "type": "terminal",
+      "key": " "
+    },
+    {
+      "type": "cpu",
+      "key": " ",
+      "format": "{name}"
+    },
+    {
+      "type": "gpu",
+      "key": "󰢮 ",
+      "format": "{name}"
+    },
+    {
+      "type": "memory",
+      "key": "󰍛 ",
+      "format": "{used} ({percentage}%)"
+    },
+    {
+      "type": "disk",
+      "folders": "/",
+      "key": "󰋊 ",
+      "format": "{size-used} ({size-percentage})"
+    },
+    {
+      "type": "disk",
+      "folders": "/home",
+      "key": "󰋜 ",
+      "format": "{size-used} ({size-percentage})"
+    },
     "break",
-    "colors"
+    {
+      "type": "colors",
+      "symbol": "circle"
+    }
   ]
 }

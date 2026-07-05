@@ -111,7 +111,7 @@
     },
     "custom/recorder": {
         "exec-if": "pgrep -x wf-recorder",
-        "exec": "echo '{\"text\": \"󰑊 REC\", \"tooltip\": \"Recording... Click to stop\"}'",
+        "exec": "echo '{\"text\": \"\", \"tooltip\": \"Recording... Click to stop\"}'",
         "return-type": "json",
         "interval": 1,
         "signal": 9,

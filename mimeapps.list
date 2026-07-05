@@ -49,3 +49,5 @@ application/x-extension-shtml=zen.desktop
 application/xhtml+xml=zen.desktop
 application/x-extension-xhtml=zen.desktop
 application/x-extension-xht=zen.desktop
+x-scheme-handler/harbor=harbor-handler.desktop
+x-scheme-handler/stremio=harbor-handler.desktop

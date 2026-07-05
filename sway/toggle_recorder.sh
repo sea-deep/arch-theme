@@ -20,8 +20,12 @@ if pgrep -x wf-recorder > /dev/null; then
     fi
 else
     # Show selection menu before generating filename or starting
-    options="Full Screen\nSelected Region\nSpecific Window"
-    chosen="$(echo -e "$options" | rofi -dmenu -i -p "Record Screen")"
+    full="Full Screen\0icon\x1fvideo-display"
+    region="Selected Region\0icon\x1fselect-rectangular"
+    window="Specific Window\0icon\x1fwindow-new"
+    
+    options="$full\n$region\n$window"
+    chosen="$(echo -e "$options" | rofi -dmenu -i -p "Record" -show-icons -theme ~/.config/rofi/powermenu.rasi -theme-str 'window {location: center; anchor: center; x-offset: 0; y-offset: 0; width: 280px;} listview {lines: 3;}')"
     
     if [ -z "$chosen" ]; then
         exit 0
@@ -31,6 +35,9 @@ else
     
     mkdir -p "$HOME/Videos/Recordings"
     FILENAME="$HOME/Videos/Recordings/recording_$(date +'%Y%m%d_%H%M%S').mp4"
+    
+    # Write the filename immediately so notifications work reliably
+    echo "$FILENAME" > /tmp/wf_recorder_file
     
     case $chosen in
         "Full Screen")
@@ -52,10 +59,12 @@ else
                 
                 wf-recorder -g "$GEOMETRY" -f "$FILENAME" > /tmp/wf_recorder.log 2>&1 &
             else
+                rm -f /tmp/wf_recorder_file
                 exit 0
             fi
             ;;
         *)
+            rm -f /tmp/wf_recorder_file
             exit 0
             ;;
     esac
@@ -64,7 +73,8 @@ else
     sleep 0.2
     
     if pgrep -x wf-recorder > /dev/null; then
-        echo "$FILENAME" > /tmp/wf_recorder_file
         pkill -RTMIN+9 waybar
+    else
+        rm -f /tmp/wf_recorder_file
     fi
 fi

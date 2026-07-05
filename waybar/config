@@ -120,7 +120,7 @@
         "interval": 1,
         "signal": 9,
         "format": "<span color='#f7768e'> {text} </span>",
-        "on-click": "killall -s SIGINT wf-recorder"
+        "on-click": "~/.config/sway/toggle_recorder.sh"
     },
     "custom/autosleep": {
         "exec-if": "test -f ~/.config/sway/.autosleep_disabled",

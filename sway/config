@@ -281,13 +281,13 @@ bindsym $mod+r mode "resize"
 
     # Special key to take a screenshot with grim
     # Press Super+Shift+s to drag and select a region, instantly copying it to your clipboard
-    bindsym $mod+Shift+s exec grim -g "$(XCURSOR_THEME=$cursor_theme XCURSOR_SIZE=32 slurp)" - | swappy -f -
+    bindsym $mod+Shift+s exec ~/.config/sway/screenshot.sh region
 
     # Screen Recording (Start/Stop wf-recorder)
     bindsym $mod+Shift+r exec ~/.config/sway/toggle_recorder.sh
 
     # Press Super+PrintScreen to instantly copy your entire screen to the clipboard
-    bindsym $mod+Print exec grim - | wl-copy
+    bindsym $mod+Print exec ~/.config/sway/screenshot.sh full
 
 #
 # Status Bar:

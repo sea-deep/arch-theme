@@ -40,24 +40,35 @@
   border: 2px solid @selected-col;
 }
 
-.notification-default-action,
-.notification-action {
+.notification-default-action {
   padding: 0;
   margin: 0;
   box-shadow: none;
   background: transparent;
   border: none;
   color: @fg-col;
+  border-radius: 12px;
 }
 
-.notification-default-action:hover,
-.notification-action:hover {
+.notification-default-action:hover {
   -gtk-icon-effect: none;
   background: transparent;
 }
 
-.notification-default-action {
-  border-radius: 12px;
+.notification-action {
+  padding: 6px 12px;
+  margin: 4px;
+  box-shadow: none;
+  background: @bg-col-light;
+  border: 1px solid @border-col;
+  border-radius: 8px;
+  color: @fg-col;
+  transition: all 0.2s ease;
+}
+
+.notification-action:hover {
+  -gtk-icon-effect: none;
+  background: @border-col;
 }
 
 .summary {

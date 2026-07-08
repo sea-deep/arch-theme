@@ -2,7 +2,7 @@
 if pgrep -x wf-recorder > /dev/null; then
     killall -s SIGINT wf-recorder
     sleep 0.1
-    pkill -RTMIN+9 -f recorder.sh
+    pkill -RTMIN+9 -f waybar/recorder.sh
     
     # Wait for the process to fully exit and save the video
     while pgrep -x wf-recorder > /dev/null; do sleep 0.1; done
@@ -72,7 +72,7 @@ else
     # Wait up to 2 seconds for it to start
     for i in {1..20}; do
         if pgrep -x wf-recorder > /dev/null; then
-            pkill -RTMIN+9 -f recorder.sh
+            pkill -RTMIN+9 -f waybar/recorder.sh
             exit 0
         fi
         sleep 0.1

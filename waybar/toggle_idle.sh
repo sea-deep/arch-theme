@@ -14,3 +14,6 @@ else
         notify-send -u critical -t 4000 "Error" "Idle script ($HOME/.config/sway/idle.sh) is missing or not executable."
     fi
 fi
+
+# Instantly trigger Waybar to update the autosleep indicator
+pkill -RTMIN+10 waybar

@@ -301,6 +301,7 @@ bar {
 }
 
 # Notification Center Daemon
+
 exec swaync
 
 # Toggle Notification Center Side Panel

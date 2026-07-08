@@ -36,7 +36,6 @@
         "exec": "~/.config/waybar/battery.sh",
         "on-click": "~/.config/waybar/tlp_menu.sh",
         "return-type": "json",
-        "interval": 10,
         "format": "<span color='#39c5bb'>{alt}</span> {text}"
     },
     "network": {
@@ -114,28 +113,24 @@
         "interval": "once"
     },
     "custom/recorder": {
-        "exec-if": "pgrep -x wf-recorder",
-        "exec": "echo '{\"text\": \"\", \"tooltip\": \"Recording...\\n\\nLeft Click: Stop Recording\"}'",
+        "exec": "~/.config/waybar/recorder.sh",
         "return-type": "json",
-        "interval": 1,
-        "signal": 9,
-        "format": "<span color='#f7768e'> {text} </span>",
+        "format": "{text}",
         "on-click": "~/.config/sway/toggle_recorder.sh"
     },
     "custom/autosleep": {
         "exec-if": "test -f ~/.config/sway/.autosleep_disabled",
         "exec": "echo '{\"text\": \"󰅶\", \"tooltip\": \"Autosleep is OFF (Caffeine Mode)\\n\\nLeft Click: Enable Autosleep\"}'",
         "return-type": "json",
-        "interval": 2,
+        "interval": 86400,
+        "signal": 10,
         "format": "<span color='#e0af68'> {text} </span>",
         "on-click": "~/.config/waybar/toggle_idle.sh"
     },
     "custom/capslock": {
-        "exec-if": "grep -q '1' /sys/class/leds/*capslock/brightness 2>/dev/null",
-        "exec": "echo '{\"text\": \"󰪛\", \"tooltip\": \"Caps Lock is ON\"}'",
+        "exec": "~/.config/waybar/capslock.sh",
         "return-type": "json",
-        "interval": 1,
-        "format": "<span color='#f7768e'> {text} </span>"
+        "format": "{text}"
     },
     "custom/clipse": {
         "exec": "echo '{\"text\": \"󰅌\", \"tooltip\": \"Clipboard Manager\"}'",

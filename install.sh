@@ -219,6 +219,10 @@ sudo ln -sf "$DOTFILES_DIR/lemurs/config.toml" /etc/lemurs/config.toml
 sudo cp "$DOTFILES_DIR/lemurs/pam" /etc/pam.d/lemurs
 sudo chmod 644 /etc/pam.d/lemurs
 
+# Fix swaylock PAM to remove faillock delay
+sudo cp "$DOTFILES_DIR/swaylock/pam" /etc/pam.d/swaylock
+sudo chmod 644 /etc/pam.d/swaylock
+
 # Disable old display managers
 sudo systemctl disable ly.service 2>/dev/null || true
 sudo systemctl disable greetd.service 2>/dev/null || true

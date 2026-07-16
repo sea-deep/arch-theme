@@ -41,7 +41,7 @@ else
     
     case $chosen in
         "Full Screen")
-            wf-recorder -f "$FILENAME" -p crf=15 -x yuvj444p > /tmp/wf_recorder.log 2>&1 &
+            wf-recorder -a -f "$FILENAME" -p crf=15 -x yuv420p > /tmp/wf_recorder.log 2>&1 &
             ;;
         "Selected Region"|"Specific Window")
             if [ "$chosen" = "Selected Region" ]; then
@@ -57,7 +57,7 @@ else
                 H=$(( H % 2 == 1 ? H - 1 : H ))
                 GEOMETRY="${X},${Y} ${W}x${H}"
                 
-                wf-recorder -g "$GEOMETRY" -f "$FILENAME" -p crf=15 -x yuvj444p > /tmp/wf_recorder.log 2>&1 &
+                wf-recorder -a -g "$GEOMETRY" -f "$FILENAME" -p crf=15 -x yuv420p > /tmp/wf_recorder.log 2>&1 &
             else
                 rm -f /tmp/wf_recorder_file
                 exit 0

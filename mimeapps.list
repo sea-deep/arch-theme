@@ -16,6 +16,7 @@ application/x-extension-shtml=zen.desktop;
 application/xhtml+xml=zen.desktop;
 application/x-extension-xhtml=zen.desktop;
 application/x-extension-xht=zen.desktop;
+application/zip=org.kde.ark.desktop;
 
 [Default Applications]
 application/pdf=org.pwmt.zathura.desktop
@@ -32,7 +33,7 @@ x-scheme-handler/mailto=zen.desktop
 x-scheme-handler/antigravity=antigravity.desktop
 image/gif=imv.desktop
 image/svg+xml=imv.desktop
-application/zip=xarchiver.desktop
+application/zip=org.kde.ark.desktop
 application/x-tar=xarchiver.desktop
 application/gzip=xarchiver.desktop
 application/x-xz=xarchiver.desktop

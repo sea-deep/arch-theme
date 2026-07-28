@@ -1,0 +1,12 @@
+[Unit]
+Description=Set Miku TTY Color Palette for Ly Display Manager
+Before=ly.service
+After=systemd-vconsole-setup.service
+
+[Service]
+Type=oneshot
+ExecStart=/etc/ly/set-tty-theme.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

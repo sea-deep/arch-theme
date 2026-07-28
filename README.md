@@ -33,7 +33,7 @@
   - [Rofi (App Launcher)](#rofi-app-launcher)
   - [Kitty (Terminal)](#kitty-terminal)
   - [Swaync (Notifications)](#swaync-notifications)
-  - [Lemurs (Login Screen)](#lemurs-login-screen)
+  - [Ly (Login Screen)](#ly-login-screen)
   - [Swaylock (Lock Screen)](#swaylock-lock-screen)
   - [Wlogout (Logout Menu)](#wlogout-logout-menu)
   - [Btop (System Monitor)](#btop-system-monitor)
@@ -67,7 +67,7 @@ The installer will:
 3. Install all required packages via `yay`.
 4. Back up any existing configs to `*.bak` (and prevent nested backups).
 5. Symlink everything from this repo into `~/.config/`.
-6. Set up Lemurs display manager, TLP, and systemd services.
+6. Set up Ly display manager, TLP, and systemd services.
 7. Optionally configure fingerprint authentication.
 
 > **Note:** After installation, reboot or log out to enter your new Sway session.
@@ -80,7 +80,7 @@ Every component in this dotfiles collection uses the same unified color palette,
 
 | Role | Hex | Preview | Used In |
 |------|-----|---------|---------|
-| **Base Background** | `#1a1b26` | 🟫 | Everywhere — Sway, Waybar, Kitty, Rofi, Lemurs |
+| **Base Background** | `#1a1b26` | 🟫 | Everywhere — Sway, Waybar, Kitty, Rofi, Ly |
 | **Deep Background** | `#15161e` | ⬛ | Waybar borders, Rofi panel backgrounds |
 | **Surface / Gutter** | `#414868` | 🔘 | Unfocused UI elements, dim text |
 | **Miku Teal (Primary)** | `#39c5bb` | 🟩 | Focused borders, active workspace, accents |
@@ -290,25 +290,20 @@ Desktop notification daemon with a slide-out side panel.
 
 ---
 
-### Lemurs (Login Screen)
+### Ly (Login Screen)
 
-**Config:** [`lemurs/config.toml`](lemurs/config.toml) · **PAM:** [`lemurs/pam`](lemurs/pam)
+**Config:** [`ly/config.ini`](ly/config.ini) · **PAM:** [`ly/pam`](ly/pam) · **TTY Colors:** [`ly/set-tty-theme.sh`](ly/set-tty-theme.sh)
 
-A minimal TUI-based display manager. Styled to match the Kitty terminal palette with all borders disabled.
+A lightweight, blazing-fast TUI display manager for Wayland and TTY. Styled to match the Kitty terminal palette using an automated TTY 16-color hex palette injection service (`tty-theme.service`).
 
 | Setting | Value |
 |---------|-------|
-| Background | `#1a1b26` |
-| Borders | All disabled |
-| Focused Title | `#7aa2f7` (Blue) |
-| Focused Content | `#c0caf5` (Foreground) |
-| Unfocused Title | `#7dcfff` (Cyan) |
-| Unfocused Content | `#414868` (Gray) |
-| Environment Switcher Active | `#39c5bb` (Miku Teal) |
-| Movers (Active) | `#39c5bb` |
-| Error State | `#f7768e` (Red) |
-| Password Char | `*` |
-| Max Field Width | 48 |
+| Background (`bg`) | `0` (`#1a1b26` - Miku Dark Blue) |
+| Foreground (`fg`) | `7` (`#c0caf5` - Miku Text) |
+| Borders (`border_fg`) | `6` (`#39c5bb` - Miku Teal) |
+| Active Item (`active_user_fg`) | `14` (`#39c5bb` - Bright Miku Teal) |
+| Box Title | `"Arch Linux"` |
+| Blank Empty Password | `true` |
 
 **PAM Configuration:**
 
@@ -320,8 +315,7 @@ auth       optional     pam_gnome_keyring.so       ← Unlocks keyring with logi
 session    optional     pam_gnome_keyring.so auto_start
 ```
 
-> **To change login colors:** Edit the hex values in `lemurs/config.toml`.
-> **To re-enable borders:** Set `show_border = true` in the `[username_field.style]` and `[password_field.style]` sections.
+> **To change login colors:** Edit the hex values in `ly/set-tty-theme.sh` or the color indices in `ly/config.ini`.
 
 ---
 
@@ -624,9 +618,11 @@ arch-theme/
 │   └── style.css                #   Visual styling
 │
 ├── 🔒 swaylock/                 # Lock screen
-├── 🔑 lemurs/                   # Display manager (login screen)
-│   ├── config.toml              #   UI styling & behavior
-│   └── pam                      #   PAM authentication stack
+├── 🔑 ly/                       # Display manager (login screen)
+│   ├── config.ini               #   UI styling & behavior
+│   ├── pam                      #   PAM authentication stack
+│   ├── set-tty-theme.sh         #   TTY 16-color hex scheme
+│   └── tty-theme.service        #   Systemd oneshot color service
 │
 ├── 🚪 wlogout/                  # Logout overlay
 │   ├── layout                   #   Button definitions
@@ -689,7 +685,7 @@ The primary accent is **Miku Teal `#39c5bb`**. To change it:
    - `rofi/config.rasi` (selection highlight)
    - `kitty/kitty.conf` (cursor, selection, color2/10)
    - `swaync/style.css` (notification accent)
-   - `lemurs/config.toml` (focused colors)
+   - `ly/config.ini` & `ly/set-tty-theme.sh` (focused colors)
 
 ### I want to change the wallpaper
 
@@ -734,7 +730,7 @@ Edit the timeout values in `sway/idle.sh`. The current values are:
 
 ### I want to change the display manager theme
 
-Edit `lemurs/config.toml`. The PAM file at `lemurs/pam` controls authentication.
+Edit `ly/config.ini` and `ly/set-tty-theme.sh`. The PAM file at `ly/pam` controls authentication.
 
 > ⚠️ **Be careful editing PAM files.** A misconfigured PAM stack can lock you out of your system. Always keep a root shell open when testing PAM changes.
 

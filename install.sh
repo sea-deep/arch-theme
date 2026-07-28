@@ -90,7 +90,7 @@ PACKAGES=(
     # Core Environment
     "swayfx" "swaybg" "waybar" "rofi-wayland" "kitty" "thunar"
     # Display Manager
-    "lemurs"
+    "ly"
     # System/UX Utilities
     "swayidle" "swaylock" "brightnessctl" "swaync" "wlogout" "polkit-kde-agent" "network-manager-applet" "sway-audio-idle-inhibit-git" "xdg-desktop-portal" "xdg-desktop-portal-wlr" "jq"
     # Showcase & Terminal Tools
@@ -208,27 +208,33 @@ if prompt_yn "Setup Fingerprint Authentication?"; then
     fi
 fi
 
-log_info "Setting up Lemurs display manager..."
-sudo mkdir -p /etc/lemurs
-sudo mkdir -p /etc/lemurs/wayland
+log_info "Setting up Ly display manager..."
+sudo mkdir -p /etc/ly
 
 # Config (symlink so repo changes apply instantly)
-sudo ln -sf "$DOTFILES_DIR/lemurs/config.toml" /etc/lemurs/config.toml
+sudo ln -sf "$DOTFILES_DIR/ly/config.ini" /etc/ly/config.ini
 
 # PAM config (copy — symlinks in /etc/pam.d can cause issues)
-sudo cp "$DOTFILES_DIR/lemurs/pam" /etc/pam.d/lemurs
-sudo chmod 644 /etc/pam.d/lemurs
+sudo cp "$DOTFILES_DIR/ly/pam" /etc/pam.d/ly
+sudo chmod 644 /etc/pam.d/ly
+
+# TTY color theme script and systemd service
+sudo cp "$DOTFILES_DIR/ly/set-tty-theme.sh" /etc/ly/set-tty-theme.sh
+sudo chmod +x /etc/ly/set-tty-theme.sh
+sudo cp "$DOTFILES_DIR/ly/tty-theme.service" /etc/systemd/system/tty-theme.service
+sudo chmod 644 /etc/systemd/system/tty-theme.service
 
 # Fix swaylock PAM to remove faillock delay
 sudo cp "$DOTFILES_DIR/swaylock/pam" /etc/pam.d/swaylock
 sudo chmod 644 /etc/pam.d/swaylock
 
 # Disable old display managers
-sudo systemctl disable ly.service 2>/dev/null || true
+sudo systemctl disable lemurs.service 2>/dev/null || true
 sudo systemctl disable greetd.service 2>/dev/null || true
 
-# Enable lemurs
-sudo systemctl enable lemurs.service
+# Enable Ly and TTY color theme
+sudo systemctl enable ly.service
+sudo systemctl enable tty-theme.service
 sudo systemctl daemon-reload
 log_success "System scripts and configs installed!"
 

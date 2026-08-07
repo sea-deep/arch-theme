@@ -228,12 +228,13 @@ sudo chmod 644 /etc/systemd/system/tty-theme.service
 sudo cp "$DOTFILES_DIR/swaylock/pam" /etc/pam.d/swaylock
 sudo chmod 644 /etc/pam.d/swaylock
 
-# Disable old display managers
+# Disable old display managers and getty on tty2
 sudo systemctl disable lemurs.service 2>/dev/null || true
 sudo systemctl disable greetd.service 2>/dev/null || true
+sudo systemctl disable getty@tty2.service 2>/dev/null || true
 
 # Enable Ly and TTY color theme
-sudo systemctl enable ly.service
+sudo systemctl enable -f ly@tty2.service
 sudo systemctl enable tty-theme.service
 sudo systemctl daemon-reload
 log_success "System scripts and configs installed!"

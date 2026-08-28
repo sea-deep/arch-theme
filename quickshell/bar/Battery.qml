@@ -10,7 +10,7 @@ Item {
     implicitHeight: layout.implicitHeight
     
     // Fallback safely if displayDevice is null
-    property real percentage: UPower.displayDevice ? UPower.displayDevice.percentage : 100
+    property real percentage: UPower.displayDevice ? UPower.displayDevice.percentage * 100 : 100
     property int state: UPower.displayDevice ? UPower.displayDevice.state : UPower.DeviceState.Unknown
     property string iconName: UPower.displayDevice ? UPower.displayDevice.iconName : ""
     
@@ -38,7 +38,6 @@ Item {
 
     RowLayout {
         id: layout
-        anchors.fill: parent
         spacing: Theme.spacing
         
         Text {

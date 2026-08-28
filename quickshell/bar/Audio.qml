@@ -10,12 +10,11 @@ Item {
     implicitWidth: layout.implicitWidth
     implicitHeight: layout.implicitHeight
     
-    property bool isMuted: Pipewire.defaultAudioSink ? Pipewire.defaultAudioSink.audio.muted : false
-    property int volume: Pipewire.defaultAudioSink ? Math.round(Pipewire.defaultAudioSink.audio.volume * 100) : 0
+    property bool isMuted: (Pipewire.defaultAudioSink && Pipewire.defaultAudioSink.audio) ? Pipewire.defaultAudioSink.audio.muted : false
+    property int volume: (Pipewire.defaultAudioSink && Pipewire.defaultAudioSink.audio) ? Math.round(Pipewire.defaultAudioSink.audio.volume * 100) : 0
     
     RowLayout {
         id: layout
-        anchors.fill: parent
         spacing: Theme.spacing
         
         Text {

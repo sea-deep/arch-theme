@@ -33,7 +33,7 @@ QtObject {
     // Geometry
     readonly property int    barHeight:      38
     readonly property int    radius:         12
-    readonly property int    pillPadding:    8
-    readonly property int    spacing:        4
+    readonly property int    pillPadding:    16 // Increased padding for pills!
+    readonly property int    spacing:        8  // Increased spacing for elements
     readonly property real   pillAlpha:      0.85
 }

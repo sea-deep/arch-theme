@@ -187,4 +187,4 @@ hl.window_rule({ name = "pavucontrol-float", match = { class = "^(org.pulseaudio
 hl.window_rule({ name = "clipse-float", match = { class = "^(clipse)$" }, float = true, size = "800 600", center = true })
 hl.window_rule({ name = "idle_inhibit", match = { class = "^(.*)$" }, idle_inhibit = "fullscreen" })
 
-hl.layer_rule({ name = "quickshell", match = { namespace = "^quickshell$" }, blur = true, ignore_alpha = 0.0, blur_popups = true })
+hl.layer_rule({ name = "quickshell", match = { namespace = "^quickshell$" }, blur = true, ignore_alpha = 0.5, blur_popups = true })

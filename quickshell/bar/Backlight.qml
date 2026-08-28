@@ -19,13 +19,12 @@ Item {
         path: "/sys/class/backlight/intel_backlight/max_brightness"
     }
     
-    property int maxB: parseInt(maxBright.data) || 100
-    property int currB: parseInt(currentBright.data) || 0
+    property int maxB: parseInt(maxBright.__text) || 100
+    property int currB: parseInt(currentBright.__text) || 0
     property int brightness: maxB > 0 ? Math.round((currB / maxB) * 100) : 0
     
     RowLayout {
         id: layout
-        anchors.fill: parent
         spacing: Theme.spacing
         
         Text {

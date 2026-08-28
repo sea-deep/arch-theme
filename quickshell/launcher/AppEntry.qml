@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import "../theme" as Theme
 
 Rectangle {
@@ -28,15 +29,25 @@ Rectangle {
         anchors.margins: 8
         spacing: 12
         
-        Image {
-            source: (modelData && modelData.icon) ? ("image://icon/" + modelData.icon) : ""
-            sourceSize: Qt.size(32, 32)
+        Item {
             Layout.preferredWidth: 32
             Layout.preferredHeight: 32
-            Layout.maximumWidth: 32
-            Layout.maximumHeight: 32
-            fillMode: Image.PreserveAspectFit
-            visible: source !== ""
+            
+            Image {
+                id: appIcon
+                anchors.fill: parent
+                source: (modelData && modelData.icon) ? ("image://icon/" + modelData.icon) : ""
+                sourceSize: Qt.size(32, 32)
+                fillMode: Image.PreserveAspectFit
+                visible: false // hide original image because ColorOverlay will render it
+            }
+            
+            ColorOverlay {
+                anchors.fill: appIcon
+                source: appIcon
+                color: ListView.isCurrentItem ? Theme.Theme.bgDark : Theme.Theme.fg
+                visible: appIcon.source !== ""
+            }
         }
         
         ColumnLayout {

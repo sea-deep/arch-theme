@@ -34,8 +34,9 @@ Components.Pill {
                     anchors.centerIn: parent
                     text: parent.modelData.name
                     color: parent.isFocused ? Theme.bgDark : Theme.fg
-                    font.family: Theme.fontFamilySans
+                    font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSize
+                    font.bold: true
                 }
                 
                 MouseArea {

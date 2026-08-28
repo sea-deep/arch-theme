@@ -39,7 +39,7 @@ Components.Pill {
             Text {
                 text: root.timeString
                 color: Theme.fg
-                font.family: Theme.fontFamilySans
+                font.family: Theme.fontFamily
                 font.pixelSize: Theme.fontSize
                 font.bold: true
             }
@@ -56,7 +56,7 @@ Components.Pill {
             Text {
                 text: root.dateString
                 color: Theme.fg
-                font.family: Theme.fontFamilySans
+                font.family: Theme.fontFamily
                 font.pixelSize: Theme.fontSize
                 font.bold: true
             }

@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Io
+import Quickshell.Services.UPower
 import "../theme"
 
 Item {
@@ -9,50 +9,40 @@ Item {
     implicitWidth: layout.implicitWidth
     implicitHeight: layout.implicitHeight
     
-    property string icon: "󰁹"
-    property string percentage: "100%"
-    property bool isCritical: false
-    property bool isDischarging: false
+    // Fallback safely if displayDevice is null
+    property real percentage: UPower.displayDevice ? UPower.displayDevice.percentage : 100
+    property int state: UPower.displayDevice ? UPower.displayDevice.state : UPower.DeviceState.Unknown
+    property string iconName: UPower.displayDevice ? UPower.displayDevice.iconName : ""
     
-    Process {
-        id: batProc
-        command: ["sh", "-c", "~/.config/quickshell/scripts/battery.sh"]
-        running: true
-        stdout: SplitParser {
-            onRead: data => {
-                try {
-                    let obj = JSON.parse(data)
-                    root.icon = obj.alt || "󰁹"
-                    root.percentage = obj.text || "100%"
-                    
-                    // Basic class parsing
-                    let cls = obj.class || ""
-                    root.isDischarging = !cls.includes("charging") && !cls.includes("plugged")
-                    
-                    let pctVal = parseInt(root.percentage.replace("%", ""))
-                    root.isCritical = root.isDischarging && pctVal < 20
-                } catch (e) {
-                    console.log("Failed to parse battery JSON: ", e)
-                }
-            }
+    property bool isCritical: state === UPower.DeviceState.Discharging && percentage < 20
+    
+    // Map standard UPower icons to nerd font icons if we want text icons,
+    // or we can use the native iconName with an Image.
+    // The user wants the Sway style which uses Nerd Font text icons.
+    function getBatteryIcon() {
+        if (state === UPower.DeviceState.Charging || state === UPower.DeviceState.PendingCharge) {
+            return "󰂄"
         }
+        if (percentage >= 95) return "󰁹"
+        if (percentage >= 90) return "󰂂"
+        if (percentage >= 80) return "󰂁"
+        if (percentage >= 70) return "󰂀"
+        if (percentage >= 60) return "󰁿"
+        if (percentage >= 50) return "󰁾"
+        if (percentage >= 40) return "󰁽"
+        if (percentage >= 30) return "󰁼"
+        if (percentage >= 20) return "󰁻"
+        if (percentage >= 10) return "󰁺"
+        return "󰂃" // empty/critical
     }
-    
-    Timer {
-        interval: 5000
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: batProc.running = true
-    }
-    
+
     RowLayout {
         id: layout
         anchors.fill: parent
         spacing: Theme.spacing
         
         Text {
-            text: root.icon
+            text: root.getBatteryIcon()
             color: root.isCritical ? (blinkTimer.blinkState ? Theme.red : Theme.bg) : Theme.accent
             font.family: Theme.fontFamily
             font.pixelSize: Theme.fontSizeLarge
@@ -68,15 +58,11 @@ Item {
         }
         
         Text {
-            text: root.percentage
+            text: Math.round(root.percentage) + "%"
             color: Theme.fg
-            font.family: Theme.fontFamilySans
+            font.family: Theme.fontFamily
             font.pixelSize: Theme.fontSize
+            font.bold: true
         }
-    }
-    
-    MouseArea {
-        anchors.fill: parent
-        onClicked: Quickshell.exec("sh ~/.config/quickshell/scripts/tlp_menu.sh")
     }
 }

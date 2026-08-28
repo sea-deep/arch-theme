@@ -28,8 +28,9 @@ Item {
         Text {
             text: root.volume + "%"
             color: Theme.fg
-            font.family: Theme.fontFamilySans
+            font.family: Theme.fontFamily
             font.pixelSize: Theme.fontSize
+            font.bold: true
         }
     }
     
@@ -37,17 +38,19 @@ Item {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.MiddleButton
         onClicked: (mouse) => {
-            if (mouse.button === Qt.LeftButton) {
-                Quickshell.exec("pavucontrol")
-            } else if (mouse.button === Qt.MiddleButton) {
-                Quickshell.exec("pactl set-sink-mute @DEFAULT_SINK@ toggle")
+            if (mouse.button === Qt.MiddleButton) {
+                if (Pipewire.defaultAudioSink) {
+                    Pipewire.defaultAudioSink.audio.muted = !Pipewire.defaultAudioSink.audio.muted
+                }
             }
         }
         onWheel: (wheel) => {
-            if (wheel.angleDelta.y > 0) {
-                Quickshell.exec("pactl set-sink-volume @DEFAULT_SINK@ +5%")
-            } else {
-                Quickshell.exec("pactl set-sink-volume @DEFAULT_SINK@ -5%")
+            if (Pipewire.defaultAudioSink) {
+                if (wheel.angleDelta.y > 0) {
+                    Pipewire.defaultAudioSink.audio.volume = Math.min(1.5, Pipewire.defaultAudioSink.audio.volume + 0.05)
+                } else {
+                    Pipewire.defaultAudioSink.audio.volume = Math.max(0.0, Pipewire.defaultAudioSink.audio.volume - 0.05)
+                }
             }
         }
     }

@@ -25,7 +25,7 @@ Components.Pill {
         Text {
             text: Notifications.NotificationServer.unreadCount.toString()
             color: Theme.fg
-            font.family: Theme.fontFamilySans
+            font.family: Theme.fontFamily
             font.pixelSize: Theme.fontSize
             visible: Notifications.NotificationServer.unreadCount > 0
         }

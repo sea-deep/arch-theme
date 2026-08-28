@@ -9,7 +9,7 @@ Components.Pill {
     id: root
     
     collapseWhenEmpty: true
-    isEmpty: SystemTray.items.length === 0
+    isEmpty: !SystemTray.items || SystemTray.items.values.length === 0
     
     implicitWidth: layout.implicitWidth + Theme.pillPadding * 2
     
@@ -29,7 +29,7 @@ Components.Pill {
                 
                 Image {
                     anchors.fill: parent
-                    source: parent.modelData.icon
+                    source: parent.modelData.icon ? (parent.modelData.icon.startsWith("/") ? ("file://" + parent.modelData.icon) : ("image://icon/" + parent.modelData.icon)) : ""
                     sourceSize: Qt.size(18, 18)
                 }
                 
@@ -40,7 +40,7 @@ Components.Pill {
                         if (mouse.button === Qt.LeftButton) {
                             parent.modelData.activate()
                         } else if (mouse.button === Qt.RightButton) {
-                            parent.modelData.openMenu()
+                            parent.modelData.secondaryActivate()
                         }
                     }
                 }

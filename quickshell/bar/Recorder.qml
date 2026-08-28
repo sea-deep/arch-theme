@@ -13,21 +13,22 @@ Components.Pill {
     collapseWhenEmpty: true
     isEmpty: !isRecording
     
-    implicitWidth: layout.implicitWidth + Theme.pillPadding * 2
+    implicitWidth: isRecording ? (layout.implicitWidth + Theme.pillPadding * 2) : 0
+    visible: isRecording
     
     Process {
         id: recProc
-        command: ["sh", "-c", "~/.config/quickshell/scripts/recorder_status.sh"]
+        command: ["sh", "-c", "pgrep -x wf-recorder >/dev/null && echo 'recording' || echo ''"]
         running: true
         stdout: SplitParser {
             onRead: data => {
-                root.isRecording = data.trim().length > 0
+                root.isRecording = data.trim() === "recording"
             }
         }
     }
     
     Timer {
-        interval: 2000
+        interval: 1000
         running: true
         repeat: true
         triggeredOnStart: true

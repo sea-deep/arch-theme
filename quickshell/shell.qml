@@ -3,7 +3,7 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Io
-import "theme" as Theme
+import "theme"
 import "notifications" as Notifications
 import "launcher" as Launcher
 import "emoji" as Emoji
@@ -25,7 +25,6 @@ ShellRoot {
     }
 
     // ── Global overlay instances ──────────────────────────────
-    Notifications.NotificationServer { id: notifServer }
     Notifications.NotificationToast { id: notifToast }
     Notifications.NotificationCenter { id: notifCenter }
     Launcher.Launcher { id: appLauncher }
@@ -35,36 +34,36 @@ ShellRoot {
 
     // ── IPC handlers (triggered by hyprland keybindings) ─────
     IpcHandler {
-        name: "launcher"
-        onMessage: {
+        target: "launcher"
+        function toggle() {
             appLauncher.isActive = !appLauncher.isActive
         }
     }
 
     IpcHandler {
-        name: "emoji"
-        onMessage: {
+        target: "emoji"
+        function toggle() {
             emojiPicker.isActive = !emojiPicker.isActive
         }
     }
 
     IpcHandler {
-        name: "notifications"
-        onMessage: {
+        target: "notifications"
+        function toggle() {
             notifCenter.isActive = !notifCenter.isActive
         }
     }
 
     IpcHandler {
-        name: "power"
-        onMessage: {
+        target: "power"
+        function toggle() {
             powerMenu.isActive = !powerMenu.isActive
         }
     }
 
     IpcHandler {
-        name: "settings"
-        onMessage: {
+        target: "settings"
+        function toggle() {
             settingsPanel.isActive = !settingsPanel.isActive
         }
     }

@@ -1,36 +1,32 @@
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import Quickshell 1.0
+import QtQuick
+import QtQuick.Layouts
+import Quickshell
+import Quickshell.Wayland
 import "../theme"
 
 PanelWindow {
     id: root
-    width: 350
-    height: content.height + 20
+    implicitWidth: 350
+    implicitHeight: card.height + 40
     
     anchors.top: true
     anchors.right: true
-    anchors.topMargin: 20
-    anchors.rightMargin: 20
+    margins.top: 20
+    margins.right: 20
     
-    layer: Layer.Overlay
+    WlrLayershell.layer: WlrLayer.Overlay
+    color: "transparent"
     
     property bool isActive: false
     visible: isActive
     
-    onIsActiveChanged: {
-        if (isActive) {
-            slideIn.start()
+    Connections {
+        target: NotificationServer
+        function onNotificationReceived() {
+            root.isActive = true
+            slideIn.restart()
             autoDismiss.restart()
         }
-    }
-    
-    NumberAnimation on x {
-        id: slideIn
-        from: Screen.width
-        to: Screen.width - width - 20
-        duration: 300
-        easing.type: Easing.OutCubic
     }
     
     Timer {
@@ -41,11 +37,19 @@ PanelWindow {
 
     Rectangle {
         id: card
-        anchors.fill: parent
+        width: parent.width
+        height: content.height + 20
         color: Theme.bgLight
         radius: Theme.radius
         border.color: hover.hovered ? Theme.accent : "transparent"
         border.width: 1
+
+        NumberAnimation on opacity {
+            id: slideIn
+            from: 0
+            to: 1
+            duration: 200
+        }
 
         HoverHandler { id: hover }
         TapHandler { onTapped: root.isActive = false }
@@ -61,25 +65,28 @@ PanelWindow {
             RowLayout {
                 spacing: 8
                 Image {
-                    source: "image://icon/" + (modelData ? modelData.appIcon : "bell")
+                    source: (NotificationServer.latestNotification && NotificationServer.latestNotification.appIcon) ? ("image://icon/" + NotificationServer.latestNotification.appIcon) : ""
                     sourceSize: Qt.size(24, 24)
                     Layout.alignment: Qt.AlignVCenter
+                    visible: source !== ""
                 }
                 Text {
-                    text: "Notification"
+                    text: (NotificationServer.latestNotification && NotificationServer.latestNotification.summary) ? NotificationServer.latestNotification.summary : "Notification"
                     font.family: Theme.fontFamilySans
                     font.bold: true
                     color: Theme.fg
                     Layout.fillWidth: true
+                    elide: Text.ElideRight
                 }
             }
             
             Text {
-                text: "Body"
+                text: (NotificationServer.latestNotification && NotificationServer.latestNotification.body) ? NotificationServer.latestNotification.body : ""
                 font.family: Theme.fontFamilySans
                 color: Theme.fgDim
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
+                visible: text !== ""
             }
         }
     }

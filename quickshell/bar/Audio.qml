@@ -3,27 +3,34 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Pipewire
-import "../theme" as Theme
+import "../theme"
 
-RowLayout {
+Item {
     id: root
-    spacing: Theme.spacing
+    implicitWidth: layout.implicitWidth
+    implicitHeight: layout.implicitHeight
     
     property bool isMuted: Pipewire.defaultAudioSink ? Pipewire.defaultAudioSink.audio.muted : false
     property int volume: Pipewire.defaultAudioSink ? Math.round(Pipewire.defaultAudioSink.audio.volume * 100) : 0
     
-    Text {
-        text: root.isMuted ? "󰖁" : (root.volume > 50 ? "󰕾" : (root.volume > 0 ? "󰖀" : "󰕿"))
-        color: root.isMuted ? Theme.red : Theme.blue
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSizeLarge
-    }
-    
-    Text {
-        text: root.volume + "%"
-        color: Theme.fg
-        font.family: Theme.fontFamilySans
-        font.pixelSize: Theme.fontSize
+    RowLayout {
+        id: layout
+        anchors.fill: parent
+        spacing: Theme.spacing
+        
+        Text {
+            text: root.isMuted ? "󰖁" : (root.volume > 50 ? "󰕾" : (root.volume > 0 ? "󰖀" : "󰕿"))
+            color: root.isMuted ? Theme.red : Theme.blue
+            font.family: Theme.fontFamily
+            font.pixelSize: Theme.fontSizeLarge
+        }
+        
+        Text {
+            text: root.volume + "%"
+            color: Theme.fg
+            font.family: Theme.fontFamilySans
+            font.pixelSize: Theme.fontSize
+        }
     }
     
     MouseArea {

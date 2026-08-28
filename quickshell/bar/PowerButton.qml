@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import "../theme" as Theme
+import "../theme"
 import "../components" as Components
 
 Components.Pill {
@@ -27,7 +27,7 @@ Components.Pill {
         onEntered: root.hovered = true
         onExited: root.hovered = false
         onClicked: {
-            // Toggle power menu
+            Quickshell.exec("quickshell ipc call power toggle")
         }
     }
 }

@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.SystemTray
-import "../theme" as Theme
+import "../theme"
 import "../components" as Components
 
 Components.Pill {

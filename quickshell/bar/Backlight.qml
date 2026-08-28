@@ -2,11 +2,12 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
-import "../theme" as Theme
+import "../theme"
 
-RowLayout {
+Item {
     id: root
-    spacing: Theme.spacing
+    implicitWidth: layout.implicitWidth
+    implicitHeight: layout.implicitHeight
     
     property int brightness: 0
     
@@ -30,18 +31,24 @@ RowLayout {
         onTriggered: brightnessProc.running = true
     }
     
-    Text {
-        text: root.brightness > 50 ? "󰃠" : (root.brightness > 20 ? "󰃟" : "󰃞")
-        color: Theme.yellow
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSizeLarge
-    }
-    
-    Text {
-        text: root.brightness + "%"
-        color: Theme.fg
-        font.family: Theme.fontFamilySans
-        font.pixelSize: Theme.fontSize
+    RowLayout {
+        id: layout
+        anchors.fill: parent
+        spacing: Theme.spacing
+        
+        Text {
+            text: root.brightness > 50 ? "󰃠" : (root.brightness > 20 ? "󰃟" : "󰃞")
+            color: Theme.yellow
+            font.family: Theme.fontFamily
+            font.pixelSize: Theme.fontSizeLarge
+        }
+        
+        Text {
+            text: root.brightness + "%"
+            color: Theme.fg
+            font.family: Theme.fontFamilySans
+            font.pixelSize: Theme.fontSize
+        }
     }
     
     MouseArea {

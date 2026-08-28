@@ -1,14 +1,12 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import "../theme" as Theme
+import "../theme"
 import "../components" as Components
+import "../notifications" as Notifications
 
 Components.Pill {
     id: root
-    
-    // In a real implementation this would tie into the notification daemon state
-    property int notificationCount: 0
     
     implicitWidth: layout.implicitWidth + Theme.pillPadding * 2
     
@@ -18,18 +16,18 @@ Components.Pill {
         spacing: Theme.spacing
         
         Text {
-            text: root.notificationCount > 0 ? "󱅫" : "󰂚"
+            text: Notifications.NotificationServer.unreadCount > 0 ? "󱅫" : "󰂚"
             color: Theme.purple
             font.family: Theme.fontFamily
             font.pixelSize: Theme.fontSizeLarge
         }
         
         Text {
-            text: root.notificationCount.toString()
+            text: Notifications.NotificationServer.unreadCount.toString()
             color: Theme.fg
             font.family: Theme.fontFamilySans
             font.pixelSize: Theme.fontSize
-            visible: root.notificationCount > 0
+            visible: Notifications.NotificationServer.unreadCount > 0
         }
     }
     
@@ -39,7 +37,7 @@ Components.Pill {
         onEntered: root.hovered = true
         onExited: root.hovered = false
         onClicked: {
-            // Toggle notification center
+            Quickshell.exec("quickshell ipc call notifications toggle")
         }
     }
 }

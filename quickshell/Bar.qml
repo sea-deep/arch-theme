@@ -3,21 +3,18 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
-import "theme" as Theme
+import "theme"
 import "bar" as BarModules
 import "components" as Components
 
 PanelWindow {
     id: root
 
-    required property var screen
-
-    windowScreen: screen
     anchors.top: true
     anchors.left: true
     anchors.right: true
 
-    height: Theme.barHeight
+    implicitHeight: Theme.barHeight
     color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Top

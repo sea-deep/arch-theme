@@ -1,5 +1,5 @@
 import QtQuick
-import "../theme" as Theme
+import "../theme"
 
 Rectangle {
     id: root

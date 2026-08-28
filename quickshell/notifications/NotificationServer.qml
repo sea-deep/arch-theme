@@ -1,19 +1,23 @@
 pragma Singleton
-import QtQuick 2.15
-import Quickshell 1.0
-import Quickshell.Io 1.0
-import Quickshell.Services.Notifications 1.0
+import QtQuick
+import Quickshell
+import Quickshell.Io
+import Quickshell.Services.Notifications
 
 Item {
     id: root
 
     property ListModel notificationList: ListModel {}
+    property var latestNotification: null
     property int unreadCount: 0
     property bool dndEnabled: false
+
+    signal notificationReceived()
 
     function clearAll() {
         notificationList.clear();
         unreadCount = 0;
+        latestNotification = null;
     }
 
     function dismiss(index) {
@@ -33,7 +37,7 @@ Item {
             if (root.dndEnabled) return;
             notification.tracked = true;
             
-            root.notificationList.insert(0, {
+            let item = {
                 "nId": notification.id,
                 "appName": notification.appName,
                 "appIcon": notification.appIcon,
@@ -41,13 +45,17 @@ Item {
                 "body": notification.body,
                 "urgency": notification.urgency,
                 "timestamp": new Date().toLocaleTimeString()
-            });
+            };
+            
+            root.latestNotification = item;
+            root.notificationList.insert(0, item);
             root.unreadCount++;
+            root.notificationReceived();
 
             playProcess.running = true;
             
             if (notification.urgency !== NotificationUrgency.Critical) {
-                var timer = Qt.createQmlObject('import QtQuick 2.15; Timer { interval: 5000; running: true; onTriggered: { root.dismiss(0); this.destroy(); } }', root);
+                var timer = Qt.createQmlObject('import QtQuick; Timer { interval: 5000; running: true; onTriggered: { root.dismiss(0); this.destroy(); } }', root);
             }
         }
     }

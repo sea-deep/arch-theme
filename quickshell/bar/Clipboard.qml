@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import "../theme" as Theme
+import "../theme"
 import "../components" as Components
 
 Components.Pill {

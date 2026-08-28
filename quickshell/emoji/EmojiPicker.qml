@@ -1,16 +1,19 @@
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import QtQuick.Controls 2.15
-import Quickshell 1.0
-import Quickshell.Io 1.0
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import Quickshell
+import Quickshell.Wayland
+import Quickshell.Io
 import "../theme"
 
 PanelWindow {
     id: root
-    anchors.centerIn: parent
-    width: 400
-    height: 500
-    color: "transparent"
+    anchors.top: true
+    anchors.bottom: true
+    anchors.left: true
+    anchors.right: true
+    WlrLayershell.layer: WlrLayer.Overlay
+    color: Qt.rgba(26/255, 27/255, 38/255, 0.7)
     
     property bool isActive: false
     visible: isActive
@@ -22,7 +25,10 @@ PanelWindow {
         }
     }
 
-    // A sample subset of common emojis
+    TapHandler {
+        onTapped: root.isActive = false
+    }
+
     property var allEmojis: [
         {"char": "😀", "name": "grinning face"},
         {"char": "😂", "name": "face with tears of joy"},
@@ -34,15 +40,25 @@ PanelWindow {
         {"char": "❤️", "name": "red heart"},
         {"char": "✨", "name": "sparkles"},
         {"char": "🔥", "name": "fire"},
-        // Add more as needed...
+        {"char": "🎉", "name": "party popper"},
+        {"char": "🚀", "name": "rocket"},
+        {"char": "👀", "name": "eyes"},
+        {"char": "💯", "name": "hundred points"},
+        {"char": "💀", "name": "skull"}
     ]
 
     Rectangle {
-        anchors.fill: parent
+        implicitWidth: 400
+        implicitHeight: 500
+        anchors.centerIn: parent
         color: Theme.bg
         radius: 16
         border.color: Theme.bgLight
         border.width: 1
+
+        TapHandler {
+            // consume clicks on the card
+        }
 
         ColumnLayout {
             anchors.fill: parent

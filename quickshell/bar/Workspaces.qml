@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
-import "../theme" as Theme
+import "../theme"
 import "../components" as Components
 
 Components.Pill {

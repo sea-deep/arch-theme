@@ -1,13 +1,17 @@
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import Quickshell 1.0
-import Quickshell.Io 1.0
+import QtQuick
+import QtQuick.Layouts
+import Quickshell
+import Quickshell.Wayland
+import Quickshell.Io
 import "../theme"
 
 PanelWindow {
     id: root
-    anchors.fill: parent // Fullscreen
-    layer: Layer.Overlay
+    anchors.top: true
+    anchors.bottom: true
+    anchors.left: true
+    anchors.right: true
+    WlrLayershell.layer: WlrLayer.Overlay
     color: Qt.rgba(26/255, 27/255, 38/255, 0.85)
     
     property bool isActive: false
@@ -16,7 +20,6 @@ PanelWindow {
     onIsActiveChanged: {
         if (isActive) {
             animEnter.start()
-            root.requestActivate()
         }
     }
 

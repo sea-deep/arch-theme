@@ -2,11 +2,12 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
-import "../theme" as Theme
+import "../theme"
 
-RowLayout {
+Item {
     id: root
-    spacing: Theme.spacing
+    implicitWidth: layout.implicitWidth
+    implicitHeight: layout.implicitHeight
     
     property string icon: "󰁹"
     property string percentage: "100%"
@@ -45,27 +46,33 @@ RowLayout {
         onTriggered: batProc.running = true
     }
     
-    Text {
-        text: root.icon
-        color: root.isCritical ? (blinkTimer.blinkState ? Theme.red : Theme.bg) : Theme.accent
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSizeLarge
+    RowLayout {
+        id: layout
+        anchors.fill: parent
+        spacing: Theme.spacing
         
-        Timer {
-            id: blinkTimer
-            interval: 500
-            running: root.isCritical
-            repeat: true
-            property bool blinkState: false
-            onTriggered: blinkState = !blinkState
+        Text {
+            text: root.icon
+            color: root.isCritical ? (blinkTimer.blinkState ? Theme.red : Theme.bg) : Theme.accent
+            font.family: Theme.fontFamily
+            font.pixelSize: Theme.fontSizeLarge
+            
+            Timer {
+                id: blinkTimer
+                interval: 500
+                running: root.isCritical
+                repeat: true
+                property bool blinkState: false
+                onTriggered: blinkState = !blinkState
+            }
         }
-    }
-    
-    Text {
-        text: root.percentage
-        color: Theme.fg
-        font.family: Theme.fontFamilySans
-        font.pixelSize: Theme.fontSize
+        
+        Text {
+            text: root.percentage
+            color: Theme.fg
+            font.family: Theme.fontFamilySans
+            font.pixelSize: Theme.fontSize
+        }
     }
     
     MouseArea {

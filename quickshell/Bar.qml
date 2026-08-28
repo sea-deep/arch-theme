@@ -8,6 +8,7 @@ import "bar" as BarModules
 import "components" as Components
 
 PanelWindow {
+    WlrLayershell.namespace: "quickshell"
     id: root
 
     anchors.top: true

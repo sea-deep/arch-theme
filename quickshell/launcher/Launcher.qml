@@ -7,6 +7,7 @@ import Quickshell.Io
 import "../theme" as Theme
 
 PanelWindow {
+    WlrLayershell.namespace: "quickshell"
     id: root
     anchors.top: true
     anchors.bottom: true

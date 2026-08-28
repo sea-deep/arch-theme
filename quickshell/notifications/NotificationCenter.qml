@@ -6,6 +6,7 @@ import Quickshell.Wayland
 import "../theme"
 
 PanelWindow {
+    WlrLayershell.namespace: "quickshell"
     id: root
     implicitWidth: 350
     anchors.right: true

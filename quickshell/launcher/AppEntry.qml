@@ -31,6 +31,11 @@ Rectangle {
         Image {
             source: (modelData && modelData.icon) ? ("image://icon/" + modelData.icon) : ""
             sourceSize: Qt.size(32, 32)
+            Layout.preferredWidth: 32
+            Layout.preferredHeight: 32
+            Layout.maximumWidth: 32
+            Layout.maximumHeight: 32
+            fillMode: Image.PreserveAspectFit
             visible: source !== ""
         }
         

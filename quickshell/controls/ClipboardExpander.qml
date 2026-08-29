@@ -324,6 +324,9 @@ Item {
                         Drag.active: itemMouse.drag.active
                         Drag.dragType: Drag.Automatic
                         Drag.supportedActions: Qt.CopyAction | Qt.MoveAction | Qt.LinkAction
+                        Drag.hotSpot.x: 24
+                        Drag.hotSpot.y: 24
+                        Drag.imageSource: modelData.isImage ? ("file://" + modelData.filePath) : ""
                         Drag.mimeData: {
                             var data = {};
                             if (modelData.isImage) {

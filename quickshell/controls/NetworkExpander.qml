@@ -220,21 +220,27 @@ Item {
                     Layout.preferredHeight: 28
                     spacing: 7
 
-                    Text {
-                        text: root.networkIcon()
-                        color: Theme.accent
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 16
-                    }
-                    Text {
+                    RowLayout {
                         Layout.fillWidth: true
-                        text: root.statusMessage !== "" ? root.statusMessage : (root.wifiDevice && root.wifiDevice.scannerEnabled ? "󰑐 Scanning" : "󰑐 Refresh")
-                        color: root.statusMessage !== "" ? Theme.accent : (scanHover.hovered ? Theme.accent : Theme.fg)
-                        font.family: Theme.fontFamilySans
-                        font.pixelSize: 12
-                        font.weight: Theme.fontWeight
-                        elide: Text.ElideRight
+                        spacing: 8
                         
+                        Text {
+                            text: root.statusMessage !== "" ? "󰀨" : "󰑐"
+                            color: root.statusMessage !== "" ? Theme.red : (scanHover.hovered ? Theme.accent : Theme.fgDim)
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 16
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: root.statusMessage !== "" ? root.statusMessage : (root.wifiDevice && root.wifiDevice.scannerEnabled ? "Scanning..." : "Refresh Networks")
+                            color: root.statusMessage !== "" ? Theme.red : (scanHover.hovered ? Theme.accent : Theme.fg)
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 14
+                            font.weight: Theme.fontWeight
+                            elide: Text.ElideRight
+                        }
+
                         HoverHandler { id: scanHover; enabled: root.statusMessage === "" }
                         TapHandler {
                             enabled: root.statusMessage === ""

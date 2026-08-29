@@ -16,15 +16,6 @@ import "recorder" as Recorder
 ShellRoot {
     id: root
 
-    function activeScreenName() {
-        const monitor = Hyprland.focusedMonitor
-        if (monitor && monitor.name)
-            return monitor.name
-
-        const fallback = Quickshell.screens.length > 0 ? Quickshell.screens[0] : null
-        return fallback ? fallback.name : ""
-    }
-
     Component.onCompleted: recorderProbe.running = true
 
     // One global producer for every monitor's recording indicator. Once a
@@ -60,14 +51,6 @@ ShellRoot {
     Screenshot.ScreenshotMenu {}
     Recorder.RecorderMenu {}
 
-    Connections {
-        target: Notifications.NotificationServer
-        function onNotificationReceived() {
-            if (!UiState.notificationCenterVisible)
-                UiState.showNotificationPreview(root.activeScreenName())
-        }
-    }
-
     LazyLoader {
         active: UiState.selectorVisible
         component: Component { Selector.Selector {} }
@@ -96,7 +79,7 @@ ShellRoot {
     IpcHandler {
         target: "clipboard"
         function toggle() {
-            UiState.toggleClipboard(root.activeScreenName())
+            UiState.toggleClipboard("")
         }
     }
 
@@ -111,36 +94,36 @@ ShellRoot {
         }
 
         function clipboard() {
-            UiState.toggleClipboard(root.activeScreenName())
+            UiState.toggleClipboard("")
         }
     }
 
     IpcHandler {
         target: "notifications"
         function toggle() {
-            UiState.toggleNotifications(root.activeScreenName())
+            UiState.toggleNotifications()
         }
     }
 
     IpcHandler {
         target: "power"
         function toggle() {
-            UiState.togglePower(root.activeScreenName())
+            UiState.togglePower()
         }
     }
 
     IpcHandler {
         target: "clock"
         function toggle() {
-            UiState.toggleClock(root.activeScreenName())
+            UiState.toggleClock()
         }
 
         function calendar() {
-            UiState.showClockTab("calendar", root.activeScreenName())
+            UiState.showClockTab("calendar")
         }
 
         function time() {
-            UiState.showClockTab("time", root.activeScreenName())
+            UiState.showClockTab("time")
         }
     }
 
@@ -169,15 +152,15 @@ ShellRoot {
     IpcHandler {
         target: "quickControls"
         function audio() {
-            UiState.toggleQuickControl("audio", root.activeScreenName())
+            UiState.toggleQuickControl("audio")
         }
 
         function brightness() {
-            UiState.toggleQuickControl("brightness", root.activeScreenName())
+            UiState.toggleQuickControl("brightness")
         }
 
         function battery() {
-            UiState.toggleQuickControl("battery", root.activeScreenName())
+            UiState.toggleQuickControl("battery")
         }
     }
 

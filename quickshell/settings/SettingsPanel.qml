@@ -6,19 +6,14 @@ import Quickshell.Wayland
 import Quickshell.Io
 import Quickshell.Services.Pipewire
 import "../theme"
-import "../services"
-import "../components" as Components
 
 PanelWindow {
     WlrLayershell.namespace: "quickshell"
     id: root
-    implicitWidth: 380
+    implicitWidth: 400
     anchors.right: true
     anchors.top: true
     anchors.bottom: true
-    margins.top: Theme.outerGap
-    margins.right: Theme.outerGap
-    margins.bottom: Theme.outerGap
     
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
@@ -33,45 +28,37 @@ PanelWindow {
 
     readonly property var sink: Pipewire.defaultAudioSink
     readonly property bool audioAvailable: sink !== null && sink.audio !== null && sink.ready
-    property real innerGapValue: 0
-    property real outerGapValue: 2
-    property real borderSizeValue: 2
-    property real roundingValue: 10
-    property real blurStrengthValue: 7
-    property string pendingHyprKeyword: ""
-    property string pendingHyprValue: ""
+    readonly property int maxBrightness: parseInt(maxBrightnessFile.text()) || 100
+    readonly property int currentBrightness: parseInt(brightnessFile.text()) || 0
 
     PwObjectTracker {
         objects: [root.sink]
     }
 
-    function setHypr(keyword, value) {
-        pendingHyprKeyword = keyword
-        pendingHyprValue = value.toString()
-        hyprUpdateTimer.restart()
+    FileView {
+        id: maxBrightnessFile
+        path: "/sys/class/backlight/intel_backlight/max_brightness"
+        watchChanges: true
+        onFileChanged: reload()
     }
 
-    Timer {
-        id: hyprUpdateTimer
-        interval: 40
-        onTriggered: {
-            if (root.pendingHyprKeyword === "")
-                return
-            Quickshell.execDetached([
-                "hyprctl", "keyword", root.pendingHyprKeyword,
-                root.pendingHyprValue
-            ])
-            root.pendingHyprKeyword = ""
-            root.pendingHyprValue = ""
-        }
+    FileView {
+        id: brightnessFile
+        path: "/sys/class/backlight/intel_backlight/brightness"
+        watchChanges: true
+        onFileChanged: reload()
+    }
+
+    Process { id: hyprctl }
+
+    function setHypr(keyword, value) {
+        hyprctl.command = ["hyprctl", "keyword", keyword, value.toString()]
+        hyprctl.running = true
     }
 
     Rectangle {
         anchors.fill: parent
-        color: Theme.panel
-        radius: Theme.radiusLarge
-        border.width: Theme.borderWidth
-        border.color: Theme.primary
+        color: Qt.rgba(26/255, 27/255, 38/255, 0.95)
 
         ColumnLayout {
             anchors.fill: parent
@@ -88,21 +75,12 @@ PanelWindow {
                     color: Theme.fg
                     Layout.fillWidth: true
                 }
-                Rectangle {
-                    implicitWidth: 30
-                    implicitHeight: 30
-                    radius: Theme.radiusMedium
-                    color: settingsCloseHover.hovered
-                        ? Theme.surfaceMedium : "transparent"
-                    Text {
-                        anchors.centerIn: parent
-                        text: "×"
-                        color: settingsCloseHover.hovered
-                            ? Theme.danger : Theme.textSecondary
-                        font.pixelSize: 20
-                    }
-                    HoverHandler { id: settingsCloseHover }
-                    TapHandler { onTapped: UiState.settingsVisible = false }
+                Button {
+                    text: "×"
+                    font.pixelSize: 24
+                    background: Rectangle { color: "transparent" }
+                    contentItem: Text { text: parent.text; color: Theme.fg }
+                    onClicked: UiState.settingsVisible = false
                 }
             }
 
@@ -124,57 +102,43 @@ PanelWindow {
                         RowLayout {
                             Layout.fillWidth: true
                             Text { text: root.audioAvailable && root.sink.audio.muted ? "󰖁" : "󰕾"; color: Theme.blue; font.family: Theme.fontFamily; font.pixelSize: 18 }
-                            Components.ValueSlider {
+                            Slider {
                                 Layout.fillWidth: true
                                 from: 0
                                 to: 100
                                 value: root.audioAvailable ? root.sink.audio.volume * 100 : 0
-                                onMoved: value => {
+                                onMoved: {
                                     if (root.audioAvailable)
                                         root.sink.audio.volume = value / 100
                                 }
                             }
                             Text { text: root.audioAvailable ? Math.round(root.sink.audio.volume * 100) + "%" : "--%"; color: Theme.fg; font.family: Theme.fontFamily }
-                            Rectangle {
-                                implicitWidth: 64
-                                implicitHeight: 30
-                                radius: Theme.radiusMedium
-                                color: muteHover.hovered
-                                    ? Theme.surfaceHigh : Theme.surfaceLow
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: root.audioAvailable && root.sink.audio.muted ? "Unmute" : "Mute"
-                                    color: Theme.textPrimary
-                                    font.family: Theme.fontFamilySans
-                                    font.pixelSize: Theme.fontSizeSmall
-                                }
-                                HoverHandler { id: muteHover }
-                                TapHandler { onTapped: {
+                            Button {
+                                text: root.audioAvailable && root.sink.audio.muted ? "Unmute" : "Mute"
+                                onClicked: {
                                     if (root.audioAvailable)
                                         root.sink.audio.muted = !root.sink.audio.muted
-                                } }
+                                }
                             }
                         }
 
                         RowLayout {
                             Layout.fillWidth: true
                             Text { text: "󰃠"; color: Theme.yellow; font.family: Theme.fontFamily; font.pixelSize: 18 }
-                            Components.ValueSlider {
+                            Slider {
                                 Layout.fillWidth: true
-                                enabled: Brightness.available
-                                value: Brightness.ratio
-                                onMoved: value => Brightness.setRatio(value)
+                                from: 1
+                                to: 100
+                                value: Math.round((root.currentBrightness / root.maxBrightness) * 100)
+                                onMoved: Quickshell.execDetached(["brightnessctl", "set", Math.round(value) + "%"])
                             }
-                            Text { text: Brightness.available ? Brightness.percentage + "%" : "--%"; color: Theme.fg; font.family: Theme.fontFamily }
+                            Text { text: Math.round((root.currentBrightness / root.maxBrightness) * 100) + "%"; color: Theme.fg; font.family: Theme.fontFamily }
                         }
 
                         RowLayout {
                             Layout.fillWidth: true
                             Text { text: "Caffeine mode"; color: Theme.fg; Layout.fillWidth: true }
-                            Components.ToggleSwitch {
-                                checked: UiState.caffeineEnabled
-                                onToggled: checked => UiState.caffeineEnabled = checked
-                            }
+                            Switch { checked: UiState.caffeineEnabled; onToggled: UiState.caffeineEnabled = checked }
                         }
                     }
 
@@ -186,51 +150,19 @@ PanelWindow {
                         
                         RowLayout {
                             Text { text: "Gap size (inner)"; color: Theme.fg; Layout.fillWidth: true }
-                            Components.ValueSlider {
-                                Layout.preferredWidth: 160
-                                from: 0; to: 20; stepSize: 1
-                                value: root.innerGapValue
-                                onMoved: value => {
-                                    root.innerGapValue = value
-                                    root.setHypr("general:gaps_in", Math.round(value))
-                                }
-                            }
+                            Slider { from: 0; to: 20; value: 2; onMoved: setHypr("general:gaps_in", Math.round(value)) }
                         }
                         RowLayout {
                             Text { text: "Gap size (outer)"; color: Theme.fg; Layout.fillWidth: true }
-                            Components.ValueSlider {
-                                Layout.preferredWidth: 160
-                                from: 0; to: 20; stepSize: 1
-                                value: root.outerGapValue
-                                onMoved: value => {
-                                    root.outerGapValue = value
-                                    root.setHypr("general:gaps_out", Math.round(value))
-                                }
-                            }
+                            Slider { from: 0; to: 20; value: 4; onMoved: setHypr("general:gaps_out", Math.round(value)) }
                         }
                         RowLayout {
                             Text { text: "Border size"; color: Theme.fg; Layout.fillWidth: true }
-                            Components.ValueSlider {
-                                Layout.preferredWidth: 160
-                                from: 0; to: 5; stepSize: 1
-                                value: root.borderSizeValue
-                                onMoved: value => {
-                                    root.borderSizeValue = value
-                                    root.setHypr("general:border_size", Math.round(value))
-                                }
-                            }
+                            Slider { from: 0; to: 5; value: 2; onMoved: setHypr("general:border_size", Math.round(value)) }
                         }
                         RowLayout {
                             Text { text: "Corner rounding"; color: Theme.fg; Layout.fillWidth: true }
-                            Components.ValueSlider {
-                                Layout.preferredWidth: 160
-                                from: 0; to: 30; stepSize: 1
-                                value: root.roundingValue
-                                onMoved: value => {
-                                    root.roundingValue = value
-                                    root.setHypr("decoration:rounding", Math.round(value))
-                                }
-                            }
+                            Slider { from: 0; to: 30; value: 10; onMoved: setHypr("decoration:rounding", Math.round(value)) }
                         }
                     }
 
@@ -242,37 +174,15 @@ PanelWindow {
                         
                         RowLayout {
                             Text { text: "Blur toggle"; color: Theme.fg; Layout.fillWidth: true }
-                            Components.ToggleSwitch {
-                                id: blurSwitch
-                                checked: false
-                                onToggled: checked => {
-                                    blurSwitch.checked = checked
-                                    root.setHypr("decoration:blur:enabled", checked ? "true" : "false")
-                                }
-                            }
+                            Switch { onCheckedChanged: setHypr("decoration:blur:enabled", checked ? "true" : "false") }
                         }
                         RowLayout {
                             Text { text: "Blur strength"; color: Theme.fg; Layout.fillWidth: true }
-                            Components.ValueSlider {
-                                Layout.preferredWidth: 160
-                                from: 1; to: 10; stepSize: 1
-                                value: root.blurStrengthValue
-                                onMoved: value => {
-                                    root.blurStrengthValue = value
-                                    root.setHypr("decoration:blur:size", Math.round(value))
-                                }
-                            }
+                            Slider { from: 1; to: 10; value: 7; onMoved: setHypr("decoration:blur:size", Math.round(value)) }
                         }
                         RowLayout {
                             Text { text: "Animations"; color: Theme.fg; Layout.fillWidth: true }
-                            Components.ToggleSwitch {
-                                id: animationSwitch
-                                checked: true
-                                onToggled: checked => {
-                                    animationSwitch.checked = checked
-                                    root.setHypr("animations:enabled", checked ? "true" : "false")
-                                }
-                            }
+                            Switch { onCheckedChanged: setHypr("animations:enabled", checked ? "true" : "false") }
                         }
                     }
 

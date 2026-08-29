@@ -62,18 +62,16 @@ hl.config({
     }
 })
 
--- Material/Android motion: immediate response, a soft decelerating arrival,
--- and a quicker accelerated exit. Opacity animation remains disabled so apps
--- pop cleanly instead of dissolving in and out.
-hl.curve("androidStandard", { type = "bezier", points = { {0.2, 0}, {0, 1} } })
-hl.curve("androidEnter",    { type = "bezier", points = { {0.05, 0.7}, {0.1, 1} } })
-hl.curve("androidExit",     { type = "bezier", points = { {0.3, 0}, {0.8, 0.15} } })
-hl.animation({ leaf = "global",      enabled = true,  speed = 10,  bezier = "androidStandard" })
-hl.animation({ leaf = "windows",     enabled = true,  speed = 7,   bezier = "androidStandard", style = "popin 94%" })
-hl.animation({ leaf = "windowsIn",   enabled = true,  speed = 6.5, bezier = "androidEnter", style = "popin 94%" })
-hl.animation({ leaf = "windowsOut",  enabled = true,  speed = 9.5, bezier = "androidExit", style = "popin 96%" })
-hl.animation({ leaf = "workspaces",  enabled = true,  speed = 7,   bezier = "androidStandard", style = "slide" })
-hl.animation({ leaf = "border",      enabled = true,  speed = 10,  bezier = "androidStandard" })
+-- Hyprland's native Lua provider uses curve/animation objects; string arrays
+-- inside hl.config are ignored. Keep opening and closing on the same quick,
+-- fluid curve, and leave opacity transitions disabled.
+hl.curve("macOS", { type = "bezier", points = { {0.16, 1}, {0.3, 1} } })
+hl.animation({ leaf = "global",      enabled = true,  speed = 10,  bezier = "default" })
+hl.animation({ leaf = "windows",     enabled = true,  speed = 6.5, bezier = "macOS", style = "popin 98%" })
+hl.animation({ leaf = "windowsIn",   enabled = true,  speed = 6.5, bezier = "macOS", style = "popin 98%" })
+hl.animation({ leaf = "windowsOut",  enabled = true,  speed = 10,  bezier = "macOS", style = "popin 94%" })
+hl.animation({ leaf = "workspaces",  enabled = true,  speed = 7,   bezier = "macOS", style = "slide" })
+hl.animation({ leaf = "border",      enabled = true,  speed = 8,   bezier = "macOS" })
 hl.animation({ leaf = "fade",        enabled = false, speed = 1,   bezier = "default" })
 hl.animation({ leaf = "fadePopups",  enabled = false, speed = 1,   bezier = "default" })
 hl.animation({ leaf = "fadeLayers",  enabled = false, speed = 1,   bezier = "default" })

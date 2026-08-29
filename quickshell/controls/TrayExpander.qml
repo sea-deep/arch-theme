@@ -45,11 +45,7 @@ Item {
     focus: expanded
 
     Behavior on reveal {
-        NumberAnimation {
-            duration: root.expanded ? Theme.motionMedium : Theme.motionShort
-            easing.type: Easing.BezierSpline
-            easing.bezierCurve: root.expanded ? Theme.easingEnter : Theme.easingExit
-        }
+        NumberAnimation { duration: 85; easing.type: Easing.OutCubic }
     }
 
     onExpandedChanged: {
@@ -230,20 +226,6 @@ Item {
         visible: root.reveal <= 0
     }
 
-    function resolveIcon(item) {
-        if (!item) return ""
-        if (item.icon && item.icon !== "") return item.icon
-        if (item.iconName && item.iconName !== "") {
-            var p = Quickshell.iconPath(item.iconName)
-            if (p && p !== "") return p
-        }
-        if (item.id && item.id !== "") {
-            var p2 = Quickshell.iconPath(item.id)
-            if (p2 && p2 !== "") return p2
-        }
-        return Quickshell.iconPath("application-x-executable")
-    }
-
     Item {
         id: topButton
         anchors.top: parent.top
@@ -266,7 +248,7 @@ Item {
 
                     IconImage {
                         anchors.fill: parent
-                        source: root.resolveIcon(parent.modelData)
+                        source: parent.modelData.icon
                     }
 
                     MouseArea {

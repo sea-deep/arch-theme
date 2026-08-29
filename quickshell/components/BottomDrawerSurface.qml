@@ -5,7 +5,7 @@ import "../theme"
 Shape {
     id: root
 
-    property color strokeColor: Theme.primary
+    property color strokeColor: Theme.accentGlow
     readonly property real inset: Theme.borderWidth / 2
     readonly property real corner: Theme.radius
 
@@ -14,7 +14,7 @@ Shape {
     ShapePath {
         strokeWidth: Theme.borderWidth
         strokeColor: root.strokeColor
-        fillColor: Theme.panel
+        fillColor: Theme.bg
         joinStyle: ShapePath.RoundJoin
 
         // Start bottom-left

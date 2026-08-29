@@ -178,9 +178,9 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? Theme.motionMedium : Theme.motionShort
-            easing.type: Easing.BezierSpline
-            easing.bezierCurve: root.showing ? Theme.easingEnter : Theme.easingExit
+            duration: root.showing ? 180 : 110
+            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
+            easing.overshoot: 1.08
         }
     }
 
@@ -271,7 +271,7 @@ PanelWindow {
                     border.width: 1
 
                     Behavior on border.color {
-                        ColorAnimation { duration: Theme.motionShort }
+                        ColorAnimation { duration: 150 }
                     }
 
                     RowLayout {
@@ -286,7 +286,7 @@ PanelWindow {
                             font.family: Theme.fontFamily
                             font.pixelSize: 16
                             Behavior on color {
-                                ColorAnimation { duration: Theme.motionShort }
+                                ColorAnimation { duration: 150 }
                             }
                         }
 
@@ -334,7 +334,7 @@ PanelWindow {
                             height: 24
                             radius: 12
                             color: clearHover.containsMouse ? Theme.surface : "transparent"
-                            Behavior on color { ColorAnimation { duration: Theme.motionFast } }
+                            Behavior on color { ColorAnimation { duration: 100 } }
 
                             Text {
                                 anchors.centerIn: parent
@@ -404,8 +404,8 @@ PanelWindow {
                             border.color: isActive ? Theme.accent : (chipHover.containsMouse ? Theme.surface : "transparent")
                             border.width: 1
 
-                            Behavior on color { ColorAnimation { duration: Theme.motionShort } }
-                            Behavior on border.color { ColorAnimation { duration: Theme.motionShort } }
+                            Behavior on color { ColorAnimation { duration: 150 } }
+                            Behavior on border.color { ColorAnimation { duration: 150 } }
 
                             RowLayout {
                                 id: chipRow
@@ -417,7 +417,7 @@ PanelWindow {
                                     color: catChip.isActive ? Theme.bgDark : (chipHover.containsMouse ? Theme.accent : Theme.fgDim)
                                     font.family: Theme.fontFamily
                                     font.pixelSize: 13
-                                    Behavior on color { ColorAnimation { duration: Theme.motionShort } }
+                                    Behavior on color { ColorAnimation { duration: 150 } }
                                 }
 
                                 Text {
@@ -426,7 +426,7 @@ PanelWindow {
                                     font.family: Theme.fontFamilySans
                                     font.pixelSize: 13
                                     font.weight: catChip.isActive ? Font.Bold : Font.Medium
-                                    Behavior on color { ColorAnimation { duration: Theme.motionShort } }
+                                    Behavior on color { ColorAnimation { duration: 150 } }
                                 }
                             }
 
@@ -558,7 +558,7 @@ PanelWindow {
                                 elide: Text.ElideRight
                                 maximumLineCount: 2
                                 wrapMode: Text.Wrap
-                                Behavior on color { ColorAnimation { duration: Theme.motionShort } }
+                                Behavior on color { ColorAnimation { duration: 150 } }
                             }
                         }
 

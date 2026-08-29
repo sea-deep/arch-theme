@@ -6,8 +6,6 @@ import "../components" as Components
 
 Components.Pill {
     id: root
-
-    property string targetScreenName: ""
     
     active: UiState.clipboardVisible
     implicitWidth: Theme.compactPillSize
@@ -31,7 +29,7 @@ Components.Pill {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
         onClicked: {
-            UiState.toggleClipboard(root.targetScreenName)
+            UiState.toggleClipboard("")
         }
     }
 }

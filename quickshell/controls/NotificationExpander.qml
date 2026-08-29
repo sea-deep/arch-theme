@@ -10,14 +10,8 @@ Item {
 
     property string targetScreenName: ""
     readonly property bool expanded: UiState.notificationCenterVisible
-        && (UiState.notificationScreen === ""
-            || UiState.notificationScreen === targetScreenName)
-    readonly property bool previewing: UiState.notificationPreviewVisible
-        && (UiState.notificationPreviewScreen === ""
-            || UiState.notificationPreviewScreen === targetScreenName)
-    readonly property bool showing: expanded || previewing
-    readonly property int fullBodyHeight: Math.min(500,
-        Math.max(200, maximumBodyHeight))
+    readonly property bool showing: UiState.notificationCenterVisible || UiState.notificationPreviewVisible
+    readonly property int fullBodyHeight: 500
     readonly property int previewBodyHeight: previewLoader.item ? previewLoader.item.implicitHeight : 100
     readonly property int bodyHeight: UiState.notificationCenterVisible ? fullBodyHeight : previewBodyHeight
     property real expandedWidth: 380
@@ -31,11 +25,7 @@ Item {
     focus: showing
 
     Behavior on reveal {
-        NumberAnimation {
-            duration: root.showing ? Theme.motionMedium : Theme.motionShort
-            easing.type: Easing.BezierSpline
-            easing.bezierCurve: root.showing ? Theme.easingEnter : Theme.easingExit
-        }
+        NumberAnimation { duration: 85; easing.type: Easing.OutCubic }
     }
 
     Timer {
@@ -47,18 +37,21 @@ Item {
     }
 
     Connections {
-        target: UiState
-        function onNotificationPreviewRevisionChanged() {
-            if (root.previewing)
+        target: Notifications.NotificationServer
+        function onNotificationReceived() {
+            if (!UiState.notificationCenterVisible) {
+                UiState.showNotificationPreview(targetScreenName)
                 previewTimer.restart()
+            }
         }
     }
 
     onShowingChanged: {
         if (expanded) {
-            Notifications.NotificationServer.markRead()
+            if (UiState.notificationCenterVisible)
+                Notifications.NotificationServer.markRead()
             Qt.callLater(() => root.forceActiveFocus())
-        } else if (!previewing) {
+        } else {
             previewTimer.stop()
         }
     }
@@ -118,7 +111,7 @@ Item {
             acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
             onClicked: (mouse) => {
                 if (mouse.button === Qt.LeftButton) {
-                    UiState.toggleNotifications(root.targetScreenName)
+                    UiState.toggleNotifications()
                 } else if (mouse.button === Qt.RightButton || mouse.button === Qt.MiddleButton) {
                     Notifications.NotificationServer.toggleDnd()
                 }
@@ -133,10 +126,11 @@ Item {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         visible: root.reveal > 0
+        opacity: root.reveal
         clip: true
 
         ColumnLayout {
-            visible: root.expanded
+            visible: UiState.notificationCenterVisible
             anchors.fill: parent
             
             anchors.margins: 14
@@ -220,7 +214,7 @@ Item {
         }
 
         Item {
-            visible: root.previewing
+            visible: !UiState.notificationCenterVisible && UiState.notificationPreviewVisible
             anchors.fill: parent
             
 
@@ -232,6 +226,7 @@ Item {
                 sourceComponent: Notifications.NotificationCard {
                     width: previewLoader.width
                     notification: Notifications.NotificationServer.latestNotification
+                    implicitHeight: height
                     color: "transparent"
                     border.width: 0
                 }

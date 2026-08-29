@@ -24,7 +24,7 @@ Item {
         radius: 1
         color: Theme.blue
         opacity: audioHover.hovered ? 1 : 0
-        Behavior on opacity { NumberAnimation { duration: Theme.motionMicro } }
+        Behavior on opacity { NumberAnimation { duration: 80 } }
     }
 
     PwObjectTracker {

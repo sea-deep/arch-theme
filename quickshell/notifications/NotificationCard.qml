@@ -6,12 +6,9 @@ import "../theme"
 
 Rectangle {
     id: root
-
-    required property var notification
-    readonly property int contentPadding: Theme.spacingMd
+    property var notification: null
     width: parent ? parent.width : 300
-    implicitHeight: content.implicitHeight + contentPadding * 2
-    height: implicitHeight
+    height: content.height + 20
     color: Theme.bgLight
     radius: Theme.radius - 2
     border.color: hover.hovered ? Theme.accentGlow : Theme.bgDark
@@ -50,7 +47,7 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.margins: root.contentPadding
+        anchors.margins: 10
         spacing: 8
 
         RowLayout {
@@ -59,8 +56,7 @@ Rectangle {
             IconImage {
                 implicitWidth: 30
                 implicitHeight: 30
-                source: root.notification && !root.notification.lastGeneration
-                    && root.notification.image !== ""
+                source: root.notification && root.notification.image !== ""
                     ? root.notification.image
                     : Quickshell.iconPath(root.notification ? root.notification.appIcon : "", "dialog-information")
             }

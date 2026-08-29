@@ -15,19 +15,13 @@ Rectangle {
     Layout.preferredHeight: Theme.barHeight
     visible: !collapseWhenEmpty || !isEmpty
 
-    color: active ? Theme.primaryContainer
-        : (hovered ? Theme.surfaceLow : Theme.panel)
+    color: Qt.rgba(Theme.bg.r, Theme.bg.g, Theme.bg.b, Theme.pillAlpha)
     radius: Theme.radius
     border.width: Theme.borderWidth
-    border.color: active ? Theme.primary
-        : (hovered ? Theme.primaryHover : Theme.outlineSubtle)
-
-    Behavior on color {
-        ColorAnimation { duration: Theme.motionFast }
-    }
+    border.color: (hovered || active) ? Theme.accentGlow : Theme.bgDark
 
     Behavior on border.color {
-        ColorAnimation { duration: Theme.motionFast }
+        ColorAnimation { duration: 110 }
     }
 
     HoverHandler { id: pillHover }

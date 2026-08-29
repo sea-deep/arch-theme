@@ -5,7 +5,6 @@ import Quickshell.Io
 import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
 import "../theme"
-import "../services"
 import "../components" as Components
 import "../bar" as BarModules
 
@@ -27,6 +26,8 @@ Components.Pill {
         : (UiState.quickControlMode === "brightness" ? 188 : 158)
     readonly property var sink: Pipewire.defaultAudioSink
     readonly property var source: Pipewire.defaultAudioSource
+    readonly property int maxBrightness: parseInt(maxBrightnessFile.text()) || 100
+    readonly property int currentBrightness: parseInt(brightnessFile.text()) || 0
 
     property real reveal: expanded ? 1 : 0
     property string tlpProfile: "unknown"
@@ -37,11 +38,7 @@ Components.Pill {
     focus: expanded
 
     Behavior on implicitHeight {
-        NumberAnimation {
-            duration: root.expanded ? Theme.motionMedium : Theme.motionShort
-            easing.type: Easing.BezierSpline
-            easing.bezierCurve: root.expanded ? Theme.easingEnter : Theme.easingExit
-        }
+        NumberAnimation { duration: 85; easing.type: Easing.OutCubic }
     }
 
     onExpandedChanged: {
@@ -55,6 +52,20 @@ Components.Pill {
     Keys.onEscapePressed: UiState.quickControlVisible = false
 
     PwObjectTracker { objects: [root.sink, root.source].concat(root.audioStreams) }
+
+    FileView {
+        id: maxBrightnessFile
+        path: "/sys/class/backlight/intel_backlight/max_brightness"
+        watchChanges: true
+        onFileChanged: reload()
+    }
+
+    FileView {
+        id: brightnessFile
+        path: "/sys/class/backlight/intel_backlight/brightness"
+        watchChanges: true
+        onFileChanged: reload()
+    }
 
     Process {
         id: tlpProfileProbe
@@ -110,6 +121,56 @@ Components.Pill {
         return icons[Math.max(0, Math.min(10, Math.floor(devicePercentage(device) / 10)))]
     }
 
+    component CleanSlider: Item {
+        id: slider
+        property real value: 0
+        signal moved(real value)
+        signal released(real value)
+        implicitHeight: 26
+
+        Rectangle {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            height: 6
+            radius: 3
+            color: Theme.surface
+            Rectangle {
+                width: parent.width * Math.max(0, Math.min(1, slider.value))
+                height: parent.height
+                radius: parent.radius
+                color: Theme.accent
+            }
+        }
+
+        Rectangle {
+            x: Math.max(0, Math.min(parent.width - width, slider.value * parent.width - width / 2))
+            anchors.verticalCenter: parent.verticalCenter
+            width: 15
+            height: 15
+            radius: 8
+            color: Theme.fg
+            border.width: Theme.borderWidth
+            border.color: Theme.bgDark
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            function updateValue(mouseX) {
+                slider.moved(Math.max(0, Math.min(1, mouseX / width)))
+            }
+            onPressed: mouse => updateValue(mouse.x)
+            onReleased: mouse => slider.released(Math.max(0, Math.min(1, mouse.x / width)))
+            onPositionChanged: mouse => {
+                if (pressed)
+                    updateValue(mouse.x)
+            }
+            onWheel: wheel => slider.moved(Math.max(0, Math.min(1,
+                slider.value + (wheel.angleDelta.y > 0 ? 0.05 : -0.05))))
+        }
+    }
+
     component AudioRow: RowLayout {
         id: audioRow
         required property var node
@@ -145,7 +206,7 @@ Components.Pill {
                     font.pixelSize: 10
                 }
             }
-            Components.ValueSlider {
+            CleanSlider {
                 Layout.fillWidth: true
                 value: audioRow.available ? Math.min(1, audioRow.node.audio.volume) : 0
                 onMoved: value => {
@@ -235,7 +296,7 @@ Components.Pill {
             RowLayout {
                 Layout.fillWidth: true
                 Text { text: "󰖔"; color: Theme.yellow; font.family: Theme.fontFamily; font.pixelSize: 16 }
-                Components.ValueSlider {
+                CleanSlider {
                     Layout.fillWidth: true
                     value: UiState.comfortValue / 100.0
                     onMoved: value => { UiState.comfortValue = value * 100 }
@@ -250,7 +311,7 @@ Components.Pill {
             RowLayout {
                 Layout.fillWidth: true
                 Text { text: "󰈈"; color: Theme.fgDim; font.family: Theme.fontFamily; font.pixelSize: 16 }
-                Components.ValueSlider {
+                CleanSlider {
                     Layout.fillWidth: true
                     value: UiState.grayscaleValue / 100.0
                     onMoved: value => { UiState.grayscaleValue = value * 100 }
@@ -265,7 +326,7 @@ Components.Pill {
             RowLayout {
                 Layout.fillWidth: true
                 Text { text: "󰸌"; color: Theme.accent; font.family: Theme.fontFamily; font.pixelSize: 16 }
-                Components.ValueSlider {
+                CleanSlider {
                     Layout.fillWidth: true
                     value: UiState.vividValue / 100.0
                     onMoved: value => { UiState.vividValue = value * 100 }
@@ -281,14 +342,15 @@ Components.Pill {
             RowLayout {
                 Layout.fillWidth: true
                 Text { text: "󰃠"; color: Theme.yellow; font.family: Theme.fontFamily; font.pixelSize: 16 }
-                Components.ValueSlider {
+                CleanSlider {
                     Layout.fillWidth: true
-                    enabled: Brightness.available
-                    value: Brightness.ratio
-                    onMoved: value => Brightness.setRatio(value)
+                    value: root.currentBrightness / root.maxBrightness
+                    onMoved: value => Quickshell.execDetached([
+                        "brightnessctl", "set", Math.max(1, Math.round(value * 100)) + "%"
+                    ])
                 }
                 Text {
-                    text: Brightness.available ? Brightness.percentage + "%" : "--%"
+                    text: Math.round((root.currentBrightness / root.maxBrightness) * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11

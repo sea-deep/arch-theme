@@ -22,7 +22,6 @@ Singleton {
     property alias vividValue: persisted.vividValue
 
     property bool isShaderInitialized: false
-    property bool loadingShaderState: false
 
     FileView {
         id: shaderStateFile
@@ -33,22 +32,15 @@ Singleton {
     }
 
     function loadShaderState() {
-        const text = shaderStateFile.text()
-        if (!text || text.trim() === "")
-            return
-
+        var text = shaderStateFile.text()
+        if (!text || text.trim() === "") return
         try {
-            const data = JSON.parse(text)
-            root.loadingShaderState = true
+            var data = JSON.parse(text)
             if (data.comfort !== undefined) root.comfortValue = Number(data.comfort)
             if (data.grayscale !== undefined) root.grayscaleValue = Number(data.grayscale)
             if (data.vivid !== undefined) root.vividValue = Number(data.vivid)
-            root.loadingShaderState = false
             root.isShaderInitialized = true
-        } catch (error) {
-            root.loadingShaderState = false
-            console.warn("Unable to read shader state:", error)
-        }
+        } catch(e) {}
     }
 
     Timer {
@@ -57,18 +49,13 @@ Singleton {
         repeat: false
         onTriggered: {
             if (!root.isShaderInitialized) return
-            Quickshell.execDetached([
-                Quickshell.shellPath("scripts/update_shader.sh"), "set_all",
-                Math.round(root.comfortValue).toString(),
-                Math.round(root.grayscaleValue).toString(),
-                Math.round(root.vividValue).toString()
-            ])
+            Quickshell.execDetached(["bash", "-c", "$HOME/.config/quickshell/scripts/update_shader.sh set_all " + Math.round(comfortValue) + " " + Math.round(grayscaleValue) + " " + Math.round(vividValue)])
         }
     }
 
-    onComfortValueChanged: if (isShaderInitialized && !loadingShaderState) shaderUpdateTimer.restart()
-    onGrayscaleValueChanged: if (isShaderInitialized && !loadingShaderState) shaderUpdateTimer.restart()
-    onVividValueChanged: if (isShaderInitialized && !loadingShaderState) shaderUpdateTimer.restart()
+    onComfortValueChanged: if (isShaderInitialized) shaderUpdateTimer.restart()
+    onGrayscaleValueChanged: if (isShaderInitialized) shaderUpdateTimer.restart()
+    onVividValueChanged: if (isShaderInitialized) shaderUpdateTimer.restart()
 
     Component.onCompleted: {
         loadShaderState()
@@ -82,7 +69,6 @@ Singleton {
     property string notificationScreen: ""
     property bool notificationPreviewVisible: false
     property string notificationPreviewScreen: ""
-    property int notificationPreviewRevision: 0
     property bool powerMenuVisible: false
     property string powerScreen: ""
     property bool clockMenuVisible: false
@@ -140,9 +126,9 @@ Singleton {
         if (notificationCenterVisible)
             return
 
-        notificationPreviewScreen = screenName || ""
+        if (!notificationPreviewVisible)
+            notificationPreviewScreen = screenName || ""
         notificationPreviewVisible = true
-        notificationPreviewRevision++
     }
 
     function togglePower(screenName) {
@@ -218,8 +204,12 @@ Singleton {
         trayMenuTitle = item.title || item.tooltipTitle || item.id || "Application"
         trayMenuIcon = item.icon || ""
         trayMenuScreen = screenName || ""
-        trayMenuRightOffset = Math.max(Theme.outerGap, rightOffset || 0)
+        trayMenuRightOffset = Math.max(outerGapFallback(), rightOffset || 0)
         trayMenuVisible = true
+    }
+
+    function outerGapFallback() {
+        return 2
     }
 
     function closeOverlays() {
@@ -234,7 +224,6 @@ Singleton {
         settingsVisible = false
         quickControlVisible = false
         trayMenuVisible = false
-        trayMenuHandle = null
         networkVisible = false
     }
 

@@ -21,11 +21,7 @@ Item {
     focus: expanded
 
     Behavior on reveal {
-        NumberAnimation {
-            duration: root.expanded ? Theme.motionMedium : Theme.motionShort
-            easing.type: Easing.BezierSpline
-            easing.bezierCurve: root.expanded ? Theme.easingEnter : Theme.easingExit
-        }
+        NumberAnimation { duration: 85; easing.type: Easing.OutCubic }
     }
 
     onExpandedChanged: {
@@ -43,7 +39,7 @@ Item {
         const shortcuts = {
             "L": ["loginctl", "lock-session"],
             "U": ["systemctl", "suspend"],
-            "E": ["loginctl", "terminate-user", Quickshell.env("USER")],
+            "E": ["sh", "-c", "loginctl terminate-user $USER"],
             "R": ["systemctl", "reboot"],
             "S": ["systemctl", "poweroff"],
             "H": ["systemctl", "hibernate"]
@@ -133,7 +129,7 @@ Item {
                         model: [
                             { name: "Lock", icon: "", action: ["loginctl", "lock-session"], key: "L" },
                             { name: "Suspend", icon: "󰤄", action: ["systemctl", "suspend"], key: "U" },
-                            { name: "Logout", icon: "󰍃", action: ["loginctl", "terminate-user", Quickshell.env("USER")], key: "E" },
+                            { name: "Logout", icon: "󰍃", action: ["sh", "-c", "loginctl terminate-user $USER"], key: "E" },
                             { name: "Reboot", icon: "󰑐", action: ["systemctl", "reboot"], key: "R" },
                             { name: "Shutdown", icon: "󰐥", action: ["systemctl", "poweroff"], key: "S" },
                             { name: "Hibernate", icon: "󰒲", action: ["systemctl", "hibernate"], key: "H" }
@@ -147,10 +143,6 @@ Item {
                             Layout.minimumWidth: 0
                             radius: 9
                             color: btnMouseArea.containsMouse ? Theme.accent : Theme.bgLight
-
-                            Behavior on color {
-                                ColorAnimation { duration: Theme.motionFast }
-                            }
                             RowLayout {
                                 anchors.fill: parent
                                 anchors.leftMargin: 9

@@ -30,17 +30,16 @@ Item {
     }
 
     function runAction(action) {
-        actionProcess.command = action
-        actionProcess.running = true
         UiState.powerMenuVisible = false
+        Quickshell.execDetached(action)
     }
 
     Keys.onEscapePressed: UiState.powerMenuVisible = false
     Keys.onPressed: event => {
         const shortcuts = {
-            "L": ["hyprlock"],
+            "L": ["loginctl", "lock-session"],
             "U": ["systemctl", "suspend"],
-            "E": ["hyprctl", "dispatch", "exit"],
+            "E": ["sh", "-c", "loginctl terminate-user $USER"],
             "R": ["systemctl", "reboot"],
             "S": ["systemctl", "poweroff"],
             "H": ["systemctl", "hibernate"]
@@ -51,8 +50,6 @@ Item {
             event.accepted = true
         }
     }
-
-    Process { id: actionProcess }
 
     Components.ConnectedDropdownSurface {
         anchors.fill: parent
@@ -145,7 +142,7 @@ Item {
                             Layout.fillHeight: true
                             Layout.minimumWidth: 0
                             radius: 9
-                            color: actionHover.hovered ? Theme.accent : Theme.bgLight
+                            color: btnMouseArea.containsMouse ? Theme.accent : Theme.bgLight
                             RowLayout {
                                 anchors.fill: parent
                                 anchors.leftMargin: 9
@@ -155,14 +152,14 @@ Item {
                                     Layout.preferredWidth: 18
                                     horizontalAlignment: Text.AlignHCenter
                                     text: actionButton.modelData.icon
-                                    color: actionHover.hovered ? Theme.bgDark : Theme.red
+                                    color: btnMouseArea.containsMouse ? Theme.bgDark : Theme.red
                                     font.family: Theme.fontFamily
                                     font.pixelSize: 14
                                 }
                                 Text {
                                     Layout.fillWidth: true
                                     text: actionButton.modelData.name
-                                    color: actionHover.hovered ? Theme.bgDark : Theme.fg
+                                    color: btnMouseArea.containsMouse ? Theme.bgDark : Theme.fg
                                     font.family: Theme.fontFamilySans
                                     font.pixelSize: 11
                                     font.weight: Theme.fontWeight
@@ -170,13 +167,18 @@ Item {
                                 }
                                 Text {
                                     text: actionButton.modelData.key
-                                    color: actionHover.hovered ? Theme.bgDark : Theme.fgMuted
+                                    color: btnMouseArea.containsMouse ? Theme.bgDark : Theme.fgMuted
                                     font.family: Theme.fontFamily
                                     font.pixelSize: 9
                                 }
                             }
-                            HoverHandler { id: actionHover }
-                            TapHandler { onTapped: root.runAction(actionButton.modelData.action) }
+                            MouseArea {
+                                id: btnMouseArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: root.runAction(actionButton.modelData.action)
+                            }
                         }
                     }
                 }

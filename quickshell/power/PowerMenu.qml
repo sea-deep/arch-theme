@@ -39,6 +39,11 @@ PanelWindow {
         onTapped: UiState.powerMenuVisible = false
     }
 
+    function runAction(action) {
+        UiState.powerMenuVisible = false
+        Quickshell.execDetached(action)
+    }
+
     Item {
         id: keyHandler
         anchors.fill: parent
@@ -46,20 +51,17 @@ PanelWindow {
         Keys.onEscapePressed: UiState.powerMenuVisible = false
         Keys.onPressed: (event) => {
             switch(event.key) {
-                case Qt.Key_L: execProcess.command = ["hyprlock"]; break;
-                case Qt.Key_U: execProcess.command = ["systemctl", "suspend"]; break;
-                case Qt.Key_E: execProcess.command = ["hyprctl", "dispatch", "exit"]; break;
-                case Qt.Key_R: execProcess.command = ["systemctl", "reboot"]; break;
-                case Qt.Key_S: execProcess.command = ["systemctl", "poweroff"]; break;
-                case Qt.Key_H: execProcess.command = ["systemctl", "hibernate"]; break;
+                case Qt.Key_L: root.runAction(["loginctl", "lock-session"]); break;
+                case Qt.Key_U: root.runAction(["systemctl", "suspend"]); break;
+                case Qt.Key_E: root.runAction(["sh", "-c", "loginctl terminate-user $USER"]); break;
+                case Qt.Key_R: root.runAction(["systemctl", "reboot"]); break;
+                case Qt.Key_S: root.runAction(["systemctl", "poweroff"]); break;
+                case Qt.Key_H: root.runAction(["systemctl", "hibernate"]); break;
                 default: return;
             }
-            execProcess.running = true;
-            UiState.powerMenuVisible = false;
+            event.accepted = true;
         }
     }
-
-    Process { id: execProcess }
 
     GridLayout {
         id: contentGrid
@@ -82,17 +84,16 @@ PanelWindow {
                 width: 150
                 height: 150
                 radius: 20
-                color: hover.hovered ? Theme.accent : Theme.bgLight
-                border.color: hover.hovered ? Theme.accentGlow : "transparent"
-                border.width: hover.hovered ? 2 : 0
+                color: itemMouseArea.containsMouse ? Theme.accent : Theme.bgLight
+                border.color: itemMouseArea.containsMouse ? Theme.accentGlow : "transparent"
+                border.width: itemMouseArea.containsMouse ? 2 : 0
 
-                HoverHandler { id: hover }
-                TapHandler {
-                    onTapped: {
-                        execProcess.command = modelData.action
-                        execProcess.running = true
-                        UiState.powerMenuVisible = false
-                    }
+                MouseArea {
+                    id: itemMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.runAction(modelData.action)
                 }
 
                 ColumnLayout {

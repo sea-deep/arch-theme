@@ -174,12 +174,13 @@ PanelWindow {
         id: launcherCard
         // Exact width for 7 columns (7 * 120 = 840) + margins (24 * 2 = 48) = 888
         width: 888
-        height: layout.implicitHeight + layout.anchors.topMargin + 24
+        // Increase height to compensate for the hidden bottom border
+        height: layout.implicitHeight + layout.anchors.topMargin + 24 + Theme.borderWidth
         
-        // Mathematically anchor perfectly flush to bottom edge
+        // Mathematically anchor perfectly flush to bottom edge, hiding the bottom border
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 0
+        anchors.bottomMargin: -Theme.borderWidth
 
         // Robust translation for animation independent of layout passes
         transform: Translate {

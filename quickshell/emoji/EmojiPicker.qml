@@ -270,9 +270,14 @@ PanelWindow {
                         height: delegateRoot.height
                         Drag.active: emojiMouseArea.drag.active
                         Drag.dragType: Drag.Automatic
-                        Drag.supportedActions: Qt.CopyAction
+                        Drag.supportedActions: Qt.CopyAction | Qt.MoveAction | Qt.LinkAction
                         Drag.mimeData: {
-                            return { "text/plain": delegateRoot.emoji ? delegateRoot.emoji.char : "" };
+                            var sym = delegateRoot.emoji ? delegateRoot.emoji.char : "";
+                            return {
+                                "text/plain": sym,
+                                "text/plain;charset=utf-8": sym,
+                                "UTF8_STRING": sym
+                            };
                         }
                     }
 

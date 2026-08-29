@@ -328,18 +328,27 @@ PanelWindow {
                         height: resultRow.height
                         Drag.active: rowMouse.drag.active
                         Drag.dragType: Drag.Automatic
-                        Drag.supportedActions: Qt.CopyAction
+                        Drag.supportedActions: Qt.CopyAction | Qt.MoveAction | Qt.LinkAction
                         Drag.mimeData: {
                             var data = {};
                             if (root.mode === "clipboard") {
                                 if (resultRow.modelData.isImage) {
-                                    data["text/uri-list"] = "file://" + resultRow.modelData.filePath;
-                                    data["text/plain"] = "file://" + resultRow.modelData.filePath;
+                                    var uri = "file://" + resultRow.modelData.filePath;
+                                    data["text/uri-list"] = uri + "\r\n";
+                                    data["x-special/gnome-copied-files"] = "copy\n" + uri + "\r\n";
+                                    data["text/plain"] = uri;
+                                    data["text/plain;charset=utf-8"] = uri;
                                 } else {
-                                    data["text/plain"] = resultRow.modelData.value || resultRow.modelData.label || "";
+                                    var txt = resultRow.modelData.value || resultRow.modelData.label || "";
+                                    data["text/plain"] = txt;
+                                    data["text/plain;charset=utf-8"] = txt;
+                                    data["UTF8_STRING"] = txt;
                                 }
                             } else if (root.mode === "emoji") {
-                                data["text/plain"] = resultRow.modelData.symbol || "";
+                                var sym = resultRow.modelData.symbol || "";
+                                data["text/plain"] = sym;
+                                data["text/plain;charset=utf-8"] = sym;
+                                data["UTF8_STRING"] = sym;
                             }
                             return data;
                         }

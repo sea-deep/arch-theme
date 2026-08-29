@@ -165,23 +165,20 @@ PanelWindow {
     // Bottom slide-up card container
     Rectangle {
         id: launcherCard
-        width: Math.min(880, parent.width - 48)
-        height: Math.min(580, parent.height - 80)
+        // Exact width for 7 columns (7 * 120 = 840) + margins (24 * 2 = 48) = 888
+        width: 888
+        height: Math.min(580, parent.height - 40)
         anchors.horizontalCenter: parent.horizontalCenter
 
-        // Slide up from bottom with scale animation
-        y: root.visible ? (parent.height - height - 24) : parent.height + 40
+        // Slide up completely from off-screen bottom edge to a small gap
+        y: root.visible ? (parent.height - height - 12) : parent.height
         opacity: root.visible ? 1 : 0
-        scale: root.visible ? 1 : 0.98
 
         Behavior on y {
-            NumberAnimation { duration: 350; easing.type: Easing.OutBack; easing.overshoot: 1.05 }
+            NumberAnimation { duration: 350; easing.type: Easing.OutQuint }
         }
         Behavior on opacity {
             NumberAnimation { duration: 250; easing.type: Easing.OutQuad }
-        }
-        Behavior on scale {
-            NumberAnimation { duration: 350; easing.type: Easing.OutBack; easing.overshoot: 1.05 }
         }
 
         color: Theme.bg
@@ -200,7 +197,10 @@ PanelWindow {
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 20
+            anchors.leftMargin: 24
+            anchors.rightMargin: 24
+            anchors.topMargin: 24
+            anchors.bottomMargin: 24
             spacing: 16
 
             // Top Header: Search bar + app count badge
@@ -402,10 +402,11 @@ PanelWindow {
             // Apps Grid
             GridView {
                 id: grid
-                Layout.fillWidth: true
+                Layout.preferredWidth: 840
+                Layout.alignment: Qt.AlignHCenter
                 Layout.fillHeight: true
-                cellWidth: 124
-                cellHeight: 114
+                cellWidth: 120
+                cellHeight: 110
                 clip: true
                 model: root.filteredApps
                 activeFocusOnTab: true

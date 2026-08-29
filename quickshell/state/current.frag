@@ -23,7 +23,7 @@ void main() {
     vec4 color = texture(tex, v_texcoord);
     vec3 rgb = color.rgb;
 
-    float vivid = 0.410;
+    float vivid = 0.330;
     if (vivid > 0.0) {
         vec3 hsv = rgb2hsv(rgb);
         hsv.y = clamp(hsv.y * (1.0 + vivid), 0.0, 1.0);

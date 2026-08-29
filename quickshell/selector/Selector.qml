@@ -20,9 +20,10 @@ PanelWindow {
     property real reveal: UiState.selectorVisible ? 1 : 0
     Behavior on reveal {
         NumberAnimation {
-            duration: UiState.selectorVisible ? 160 : 100
-            easing.type: UiState.selectorVisible ? Easing.OutBack : Easing.InQuad
-            easing.overshoot: 1.08
+            duration: UiState.selectorVisible ? Theme.motionMedium : Theme.motionShort
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: UiState.selectorVisible
+                ? Theme.easingEnter : Theme.easingExit
         }
     }
     visible: reveal > 0
@@ -234,9 +235,9 @@ PanelWindow {
         height: Math.min(620, root.height - 96)
         anchors.centerIn: parent
         color: Theme.bg
-        radius: 16
-        border.width: 2
-        border.color: Theme.bgDark
+        radius: Theme.radiusLarge
+        border.width: Theme.borderWidth
+        border.color: Theme.outline
 
         transform: Scale {
             origin.x: panel.width / 2

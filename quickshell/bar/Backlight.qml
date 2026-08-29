@@ -1,8 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell
-import Quickshell.Io
 import "../theme"
+import "../services"
 
 Item {
     id: root
@@ -10,24 +9,7 @@ Item {
     implicitWidth: layout.implicitWidth + 16
     implicitHeight: Theme.barHeight
 
-    // We bind to the max_brightness and brightness files directly to compute percentage
-    FileView {
-        id: maxBright
-        path: "/sys/class/backlight/intel_backlight/max_brightness"
-        watchChanges: true
-        onFileChanged: reload()
-    }
-    
-    FileView {
-        id: currBright
-        path: "/sys/class/backlight/intel_backlight/brightness"
-        watchChanges: true
-        onFileChanged: reload()
-    }
-    
-    property int maxB: parseInt(maxBright.text()) || 100
-    property int currB: parseInt(currBright.text()) || 0
-    property int percentage: Math.round((currB / maxB) * 100) || 0
+    readonly property int percentage: Brightness.percentage
 
     Rectangle {
         anchors.bottom: parent.bottom
@@ -38,7 +20,7 @@ Item {
         radius: 1
         color: Theme.yellow
         opacity: brightnessHover.hovered ? 1 : 0
-        Behavior on opacity { NumberAnimation { duration: 80 } }
+        Behavior on opacity { NumberAnimation { duration: Theme.motionMicro } }
     }
 
     function getIcon() {
@@ -83,11 +65,8 @@ Item {
             }
         }
         onWheel: (wheel) => {
-            if (wheel.angleDelta.y > 0) {
-                Quickshell.execDetached(["brightnessctl", "set", "1%+"])
-            } else {
-                Quickshell.execDetached(["brightnessctl", "set", "1%-"])
-            }
+            Brightness.adjust(wheel.angleDelta.y)
+            wheel.accepted = true
         }
     }
 

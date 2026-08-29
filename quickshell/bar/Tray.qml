@@ -25,6 +25,20 @@ Components.Pill {
         UiState.toggleTrayMenu(item, root.hostWindow.screen.name, rightOffset)
     }
     
+    function resolveIcon(item) {
+        if (!item) return ""
+        if (item.icon && item.icon !== "") return item.icon
+        if (item.iconName && item.iconName !== "") {
+            var p = Quickshell.iconPath(item.iconName)
+            if (p && p !== "") return p
+        }
+        if (item.id && item.id !== "") {
+            var p2 = Quickshell.iconPath(item.id)
+            if (p2 && p2 !== "") return p2
+        }
+        return Quickshell.iconPath("application-x-executable")
+    }
+
     RowLayout {
         id: layout
         anchors.centerIn: parent
@@ -41,7 +55,7 @@ Components.Pill {
                 
                 IconImage {
                     anchors.fill: parent
-                    source: parent.modelData.icon
+                    source: root.resolveIcon(parent.modelData)
                 }
                 
                 MouseArea {

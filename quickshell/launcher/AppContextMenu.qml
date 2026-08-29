@@ -19,12 +19,16 @@ Rectangle {
     border.width: 1
     clip: true
 
-    opacity: visible ? 1 : 0
     scale: visible ? 1 : 0.95
     transformOrigin: Item.TopLeft
 
-    Behavior on opacity { NumberAnimation { duration: 150 } }
-    Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutBack; easing.overshoot: 1.2 } }
+    Behavior on scale {
+        NumberAnimation {
+            duration: Theme.motionShort
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: Theme.easingEnter
+        }
+    }
 
     onAppChanged: {
         var list = []
@@ -88,7 +92,7 @@ Rectangle {
                 height: 28
                 radius: 6
                 color: openHover.containsMouse ? Theme.bgLight : "transparent"
-                Behavior on color { ColorAnimation { duration: 100 } }
+                Behavior on color { ColorAnimation { duration: Theme.motionFast } }
 
             RowLayout {
                 anchors.fill: parent
@@ -144,7 +148,7 @@ Rectangle {
                 height: 28
                 radius: 6
                 color: actHover.containsMouse ? Theme.bgLight : "transparent"
-                Behavior on color { ColorAnimation { duration: 100 } }
+                Behavior on color { ColorAnimation { duration: Theme.motionFast } }
 
                 RowLayout {
                     anchors.fill: parent
@@ -191,7 +195,7 @@ Rectangle {
             height: 28
             radius: 6
             color: termHover.containsMouse ? Theme.bgLight : "transparent"
-            Behavior on color { ColorAnimation { duration: 100 } }
+            Behavior on color { ColorAnimation { duration: Theme.motionFast } }
 
             RowLayout {
                 anchors.fill: parent
@@ -240,7 +244,7 @@ Rectangle {
             height: 28
             radius: 6
             color: dgpuHover.containsMouse ? Theme.bgLight : "transparent"
-            Behavior on color { ColorAnimation { duration: 100 } }
+            Behavior on color { ColorAnimation { duration: Theme.motionFast } }
 
             RowLayout {
                 anchors.fill: parent
@@ -295,7 +299,7 @@ Rectangle {
             height: 28
             radius: 6
             color: uninstallHover.containsMouse ? Theme.bgLight : "transparent"
-            Behavior on color { ColorAnimation { duration: 100 } }
+            Behavior on color { ColorAnimation { duration: Theme.motionFast } }
 
             RowLayout {
                 anchors.fill: parent
@@ -347,7 +351,7 @@ Rectangle {
             height: 28
             radius: 6
             color: copyHover.containsMouse ? Theme.bgLight : "transparent"
-            Behavior on color { ColorAnimation { duration: 100 } }
+            Behavior on color { ColorAnimation { duration: Theme.motionFast } }
 
             RowLayout {
                 anchors.fill: parent

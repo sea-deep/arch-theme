@@ -42,7 +42,11 @@ Item {
     focus: expanded
 
     Behavior on reveal {
-        NumberAnimation { duration: 85; easing.type: Easing.OutCubic }
+        NumberAnimation {
+            duration: root.expanded ? Theme.motionMedium : Theme.motionShort
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: root.expanded ? Theme.easingEnter : Theme.easingExit
+        }
     }
 
     onExpandedChanged: {
@@ -262,28 +266,12 @@ Item {
                             font.pixelSize: 10
                             font.weight: Theme.fontWeight
                         }
-                        Rectangle {
-                            id: wifiSwitch
+                        Components.ToggleSwitch {
                             Layout.preferredWidth: 30
                             Layout.preferredHeight: 18
-                            radius: height / 2
-                            color: Networking.wifiEnabled ? Theme.accent : Theme.surface
-
-                            Rectangle {
-                                width: 14
-                                height: 14
-                                radius: width / 2
-                                anchors.verticalCenter: parent.verticalCenter
-                                x: Networking.wifiEnabled ? parent.width - width - 2 : 2
-                                color: Networking.wifiEnabled ? Theme.bgDark : Theme.fgDim
-
-                                Behavior on x {
-                                    NumberAnimation { duration: 110; easing.type: Easing.OutCubic }
-                                }
-                            }
-
-                            HoverHandler { id: wifiToggleHover }
-                            TapHandler { onTapped: Networking.wifiEnabled = !Networking.wifiEnabled }
+                            checked: Networking.wifiEnabled
+                            enabled: Networking.wifiHardwareEnabled
+                            onToggled: checked => Networking.wifiEnabled = checked
                         }
                     }
                     Text {
@@ -316,6 +304,10 @@ Item {
                         radius: 8
                         color: modelData.connected ? Theme.accent
                             : (networkHover.hovered ? Theme.surface : Theme.bgLight)
+
+                        Behavior on color {
+                            ColorAnimation { duration: Theme.motionFast }
+                        }
 
                         RowLayout {
                             anchors.fill: parent

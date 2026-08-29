@@ -23,9 +23,9 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? 160 : 100
-            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
-            easing.overshoot: 1.08
+            duration: root.showing ? Theme.motionMedium : Theme.motionShort
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: root.showing ? Theme.easingEnter : Theme.easingExit
         }
     }
     
@@ -53,7 +53,6 @@ PanelWindow {
 
     Rectangle {
         id: menuItem
-        opacity: root.reveal
         width: 360
         implicitHeight: layout.implicitHeight + 24
         anchors.centerIn: parent

@@ -42,7 +42,7 @@ Singleton {
 
     Process {
         id: soundProcess
-        command: ["bash", "-c", "paplay /usr/share/sounds/freedesktop/stereo/message.oga &"]
+        command: ["paplay", "/usr/share/sounds/freedesktop/stereo/message.oga"]
         running: false
     }
 
@@ -62,8 +62,8 @@ Singleton {
                 root.unreadCount++
 
             if (!root.dndEnabled && !notification.lastGeneration) {
-                soundProcess.running = false
-                soundProcess.running = true
+                if (!soundProcess.running)
+                    soundProcess.running = true
                 root.notificationReceived(notification)
             }
         }

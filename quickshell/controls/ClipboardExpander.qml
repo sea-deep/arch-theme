@@ -22,7 +22,11 @@ Item {
     focus: expanded
 
     Behavior on reveal {
-        NumberAnimation { duration: 85; easing.type: Easing.OutCubic }
+        NumberAnimation {
+            duration: root.expanded ? Theme.motionMedium : Theme.motionShort
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: root.expanded ? Theme.easingEnter : Theme.easingExit
+        }
     }
 
     onExpandedChanged: {
@@ -173,7 +177,7 @@ Item {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
             acceptedButtons: Qt.LeftButton
-            onClicked: UiState.toggleClipboard("")
+            onClicked: UiState.toggleClipboard(root.targetScreenName)
         }
     }
 
@@ -184,7 +188,6 @@ Item {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         visible: root.reveal > 0
-        opacity: root.reveal
         clip: true
 
         ColumnLayout {

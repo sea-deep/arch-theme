@@ -25,13 +25,17 @@ Item {
     readonly property real expandedWidth: Math.max(380, collapsedWidth + 52)
     readonly property int bodyHeight: windowList.length > 0 ? Math.min(360, 36 + windowList.length * 36 + 14) : 0
     
-    implicitWidth: reveal > 0 ? expandedWidth : collapsedWidth
-    implicitHeight: reveal > 0
-        ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
-        : Theme.barHeight
+    implicitWidth: collapsedWidth + (expandedWidth - collapsedWidth) * reveal
+    implicitHeight: Theme.barHeight
+        + (Theme.outerGap + bodyHeight) * reveal
     
-    Behavior on reveal { NumberAnimation { duration: 85; easing.type: Easing.OutCubic } }
-    Behavior on implicitWidth { NumberAnimation { duration: 85; easing.type: Easing.OutCubic } }
+    Behavior on reveal {
+        NumberAnimation {
+            duration: root.isExpanded ? Theme.motionMedium : Theme.motionShort
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: root.isExpanded ? Theme.easingEnter : Theme.easingExit
+        }
+    }
 
     Connections {
         target: Hyprland
@@ -201,7 +205,11 @@ Item {
                         radius: 6
                         
                         Behavior on implicitWidth {
-                            NumberAnimation { duration: 140; easing.type: Easing.OutCubic }
+                            NumberAnimation {
+                                duration: Theme.motionShort
+                                easing.type: Easing.BezierSpline
+                                easing.bezierCurve: Theme.easingStandard
+                            }
                         }
                         
                         color: isActive ? Theme.accent : (wsHoverHandler.hovered ? Theme.surface : "transparent")
@@ -346,7 +354,6 @@ Item {
         anchors.bottom: parent.bottom
         anchors.margins: 10
         visible: root.reveal > 0
-        opacity: root.reveal
         z: 2
         
         ColumnLayout {

@@ -107,7 +107,10 @@ PanelWindow {
                 id: clipboardSlot
                 Layout.preferredWidth: Theme.compactPillSize
                 Layout.preferredHeight: Theme.barHeight
-                BarModules.Clipboard { anchors.centerIn: parent }
+                BarModules.Clipboard {
+                    anchors.centerIn: parent
+                    targetScreenName: root.screen.name
+                }
             }
             Item {
                 id: notificationSlot

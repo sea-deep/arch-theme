@@ -192,6 +192,10 @@ exec_always ~/.config/sway/idle.sh
     bindsym $mod+Shift+0 move container to workspace number 10
     # Note: workspaces can have any name you want, not just numbers.
     # We just use 1-10 as the default.
+
+    # Switch workspaces with mouse side buttons (Forward/Back)
+    bindsym --whole-window button9 workspace next_on_output
+    bindsym --whole-window button8 workspace prev_on_output
 #
 # Layout stuff:
 #
@@ -316,9 +320,6 @@ include /etc/sway/config.d/*
 exec_always autotiling
 
 
-
-# Network Manager Applet
-exec nm-applet --indicator
 
 # Polkit Authentication Agent (Required for GUI root password prompts)
 exec /usr/lib/polkit-kde-authentication-agent-1

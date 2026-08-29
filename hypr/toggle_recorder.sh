@@ -4,12 +4,20 @@
 SAVE_DIR="$HOME/Videos/Recordings"
 mkdir -p "$SAVE_DIR"
 
+# Refresh the single native Quickshell recorder state producer whether the
+# chooser succeeds, is cancelled, or an existing recording is stopped.
+refresh_quickshell_recorder() {
+    if command -v qs >/dev/null 2>&1; then
+        qs ipc call recorder refresh >/dev/null 2>&1 || true
+    fi
+}
+trap refresh_quickshell_recorder EXIT
+
 # ── Section ──
 # Stop Existing Recording
 if pgrep -x wf-recorder > /dev/null; then
     pkill -INT -x wf-recorder
     notify-send "Recording Stopped" "Video saved in $SAVE_DIR" -i video-x-generic -a Recorder
-    pkill -RTMIN+9 -f quickshell/scripts/recorder_status.sh
     exit 0
 fi
 
@@ -58,5 +66,4 @@ fi
 # Notification Status
 if pgrep -x wf-recorder > /dev/null; then
     notify-send "Recording Started" "Press $mainMod+Shift+R to stop" -i media-record -a Recorder
-    pkill -RTMIN+9 -f quickshell/scripts/recorder_status.sh
 fi

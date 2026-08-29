@@ -81,7 +81,7 @@ bindkey '^[[B' history-search-forward
 
 # --- ALIASES ---
 # Core
-alias ls='eza -al --color=always --group-directories-first --icons'
+alias ls='eza -al --color=always --group-directories-first --icons=always'
 alias lt='eza -aT --color=always --group-directories-first --icons'
 alias cat='bat'
 alias grep='ugrep --color=auto'
@@ -131,3 +131,10 @@ bhej() {
 eval "$(starship init zsh)"
 eval "$(zoxide init --cmd cd zsh)"
 eval "$(fzf --zsh)"
+export PATH="/home/dipak/bin:$PATH"
+
+# Wokwi CLI Token
+export WOKWI_CLI_TOKEN="wok_xKFSa56mcHI6rcU1KHbZ2YHQxvDi4eux4db0b62b"
+# Ensure ~/bin is in PATH for wokwi-cli
+export PATH="$HOME/bin:$PATH"
+alias gwflash="cd ~/code/deeptrack/gateway && arduino-cli compile --fqbn esp32:esp32:esp32 . && arduino-cli upload -p /dev/ttyACM0 --fqbn esp32:esp32:esp32 ."

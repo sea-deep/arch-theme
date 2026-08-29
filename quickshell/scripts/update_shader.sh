@@ -87,3 +87,4 @@ sed -i "s/GRAYSCALE_VAL/$G_NORM/g" "$SHADER_FILE"
 sed -i "s/COMFORT_VAL/$C_NORM/g" "$SHADER_FILE"
 
 hyprctl repl "hl.config({ decoration = { screen_shader = '$SHADER_FILE' } })"
+hyprctl seterror disable

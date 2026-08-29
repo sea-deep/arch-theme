@@ -88,15 +88,15 @@ fi
 log_info "Installing dependencies..."
 PACKAGES=(
     # Core Environment
-    "swayfx" "swaybg" "waybar" "rofi-wayland" "kitty" "thunar"
+    "swayfx" "swaybg" "waybar" "rofi-wayland" "hyprland" "quickshell" "kitty" "thunar"
     # Display Manager
     "ly"
     # System/UX Utilities
-    "swayidle" "swaylock" "brightnessctl" "swaync" "wlogout" "polkit-kde-agent" "network-manager-applet" "sway-audio-idle-inhibit-git" "xdg-desktop-portal" "xdg-desktop-portal-wlr" "jq"
+    "swayidle" "swaylock" "hypridle" "hyprlock" "brightnessctl" "swaync" "wlogout" "polkit-kde-agent" "network-manager-applet" "sway-audio-idle-inhibit-git" "xdg-desktop-portal" "xdg-desktop-portal-wlr" "xdg-desktop-portal-hyprland" "jq" "upower"
     # Showcase & Terminal Tools
-    "wf-recorder" "pipes.sh" "fastfetch" "ddgr"
+    "wf-recorder" "grim" "slurp" "swappy" "playerctl" "swww" "pipes.sh" "fastfetch" "ddgr"
     # Clipboard
-    "wl-clipboard" "clipse"
+    "wl-clipboard" "clipse" "rofimoji"
     # Default Apps
     "zen-browser-bin" "zed" "neovim" "zathura" "zathura-pdf-mupdf" "imv" "mpv" "xarchiver" "vesktop" "snapshot"
     # Theming & Fonts
@@ -148,7 +148,7 @@ backup_and_symlink() {
 }
 
 # Config directories
-for config in sway swaylock waybar kitty rofi swaync wlogout btop environment.d qt5ct qt6ct tlpui gtk-3.0 gtk-4.0 fontconfig Thunar xfce4 Kvantum fastfetch; do
+for config in sway swaylock waybar hypr quickshell kitty rofi swaync wlogout btop environment.d qt5ct qt6ct tlpui gtk-3.0 gtk-4.0 fontconfig Thunar xfce4 Kvantum fastfetch; do
     backup_and_symlink "$DOTFILES_DIR/$config" "$HOME/.config/$config"
 done
 

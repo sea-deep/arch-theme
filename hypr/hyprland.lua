@@ -7,13 +7,22 @@ hl.monitor({ output = "eDP-1", mode = "1920x1080@60.050", position = "0x0", scal
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "1" })
 
 hl.config({
+    windowrulev2 = {
+        "float,class:(polkit-gnome-authentication-agent-1)",
+        "stayfocused,class:(polkit-gnome-authentication-agent-1)",
+        "pin,class:(polkit-gnome-authentication-agent-1)",
+        "dimaround,class:(polkit-gnome-authentication-agent-1)",
+    },
     input = {
         kb_layout = "us",
         repeat_rate = 50,
         repeat_delay = 300,
         follow_mouse = 1,
+        natural_scroll = true,
+        scroll_method = "on_button_down",
+        scroll_button = 274,
         touchpad = {
-            natural_scroll = true,
+            natural_scroll = false,
             tap_to_click = true,
             disable_while_typing = true,
             middle_button_emulation = true,
@@ -23,8 +32,10 @@ hl.config({
         default_monitor = "eDP-1"
     },
     general = {
-        gaps_in = 2,
-        gaps_out = 1,
+        -- Adjacent windows already contribute two 2px borders. A further
+        -- inner gap made the centre seam wider than the screen-edge inset.
+        gaps_in = 0,
+        gaps_out = { top = 2, right = 2, bottom = 2, left = 2 },
         border_size = 2,
         ["col.active_border"] = "rgba(39c5bbee)",
         ["col.inactive_border"] = "rgba(24283baa)",
@@ -39,28 +50,32 @@ hl.config({
         dim_strength = 0.15,
         active_opacity = 1.0,
         inactive_opacity = 1.0,
-        blur = { enabled = true, size = 7, passes = 4 },
-        shadow = { enabled = true, range = 20, color = "rgba(15161ecc)" },
+        blur = { enabled = false },
+        shadow = { enabled = false },
     },
     animations = {
         enabled = true,
-        bezier = {
-            "easeOut, 0.23, 1, 0.32, 1",
-            "snappy, 0.05, 0.9, 0.1, 1.0",
-        },
-        animation = {
-            "windows, 1, 5, easeOut",
-            "windowsOut, 1, 5, default, popin 80%",
-            "fade, 1, 4, default",
-            "workspaces, 1, 4, snappy, slide",
-            "border, 1, 8, default",
-        },
     },
     misc = {
         force_default_wallpaper = 0,
         disable_hyprland_logo = true,
     }
 })
+
+-- Hyprland's native Lua provider uses curve/animation objects; string arrays
+-- inside hl.config are ignored. Keep opening and closing on the same quick,
+-- fluid curve, and leave opacity transitions disabled.
+hl.curve("macOS", { type = "bezier", points = { {0.16, 1}, {0.3, 1} } })
+hl.animation({ leaf = "global",      enabled = true,  speed = 10,  bezier = "default" })
+hl.animation({ leaf = "windows",     enabled = true,  speed = 6.5, bezier = "macOS", style = "popin 98%" })
+hl.animation({ leaf = "windowsIn",   enabled = true,  speed = 6.5, bezier = "macOS", style = "popin 98%" })
+hl.animation({ leaf = "windowsOut",  enabled = true,  speed = 10,  bezier = "macOS", style = "popin 94%" })
+hl.animation({ leaf = "workspaces",  enabled = true,  speed = 7,   bezier = "macOS", style = "slide" })
+hl.animation({ leaf = "border",      enabled = true,  speed = 8,   bezier = "macOS" })
+hl.animation({ leaf = "fade",        enabled = false, speed = 1,   bezier = "default" })
+hl.animation({ leaf = "fadePopups",  enabled = false, speed = 1,   bezier = "default" })
+hl.animation({ leaf = "fadeLayers",  enabled = false, speed = 1,   bezier = "default" })
+hl.animation({ leaf = "layers",      enabled = false, speed = 1,   bezier = "default" })
 
 hl.env("XCURSOR_THEME", "breeze_cursors")
 hl.env("XCURSOR_SIZE", "24")
@@ -79,10 +94,9 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("systemctl --user start xdg-desktop-portal-hyprland.service")
     hl.exec_cmd("swww-daemon || swaybg -i /home/dipak/code/arch-theme/wallpapers/satisfaction_waybar_blur.png -m fill")
     hl.exec_cmd("sleep 0.5 && swww img /home/dipak/code/arch-theme/wallpapers/satisfaction_waybar_blur.png --transition-type grow --transition-duration 1")
-    hl.exec_cmd("quickshell")
+    hl.exec_cmd("qs --no-duplicate")
     hl.exec_cmd("hypridle")
-    hl.exec_cmd("/usr/lib/polkit-kde-authentication-agent-1")
-    hl.exec_cmd("nm-applet --indicator")
+    hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
     hl.exec_cmd("wl-paste --type text --watch clipse -wl-store")
     hl.exec_cmd("wl-paste --type image --watch clipse -wl-store")
     hl.exec_cmd("sway-audio-idle-inhibit")
@@ -98,21 +112,37 @@ hl.on("hyprland.start", function()
 end)
 
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal))
-hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("quickshell ipc call launcher toggle"))
+hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("qs ipc call selector apps"))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + Z", hl.dsp.exec_cmd("zeditor"))
 hl.bind(mainMod .. " + SHIFT + Z", hl.dsp.exec_cmd("zeditor -n"))
-hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("~/.config/hypr/clipse-toggle.sh"))
-hl.bind(mainMod .. " + period", hl.dsp.exec_cmd("quickshell ipc call emoji toggle"))
+hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("qs ipc call selector clipboard"))
+hl.bind(mainMod .. " + period", hl.dsp.exec_cmd("qs ipc call selector emoji"))
 hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd(terminal .. " -e btop"))
-hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("quickshell ipc call notifications toggle"))
+hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("qs ipc call notifications toggle"))
 
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen(0))
 hl.bind(mainMod .. " + SHIFT + Space", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + W", hl.dsp.layout("togglegroup"))
+hl.bind(mainMod .. " + S", hl.dsp.group.toggle())
+hl.bind(mainMod .. " + W", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
+
+-- Sway's focus mode toggle has no exact Hyprland equivalent. Cycle between
+-- the tiled and floating layers while preserving the same Super+Space muscle memory.
+hl.bind(mainMod .. " + Space", function()
+    local active = hl.get_active_window()
+    if active == nil then
+        return
+    end
+
+    hl.dispatch(hl.dsp.window.cycle_next({ floating = not active.floating }))
+    hl.dispatch(hl.dsp.window.bring_to_top())
+end)
+
+-- Dwindle has no parent containers; cycling tiled windows is the closest useful action.
+hl.bind(mainMod .. " + A", hl.dsp.window.cycle_next({ floating = false }))
 
 hl.bind(mainMod .. " + H", hl.dsp.focus({ direction = "l" }))
 hl.bind(mainMod .. " + J", hl.dsp.focus({ direction = "d" }))
@@ -134,8 +164,8 @@ hl.bind(mainMod .. " + SHIFT + Right", hl.dsp.window.move({ direction = "r" }))
 
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
-hl.bind("mouse:275", hl.dsp.focus({ workspace = "m+1" }))
-hl.bind("mouse:276", hl.dsp.focus({ workspace = "m-1" }))
+hl.bind("mouse:275", hl.dsp.focus({ workspace = "m-1" }))
+hl.bind("mouse:276", hl.dsp.focus({ workspace = "m+1" }))
 
 for i = 1, 10 do
     local key = i % 10
@@ -151,15 +181,15 @@ hl.bind("Print", hl.dsp.exec_cmd("~/.config/hypr/screenshot.sh menu"))
 hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd("~/.config/hypr/screenshot.sh full"))
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("~/.config/hypr/toggle_recorder.sh"))
 
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd("pactl set-sink-mute @DEFAULT_SINK@ toggle"), { locked = true })
-hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("pactl set-source-mute @DEFAULT_SOURCE@ toggle"), { locked = true })
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { locked = true })
+hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), { locked = true })
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
 hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
 hl.bind("XF86AudioStop", hl.dsp.exec_cmd("playerctl stop"), { locked = true })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("pactl set-sink-volume @DEFAULT_SINK@ -5%"), { locked = true, repeating = true })
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("pactl set-sink-volume @DEFAULT_SINK@ +5%"), { locked = true, repeating = true })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"), { locked = true, repeating = true })
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set 5%+"), { locked = true, repeating = true })
 
@@ -180,11 +210,9 @@ hl.on("keybinds.submap", function(map)
 end)
 
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprctl reload"))
-hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd("quickshell ipc call power toggle"))
+hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd("qs ipc call power toggle"))
 
 hl.window_rule({ name = "swappy-float", match = { class = "^(swappy)$" }, float = true })
 hl.window_rule({ name = "pavucontrol-float", match = { class = "^(org.pulseaudio.pavucontrol)$" }, float = true, size = "450 265", move = "875 0" })
 hl.window_rule({ name = "clipse-float", match = { class = "^(clipse)$" }, float = true, size = "800 600", center = true })
 hl.window_rule({ name = "idle_inhibit", match = { class = "^(.*)$" }, idle_inhibit = "fullscreen" })
-
-hl.layer_rule({ name = "quickshell", match = { namespace = "^quickshell$" }, blur = true, ignore_alpha = 0.5, blur_popups = true })

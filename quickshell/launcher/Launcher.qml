@@ -45,19 +45,35 @@ PanelWindow {
                 valid.push(app)
             }
         }
-        // Sort alphabetically by name
+        // Sort alphabetically by name once
         valid.sort(function(a, b) {
             return (a.name || "").localeCompare(b.name || "")
         })
         allApps = valid
-        filterApps()
+        if (root.searchQuery === "" && root.activeCategory === "All") {
+            filteredApps = allApps
+        } else {
+            filterApps()
+        }
+    }
+
+    Connections {
+        target: DesktopEntries
+        function onApplicationsChanged() {
+            root.reloadApps()
+        }
     }
 
     function filterApps() {
         var query = root.searchQuery.trim().toLowerCase()
         var cat = root.activeCategory
-        var result = []
 
+        if (query === "" && cat === "All") {
+            root.filteredApps = allApps
+            return
+        }
+
+        var result = []
         for (var i = 0; i < allApps.length; i++) {
             var app = allApps[i]
 
@@ -155,7 +171,7 @@ PanelWindow {
     property bool showing: UiState.launcherVisible
     property real reveal: showing ? 1 : 0
     Behavior on reveal {
-        NumberAnimation { duration: 250; easing.type: Easing.OutExpo }
+        NumberAnimation { duration: 140; easing.type: Easing.OutQuart }
     }
     visible: reveal > 0
 
@@ -165,7 +181,12 @@ PanelWindow {
             searchInput.text = ""
             activeCategory = "All"
             contextMenu.visible = false
-            reloadApps()
+            if (allApps.length === 0) {
+                reloadApps()
+            } else {
+                filteredApps = allApps
+                grid.currentIndex = 0
+            }
             Qt.callLater(function() {
                 searchInput.forceActiveFocus()
             })
@@ -425,6 +446,8 @@ PanelWindow {
                 cellWidth: 120
                 cellHeight: 110
                 clip: true
+                cacheBuffer: 600
+                reuseItems: true
                 model: root.filteredApps
                 activeFocusOnTab: true
                 highlightFollowsCurrentItem: true

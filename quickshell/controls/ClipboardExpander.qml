@@ -190,6 +190,12 @@ Item {
                             selectByMouse: true
                             text: root.searchQuery
                             onTextChanged: root.searchQuery = text
+                            
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.IBeamCursor
+                                onClicked: searchInput.forceActiveFocus()
+                            }
                         }
                     }
                 }
@@ -249,7 +255,20 @@ Item {
                 model: root.filteredEntries
                 spacing: 10
                 clip: true
+                interactive: true
                 boundsBehavior: Flickable.StopAtBounds
+                
+                // Add a MouseArea to capture wheel events and force scroll if the native flickable ignores it
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.NoButton
+                    onWheel: (wheel) => {
+                        if (wheel.angleDelta.y > 0)
+                            listView.flick(0, 1500)
+                        else
+                            listView.flick(0, -1500)
+                    }
+                }
                 
                 ScrollBar.vertical: ScrollBar {
                     active: true

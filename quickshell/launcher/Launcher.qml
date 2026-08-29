@@ -178,8 +178,9 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? 200 : 140
-            easing.type: root.showing ? Easing.OutCubic : Easing.InCubic
+            duration: root.showing ? 280 : 180
+            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
+            easing.overshoot: 1.12
         }
     }
 
@@ -229,19 +230,10 @@ PanelWindow {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 3
 
-        // Modern subtle 60px vertical slide + micro-scale for silky smooth motion
-        transform: [
-            Translate {
-                y: (1 - root.reveal) * 64
-            },
-            Scale {
-                origin.x: launcherCard.width / 2
-                origin.y: launcherCard.height
-                xScale: 0.96 + (0.04 * root.reveal)
-                yScale: xScale
-            }
-        ]
-        opacity: root.reveal
+        // Solid macOS bottom expansion with authentic spring overshoot physics
+        transform: Translate {
+            y: (1 - root.reveal) * launcherCard.height
+        }
 
         strokeColor: Theme.accentGlow
 

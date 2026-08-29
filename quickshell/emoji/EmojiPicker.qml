@@ -129,7 +129,7 @@ PanelWindow {
             // Search
             Rectangle {
                 Layout.fillWidth: true
-                height: 36
+                Layout.preferredHeight: 36
                 color: Theme.bgLight
                 radius: 8
                 border.color: searchInput.activeFocus ? Theme.accent : "transparent"
@@ -170,8 +170,8 @@ PanelWindow {
                 id: grid
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                cellWidth: width / 8
-                cellHeight: cellWidth
+                cellWidth: 39.5
+                cellHeight: 39.5
                 clip: true
                 
                 model: root.searchQuery === "" ? root.flatEmojis : root.flatEmojis.filter(function(e) {
@@ -222,14 +222,14 @@ PanelWindow {
             // Categories
             Rectangle {
                 Layout.fillWidth: true
-                height: 1
+                Layout.preferredHeight: 1
                 color: Theme.surface
                 visible: root.searchQuery === ""
             }
 
             RowLayout {
                 Layout.fillWidth: true
-                height: 32
+                Layout.preferredHeight: 32
                 spacing: 4
                 visible: root.searchQuery === ""
 

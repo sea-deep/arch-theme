@@ -22,7 +22,7 @@ Item {
     readonly property bool isExpanded: root.isHovered && windowList.length > 0
     property real reveal: isExpanded ? 1 : 0
     
-    readonly property real collapsedWidth: topLayout.implicitWidth + 14
+    readonly property real collapsedWidth: topLayout.implicitWidth + 8
     readonly property real expandedWidth: Math.max(340, collapsedWidth)
     readonly property int bodyHeight: windowList.length > 0 ? Math.min(320, windowList.length * 38 + 16) : 0
     
@@ -176,8 +176,8 @@ Item {
                     readonly property int overflowCount: Math.max(0, groupedApps.length - maxVisibleGroups)
                     
                     implicitHeight: isSpecial ? 0 : 26
-                    implicitWidth: isSpecial ? 0 : rowContent.implicitWidth + 12
-                    radius: 8
+                    implicitWidth: isSpecial ? 0 : rowContent.implicitWidth + 8
+                    radius: 6
                     
                     Behavior on implicitWidth {
                         NumberAnimation { duration: 140; easing.type: Easing.OutCubic }

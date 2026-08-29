@@ -167,18 +167,22 @@ PanelWindow {
         id: launcherCard
         // Exact width for 7 columns (7 * 120 = 840) + margins (24 * 2 = 48) = 888
         width: 888
-        height: Math.min(580, parent.height - 40)
+        height: layout.implicitHeight + layout.anchors.topMargin + 24
         anchors.horizontalCenter: parent.horizontalCenter
 
         // Slide up completely from off-screen bottom edge to a small gap
-        y: root.visible ? (parent.height - height - 12) : parent.height
+        y: root.visible ? (parent.height - height - 16) : parent.height + 20
         opacity: root.visible ? 1 : 0
+        scale: root.visible ? 1 : 0.98
 
         Behavior on y {
-            NumberAnimation { duration: 350; easing.type: Easing.OutQuint }
+            NumberAnimation { duration: 250; easing.type: Easing.OutExpo }
         }
         Behavior on opacity {
-            NumberAnimation { duration: 250; easing.type: Easing.OutQuad }
+            NumberAnimation { duration: 200; easing.type: Easing.OutQuad }
+        }
+        Behavior on scale {
+            NumberAnimation { duration: 250; easing.type: Easing.OutExpo }
         }
 
         color: Theme.bg
@@ -196,11 +200,13 @@ PanelWindow {
         }
 
         ColumnLayout {
-            anchors.fill: parent
+            id: layout
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
             anchors.leftMargin: 24
             anchors.rightMargin: 24
             anchors.topMargin: 24
-            anchors.bottomMargin: 24
             spacing: 16
 
             // Top Header: Search bar + app count badge
@@ -403,8 +409,8 @@ PanelWindow {
             GridView {
                 id: grid
                 Layout.preferredWidth: 840
+                Layout.preferredHeight: 4 * 110
                 Layout.alignment: Qt.AlignHCenter
-                Layout.fillHeight: true
                 cellWidth: 120
                 cellHeight: 110
                 clip: true

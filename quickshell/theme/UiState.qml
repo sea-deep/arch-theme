@@ -25,7 +25,7 @@ Singleton {
         interval: 32
         repeat: false
         onTriggered: {
-            Quickshell.execDetached(["bash", "-c", "quickshell/scripts/update_shader.sh set_all " + Math.round(comfortValue) + " " + Math.round(grayscaleValue) + " " + Math.round(vividValue)])
+            Quickshell.execDetached(["bash", "-c", "$HOME/.config/quickshell/scripts/update_shader.sh set_all " + Math.round(comfortValue) + " " + Math.round(grayscaleValue) + " " + Math.round(vividValue)])
         }
     }
 

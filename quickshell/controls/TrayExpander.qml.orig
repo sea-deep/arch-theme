@@ -35,9 +35,8 @@ Item {
         46 + Math.max(1, menuOpener.children.values.length) * itemHeight + 12)
     property real reveal: expanded ? 1 : 0
 
-    property real expandedWidth: Math.max(260, collapsedWidth)
     implicitWidth: isEmpty ? 0
-        : (expanded || reveal > 0 ? expandedWidth : collapsedWidth)
+        : (expanded || reveal > 0 ? Math.max(260, collapsedWidth) : collapsedWidth)
     implicitHeight: isEmpty ? 0 : (reveal > 0
         ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
         : Theme.barHeight)
@@ -213,14 +212,13 @@ Item {
 
     Components.ConnectedDropdownSurface {
         anchors.fill: parent
-        tabOnLeft: true
         tabWidth: root.collapsedWidth
         visible: root.reveal > 0
     }
 
     Components.Pill {
         anchors.top: parent.top
-        anchors.left: parent.left
+        anchors.right: parent.right
         width: root.collapsedWidth
         height: Theme.barHeight
         visible: root.reveal <= 0
@@ -229,7 +227,7 @@ Item {
     Item {
         id: topButton
         anchors.top: parent.top
-        anchors.left: parent.left
+        anchors.right: parent.right
         width: root.collapsedWidth
         height: Theme.barHeight
 

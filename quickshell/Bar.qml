@@ -173,7 +173,8 @@ PanelWindow {
         Controls.TrayExpander {
             id: trayExpander
             z: 3
-            x: rightModules.x + traySlot.x + traySlot.width - width
+            x: rightModules.x + traySlot.x
+            expandedWidth: rightModules.width - traySlot.x
             y: 0
             targetScreenName: root.screen.name
         }
@@ -181,7 +182,8 @@ PanelWindow {
         Controls.NetworkExpander {
             id: networkExpander
             z: 4
-            x: rightModules.x + networkSlot.x + networkSlot.width - width
+            x: rightModules.x + networkSlot.x
+            expandedWidth: rightModules.width - networkSlot.x
             y: 0
             targetScreenName: root.screen.name
         }

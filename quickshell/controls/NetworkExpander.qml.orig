@@ -34,8 +34,7 @@ Item {
     readonly property int bodyHeight: pendingNetwork ? 420 : 352
     property real reveal: expanded ? 1 : 0
 
-    property real expandedWidth: 350
-    implicitWidth: expanded || reveal > 0 ? expandedWidth : Theme.compactPillSize
+    implicitWidth: expanded || reveal > 0 ? 350 : Theme.compactPillSize
     implicitHeight: reveal > 0
         ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
         : Theme.barHeight
@@ -153,14 +152,13 @@ Item {
 
     Components.ConnectedDropdownSurface {
         anchors.fill: parent
-        tabOnLeft: true
         tabWidth: Theme.compactPillSize
         visible: root.reveal > 0
     }
 
     Components.Pill {
         anchors.top: parent.top
-        anchors.left: parent.left
+        anchors.right: parent.right
         width: Theme.compactPillSize
         height: Theme.barHeight
         visible: root.reveal <= 0
@@ -168,7 +166,7 @@ Item {
 
     Item {
         anchors.top: parent.top
-        anchors.left: parent.left
+        anchors.right: parent.right
         width: Theme.compactPillSize
         height: Theme.barHeight
 

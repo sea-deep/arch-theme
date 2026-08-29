@@ -16,7 +16,15 @@ import "recorder" as Recorder
 ShellRoot {
     id: root
 
-    Component.onCompleted: recorderProbe.running = true
+    Component.onCompleted: {
+        recorderProbe.running = true
+        polkitService.running = true
+    }
+
+    Process {
+        id: polkitService
+        command: ["/usr/bin/systemctl", "--user", "start", "plasma-polkit-agent"]
+    }
 
     // One global producer for every monitor's recording indicator. Once a
     // recorder exists, pidwait gives us an event-driven exit notification.

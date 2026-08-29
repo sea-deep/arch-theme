@@ -89,9 +89,16 @@ PanelWindow {
         const needle = root.query
 
         if (root.mode === "apps") {
-            return DesktopEntries.applications.values.filter(function(entry) {
-                if (entry.noDisplay)
+            var raw = DesktopEntries.applications.values || []
+            var seen = {}
+            return raw.filter(function(entry) {
+                if (!entry || entry.noDisplay || !entry.name)
                     return false
+
+                var cleanExec = (entry.execString || "").replace(/%[a-zA-Z]/g, "").trim()
+                var key = entry.name.toLowerCase() + "::" + cleanExec.toLowerCase()
+                if (seen[key]) return false
+                seen[key] = true
 
                 if (needle === "")
                     return true

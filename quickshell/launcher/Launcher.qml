@@ -39,9 +39,14 @@ PanelWindow {
     function reloadApps() {
         var raw = DesktopEntries.applications.values || []
         var valid = []
+        var seen = {}
         for (var i = 0; i < raw.length; i++) {
             var app = raw[i]
             if (app && !app.noDisplay && app.name) {
+                var cleanExec = (app.execString || "").replace(/%[a-zA-Z]/g, "").trim()
+                var key = app.name.toLowerCase() + "::" + cleanExec.toLowerCase()
+                if (seen[key]) continue
+                seen[key] = true
                 valid.push(app)
             }
         }

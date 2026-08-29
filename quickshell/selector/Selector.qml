@@ -470,15 +470,14 @@ PanelWindow {
                         id: rowMouse
                         anchors.fill: parent
                         hoverEnabled: true
-                        preventStealing: true
                         drag.target: dragProxy
+                        drag.threshold: 8
                         cursorShape: Qt.PointingHandCursor
-                        onPressed: {
-                            resultRow.grabToImage(function(result) {
-                                dragProxy.Drag.imageSource = result.url;
-                            }, Qt.size(160, 48));
+                        onClicked: {
+                            if (!drag.active) {
+                                root.activate(resultRow.modelData)
+                            }
                         }
-                        onClicked: root.activate(resultRow.modelData)
                     }
                 }
 

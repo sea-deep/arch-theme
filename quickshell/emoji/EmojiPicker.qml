@@ -285,13 +285,15 @@ PanelWindow {
                         id: emojiMouseArea
                         anchors.fill: parent
                         hoverEnabled: true
-                        preventStealing: true
                         drag.target: emojiExpDragProxy
+                        drag.threshold: 8
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
-                            grid.currentIndex = index
-                            if (delegateRoot.emoji)
-                                root.selectEmoji(delegateRoot.emoji.char)
+                            if (!drag.active) {
+                                grid.currentIndex = index
+                                if (delegateRoot.emoji)
+                                    root.selectEmoji(delegateRoot.emoji.char)
+                            }
                         }
                     }
 

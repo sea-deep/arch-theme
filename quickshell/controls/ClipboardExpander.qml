@@ -14,6 +14,7 @@ Item {
     readonly property int fullBodyHeight: 400
     property real expandedWidth: 380
     property real reveal: expanded ? 1 : 0
+    property bool isDragging: false
 
     implicitWidth: expanded || reveal > 0 ? expandedWidth : Theme.compactPillSize
     implicitHeight: reveal > 0
@@ -409,16 +410,14 @@ Item {
                         preventStealing: true
                         drag.target: expDragProxy
                         cursorShape: Qt.PointingHandCursor
-                        Binding {
-                            target: UiState
-                            property: "isDragging"
-                            value: itemMouse.drag.active
-                        }
                         onPressed: {
+                            root.isDragging = true
                             expRow.grabToImage(function(result) {
                                 expDragProxy.Drag.imageSource = result.url;
                             }, Qt.size(160, 48));
                         }
+                        onReleased: root.isDragging = false
+                        onCanceled: root.isDragging = false
                         onClicked: root.activate(modelData)
                     }
                 }

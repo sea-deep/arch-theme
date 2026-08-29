@@ -43,7 +43,7 @@ PanelWindow {
             x: 0
             y: 0
             width: root.width
-            height: (root.overlayExpanded && !UiState.isDragging) ? root.height : Theme.barHeight
+            height: Theme.barHeight
         }
         // Retain each pill's animated geometry while it closes or during drag.
         Region { item: hardwarePill }
@@ -65,12 +65,12 @@ PanelWindow {
     Connections {
         target: Hyprland
         function onActiveToplevelChanged() {
-            if (root.overlayExpanded) {
+            if (root.overlayExpanded && !clipboardExpander.isDragging) {
                 UiState.closeOverlays()
             }
         }
         function onFocusedWorkspaceChanged() {
-            if (root.overlayExpanded) {
+            if (root.overlayExpanded && !clipboardExpander.isDragging) {
                 UiState.closeOverlays()
             }
         }
@@ -85,7 +85,7 @@ PanelWindow {
         MouseArea {
             id: bgMouseArea
             anchors.fill: parent
-            enabled: root.overlayExpanded && !UiState.isDragging
+            enabled: root.overlayExpanded
             z: 0
             onClicked: UiState.closeOverlays()
         }

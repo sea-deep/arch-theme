@@ -207,12 +207,11 @@ Item {
                         anchors.centerIn: parent
                         spacing: 5
 
-                        // Workspace Number (ONLY shown for empty workspaces)
+                        // Workspace Number
                         Text {
                             id: wsNum
-                            visible: wsPill.groupedApps.length === 0
                             text: wsPill.modelData.name
-                            color: wsPill.isActive ? Theme.bgDark : (wsPill.isUrgent ? Theme.red : (wsHoverHandler.hovered ? Theme.blue : Theme.fgDim))
+                            color: wsPill.isActive ? Theme.bgDark : (wsPill.isUrgent ? Theme.red : (wsHoverHandler.hovered ? Theme.blue : (wsPill.windowCount > 0 ? Theme.fg : Theme.fgDim)))
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSize
                             font.weight: wsPill.isActive ? Font.Bold : Theme.fontWeight

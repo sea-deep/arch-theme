@@ -79,9 +79,7 @@ PanelWindow {
 
     function selectEmoji(emoji) {
         UiState.emojiVisible = false
-        Quickshell.execDetached(["bash", "-c",
-            "sleep 0.15 && wtype '" + emoji + "' 2>/dev/null || { wl-copy '" + emoji + "'; notify-send -a Emoji -t 1500 '📋 Copied " + emoji + "'; }"
-        ])
+        Quickshell.execDetached(["bash", Quickshell.shellPath("scripts/type-emoji.sh"), emoji])
     }
 
     Component.onCompleted: {

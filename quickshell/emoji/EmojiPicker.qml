@@ -41,24 +41,19 @@ PanelWindow {
     property var categoryIndices: ({})
 
     function filterEmojis(query) {
-        if (query === "") {
-            root.displayEmojis = root.flatEmojis
-        } else {
-            var result = []
-            for (var i = 0; i < root.flatEmojis.length; i++) {
-                var e = root.flatEmojis[i]
-                if (e.name.toLowerCase().indexOf(query) !== -1) {
-                    result.push(e)
-                }
+        var result = []
+        for (var i = 0; i < root.flatEmojis.length; i++) {
+            var e = root.flatEmojis[i]
+            if (query === "" || e.name.toLowerCase().indexOf(query) !== -1) {
+                result.push(e)
             }
-            root.displayEmojis = result
         }
+        root.displayEmojis = result
     }
 
     function selectEmoji(char) {
         UiState.emojiVisible = false
-        typeProc.command = [Quickshell.shellPath("scripts/type-emoji.sh"), char]
-        typeProc.running = true
+        Quickshell.execDetached(["bash", Quickshell.shellPath("scripts/type-emoji.sh"), char])
     }
 
     Component.onCompleted: {
@@ -125,10 +120,6 @@ PanelWindow {
         }
     }
 
-    // Type emoji (wtype with wl-copy fallback)
-    Process {
-        id: typeProc
-    }
 
     // Popup
     Rectangle {

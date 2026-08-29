@@ -16,10 +16,8 @@ PanelWindow {
     anchors.right: true
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
-    
-    // Transparent background that closes the popup on click
+
     color: "transparent"
-    
     visible: UiState.emojiVisible
 
     property int cursorX: -1
@@ -42,12 +40,34 @@ PanelWindow {
     property var displayEmojis: []
     property var categoryIndices: ({})
 
+    function filterEmojis(query) {
+        if (query === "") {
+            root.displayEmojis = root.flatEmojis
+        } else {
+            var result = []
+            for (var i = 0; i < root.flatEmojis.length; i++) {
+                var e = root.flatEmojis[i]
+                if (e.name.toLowerCase().indexOf(query) !== -1) {
+                    result.push(e)
+                }
+            }
+            root.displayEmojis = result
+        }
+    }
+
+    function selectEmoji(char) {
+        UiState.emojiVisible = false
+        typeProc.command = [Quickshell.shellPath("scripts/type-emoji.sh"), char]
+        typeProc.running = true
+    }
+
     Component.onCompleted: {
         var list = []
+        var indices = {}
         var idx = 0
         for (var i = 0; i < categoryList.length; i++) {
             var catName = categoryList[i].name
-            categoryIndices[catName] = idx
+            indices[catName] = idx
             var ems = EmojiData.categories[catName] || []
             for (var j = 0; j < ems.length; j++) {
                 list.push({
@@ -55,12 +75,12 @@ PanelWindow {
                     name: ems[j].name,
                     category: catName
                 })
-
                 idx++
             }
         }
         flatEmojis = list
-        displayEmojis = [].concat(list)
+        displayEmojis = list
+        categoryIndices = indices
     }
 
     onVisibleChanged: {
@@ -69,16 +89,18 @@ PanelWindow {
             cursorY = -1
             searchQuery = ""
             searchInput.text = ""
-            root.displayEmojis = [].concat(root.flatEmojis)
+            filterEmojis("")
             posProc.running = true
             Qt.callLater(() => searchInput.forceActiveFocus())
         }
     }
 
+    // Click outside to close
     TapHandler {
         onTapped: UiState.emojiVisible = false
     }
 
+    // Get cursor position
     Process {
         id: posProc
         command: ["hyprctl", "cursorpos"]
@@ -88,16 +110,14 @@ PanelWindow {
                 if (parts.length === 2) {
                     var cx = parseInt(parts[0].trim())
                     var cy = parseInt(parts[1].trim())
-                    // bounds check
                     var popupW = 340
                     var popupH = 440
-                    
+
                     if (cx + popupW > root.width) cx = root.width - popupW - 10
                     if (cy + popupH > root.height) cy = root.height - popupH - 10
-                    
                     if (cx < 10) cx = 10
                     if (cy < 10) cy = 10
-                    
+
                     root.cursorX = cx
                     root.cursorY = cy
                 }
@@ -105,15 +125,18 @@ PanelWindow {
         }
     }
 
+    // Type emoji (wtype with wl-copy fallback)
+    Process {
+        id: typeProc
+    }
+
+    // Popup
     Rectangle {
         id: popup
         width: 340
         height: 440
-        
-        // Center if cursor is unknown, else use cursor
         x: root.cursorX < 0 ? (root.width - width) / 2 : root.cursorX
         y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
-        
         visible: root.cursorX >= 0 || !posProc.running
 
         color: Theme.bg
@@ -121,16 +144,15 @@ PanelWindow {
         border.color: Theme.surface
         border.width: 1
 
-        TapHandler {
-            // consume clicks so it doesn't close
-        }
+        // Consume clicks so they don't close the popup
+        TapHandler {}
 
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: 12
             spacing: 10
 
-            // Search
+            // Search bar
             Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 36
@@ -143,12 +165,14 @@ PanelWindow {
                     anchors.fill: parent
                     anchors.margins: 8
                     spacing: 8
+
                     Text {
                         text: "󰍉"
                         color: Theme.fgDim
                         font.family: Theme.fontFamily
                         font.pixelSize: 14
                     }
+
                     TextInput {
                         id: searchInput
                         Layout.fillWidth: true
@@ -158,11 +182,7 @@ PanelWindow {
                         verticalAlignment: TextInput.AlignVCenter
                         onTextChanged: {
                             root.searchQuery = text.toLowerCase()
-                            if (root.searchQuery === "") {
-                                root.displayEmojis = [].concat(root.flatEmojis)
-                            } else {
-                                root.displayEmojis = [].concat(root.flatEmojis).filter(e => e.name.toLowerCase().indexOf(root.searchQuery) !== -1)
-                            }
+                            root.filterEmojis(root.searchQuery)
                         }
                         Keys.onEscapePressed: UiState.emojiVisible = false
                         Keys.onPressed: event => {
@@ -176,62 +196,55 @@ PanelWindow {
                 }
             }
 
-            // Grid
+            // Emoji grid (wrapped in Item for proper ColumnLayout sizing)
             Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+
                 GridView {
                     id: grid
                     anchors.fill: parent
-                cellWidth: 39.5
-                cellHeight: 39.5
-                clip: true
-                
-                model: root.displayEmojis
+                    cellWidth: 39.5
+                    cellHeight: 39.5
+                    clip: true
+                    model: root.displayEmojis
+                    activeFocusOnTab: true
 
-                activeFocusOnTab: true
-                
-                Keys.onEscapePressed: UiState.emojiVisible = false
-                Keys.onPressed: event => {
-                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                        if (currentItem) {
-                            Quickshell.execDetached([Quickshell.shellPath("scripts/type-emoji.sh"), currentItem.modelData.char])
-                            UiState.emojiVisible = false
-                        }
-                        event.accepted = true
-                    }
-                }
-
-                delegate: Rectangle {
-                    id: delegateRoot
-                    required property var modelData
-                    required property int index
-                    
-                    width: grid.cellWidth
-                    height: grid.cellHeight
-                    color: (grid.activeFocus && grid.currentIndex === index) || hover.hovered ? Theme.bgLight : "transparent"
-                    radius: 8
-
-                    HoverHandler { id: hover }
-                    TapHandler {
-                        onTapped: {
-                            Quickshell.execDetached([Quickshell.shellPath("scripts/type-emoji.sh"), delegateRoot.modelData.char])
-                            UiState.emojiVisible = false
+                    Keys.onEscapePressed: UiState.emojiVisible = false
+                    Keys.onPressed: event => {
+                        if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                            if (currentItem) {
+                                root.selectEmoji(currentItem.modelData.char)
+                            }
+                            event.accepted = true
                         }
                     }
 
-                    Text {
-                        anchors.centerIn: parent
-                        text: delegateRoot.modelData.char
-                        font.family: Theme.fontFamilySans
-                        font.pixelSize: 22
+                    delegate: Rectangle {
+                        id: delegateRoot
+                        required property var modelData
+                        required property int index
+
+                        width: grid.cellWidth
+                        height: grid.cellHeight
+                        color: (grid.activeFocus && grid.currentIndex === index) || hover.hovered ? Theme.bgLight : "transparent"
+                        radius: 8
+
+                        HoverHandler { id: hover }
+                        TapHandler {
+                            onTapped: root.selectEmoji(delegateRoot.modelData.char)
+                        }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: delegateRoot.modelData.char
+                            font.pixelSize: 22
+                        }
                     }
                 }
             }
 
-                        }
-
-            // Categories
+            // Category separator
             Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 1
@@ -239,6 +252,7 @@ PanelWindow {
                 visible: root.searchQuery === ""
             }
 
+            // Category tabs
             RowLayout {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 32
@@ -275,5 +289,4 @@ PanelWindow {
             }
         }
     }
-
-    }
+}

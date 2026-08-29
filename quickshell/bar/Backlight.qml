@@ -38,7 +38,7 @@ Item {
         radius: 1
         color: Theme.yellow
         opacity: brightnessHover.hovered ? 1 : 0
-        Behavior on opacity { NumberAnimation { duration: 80 } }
+        Behavior on opacity { NumberAnimation { duration: Theme.durationFast; easing.type: Theme.easingDecelerate } }
     }
 
     function getIcon() {

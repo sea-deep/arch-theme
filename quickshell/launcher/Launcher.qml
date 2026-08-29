@@ -404,7 +404,7 @@ PanelWindow {
                             border.color: isActive ? Theme.accent : (chipHover.containsMouse ? Theme.surface : "transparent")
                             border.width: 1
 
-                            Behavior on color { ColorAnimation { duration: 150 } }
+                            Behavior on color { ColorAnimation { duration: Theme.durationFast } }
                             Behavior on border.color { ColorAnimation { duration: 150 } }
 
                             RowLayout {
@@ -417,7 +417,7 @@ PanelWindow {
                                     color: catChip.isActive ? Theme.bgDark : (chipHover.containsMouse ? Theme.accent : Theme.fgDim)
                                     font.family: Theme.fontFamily
                                     font.pixelSize: 13
-                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                    Behavior on color { ColorAnimation { duration: Theme.durationFast } }
                                 }
 
                                 Text {
@@ -426,7 +426,7 @@ PanelWindow {
                                     font.family: Theme.fontFamilySans
                                     font.pixelSize: 13
                                     font.weight: catChip.isActive ? Font.Bold : Font.Medium
-                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                    Behavior on color { ColorAnimation { duration: Theme.durationFast } }
                                 }
                             }
 
@@ -558,7 +558,7 @@ PanelWindow {
                                 elide: Text.ElideRight
                                 maximumLineCount: 2
                                 wrapMode: Text.Wrap
-                                Behavior on color { ColorAnimation { duration: 150 } }
+                                Behavior on color { ColorAnimation { duration: Theme.durationFast } }
                             }
                         }
 

@@ -1,0 +1,11 @@
+# Temporary and test files
+*.tmp
+test_*.qml
+
+# Generated runtime state files
+quickshell/state/*.frag
+quickshell/state/target_slot
+quickshell/state/*.tmp
+
+# QML language server config
+.qmlls.ini

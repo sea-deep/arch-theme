@@ -6,40 +6,40 @@ import Quickshell.Widgets
 import "../theme"
 import "../components" as Components
 
-Components.Pill {
+Item {
     id: root
     
-    property var targetWorkspace: null
+    property var hoveredWorkspace: null
     
-    // Fallback to active workspace if no specific workspace hovered
-    readonly property var activeWs: targetWorkspace
+    readonly property var activeWs: hoveredWorkspace
         || (Hyprland.focusedWorkspace && Hyprland.focusedWorkspace.toplevels && Hyprland.focusedWorkspace.toplevels.values.length > 0 ? Hyprland.focusedWorkspace : null)
     
     readonly property var windowList: activeWs && activeWs.toplevels
         ? activeWs.toplevels.values
         : []
     
-    property bool hovered: false
-    readonly property bool isExpanded: root.hovered && windowList.length > 0
+    property bool isHovered: false
+    readonly property bool isExpanded: root.isHovered && windowList.length > 0
     property real reveal: isExpanded ? 1 : 0
     
-    readonly property int bodyHeight: windowList.length > 0 ? Math.min(320, windowList.length * 42 + 36) : 0
+    readonly property real collapsedWidth: topLayout.implicitWidth + 14
+    readonly property real expandedWidth: Math.max(340, collapsedWidth)
+    readonly property int bodyHeight: windowList.length > 0 ? Math.min(320, windowList.length * 38 + 16) : 0
     
-    implicitWidth: Math.max(topLayout.implicitWidth + 14, reveal > 0 ? 320 : 0)
-    implicitHeight: Theme.barHeight + (reveal * bodyHeight)
-    clip: true
+    implicitWidth: reveal > 0 ? expandedWidth : collapsedWidth
+    implicitHeight: reveal > 0
+        ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
+        : Theme.barHeight
     
-    Behavior on reveal { NumberAnimation { duration: 130; easing.type: Easing.OutQuart } }
-    Behavior on implicitWidth { NumberAnimation { duration: 140; easing.type: Easing.OutQuart } }
-    
-    border.color: isExpanded || reveal > 0 ? Theme.accentGlow : (root.hovered ? Theme.accentGlow : Theme.bgDark)
+    Behavior on reveal { NumberAnimation { duration: 110; easing.type: Easing.OutQuart } }
+    Behavior on implicitWidth { NumberAnimation { duration: 120; easing.type: Easing.OutQuart } }
 
     Timer {
         id: closeTimer
         interval: 260
         onTriggered: {
-            root.hovered = false
-            root.targetWorkspace = null
+            root.isHovered = false
+            root.hoveredWorkspace = null
         }
     }
 
@@ -48,7 +48,7 @@ Components.Pill {
         onHoveredChanged: {
             if (hovered) {
                 closeTimer.stop()
-                root.hovered = true
+                root.isHovered = true
             } else {
                 closeTimer.restart()
             }
@@ -63,7 +63,6 @@ Components.Pill {
             || "";
         var initCls = (toplevel.lastIpcObject && toplevel.lastIpcObject.initialClass) || "";
 
-        // 1. Query Quickshell's native C++ DesktopEntries heuristic lookup
         var entry = (cls ? DesktopEntries.heuristicLookup(cls) : null)
             || (initCls ? DesktopEntries.heuristicLookup(initCls) : null);
         
@@ -72,7 +71,6 @@ Components.Pill {
             if (direct && direct !== "") return direct;
         }
 
-        // 2. Dynamic candidate generator (extracts reverse-domain IDs, clean names, and fallbacks)
         var candidates = [];
         if (entry && entry.icon) candidates.push(entry.icon);
         if (cls) {
@@ -124,13 +122,32 @@ Components.Pill {
         return list;
     }
 
+    // Organic Connected Dropdown Surface when expanded
+    Components.ConnectedDropdownSurface {
+        anchors.fill: parent
+        tabWidth: root.collapsedWidth
+        tabOnLeft: true
+        visible: root.reveal > 0
+    }
+
+    // Default Pill Surface when collapsed
+    Components.Pill {
+        anchors.top: parent.top
+        anchors.left: parent.left
+        width: root.collapsedWidth
+        height: Theme.barHeight
+        visible: root.reveal <= 0
+        border.color: root.isHovered ? Theme.accentGlow : Theme.bgDark
+    }
+
     // TOP BAR SECTION (Workspaces numbers + App icons)
     Item {
         id: topSection
         anchors.top: parent.top
         anchors.left: parent.left
-        anchors.right: parent.right
+        width: root.collapsedWidth
         height: Theme.barHeight
+        z: 2
 
         RowLayout {
             id: topLayout
@@ -173,8 +190,8 @@ Components.Pill {
                         onHoveredChanged: {
                             if (hovered) {
                                 closeTimer.stop()
-                                root.hovered = true
-                                root.targetWorkspace = wsPill.modelData
+                                root.isHovered = true
+                                root.hoveredWorkspace = wsPill.modelData
                             }
                         }
                     }
@@ -231,8 +248,8 @@ Components.Pill {
                                             onHoveredChanged: {
                                                 if (hovered) {
                                                     closeTimer.stop()
-                                                    root.hovered = true
-                                                    root.targetWorkspace = wsPill.modelData
+                                                    root.isHovered = true
+                                                    root.hoveredWorkspace = wsPill.modelData
                                                 }
                                             }
                                         }
@@ -288,45 +305,23 @@ Components.Pill {
         }
     }
 
-    // EXPANDABLE PULL-DOWN BODY (Clean list of window titles in current/hovered workspace)
+    // EXPANDED BODY (Connected window title rows)
     Item {
         id: expandableBody
-        anchors.top: topSection.bottom
+        anchors.top: parent.top
+        anchors.topMargin: Theme.barHeight + Theme.outerGap + 8
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
+        anchors.margins: 10
         visible: root.reveal > 0
         opacity: root.reveal
+        z: 2
         
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 8
             spacing: 4
 
-            // Small discrete header
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 6
-
-                Rectangle {
-                    width: 6
-                    height: 6
-                    radius: 3
-                    color: Theme.accent
-                }
-
-                Text {
-                    text: root.activeWs ? ("Workspace " + root.activeWs.name) : "Windows"
-                    color: Theme.fgDim
-                    font.family: Theme.fontFamilySans
-                    font.pixelSize: 11
-                    font.weight: Font.Bold
-                }
-
-                Item { Layout.fillWidth: true }
-            }
-
-            // Window items
             Repeater {
                 model: root.windowList
 
@@ -335,7 +330,7 @@ Components.Pill {
                     required property var modelData
                     Layout.fillWidth: true
                     implicitHeight: 34
-                    radius: 6
+                    radius: 7
                     color: rowHover.containsMouse
                         ? Theme.surface
                         : (rowItem.modelData.activated ? Theme.bgLight : "transparent")
@@ -353,19 +348,14 @@ Components.Pill {
                             source: root.getAppIcon(rowItem.modelData)
                         }
 
-                        ColumnLayout {
+                        Text {
                             Layout.fillWidth: true
-                            spacing: 1
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: rowItem.modelData.title || (rowItem.modelData.lastIpcObject && rowItem.modelData.lastIpcObject.class) || "(Window)"
-                                color: rowItem.modelData.activated ? Theme.accent : Theme.fg
-                                font.family: Theme.fontFamilySans
-                                font.pixelSize: 12
-                                font.weight: rowItem.modelData.activated ? Font.Bold : Theme.fontWeight
-                                elide: Text.ElideRight
-                            }
+                            text: rowItem.modelData.title || (rowItem.modelData.lastIpcObject && rowItem.modelData.lastIpcObject.class) || "(Window)"
+                            color: rowItem.modelData.activated ? Theme.accent : Theme.fg
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 12
+                            font.weight: rowItem.modelData.activated ? Font.Bold : Theme.fontWeight
+                            elide: Text.ElideRight
                         }
 
                         Rectangle {

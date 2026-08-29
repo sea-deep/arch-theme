@@ -58,10 +58,8 @@ ShellRoot {
         component: Component { Selector.Selector {} }
     }
 
-    LazyLoader {
-        active: UiState.emojiVisible
-        component: Component { Emoji.EmojiPicker {} }
-    }
+
+
 
     LazyLoader {
         active: UiState.settingsVisible

@@ -23,6 +23,7 @@ PanelWindow {
     property int cursorX: -1
     property int cursorY: -1
     property string searchQuery: ""
+    property int emojiCount: 0
 
     property var categoryList: [
         { name: "Smileys & Emotion", icon: "😀" },
@@ -36,27 +37,13 @@ PanelWindow {
         { name: "Flags", icon: "🚩" }
     ]
 
-    property var flatEmojis: []
+    // Internal storage — never bound as a model directly
+    property var allEmojis: []
+    // Filtered list — assigned as model
     property var displayEmojis: []
     property var categoryIndices: ({})
 
-    function filterEmojis(query) {
-        var result = []
-        for (var i = 0; i < root.flatEmojis.length; i++) {
-            var e = root.flatEmojis[i]
-            if (query === "" || e.name.toLowerCase().indexOf(query) !== -1) {
-                result.push(e)
-            }
-        }
-        root.displayEmojis = result
-    }
-
-    function selectEmoji(char) {
-        UiState.emojiVisible = false
-        Quickshell.execDetached(["bash", Quickshell.shellPath("scripts/type-emoji.sh"), char])
-    }
-
-    Component.onCompleted: {
+    function buildEmojiList() {
         var list = []
         var indices = {}
         var idx = 0
@@ -73,21 +60,38 @@ PanelWindow {
                 idx++
             }
         }
-        flatEmojis = list
-        displayEmojis = list
+        allEmojis = list
         categoryIndices = indices
     }
 
-    onVisibleChanged: {
-        if (visible) {
-            cursorX = -1
-            cursorY = -1
-            searchQuery = ""
-            searchInput.text = ""
+    function filterEmojis(query) {
+        var src = root.allEmojis
+        var result = []
+        for (var i = 0; i < src.length; i++) {
+            var e = src[i]
+            if (query === "" || e.name.toLowerCase().indexOf(query) !== -1) {
+                result.push(e)
+            }
+        }
+        root.displayEmojis = result
+        root.emojiCount = result.length
+    }
+
+    function selectEmoji(emoji) {
+        UiState.emojiVisible = false
+        Quickshell.execDetached(["bash", "-c",
+            "sleep 0.15 && wtype '" + emoji + "' 2>/dev/null || { wl-copy '" + emoji + "'; notify-send -a Emoji -t 1500 '📋 Copied " + emoji + "'; }"
+        ])
+    }
+
+    Component.onCompleted: {
+        buildEmojiList()
+        // Use Qt.callLater so the GridView exists before we assign the model
+        Qt.callLater(function() {
             filterEmojis("")
             posProc.running = true
-            Qt.callLater(() => searchInput.forceActiveFocus())
-        }
+            searchInput.forceActiveFocus()
+        })
     }
 
     // Click outside to close
@@ -119,7 +123,6 @@ PanelWindow {
             }
         }
     }
-
 
     // Popup
     Rectangle {
@@ -187,7 +190,7 @@ PanelWindow {
                 }
             }
 
-            // Emoji grid (wrapped in Item for proper ColumnLayout sizing)
+            // Emoji grid
             Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -198,14 +201,14 @@ PanelWindow {
                     cellWidth: 39.5
                     cellHeight: 39.5
                     clip: true
-                    model: root.displayEmojis
+                    model: root.emojiCount
                     activeFocusOnTab: true
 
                     Keys.onEscapePressed: UiState.emojiVisible = false
                     Keys.onPressed: event => {
                         if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                            if (currentItem) {
-                                root.selectEmoji(currentItem.modelData.char)
+                            if (currentIndex >= 0 && currentIndex < root.displayEmojis.length) {
+                                root.selectEmoji(root.displayEmojis[currentIndex].char)
                             }
                             event.accepted = true
                         }
@@ -213,8 +216,9 @@ PanelWindow {
 
                     delegate: Rectangle {
                         id: delegateRoot
-                        required property var modelData
                         required property int index
+
+                        property var emoji: index < root.displayEmojis.length ? root.displayEmojis[index] : null
 
                         width: grid.cellWidth
                         height: grid.cellHeight
@@ -223,12 +227,15 @@ PanelWindow {
 
                         HoverHandler { id: hover }
                         TapHandler {
-                            onTapped: root.selectEmoji(delegateRoot.modelData.char)
+                            onTapped: {
+                                if (delegateRoot.emoji)
+                                    root.selectEmoji(delegateRoot.emoji.char)
+                            }
                         }
 
                         Text {
                             anchors.centerIn: parent
-                            text: delegateRoot.modelData.char
+                            text: delegateRoot.emoji ? delegateRoot.emoji.char : ""
                             font.pixelSize: 22
                         }
                     }

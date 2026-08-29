@@ -56,6 +56,26 @@ PanelWindow {
         Region { item: workspacesModule }
     }
 
+    Shortcut {
+        sequence: "Escape"
+        enabled: root.overlayExpanded
+        onActivated: UiState.closeOverlays()
+    }
+
+    Connections {
+        target: Hyprland
+        function onActiveToplevelChanged() {
+            if (root.overlayExpanded) {
+                UiState.closeOverlays()
+            }
+        }
+        function onFocusedWorkspaceChanged() {
+            if (root.overlayExpanded) {
+                UiState.closeOverlays()
+            }
+        }
+    }
+
     Item {
         id: barContent
         Keys.onEscapePressed: UiState.closeOverlays()

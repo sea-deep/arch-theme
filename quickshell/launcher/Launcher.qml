@@ -20,6 +20,12 @@ PanelWindow {
 
     color: "transparent"
 
+    Shortcut {
+        sequence: "Escape"
+        enabled: root.showing
+        onActivated: UiState.launcherVisible = false
+    }
+
     property string searchQuery: ""
     property string activeCategory: "All"
     property var filteredApps: []

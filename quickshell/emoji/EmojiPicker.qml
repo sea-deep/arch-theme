@@ -20,6 +20,12 @@ PanelWindow {
     color: "transparent"
     visible: UiState.emojiVisible
 
+    Shortcut {
+        sequence: "Escape"
+        enabled: UiState.emojiVisible
+        onActivated: UiState.emojiVisible = false
+    }
+
     property int cursorX: -1
     property int cursorY: -1
     property string searchQuery: ""

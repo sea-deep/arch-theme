@@ -178,9 +178,9 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? 280 : 180
+            duration: root.showing ? 180 : 110
             easing.type: root.showing ? Easing.OutBack : Easing.InQuad
-            easing.overshoot: 1.12
+            easing.overshoot: 1.08
         }
     }
 

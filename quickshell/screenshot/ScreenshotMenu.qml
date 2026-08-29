@@ -22,7 +22,11 @@ PanelWindow {
     property real reveal: showing ? 1 : 0
 
     Behavior on reveal {
-        NumberAnimation { duration: 150; easing.type: Easing.OutExpo }
+        NumberAnimation {
+            duration: root.showing ? 160 : 100
+            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
+            easing.overshoot: 1.08
+        }
     }
     
     // PanelWindow has no opacity, bind visible to showing

@@ -21,7 +21,7 @@ Item {
     focus: expanded
 
     Behavior on reveal {
-        NumberAnimation { duration: 110; easing.type: Easing.OutQuart }
+        NumberAnimation { duration: 85; easing.type: Easing.OutCubic }
     }
 
     onExpandedChanged: {

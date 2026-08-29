@@ -23,7 +23,7 @@ void main() {
     vec4 color = texture(tex, v_texcoord);
     vec3 rgb = color.rgb;
 
-    float vivid = 0.200;
+    float vivid = 0.410;
     if (vivid > 0.0) {
         vec3 hsv = rgb2hsv(rgb);
         hsv.y = clamp(hsv.y * (1.0 + vivid), 0.0, 1.0);
@@ -36,7 +36,7 @@ void main() {
         rgb = mix(rgb, vec3(gray), grayscale);
     }
 
-    float comfort = 0.040;
+    float comfort = 0.000;
     if (comfort > 0.0) {
         rgb.b = mix(rgb.b, rgb.b * 0.4, comfort);
         rgb.g = mix(rgb.g, rgb.g * 0.8, comfort);

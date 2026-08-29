@@ -38,7 +38,7 @@ Components.Pill {
     focus: expanded
 
     Behavior on implicitHeight {
-        NumberAnimation { duration: 105; easing.type: Easing.OutQuart }
+        NumberAnimation { duration: 85; easing.type: Easing.OutCubic }
     }
 
     onExpandedChanged: {

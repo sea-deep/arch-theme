@@ -23,7 +23,7 @@ Components.Pill {
     focus: expanded
     border.color: expanded || reveal > 0 ? Theme.accentGlow : (root.hovered ? Theme.accentGlow : Theme.bgDark)
 
-    Behavior on reveal { NumberAnimation { duration: 105; easing.type: Easing.OutQuart } }
+    Behavior on reveal { NumberAnimation { duration: 85; easing.type: Easing.OutCubic } }
 
     onExpandedChanged: {
         if (expanded) {

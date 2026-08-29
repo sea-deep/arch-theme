@@ -25,7 +25,7 @@ Item {
     focus: showing
 
     Behavior on reveal {
-        NumberAnimation { duration: 110; easing.type: Easing.OutQuart }
+        NumberAnimation { duration: 85; easing.type: Easing.OutCubic }
     }
 
     Timer {

@@ -17,7 +17,15 @@ PanelWindow {
     // buttons remain true toggles while the selector is open.
     margins.top: 34 + 2 * 2
     color: Qt.rgba(21 / 255, 22 / 255, 30 / 255, 0.62)
-    visible: UiState.selectorVisible
+    property real reveal: UiState.selectorVisible ? 1 : 0
+    Behavior on reveal {
+        NumberAnimation {
+            duration: UiState.selectorVisible ? 160 : 100
+            easing.type: UiState.selectorVisible ? Easing.OutBack : Easing.InQuad
+            easing.overshoot: 1.08
+        }
+    }
+    visible: reveal > 0
 
     WlrLayershell.namespace: "quickshell-selector"
     WlrLayershell.layer: WlrLayer.Top
@@ -229,6 +237,13 @@ PanelWindow {
         radius: 16
         border.width: 2
         border.color: Theme.bgDark
+
+        transform: Scale {
+            origin.x: panel.width / 2
+            origin.y: panel.height / 2
+            xScale: 0.94 + (0.06 * root.reveal)
+            yScale: xScale
+        }
 
         TapHandler {}
 

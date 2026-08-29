@@ -1,67 +1,81 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell
 import Quickshell.Services.UPower
 import "../theme"
 
 Item {
     id: root
-    implicitWidth: layout.implicitWidth
-    implicitHeight: layout.implicitHeight
-    
-    // Fallback safely if displayDevice is null
-    property real percentage: UPower.displayDevice ? UPower.displayDevice.percentage * 100 : 100
-    property int state: UPower.displayDevice ? UPower.displayDevice.state : UPower.DeviceState.Unknown
-    property string iconName: UPower.displayDevice ? UPower.displayDevice.iconName : ""
-    
-    property bool isCritical: state === UPower.DeviceState.Discharging && percentage < 20
-    
-    // Map standard UPower icons to nerd font icons if we want text icons,
-    // or we can use the native iconName with an Image.
-    // The user wants the Sway style which uses Nerd Font text icons.
-    function getBatteryIcon() {
-        if (state === UPower.DeviceState.Charging || state === UPower.DeviceState.PendingCharge) {
+    signal primaryClicked()
+
+    implicitWidth: layout.implicitWidth + 16
+    implicitHeight: Theme.barHeight
+
+    readonly property var battery: UPower.displayDevice
+    readonly property bool available: battery !== null && battery.ready && battery.isPresent
+    readonly property int percentage: available ? Math.round(battery.percentage * 100) : 0
+    readonly property bool isCharging: available && (
+        battery.state === UPowerDeviceState.Charging
+        || battery.state === UPowerDeviceState.PendingCharge
+        || battery.state === UPowerDeviceState.FullyCharged)
+    readonly property bool isCritical: available && percentage <= 10 && !isCharging
+
+    function batteryIcon() {
+        if (isCharging)
             return "󰂄"
-        }
-        if (percentage >= 95) return "󰁹"
-        if (percentage >= 90) return "󰂂"
-        if (percentage >= 80) return "󰂁"
-        if (percentage >= 70) return "󰂀"
-        if (percentage >= 60) return "󰁿"
-        if (percentage >= 50) return "󰁾"
-        if (percentage >= 40) return "󰁽"
-        if (percentage >= 30) return "󰁼"
-        if (percentage >= 20) return "󰁻"
-        if (percentage >= 10) return "󰁺"
-        return "󰂃" // empty/critical
+
+        const icons = ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
+        return icons[Math.max(0, Math.min(10, Math.floor(percentage / 10)))]
+    }
+
+    Rectangle {
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 3
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: Math.max(0, parent.width - 12)
+        height: 2
+        radius: 1
+        color: Theme.accent
+        opacity: batteryHover.hovered ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: 80 } }
     }
 
     RowLayout {
         id: layout
-        spacing: Theme.spacing
-        
+        anchors.centerIn: parent
+        spacing: 4
+
         Text {
-            text: root.getBatteryIcon()
-            color: root.isCritical ? (blinkTimer.blinkState ? Theme.red : Theme.bg) : Theme.accent
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeLarge
-            
-            Timer {
-                id: blinkTimer
-                interval: 500
-                running: root.isCritical
-                repeat: true
-                property bool blinkState: false
-                onTriggered: blinkState = !blinkState
-            }
-        }
-        
-        Text {
-            text: Math.round(root.percentage) + "%"
-            color: Theme.fg
+            Layout.preferredWidth: 18
+            horizontalAlignment: Text.AlignHCenter
+            text: root.batteryIcon()
+            color: root.isCritical ? (blinkTimer.blinkState ? Theme.red : Theme.bgDark) : Theme.accent
             font.family: Theme.fontFamily
             font.pixelSize: Theme.fontSize
-            font.bold: true
+            font.weight: Theme.fontWeight
+        }
+        Text {
+            text: root.available ? root.percentage + "%" : "--%"
+            color: root.isCritical ? (blinkTimer.blinkState ? Theme.red : Theme.bgDark) : Theme.fg
+            font.family: Theme.fontFamily
+            font.pixelSize: Theme.fontSize
+            font.weight: Theme.fontWeight
         }
     }
+
+    Timer {
+        id: blinkTimer
+        interval: 500
+        running: root.isCritical
+        repeat: true
+        property bool blinkState: false
+        onTriggered: blinkState = !blinkState
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        onClicked: root.primaryClicked()
+    }
+
+    HoverHandler { id: batteryHover }
 }

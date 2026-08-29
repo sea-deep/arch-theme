@@ -1,7 +1,8 @@
 import QtQuick
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
-import "../theme" as Theme
+import Quickshell
+import Quickshell.Widgets
+import "../theme"
 
 Rectangle {
     id: root
@@ -9,8 +10,8 @@ Rectangle {
     height: 48
     radius: 8
     color: {
-        if (ListView.isCurrentItem) return Theme.Theme.accent
-        if (hover.hovered) return Theme.Theme.bgLight
+        if (ListView.isCurrentItem) return Theme.accent
+        if (hover.hovered) return Theme.bgLight
         return "transparent"
     }
 
@@ -21,7 +22,7 @@ Rectangle {
         if (modelData && modelData.execute) {
             modelData.execute()
         }
-        root.parent.parent.parent.parent.isActive = false
+        UiState.launcherVisible = false
     }
 
     RowLayout {
@@ -33,20 +34,9 @@ Rectangle {
             Layout.preferredWidth: 32
             Layout.preferredHeight: 32
             
-            Image {
-                id: appIcon
+            IconImage {
                 anchors.fill: parent
-                source: (modelData && modelData.icon) ? ("image://icon/" + modelData.icon) : ""
-                sourceSize: Qt.size(32, 32)
-                fillMode: Image.PreserveAspectFit
-                visible: false // hide original image because ColorOverlay will render it
-            }
-            
-            ColorOverlay {
-                anchors.fill: appIcon
-                source: appIcon
-                color: ListView.isCurrentItem ? Theme.Theme.bgDark : Theme.Theme.fg
-                visible: appIcon.source !== ""
+                source: modelData && modelData.icon ? Quickshell.iconPath(modelData.icon, "application-x-executable") : ""
             }
         }
         
@@ -55,15 +45,15 @@ Rectangle {
             spacing: 2
             Text {
                 text: (modelData && modelData.name) ? modelData.name : ""
-                color: ListView.isCurrentItem ? Theme.Theme.bgDark : Theme.Theme.fg
-                font.bold: true
-                font.family: Theme.Theme.fontFamilySans
+                color: ListView.isCurrentItem ? Theme.bgDark : Theme.fg
+                font.weight: Theme.fontWeight
+                font.family: Theme.fontFamilySans
             }
             Text {
                 text: (modelData && modelData.comment) ? modelData.comment : (modelData && modelData.genericName ? modelData.genericName : "")
-                color: ListView.isCurrentItem ? Theme.Theme.bg : Theme.Theme.fgDim
+                color: ListView.isCurrentItem ? Theme.bg : Theme.fgDim
                 font.pixelSize: 12
-                font.family: Theme.Theme.fontFamilySans
+                font.family: Theme.fontFamilySans
                 elide: Text.ElideRight
                 Layout.fillWidth: true
             }

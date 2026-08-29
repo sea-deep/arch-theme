@@ -1,65 +1,55 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import "../theme"
 import "../components" as Components
 
 Components.Pill {
     id: root
     
-    implicitWidth: layout.implicitWidth + Theme.pillPadding * 2
+    implicitWidth: layout.implicitWidth + Theme.pillPaddingHoriz * 2
     
-    property string timeString: ""
-    property string dateString: ""
-    
-    Timer {
-        interval: 1000
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: {
-            let d = new Date()
-            root.timeString = d.toLocaleTimeString(Qt.locale(), "hh:mm AP")
-            root.dateString = d.toLocaleDateString(Qt.locale(), "ddd dd")
-        }
+    SystemClock {
+        id: clock
+        precision: SystemClock.Minutes
     }
     
     RowLayout {
         id: layout
         anchors.centerIn: parent
-        spacing: Theme.spacing * 2
-        
-        RowLayout {
-            spacing: Theme.spacing
-            Text {
-                text: "󰥔"
-                color: Theme.purple
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
-            }
-            Text {
-                text: root.timeString
-                color: Theme.fg
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSize
-                font.bold: true
-            }
+        // Use spaces inside the strings rather than layout spacing to exactly mimic the Waybar span gaps
+        spacing: 0
+
+        Text {
+            text: "󰥔  "
+            color: Theme.purple
+            font.family: Theme.fontFamily
+            font.pixelSize: Theme.fontSize
+            font.weight: Theme.fontWeight
+        }
+
+        Text {
+            text: Qt.formatDateTime(clock.date, "h:mm AP") + "   "
+            color: Theme.fg
+            font.family: Theme.fontFamily
+            font.pixelSize: Theme.fontSize
+            font.weight: Theme.fontWeight
         }
         
-        RowLayout {
-            spacing: Theme.spacing
-            Text {
-                text: "󰃭"
-                color: Theme.blue
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
-            }
-            Text {
-                text: root.dateString
-                color: Theme.fg
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSize
-                font.bold: true
-            }
+        Text {
+            text: "󰃭  "
+            color: Theme.blue
+            font.family: Theme.fontFamily
+            font.pixelSize: Theme.fontSize
+            font.weight: Theme.fontWeight
+        }
+        
+        Text {
+            text: Qt.formatDateTime(clock.date, "MMM d")
+            color: Theme.fg
+            font.family: Theme.fontFamily
+            font.pixelSize: Theme.fontSize
+            font.weight: Theme.fontWeight
         }
     }
 }

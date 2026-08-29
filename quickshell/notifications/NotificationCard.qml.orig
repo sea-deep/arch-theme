@@ -1,0 +1,92 @@
+import QtQuick
+import QtQuick.Layouts
+import Quickshell
+import Quickshell.Widgets
+import "../theme"
+
+Rectangle {
+    id: root
+    required property var modelData
+    width: parent ? parent.width : 300
+    height: content.height + 20
+    color: Theme.bgLight
+    radius: Theme.radius - 2
+    border.color: hover.hovered ? Theme.accentGlow : Theme.bgDark
+    border.width: Theme.borderWidth
+
+    HoverHandler { id: hover }
+
+    ColumnLayout {
+        id: content
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.margins: 10
+        spacing: 8
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 8
+            IconImage {
+                implicitWidth: 30
+                implicitHeight: 30
+                source: root.modelData.image !== ""
+                    ? root.modelData.image
+                    : Quickshell.iconPath(root.modelData.appIcon, "dialog-information")
+            }
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 2
+                Text {
+                    text: root.modelData.appName
+                    color: Theme.fgDim
+                    font.pixelSize: 11
+                    font.family: Theme.fontFamilySans
+                }
+                Text {
+                    text: root.modelData.summary
+                    color: Theme.fg
+                    font.weight: Theme.fontWeight
+                    font.family: Theme.fontFamilySans
+                    font.pixelSize: 14
+                    Layout.fillWidth: true
+                    elide: Text.ElideRight
+                }
+            }
+            Rectangle {
+                width: 24; height: 24
+                color: "transparent"
+                Layout.alignment: Qt.AlignTop
+                Text {
+                    anchors.centerIn: parent
+                    text: "×"
+                    color: Theme.fg
+                }
+                TapHandler {
+                    onTapped: NotificationServer.dismiss(root.modelData)
+                }
+            }
+        }
+
+        Text {
+            Component.onCompleted: {
+                console.log("NOTIF PROPS:", Object.keys(root.modelData))
+                console.log("ACTIONS TYPE:", typeof root.modelData.actions)
+                console.log("ACTIONS:", JSON.stringify(root.modelData.actions))
+            }
+        }
+
+        Text {
+            text: root.modelData.body
+            textFormat: Text.StyledText
+            color: Theme.fgDim
+            font.family: Theme.fontFamilySans
+            font.pixelSize: 13
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
+            maximumLineCount: 4
+            elide: Text.ElideRight
+            visible: text !== ""
+        }
+    }
+}

@@ -5,76 +5,198 @@ import Quickshell.Wayland
 import Quickshell.Hyprland
 import "theme"
 import "bar" as BarModules
-import "components" as Components
+import "controls" as Controls
 
 PanelWindow {
     WlrLayershell.namespace: "quickshell"
     id: root
+    Shortcut {
+        sequence: "Escape"
+        onActivated: UiState.closeOverlays()
+        context: Qt.WindowShortcut
+    }
+    required property var modelData
+    screen: modelData
+    readonly property bool overlayExpanded: hardwarePill.expanded || trayExpander.expanded || networkExpander.expanded || notificationExpander.expanded || powerExpander.expanded || clockExpander.expanded
 
     anchors.top: true
     anchors.left: true
     anchors.right: true
 
-    implicitHeight: Theme.barHeight
+    // Keep the layer surface stable. Resizing the surface with the hardware
+    // pill made every bar module jump during the close animation and left the
+    // revealed controls outside the compositor's input region.
+    implicitHeight: Math.max(Theme.barHeight,
+        root.screen ? root.screen.height - Theme.outerGap : Theme.barHeight)
     color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.exclusiveZone: Theme.barHeight
-    margins.top: 3
-    margins.left: 3
-    margins.right: 3
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+    margins.top: Theme.outerGap
+    margins.left: Theme.outerGap
+    margins.right: Theme.outerGap
 
-    RowLayout {
+    mask: Region {
+        Region {
+            x: 0
+            y: 0
+            width: root.width
+            height: Theme.barHeight
+        }
+        Region {
+            x: 0
+            y: 0
+            width: root.overlayExpanded ? root.width : 0
+            height: root.overlayExpanded ? root.height : 0
+        }
+        // Retain each pill's animated geometry while it closes.
+        Region { item: hardwarePill }
+        Region { item: trayExpander }
+        Region { item: networkExpander }
+        Region { item: notificationExpander }
+        Region { item: powerExpander }
+        Region { item: clockExpander }
+    }
+
+    Item {
+        id: barContent
         anchors.fill: parent
-        anchors.leftMargin: Theme.spacing
-        anchors.rightMargin: Theme.spacing
-        spacing: Theme.spacing
 
-        // LEFT
+        MouseArea {
+            id: bgMouseArea
+            anchors.fill: parent
+            enabled: root.overlayExpanded
+            z: 0
+            onClicked: {
+                UiState.quickControlVisible = false
+                UiState.notificationCenterVisible = false
+                UiState.notificationPreviewVisible = false
+                UiState.powerMenuVisible = false
+                UiState.trayMenuVisible = false
+                UiState.clockMenuVisible = false
+                UiState.networkVisible = false
+            }
+        }
+
+        // LEFT (Workspaces + Title)
         RowLayout {
-            Layout.alignment: Qt.AlignLeft
-            spacing: Theme.spacing
-            
+            z: 1
+            anchors.left: parent.left
+            anchors.top: parent.top
+            height: Theme.barHeight
+            spacing: Theme.moduleSpacing
+
             BarModules.Workspaces {}
             BarModules.WindowTitle {}
         }
 
-        // CENTER
-        RowLayout {
-            Layout.alignment: Qt.AlignHCenter
-            spacing: Theme.spacing
-            
-            BarModules.Clock {}
+        // CENTER (Clock + calendar expander)
+        Item {
+            id: clockSlot
+            z: 1
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            height: Theme.barHeight
+            width: clockExpander.topWidth
         }
 
         // RIGHT
         RowLayout {
-            Layout.alignment: Qt.AlignRight
-            spacing: Theme.spacing
-            
+            id: rightModules
+            z: 1
+            anchors.right: parent.right
+            anchors.top: parent.top
+            width: implicitWidth
+            height: Theme.barHeight
+            spacing: Theme.moduleSpacing
+
             BarModules.Recorder {}
-            BarModules.Clipboard {}
             BarModules.CapsLock {}
-            BarModules.AutoSleep {}
-            BarModules.Tray {}
-            BarModules.NotificationButton {}
-            
-            // Hardware Group
-            Components.Pill {
-                implicitWidth: hwLayout.implicitWidth + Theme.pillPadding * 2
-                
-                RowLayout {
-                    id: hwLayout
-                    anchors.centerIn: parent
-                    spacing: Theme.spacing * 2
-                    
-                    BarModules.Audio {}
-                    BarModules.Backlight {}
-                    BarModules.Battery {}
-                }
+            BarModules.AutoSleep { hostWindow: root }
+            BarModules.Clipboard {}
+            Item {
+                id: notificationSlot
+                Layout.preferredWidth: Theme.compactPillSize
+                Layout.preferredHeight: Theme.barHeight
+            }
+            Item {
+                id: traySlot
+                Layout.preferredWidth: trayExpander.isEmpty ? 0 : trayExpander.collapsedWidth
+                Layout.preferredHeight: Theme.barHeight
+            }
+            Item {
+                id: networkSlot
+                Layout.preferredWidth: Theme.compactPillSize
+                Layout.preferredHeight: Theme.barHeight
             }
             
-            BarModules.PowerButton {}
+            Item {
+                id: hardwareSlot
+                Layout.preferredWidth: hardwarePill.implicitWidth
+                Layout.preferredHeight: Theme.barHeight
+            }
+            
+            Item {
+                id: powerSlot
+                Layout.preferredWidth: Theme.compactPillSize
+                Layout.preferredHeight: Theme.barHeight
+            }
+        }
+
+        // The expander must not be a child of the 34px RowLayout/slot. QtQuick
+        // can paint children outside those ancestors, but it will not descend
+        // into them for pointer hit-testing outside their bounds.
+        Controls.QuickControls {
+            id: hardwarePill
+            z: 2
+            x: rightModules.x + hardwareSlot.x
+                + (hardwareSlot.width - width) / 2
+            y: 0
+            targetScreenName: root.screen.name
+        }
+
+        Controls.NotificationExpander {
+            id: notificationExpander
+            z: 4
+            x: rightModules.x + notificationSlot.x
+            expandedWidth: rightModules.width - notificationSlot.x
+            y: 0
+            targetScreenName: root.screen.name
+            maximumBodyHeight: root.height - Theme.barHeight - Theme.outerGap
+        }
+
+        Controls.PowerExpander {
+            id: powerExpander
+            z: 5
+            x: rightModules.x + powerSlot.x + powerSlot.width - width
+            y: 0
+            targetScreenName: root.screen.name
+        }
+
+        Controls.TrayExpander {
+            id: trayExpander
+            z: 3
+            x: rightModules.x + traySlot.x + traySlot.width - width
+            y: 0
+            targetScreenName: root.screen.name
+        }
+
+        Controls.NetworkExpander {
+            id: networkExpander
+            z: 4
+            x: rightModules.x + networkSlot.x + networkSlot.width - width
+            y: 0
+            targetScreenName: root.screen.name
+        }
+
+        Controls.ClockExpander {
+            id: clockExpander
+            z: 6
+            x: (barContent.width - width) / 2
+            y: 0
+            targetScreenName: root.screen.name
         }
     }
+
 }

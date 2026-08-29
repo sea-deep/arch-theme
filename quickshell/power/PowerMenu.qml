@@ -13,31 +13,37 @@ PanelWindow {
     anchors.left: true
     anchors.right: true
     WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
     color: Qt.rgba(26/255, 27/255, 38/255, 0.85)
     
-    property bool isActive: false
-    visible: isActive
+    visible: UiState.powerMenuVisible
 
-    onIsActiveChanged: {
-        if (isActive) {
+    Shortcut {
+        sequence: "Escape"
+        onActivated: UiState.powerMenuVisible = false
+    }
+
+    onVisibleChanged: {
+        if (visible) {
             animEnter.start()
+            keyHandler.forceActiveFocus()
         }
     }
 
     ParallelAnimation {
         id: animEnter
-        NumberAnimation { target: contentGrid; property: "scale"; from: 0.9; to: 1.0; duration: 300; easing.type: Easing.OutBack }
-        NumberAnimation { target: root; property: "opacity"; from: 0; to: 1; duration: 200 }
+        NumberAnimation { target: contentGrid; property: "scale"; from: 0.94; to: 1.0; duration: 160; easing.type: Easing.OutCubic }
     }
 
     TapHandler {
-        onTapped: root.isActive = false
+        onTapped: UiState.powerMenuVisible = false
     }
 
     Item {
+        id: keyHandler
         anchors.fill: parent
-        focus: isActive
-        Keys.onEscapePressed: root.isActive = false
+        focus: root.visible
+        Keys.onEscapePressed: UiState.powerMenuVisible = false
         Keys.onPressed: (event) => {
             switch(event.key) {
                 case Qt.Key_L: execProcess.command = ["hyprlock"]; break;
@@ -49,7 +55,7 @@ PanelWindow {
                 default: return;
             }
             execProcess.running = true;
-            root.isActive = false;
+            UiState.powerMenuVisible = false;
         }
     }
 
@@ -85,7 +91,7 @@ PanelWindow {
                     onTapped: {
                         execProcess.command = modelData.action
                         execProcess.running = true
-                        root.isActive = false
+                        UiState.powerMenuVisible = false
                     }
                 }
 
@@ -102,7 +108,7 @@ PanelWindow {
                     Text {
                         text: modelData.name
                         font.family: Theme.fontFamilySans
-                        font.bold: true
+                        font.weight: Theme.fontWeight
                         color: hover.hovered ? Theme.bgDark : Theme.fg
                         Layout.alignment: Qt.AlignHCenter
                     }

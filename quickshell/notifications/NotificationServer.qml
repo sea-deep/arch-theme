@@ -1,67 +1,61 @@
 pragma Singleton
 import QtQuick
 import Quickshell
-import Quickshell.Io
-import Quickshell.Services.Notifications
+import Quickshell.Services.Notifications as QSNotifications
 
-Item {
+Singleton {
     id: root
 
-    property ListModel notificationList: ListModel {}
+    readonly property alias notificationList: server.trackedNotifications
     property var latestNotification: null
     property int unreadCount: 0
     property bool dndEnabled: false
 
-    signal notificationReceived()
+    signal notificationReceived(var notification)
 
     function clearAll() {
-        notificationList.clear();
-        unreadCount = 0;
-        latestNotification = null;
+        const notifications = server.trackedNotifications.values.slice()
+        for (let i = 0; i < notifications.length; ++i)
+            notifications[i].dismiss()
+
+        unreadCount = 0
+        latestNotification = null
     }
 
-    function dismiss(index) {
-        if (index >= 0 && index < notificationList.count) {
-            notificationList.remove(index);
-            unreadCount = Math.max(0, unreadCount - 1);
-        }
+    function dismiss(notification) {
+        if (notification)
+            notification.dismiss()
+
+        unreadCount = Math.max(0, unreadCount - 1)
+        if (latestNotification === notification)
+            latestNotification = null
+    }
+
+    function markRead() {
+        unreadCount = 0
     }
 
     function toggleDnd() {
-        dndEnabled = !dndEnabled;
+        dndEnabled = !dndEnabled
     }
 
-    NotificationServer {
+    QSNotifications.NotificationServer {
         id: server
+        actionsSupported: true
+        bodyMarkupSupported: true
+        imageSupported: true
+        persistenceSupported: true
+        keepOnReload: true
+
         onNotification: (notification) => {
-            if (root.dndEnabled) return;
-            notification.tracked = true;
-            
-            let item = {
-                "nId": notification.id,
-                "appName": notification.appName,
-                "appIcon": notification.appIcon,
-                "summary": notification.summary,
-                "body": notification.body,
-                "urgency": notification.urgency,
-                "timestamp": new Date().toLocaleTimeString()
-            };
-            
-            root.latestNotification = item;
-            root.notificationList.insert(0, item);
-            root.unreadCount++;
-            root.notificationReceived();
+            notification.tracked = true
+            root.latestNotification = notification
 
-            playProcess.running = true;
-            
-            if (notification.urgency !== NotificationUrgency.Critical) {
-                var timer = Qt.createQmlObject('import QtQuick; Timer { interval: 5000; running: true; onTriggered: { root.dismiss(0); this.destroy(); } }', root);
-            }
+            if (!notification.lastGeneration)
+                root.unreadCount++
+
+            if (!root.dndEnabled && !notification.lastGeneration)
+                root.notificationReceived(notification)
         }
-    }
-
-    Process {
-        id: playProcess
-        command: ["paplay", "/usr/share/sounds/freedesktop/stereo/message.oga"]
     }
 }

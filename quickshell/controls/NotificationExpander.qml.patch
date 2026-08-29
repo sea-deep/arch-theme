@@ -1,0 +1,33 @@
+--- quickshell/controls/NotificationExpander.qml
++++ quickshell/controls/NotificationExpander.qml
+@@ -10,13 +10,14 @@
+     property string targetScreenName: ""
+-    readonly property bool expanded: UiState.notificationCenterVisible || UiState.notificationPreviewVisible
++    readonly property bool expanded: UiState.notificationCenterVisible
++    readonly property bool showing: UiState.notificationCenterVisible || UiState.notificationPreviewVisible
+     readonly property int fullBodyHeight: 500
+     readonly property int previewBodyHeight: previewLoader.item ? previewLoader.item.implicitHeight : 100
+     readonly property int bodyHeight: UiState.notificationCenterVisible ? fullBodyHeight : previewBodyHeight
+     property real expandedWidth: 380
+     property real maximumBodyHeight: 500
+-    property real reveal: expanded ? 1 : 0
++    property real reveal: showing ? 1 : 0
+ 
+-    implicitWidth: expanded || reveal > 0 ? expandedWidth : Theme.compactPillSize
++    implicitWidth: showing || reveal > 0 ? expandedWidth : Theme.compactPillSize
+     implicitHeight: reveal > 0
+         ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
+         : Theme.barHeight
+-    focus: expanded
++    focus: showing
+ 
+@@ -37,5 +38,5 @@
+ 
+-    onExpandedChanged: {
+-        if (expanded) {
+-            if (UiState.notificationCenterVisible)
+-                Notifications.NotificationServer.markRead()
++    onShowingChanged: {
++        if (showing) {
++            if (expanded) Notifications.NotificationServer.markRead()
+             Qt.callLater(() => root.forceActiveFocus())

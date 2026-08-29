@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
+import Quickshell.Widgets
 import "../theme"
 
 PanelWindow {
@@ -19,7 +20,8 @@ PanelWindow {
     color: "transparent"
     
     property bool isActive: false
-    visible: isActive
+    readonly property var notification: NotificationServer.latestNotification
+    visible: isActive && notification !== null
     
     Connections {
         target: NotificationServer
@@ -32,7 +34,9 @@ PanelWindow {
     
     Timer {
         id: autoDismiss
-        interval: 5000
+        interval: root.notification && root.notification.expireTimeout > 0
+            ? Math.max(1500, root.notification.expireTimeout * 1000)
+            : 5000
         onTriggered: root.isActive = false
     }
 
@@ -65,16 +69,21 @@ PanelWindow {
             
             RowLayout {
                 spacing: 8
-                Image {
-                    source: (NotificationServer.latestNotification && NotificationServer.latestNotification.appIcon) ? ("image://icon/" + NotificationServer.latestNotification.appIcon) : ""
-                    sourceSize: Qt.size(24, 24)
+                IconImage {
+                    implicitWidth: 24
+                    implicitHeight: 24
+                    source: root.notification
+                        ? (root.notification.image !== ""
+                            ? root.notification.image
+                            : Quickshell.iconPath(root.notification.appIcon, "dialog-information"))
+                        : ""
                     Layout.alignment: Qt.AlignVCenter
                     visible: source !== ""
                 }
                 Text {
-                    text: (NotificationServer.latestNotification && NotificationServer.latestNotification.summary) ? NotificationServer.latestNotification.summary : "Notification"
+                    text: root.notification && root.notification.summary !== "" ? root.notification.summary : "Notification"
                     font.family: Theme.fontFamilySans
-                    font.bold: true
+                    font.weight: Theme.fontWeight
                     color: Theme.fg
                     Layout.fillWidth: true
                     elide: Text.ElideRight
@@ -82,7 +91,8 @@ PanelWindow {
             }
             
             Text {
-                text: (NotificationServer.latestNotification && NotificationServer.latestNotification.body) ? NotificationServer.latestNotification.body : ""
+                text: root.notification ? root.notification.body : ""
+                textFormat: Text.StyledText
                 font.family: Theme.fontFamilySans
                 color: Theme.fgDim
                 wrapMode: Text.WordWrap

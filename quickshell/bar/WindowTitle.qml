@@ -7,21 +7,28 @@ import "../components" as Components
 
 Components.Pill {
     id: root
-    
+
     collapseWhenEmpty: true
-    isEmpty: !Hyprland.focusedWindow || Hyprland.focusedWindow.title === ""
+
+    // Bind securely to the active toplevel
+    property string activeTitle: Hyprland.activeToplevel ? Hyprland.activeToplevel.title : ""
+
+    isEmpty: activeTitle === ""
     
-    implicitWidth: Math.min(titleText.implicitWidth + Theme.pillPadding * 2, 300)
+    // Match max-length: 40 character approx width for monospace
+    // Also use Waybar's 14px horizontal padding (Theme.pillPaddingHoriz)
+    implicitWidth: Math.min(titleText.implicitWidth + Theme.pillPaddingHoriz * 2, 400)
     
     Text {
         id: titleText
         anchors.centerIn: parent
-        width: Math.min(implicitWidth, parent.width - Theme.pillPadding * 2)
+        width: Math.min(implicitWidth, parent.width - Theme.pillPaddingHoriz * 2)
         
-        text: Hyprland.focusedWindow ? Hyprland.focusedWindow.title : ""
-        color: Theme.fgMuted
-        font.family: Theme.fontFamilySans
-        font.pixelSize: 12
+        text: root.activeTitle
+        color: Theme.fg
+        font.family: Theme.fontFamily
+        font.pixelSize: Theme.fontSize
+        font.weight: Theme.fontWeight
         
         elide: Text.ElideRight
         horizontalAlignment: Text.AlignHCenter

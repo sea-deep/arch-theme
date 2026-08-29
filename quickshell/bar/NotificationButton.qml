@@ -2,42 +2,41 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import "../theme"
+import "../notifications"
 import "../components" as Components
-import "../notifications" as Notifications
 
 Components.Pill {
     id: root
     
-    implicitWidth: layout.implicitWidth + Theme.pillPadding * 2
+    implicitWidth: Theme.compactPillSize
+
+    readonly property string textVal: NotificationServer.dndEnabled
+        ? "󱏧"
+        : (NotificationServer.unreadCount > 0 ? "󱅫" : "󰂚")
     
     RowLayout {
         id: layout
         anchors.centerIn: parent
-        spacing: Theme.spacing
         
         Text {
-            text: Notifications.NotificationServer.unreadCount > 0 ? "󱅫" : "󰂚"
-            color: Theme.purple
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeLarge
-        }
-        
-        Text {
-            text: Notifications.NotificationServer.unreadCount.toString()
-            color: Theme.fg
+            text: root.textVal
+            color: Theme.purple // CSS: #custom-swaync { color: #bb9af7; }
             font.family: Theme.fontFamily
             font.pixelSize: Theme.fontSize
-            visible: Notifications.NotificationServer.unreadCount > 0
+            font.weight: Theme.fontWeight
         }
     }
     
     MouseArea {
         anchors.fill: parent
-        hoverEnabled: true
-        onEntered: root.hovered = true
-        onExited: root.hovered = false
-        onClicked: {
-            Quickshell.exec("quickshell ipc call notifications toggle")
+        cursorShape: Qt.PointingHandCursor
+        acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+        onClicked: (mouse) => {
+            if (mouse.button === Qt.LeftButton) {
+                UiState.toggleNotifications()
+            } else if (mouse.button === Qt.RightButton || mouse.button === Qt.MiddleButton) {
+                NotificationServer.toggleDnd()
+            }
         }
     }
 }

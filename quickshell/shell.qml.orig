@@ -43,8 +43,8 @@ ShellRoot {
         Bar {}
 }
 
-// Notifications.NotificationCenter {
-// }
+Notifications.NotificationCenter {
+}
 
     LazyLoader {
         active: UiState.selectorVisible

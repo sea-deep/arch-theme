@@ -16,18 +16,17 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Overlay
     color: Qt.rgba(26/255, 27/255, 38/255, 0.7)
     
-    property bool isActive: false
-    visible: isActive
+    visible: UiState.emojiVisible
 
-    onIsActiveChanged: {
-        if (isActive) {
+    onVisibleChanged: {
+        if (visible) {
             searchInput.forceActiveFocus()
             searchInput.text = ""
         }
     }
 
     TapHandler {
-        onTapped: root.isActive = false
+        onTapped: UiState.emojiVisible = false
     }
 
     property var allEmojis: [
@@ -81,7 +80,7 @@ PanelWindow {
                     font.pixelSize: 16
                     verticalAlignment: TextInput.AlignVCenter
                     
-                    Keys.onEscapePressed: root.isActive = false
+                    Keys.onEscapePressed: UiState.emojiVisible = false
                 }
             }
 
@@ -109,7 +108,7 @@ PanelWindow {
                         onTapped: {
                             copyProcess.command = ["wl-copy", modelData.char]
                             copyProcess.running = true
-                            root.isActive = false
+                            UiState.emojiVisible = false
                         }
                     }
 

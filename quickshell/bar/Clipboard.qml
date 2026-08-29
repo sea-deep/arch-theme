@@ -7,25 +7,28 @@ import "../components" as Components
 Components.Pill {
     id: root
     
-    implicitWidth: layout.implicitWidth + Theme.pillPadding * 2
+    implicitWidth: Theme.compactPillSize
     
     RowLayout {
         id: layout
         anchors.centerIn: parent
         
         Text {
+            // "format": "<span color='#bb9af7'> {text} </span>"
+            // "text": "󰅌"
             text: "󰅌"
-            color: Theme.purple
+            color: Theme.purple // #bb9af7
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeLarge
+            font.pixelSize: Theme.fontSize
+            font.weight: Theme.fontWeight
         }
     }
     
     MouseArea {
         anchors.fill: parent
-        hoverEnabled: true
-        onEntered: root.hovered = true
-        onExited: root.hovered = false
-        onClicked: Quickshell.exec("sh ~/.config/hypr/clipse-toggle.sh")
+        cursorShape: Qt.PointingHandCursor
+        onClicked: {
+            UiState.toggleSelector("clipboard")
+        }
     }
 }

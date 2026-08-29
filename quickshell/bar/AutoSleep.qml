@@ -1,37 +1,22 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell
-import Quickshell.Io
+import Quickshell.Wayland
 import "../theme"
 import "../components" as Components
 
 Components.Pill {
     id: root
     
-    property bool isDisabled: false
+    required property var hostWindow
     
     collapseWhenEmpty: true
-    isEmpty: !isDisabled
+    isEmpty: !UiState.caffeineEnabled
     
-    implicitWidth: layout.implicitWidth + Theme.pillPadding * 2
+    implicitWidth: Theme.compactPillSize
     
-    Process {
-        id: sleepProc
-        command: ["sh", "-c", "test -f ~/.config/hypr/.autosleep_disabled && echo 'disabled' || echo 'enabled'"]
-        running: true
-        stdout: SplitParser {
-            onRead: data => {
-                root.isDisabled = data.trim() === "disabled"
-            }
-        }
-    }
-    
-    Timer {
-        interval: 2000
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: sleepProc.running = true
+    IdleInhibitor {
+        window: root.hostWindow
+        enabled: UiState.caffeineEnabled
     }
     
     RowLayout {
@@ -42,16 +27,17 @@ Components.Pill {
             text: "󰅶"
             color: Theme.yellow
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeLarge
-            visible: root.isDisabled
+            font.pixelSize: Theme.fontSize
+            font.weight: Theme.fontWeight
+            visible: UiState.caffeineEnabled
         }
     }
     
     MouseArea {
         anchors.fill: parent
-        hoverEnabled: true
-        onEntered: root.hovered = true
-        onExited: root.hovered = false
-        onClicked: Quickshell.exec("sh ~/.config/quickshell/scripts/toggle_idle.sh")
+        cursorShape: Qt.PointingHandCursor
+        onClicked: {
+            UiState.caffeineEnabled = !UiState.caffeineEnabled
+        }
     }
 }

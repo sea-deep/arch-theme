@@ -7,27 +7,27 @@ import "../components" as Components
 Components.Pill {
     id: root
     
-    implicitWidth: layout.implicitWidth + Theme.pillPadding * 2
+    implicitWidth: Theme.compactPillSize
     
     RowLayout {
         id: layout
         anchors.centerIn: parent
         
         Text {
-            text: "󰐥"
-            color: Theme.red
+            // "format": "  "
+            text: ""
+            color: Theme.red // CSS: #custom-power { color: #f7768e; }
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeLarge
+            font.pixelSize: Theme.fontSize
+            font.weight: Theme.fontWeight
         }
     }
     
     MouseArea {
         anchors.fill: parent
-        hoverEnabled: true
-        onEntered: root.hovered = true
-        onExited: root.hovered = false
+        cursorShape: Qt.PointingHandCursor
         onClicked: {
-            Quickshell.exec("quickshell ipc call power toggle")
+            UiState.togglePower()
         }
     }
 }

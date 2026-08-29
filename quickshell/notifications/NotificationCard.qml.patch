@@ -1,0 +1,42 @@
+--- quickshell/notifications/NotificationCard.qml
++++ quickshell/notifications/NotificationCard.qml
+@@ -73,2 +73,26 @@
+         }
++
++        Flow {
++            Layout.fillWidth: true
++            spacing: 8
++            visible: root.modelData.actions && root.modelData.actions.length > 0
++            
++            Repeater {
++                model: root.modelData.actions.filter(a => a.identifier !== "default")
++                delegate: Rectangle {
++                    color: hoverAction.hovered ? Theme.surface : Theme.bgDark
++                    border.color: Theme.bgLight
++                    border.width: 1
++                    radius: Theme.radius - 2
++                    implicitWidth: actionText.implicitWidth + 24
++                    implicitHeight: 28
++                    
++                    Text {
++                        id: actionText
++                        anchors.centerIn: parent
++                        text: modelData.text || modelData.identifier
++                        color: Theme.fg
++                        font.pixelSize: 12
++                    }
++                    HoverHandler { id: hoverAction }
++                    TapHandler { onTapped: modelData.invoke() }
++                }
++            }
++        }
+     }
++
++    TapHandler {
++        onTapped: {
++            const defaultAction = root.modelData.actions.find(a => a.identifier === "default")
++            if (defaultAction && defaultAction.invoke) defaultAction.invoke()
++            else if (root.modelData.invoke) root.modelData.invoke("default")
++            else root.modelData.dismiss() // Fallback
++        }
++    }

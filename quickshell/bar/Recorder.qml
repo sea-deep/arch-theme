@@ -1,64 +1,34 @@
 import QtQuick
-import QtQuick.Layouts
 import Quickshell
-import Quickshell.Io
 import "../theme"
 import "../components" as Components
 
 Components.Pill {
     id: root
-    
-    property bool isRecording: false
-    
+
     collapseWhenEmpty: true
-    isEmpty: !isRecording
-    
-    implicitWidth: isRecording ? (layout.implicitWidth + Theme.pillPadding * 2) : 0
-    visible: isRecording
-    
-    Process {
-        id: recProc
-        command: ["sh", "-c", "pgrep -x wf-recorder >/dev/null && echo 'recording' || echo ''"]
-        running: true
-        stdout: SplitParser {
-            onRead: data => {
-                root.isRecording = data.trim() === "recording"
-            }
-        }
-    }
-    
-    Timer {
-        interval: 1000
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: recProc.running = true
-    }
-    
-    RowLayout {
-        id: layout
+    isEmpty: !UiState.recorderActive
+
+    implicitWidth: Theme.compactPillSize
+
+    Text {
         anchors.centerIn: parent
-        
-        Text {
-            text: "●"
-            color: blinkTimer.blinkState ? Theme.red : Theme.bgDark
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeLarge
-            visible: root.isRecording
-            
-            Timer {
-                id: blinkTimer
-                interval: 800
-                running: root.isRecording
-                repeat: true
-                property bool blinkState: false
-                onTriggered: blinkState = !blinkState
-            }
-        }
+        text: "●"
+        color: Theme.red
+        font.family: Theme.fontFamilySans
+        font.pixelSize: 14
+        font.weight: Font.Bold
     }
-    
+
     MouseArea {
         anchors.fill: parent
-        onClicked: Quickshell.exec("sh ~/.config/hypr/toggle_recorder.sh")
+        cursorShape: Qt.PointingHandCursor
+        onClicked: {
+            // Give immediate feedback. The status probe will restore the dot
+            // if the recorder did not actually stop.
+            if (UiState.recorderActive)
+                UiState.recorderActive = false
+            Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/toggle_recorder.sh"])
+        }
     }
 }

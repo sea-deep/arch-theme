@@ -4,6 +4,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
+import Quickshell.Services.Pipewire
 import "../theme"
 
 PanelWindow {
@@ -15,10 +16,38 @@ PanelWindow {
     anchors.bottom: true
     
     WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
     color: "transparent"
     
-    property bool isActive: false
-    visible: isActive
+    visible: UiState.settingsVisible
+
+    Shortcut {
+        sequence: "Escape"
+        onActivated: UiState.settingsVisible = false
+    }
+
+    readonly property var sink: Pipewire.defaultAudioSink
+    readonly property bool audioAvailable: sink !== null && sink.audio !== null && sink.ready
+    readonly property int maxBrightness: parseInt(maxBrightnessFile.text()) || 100
+    readonly property int currentBrightness: parseInt(brightnessFile.text()) || 0
+
+    PwObjectTracker {
+        objects: [root.sink]
+    }
+
+    FileView {
+        id: maxBrightnessFile
+        path: "/sys/class/backlight/intel_backlight/max_brightness"
+        watchChanges: true
+        onFileChanged: reload()
+    }
+
+    FileView {
+        id: brightnessFile
+        path: "/sys/class/backlight/intel_backlight/brightness"
+        watchChanges: true
+        onFileChanged: reload()
+    }
 
     Process { id: hyprctl }
 
@@ -42,7 +71,7 @@ PanelWindow {
                     text: "⚙ SETTINGS"
                     font.family: Theme.fontFamilySans
                     font.pixelSize: 20
-                    font.bold: true
+                    font.weight: Theme.fontWeight
                     color: Theme.fg
                     Layout.fillWidth: true
                 }
@@ -51,7 +80,7 @@ PanelWindow {
                     font.pixelSize: 24
                     background: Rectangle { color: "transparent" }
                     contentItem: Text { text: parent.text; color: Theme.fg }
-                    onClicked: root.isActive = false
+                    onClicked: UiState.settingsVisible = false
                 }
             }
 
@@ -64,27 +93,76 @@ PanelWindow {
                     width: parent.width
                     spacing: 24
 
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        Text { text: "QUICK CONTROLS"; font.weight: Theme.fontWeight; color: Theme.fgDim; font.family: Theme.fontFamilySans }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Text { text: root.audioAvailable && root.sink.audio.muted ? "󰖁" : "󰕾"; color: Theme.blue; font.family: Theme.fontFamily; font.pixelSize: 18 }
+                            Slider {
+                                Layout.fillWidth: true
+                                from: 0
+                                to: 100
+                                value: root.audioAvailable ? root.sink.audio.volume * 100 : 0
+                                onMoved: {
+                                    if (root.audioAvailable)
+                                        root.sink.audio.volume = value / 100
+                                }
+                            }
+                            Text { text: root.audioAvailable ? Math.round(root.sink.audio.volume * 100) + "%" : "--%"; color: Theme.fg; font.family: Theme.fontFamily }
+                            Button {
+                                text: root.audioAvailable && root.sink.audio.muted ? "Unmute" : "Mute"
+                                onClicked: {
+                                    if (root.audioAvailable)
+                                        root.sink.audio.muted = !root.sink.audio.muted
+                                }
+                            }
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Text { text: "󰃠"; color: Theme.yellow; font.family: Theme.fontFamily; font.pixelSize: 18 }
+                            Slider {
+                                Layout.fillWidth: true
+                                from: 1
+                                to: 100
+                                value: Math.round((root.currentBrightness / root.maxBrightness) * 100)
+                                onMoved: Quickshell.execDetached(["brightnessctl", "set", Math.round(value) + "%"])
+                            }
+                            Text { text: Math.round((root.currentBrightness / root.maxBrightness) * 100) + "%"; color: Theme.fg; font.family: Theme.fontFamily }
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Text { text: "Caffeine mode"; color: Theme.fg; Layout.fillWidth: true }
+                            Switch { checked: UiState.caffeineEnabled; onToggled: UiState.caffeineEnabled = checked }
+                        }
+                    }
+
                     // Appearance
                     ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 8
-                        Text { text: "APPEARANCE"; font.bold: true; color: Theme.fgDim; font.family: Theme.fontFamilySans }
+                        Text { text: "APPEARANCE"; font.weight: Theme.fontWeight; color: Theme.fgDim; font.family: Theme.fontFamilySans }
                         
                         RowLayout {
                             Text { text: "Gap size (inner)"; color: Theme.fg; Layout.fillWidth: true }
-                            Slider { from: 0; to: 20; onValueChanged: setHypr("general:gaps_in", Math.round(value)) }
+                            Slider { from: 0; to: 20; value: 2; onMoved: setHypr("general:gaps_in", Math.round(value)) }
                         }
                         RowLayout {
                             Text { text: "Gap size (outer)"; color: Theme.fg; Layout.fillWidth: true }
-                            Slider { from: 0; to: 20; onValueChanged: setHypr("general:gaps_out", Math.round(value)) }
+                            Slider { from: 0; to: 20; value: 4; onMoved: setHypr("general:gaps_out", Math.round(value)) }
                         }
                         RowLayout {
                             Text { text: "Border size"; color: Theme.fg; Layout.fillWidth: true }
-                            Slider { from: 0; to: 5; onValueChanged: setHypr("general:border_size", Math.round(value)) }
+                            Slider { from: 0; to: 5; value: 2; onMoved: setHypr("general:border_size", Math.round(value)) }
                         }
                         RowLayout {
                             Text { text: "Corner rounding"; color: Theme.fg; Layout.fillWidth: true }
-                            Slider { from: 0; to: 30; onValueChanged: setHypr("decoration:rounding", Math.round(value)) }
+                            Slider { from: 0; to: 30; value: 10; onMoved: setHypr("decoration:rounding", Math.round(value)) }
                         }
                     }
 
@@ -92,7 +170,7 @@ PanelWindow {
                     ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 8
-                        Text { text: "EFFECTS"; font.bold: true; color: Theme.fgDim; font.family: Theme.fontFamilySans }
+                        Text { text: "EFFECTS"; font.weight: Theme.fontWeight; color: Theme.fgDim; font.family: Theme.fontFamilySans }
                         
                         RowLayout {
                             Text { text: "Blur toggle"; color: Theme.fg; Layout.fillWidth: true }
@@ -100,7 +178,7 @@ PanelWindow {
                         }
                         RowLayout {
                             Text { text: "Blur strength"; color: Theme.fg; Layout.fillWidth: true }
-                            Slider { from: 1; to: 10; onValueChanged: setHypr("decoration:blur:size", Math.round(value)) }
+                            Slider { from: 1; to: 10; value: 7; onMoved: setHypr("decoration:blur:size", Math.round(value)) }
                         }
                         RowLayout {
                             Text { text: "Animations"; color: Theme.fg; Layout.fillWidth: true }

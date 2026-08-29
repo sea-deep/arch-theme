@@ -4,7 +4,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
-import "../theme" as Theme
+import "../theme"
 
 PanelWindow {
     WlrLayershell.namespace: "quickshell"
@@ -16,27 +16,26 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Overlay
     color: Qt.rgba(26/255, 27/255, 38/255, 0.7)
     
-    property bool isActive: false
-    visible: isActive
-    
-    onIsActiveChanged: {
-        if (isActive) {
+    visible: UiState.launcherVisible
+
+    onVisibleChanged: {
+        if (visible) {
             searchInput.forceActiveFocus()
             searchInput.text = ""
         }
     }
 
     TapHandler {
-        onTapped: root.isActive = false
+        onTapped: UiState.launcherVisible = false
     }
 
     Rectangle {
         width: 500
         height: Math.min(600, appList.contentHeight + 80)
         anchors.centerIn: parent
-        color: Theme.Theme.bg
+        color: Theme.bg
         radius: 16
-        border.color: Theme.Theme.accent
+        border.color: Theme.accent
         border.width: 1
 
         TapHandler {
@@ -51,7 +50,7 @@ PanelWindow {
             Rectangle {
                 Layout.fillWidth: true
                 height: 40
-                color: Theme.Theme.bgLight
+                color: Theme.bgLight
                 radius: 8
 
                 RowLayout {
@@ -59,17 +58,17 @@ PanelWindow {
                     anchors.margins: 8
                     Text {
                         text: ""
-                        font.family: Theme.Theme.fontFamily
-                        color: Theme.Theme.fgDim
+                        font.family: Theme.fontFamily
+                        color: Theme.fgDim
                     }
                     TextInput {
                         id: searchInput
                         Layout.fillWidth: true
-                        color: Theme.Theme.fg
-                        font.family: Theme.Theme.fontFamilySans
+                        color: Theme.fg
+                        font.family: Theme.fontFamilySans
                         font.pixelSize: 16
                         
-                        Keys.onEscapePressed: root.isActive = false
+                        Keys.onEscapePressed: UiState.launcherVisible = false
                         Keys.onDownPressed: appList.currentIndex = Math.min(appList.count - 1, appList.currentIndex + 1)
                         Keys.onUpPressed: appList.currentIndex = Math.max(0, appList.currentIndex - 1)
                         Keys.onReturnPressed: {

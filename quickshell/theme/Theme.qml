@@ -27,13 +27,18 @@ QtObject {
     readonly property string fontFamily:     "FiraCode Nerd Font"
     readonly property string fontFamilySans: "IBM Plex Sans"
     readonly property int    fontSizeSmall:  11
-    readonly property int    fontSize:       13
-    readonly property int    fontSizeLarge:  16
+    readonly property int    fontSize:       16
+    readonly property int    fontWeight:     600
 
     // Geometry
-    readonly property int    barHeight:      38
+    readonly property int    barHeight:      34
     readonly property int    radius:         12
-    readonly property int    pillPadding:    16 // Increased padding for pills!
-    readonly property int    spacing:        8  // Increased spacing for elements
-    readonly property real   pillAlpha:      0.85
+    readonly property int    borderWidth:    2
+    readonly property int    outerGap:       2
+    readonly property int    moduleSpacing:  4
+    readonly property int    compactPillSize: barHeight
+    readonly property int    pillPaddingHoriz: 14
+    readonly property int    compactPaddingLeft: 4
+    readonly property int    compactPaddingRight: 8
+    readonly property real   pillAlpha:      1.0
 }

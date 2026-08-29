@@ -20,8 +20,8 @@ PanelWindow {
     visible: UiState.selectorVisible
 
     WlrLayershell.namespace: "quickshell-selector"
-    WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+    WlrLayershell.layer: WlrLayer.Top
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
     mask: Region {
         item: panel
@@ -171,6 +171,7 @@ PanelWindow {
     }
 
     onEntriesChanged: resetSelection()
+    onVisibleChanged: if (visible) Qt.callLater(() => searchInput.forceActiveFocus())
 
     Component.onCompleted: {
         searchInput.forceActiveFocus()

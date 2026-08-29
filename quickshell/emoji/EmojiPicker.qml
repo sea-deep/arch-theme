@@ -60,7 +60,7 @@ PanelWindow {
             }
         }
         flatEmojis = list
-        displayEmojis = list
+        displayEmojis = [].concat(list)
     }
 
     onVisibleChanged: {
@@ -69,6 +69,7 @@ PanelWindow {
             cursorY = -1
             searchQuery = ""
             searchInput.text = ""
+            root.displayEmojis = [].concat(root.flatEmojis)
             posProc.running = true
             Qt.callLater(() => searchInput.forceActiveFocus())
         }
@@ -158,9 +159,9 @@ PanelWindow {
                         onTextChanged: {
                             root.searchQuery = text.toLowerCase()
                             if (root.searchQuery === "") {
-                                root.displayEmojis = root.flatEmojis
+                                root.displayEmojis = [].concat(root.flatEmojis)
                             } else {
-                                root.displayEmojis = root.flatEmojis.filter(e => e.name.toLowerCase().indexOf(root.searchQuery) !== -1)
+                                root.displayEmojis = [].concat(root.flatEmojis).filter(e => e.name.toLowerCase().indexOf(root.searchQuery) !== -1)
                             }
                         }
                         Keys.onEscapePressed: UiState.emojiVisible = false
@@ -194,8 +195,7 @@ PanelWindow {
                 Keys.onPressed: event => {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         if (currentItem) {
-                            copyProcess.command = ["wl-copy", currentItem.modelData.char]
-                            copyProcess.running = true
+                            Quickshell.execDetached([Quickshell.shellPath("scripts/type-emoji.sh"), currentItem.modelData.char])
                             UiState.emojiVisible = false
                         }
                         event.accepted = true
@@ -215,8 +215,7 @@ PanelWindow {
                     HoverHandler { id: hover }
                     TapHandler {
                         onTapped: {
-                            copyProcess.command = ["wl-copy", delegateRoot.modelData.char]
-                            copyProcess.running = true
+                            Quickshell.execDetached([Quickshell.shellPath("scripts/type-emoji.sh"), delegateRoot.modelData.char])
                             UiState.emojiVisible = false
                         }
                     }
@@ -277,11 +276,4 @@ PanelWindow {
         }
     }
 
-    Process {
-        id: copyProcess
-        command: ["wl-copy", ""]
-        onExited: {
-            Quickshell.execDetached(["notify-send", "-a", "Quickshell", "-t", "1500", "Copied emoji to clipboard"])
-        }
     }
-}

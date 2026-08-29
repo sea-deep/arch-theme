@@ -289,8 +289,8 @@ Item {
                     Layout.preferredHeight: 24
                     Text {
                         Layout.fillWidth: true
-                        text: root.statusMessage !== "" ? root.statusMessage : root.networkSummary()
-                        color: root.statusMessage !== "" ? Theme.accent : Theme.fgDim
+                        text: root.statusMessage
+                        color: Theme.accent
                         elide: Text.ElideRight
                         font.family: Theme.fontFamily
                         font.pixelSize: 10

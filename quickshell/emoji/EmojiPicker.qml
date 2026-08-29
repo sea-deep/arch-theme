@@ -182,12 +182,25 @@ PanelWindow {
                         onTextChanged: {
                             root.searchQuery = text.toLowerCase()
                             root.filterEmojis(root.searchQuery)
+                            grid.currentIndex = 0
+                        }
+                        onAccepted: {
+                            if (root.displayEmojis.length > 0) {
+                                var targetIdx = (grid.currentIndex >= 0 && grid.currentIndex < root.displayEmojis.length) ? grid.currentIndex : 0
+                                root.selectEmoji(root.displayEmojis[targetIdx].char)
+                            }
                         }
                         Keys.onEscapePressed: UiState.emojiVisible = false
                         Keys.onPressed: event => {
                             if (event.key === Qt.Key_Down) {
                                 grid.forceActiveFocus()
                                 grid.currentIndex = 0
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                                if (root.displayEmojis.length > 0) {
+                                    var targetIdx = (grid.currentIndex >= 0 && grid.currentIndex < root.displayEmojis.length) ? grid.currentIndex : 0
+                                    root.selectEmoji(root.displayEmojis[targetIdx].char)
+                                }
                                 event.accepted = true
                             }
                         }
@@ -206,43 +219,62 @@ PanelWindow {
                 clip: true
                 model: root.emojiCount
                 activeFocusOnTab: true
+                highlightFollowsCurrentItem: true
+                keyNavigationEnabled: true
 
-                    Keys.onEscapePressed: UiState.emojiVisible = false
-                    Keys.onPressed: event => {
-                        if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                            if (currentIndex >= 0 && currentIndex < root.displayEmojis.length) {
-                                root.selectEmoji(root.displayEmojis[currentIndex].char)
-                            }
-                            event.accepted = true
+                Keys.onEscapePressed: UiState.emojiVisible = false
+                Keys.onPressed: event => {
+                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                        if (currentIndex >= 0 && currentIndex < root.displayEmojis.length) {
+                            root.selectEmoji(root.displayEmojis[currentIndex].char)
+                        } else if (root.displayEmojis.length > 0) {
+                            root.selectEmoji(root.displayEmojis[0].char)
                         }
-                    }
-
-                    delegate: Rectangle {
-                        id: delegateRoot
-                        required property int index
-
-                        property var emoji: index < root.displayEmojis.length ? root.displayEmojis[index] : null
-
-                        width: grid.cellWidth
-                        height: grid.cellHeight
-                        color: (grid.activeFocus && grid.currentIndex === index) || hover.hovered ? Theme.bgLight : "transparent"
-                        radius: 8
-
-                        HoverHandler { id: hover }
-                        TapHandler {
-                            onTapped: {
-                                if (delegateRoot.emoji)
-                                    root.selectEmoji(delegateRoot.emoji.char)
-                            }
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_Up && currentIndex < 8) {
+                        searchInput.forceActiveFocus()
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_Backspace) {
+                        searchInput.forceActiveFocus()
+                        if (searchInput.text.length > 0) {
+                            searchInput.text = searchInput.text.slice(0, -1)
                         }
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: delegateRoot.emoji ? delegateRoot.emoji.char : ""
-                            font.pixelSize: 22
-                        }
+                        event.accepted = true
+                    } else if (event.text && event.text.length > 0 && event.text.charCodeAt(0) >= 32 && event.key !== Qt.Key_Space) {
+                        searchInput.forceActiveFocus()
+                        searchInput.text += event.text
+                        event.accepted = true
                     }
                 }
+
+                delegate: Rectangle {
+                    id: delegateRoot
+                    required property int index
+
+                    property var emoji: index < root.displayEmojis.length ? root.displayEmojis[index] : null
+                    property bool isCurrent: (grid.activeFocus && grid.currentIndex === index)
+
+                    width: grid.cellWidth
+                    height: grid.cellHeight
+                    color: isCurrent ? Theme.accent : (hover.hovered ? Theme.bgLight : "transparent")
+                    radius: 8
+
+                    HoverHandler { id: hover }
+                    TapHandler {
+                        onTapped: {
+                            grid.currentIndex = index
+                            if (delegateRoot.emoji)
+                                root.selectEmoji(delegateRoot.emoji.char)
+                        }
+                    }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: delegateRoot.emoji ? delegateRoot.emoji.char : ""
+                        font.pixelSize: 22
+                    }
+                }
+            }
 
             // Category separator
             Rectangle {
@@ -252,11 +284,11 @@ PanelWindow {
                 visible: root.searchQuery === ""
             }
 
-            // Category tabs
+            // Category tabs (compact & shortened)
             RowLayout {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 32
-                spacing: 4
+                Layout.preferredHeight: 24
+                spacing: 2
                 visible: root.searchQuery === ""
 
                 Repeater {
@@ -266,7 +298,7 @@ PanelWindow {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         color: catHover.hovered ? Theme.bgLight : "transparent"
-                        radius: 6
+                        radius: 4
 
                         HoverHandler { id: catHover }
                         TapHandler {
@@ -275,6 +307,7 @@ PanelWindow {
                                 if (idx !== undefined) {
                                     grid.positionViewAtIndex(idx, GridView.Beginning)
                                     grid.currentIndex = idx
+                                    grid.forceActiveFocus()
                                 }
                             }
                         }
@@ -282,7 +315,7 @@ PanelWindow {
                         Text {
                             anchors.centerIn: parent
                             text: modelData.icon
-                            font.pixelSize: 16
+                            font.pixelSize: 13
                         }
                     }
                 }

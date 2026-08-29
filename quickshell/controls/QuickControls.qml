@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls as QQC2
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Pipewire
@@ -121,65 +122,41 @@ Components.Pill {
         return icons[Math.max(0, Math.min(10, Math.floor(devicePercentage(device) / 10)))]
     }
 
-    component CleanSlider: Item {
+    component CleanSlider: QQC2.Slider {
         id: slider
-        property real value: 0
-        readonly property real displayValue: mouseArea.pressed ? visualValue : value
-        property real visualValue: value
-        signal moved(real value)
-        signal released(real value)
+        from: 0.0
+        to: 1.0
+        stepSize: 0.01
         implicitHeight: 26
+        implicitWidth: 120
 
-        Rectangle {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
+        background: Rectangle {
+            x: slider.leftPadding
+            y: slider.topPadding + slider.availableHeight / 2 - height / 2
+            implicitWidth: 200
+            implicitHeight: 6
+            width: slider.availableWidth
             height: 6
             radius: 3
             color: Theme.surfaceVariant
+
             Rectangle {
-                width: parent.width * Math.max(0, Math.min(1, slider.displayValue))
+                width: slider.visualPosition * parent.width
                 height: parent.height
-                radius: parent.radius
                 color: Theme.accent
+                radius: 3
             }
         }
 
-        Rectangle {
-            x: Math.max(0, Math.min(parent.width - width, slider.displayValue * parent.width - width / 2))
-            anchors.verticalCenter: parent.verticalCenter
-            width: 15
-            height: 15
+        handle: Rectangle {
+            x: slider.leftPadding + slider.visualPosition * (slider.availableWidth - width)
+            y: slider.topPadding + slider.availableHeight / 2 - height / 2
+            implicitWidth: 15
+            implicitHeight: 15
             radius: 8
             color: Theme.fg
-            border.width: Theme.borderWidth
             border.color: Theme.bgDark
-        }
-
-        MouseArea {
-            id: mouseArea
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            function updateValue(mouseX) {
-                var v = Math.max(0, Math.min(1, mouseX / width))
-                slider.visualValue = v
-                slider.moved(v)
-            }
-            onPressed: mouse => updateValue(mouse.x)
-            onReleased: mouse => {
-                var v = Math.max(0, Math.min(1, mouse.x / width))
-                slider.visualValue = v
-                slider.released(v)
-            }
-            onPositionChanged: mouse => {
-                if (pressed)
-                    updateValue(mouse.x)
-            }
-            onWheel: wheel => {
-                var v = Math.max(0, Math.min(1, slider.value + (wheel.angleDelta.y > 0 ? 0.05 : -0.05)))
-                slider.visualValue = v
-                slider.moved(v)
-            }
+            border.width: Theme.borderWidth
         }
     }
 
@@ -312,10 +289,10 @@ Components.Pill {
                     id: comfortSlider
                     Layout.fillWidth: true
                     value: UiState.comfortValue / 100.0
-                    onMoved: function(val) { UiState.setShader("comfort", val * 100) }
+                    onMoved: UiState.setShader("comfort", value * 100)
                 }
                 Text {
-                    text: Math.round(comfortSlider.displayValue * 100) + "%"
+                    text: Math.round(comfortSlider.value * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11
@@ -330,10 +307,10 @@ Components.Pill {
                     id: grayscaleSlider
                     Layout.fillWidth: true
                     value: UiState.grayscaleValue / 100.0
-                    onMoved: function(val) { UiState.setShader("grayscale", val * 100) }
+                    onMoved: UiState.setShader("grayscale", value * 100)
                 }
                 Text {
-                    text: Math.round(grayscaleSlider.displayValue * 100) + "%"
+                    text: Math.round(grayscaleSlider.value * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11
@@ -348,10 +325,10 @@ Components.Pill {
                     id: vividSlider
                     Layout.fillWidth: true
                     value: UiState.vividValue / 100.0
-                    onMoved: function(val) { UiState.setShader("vivid", val * 100) }
+                    onMoved: UiState.setShader("vivid", value * 100)
                 }
                 Text {
-                    text: Math.round(vividSlider.displayValue * 100) + "%"
+                    text: Math.round(vividSlider.value * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11
@@ -367,14 +344,12 @@ Components.Pill {
                     id: brightnessSlider
                     Layout.fillWidth: true
                     value: root.maxBrightness > 0 ? (root.currentBrightness / root.maxBrightness) : 0
-                    onMoved: function(val) {
-                        Quickshell.execDetached([
-                            "brightnessctl", "set", Math.max(1, Math.round(val * 100)) + "%"
-                        ])
-                    }
+                    onMoved: Quickshell.execDetached([
+                        "brightnessctl", "set", Math.max(1, Math.round(value * 100)) + "%"
+                    ])
                 }
                 Text {
-                    text: Math.round(brightnessSlider.displayValue * 100) + "%"
+                    text: Math.round(brightnessSlider.value * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11

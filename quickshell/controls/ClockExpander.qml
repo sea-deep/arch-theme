@@ -68,8 +68,6 @@ Components.Pill {
             anchors.rightMargin: 14
             spacing: 16
 
-            Item { Layout.fillWidth: true } // spacer
-
             Item {
                 Layout.fillHeight: true
                 Layout.preferredWidth: timeTabRow.implicitWidth
@@ -104,6 +102,8 @@ Components.Pill {
                 }
             }
 
+            Item { Layout.fillWidth: true } // spacer
+
             Item {
                 Layout.fillHeight: true
                 Layout.preferredWidth: calendarTabRow.implicitWidth
@@ -137,8 +137,6 @@ Components.Pill {
                     }
                 }
             }
-            
-            Item { Layout.fillWidth: true } // spacer
         }
     }
 

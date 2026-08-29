@@ -63,11 +63,15 @@ Components.Pill {
 
         RowLayout {
             id: topLayout
-            anchors.centerIn: parent
+            anchors.fill: parent
+            anchors.leftMargin: 14
+            anchors.rightMargin: 14
             spacing: 12
 
+            Item { Layout.fillWidth: true } // spacer
+
             Item {
-                Layout.preferredHeight: parent.height
+                Layout.fillHeight: true
                 Layout.preferredWidth: timeTabRow.implicitWidth
                 
                 Row {
@@ -101,7 +105,7 @@ Components.Pill {
             }
 
             Item {
-                Layout.preferredHeight: parent.height
+                Layout.fillHeight: true
                 Layout.preferredWidth: calendarTabRow.implicitWidth
                 
                 Row {
@@ -133,6 +137,8 @@ Components.Pill {
                     }
                 }
             }
+            
+            Item { Layout.fillWidth: true } // spacer
         }
     }
 
@@ -352,3 +358,4 @@ Components.Pill {
         }
     }
 }
+// reload trigger

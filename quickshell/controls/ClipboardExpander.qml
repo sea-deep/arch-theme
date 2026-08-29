@@ -324,7 +324,11 @@ Item {
                         height: expRow.height
                         Drag.active: itemMouse.drag.active
                         Drag.dragType: Drag.Automatic
-                        Drag.supportedActions: Qt.CopyAction | Qt.MoveAction | Qt.LinkAction
+                        // Clipboard entries are copied, never moved. Advertising
+                        // Move makes Qt propose it first, which causes copy-only
+                        // targets such as editors and browsers to reject the drag.
+                        Drag.supportedActions: Qt.CopyAction
+                        Drag.proposedAction: Qt.CopyAction
                         Drag.hotSpot.x: 24
                         Drag.hotSpot.y: 24
                         Drag.imageSource: modelData.isImage ? ("file://" + modelData.filePath) : ""

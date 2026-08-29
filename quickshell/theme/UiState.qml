@@ -1,5 +1,6 @@
 pragma Singleton
 import Quickshell
+import QtQml
 
 Singleton {
     id: root
@@ -9,6 +10,9 @@ Singleton {
         reloadableId: "ui-state"
 
         property bool caffeineEnabled: false
+        property real comfortValue: 0
+        property real grayscaleValue: 0
+        property real vividValue: 0
     }
 
     property alias caffeineEnabled: persisted.caffeineEnabled

@@ -124,6 +124,7 @@ Components.Pill {
         id: slider
         property real value: 0
         signal moved(real value)
+        signal released(real value)
         implicitHeight: 26
 
         Rectangle {
@@ -159,6 +160,7 @@ Components.Pill {
                 slider.moved(Math.max(0, Math.min(1, mouseX / width)))
             }
             onPressed: mouse => updateValue(mouse.x)
+            onReleased: mouse => slider.released(Math.max(0, Math.min(1, mouse.x / width)))
             onPositionChanged: mouse => {
                 if (pressed)
                     updateValue(mouse.x)
@@ -289,6 +291,52 @@ Components.Pill {
             anchors.margins: 10
             spacing: 7
             visible: UiState.quickControlMode === "brightness"
+
+            RowLayout {
+                Layout.fillWidth: true
+                Text { text: "󰖔"; color: Theme.yellow; font.family: Theme.fontFamily; font.pixelSize: 16 }
+                CleanSlider {
+                    Layout.fillWidth: true
+                    value: UiState.comfortValue / 100.0
+                    onMoved: value => { UiState.comfortValue = value * 100 }
+                }
+                Text {
+                    text: Math.round(UiState.comfortValue) + "%"
+                    color: Theme.fg
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 11
+                }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                Text { text: "󰈈"; color: Theme.fgDim; font.family: Theme.fontFamily; font.pixelSize: 16 }
+                CleanSlider {
+                    Layout.fillWidth: true
+                    value: UiState.grayscaleValue / 100.0
+                    onMoved: value => { UiState.grayscaleValue = value * 100 }
+                }
+                Text {
+                    text: Math.round(UiState.grayscaleValue) + "%"
+                    color: Theme.fg
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 11
+                }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                Text { text: "󰸌"; color: Theme.accent; font.family: Theme.fontFamily; font.pixelSize: 16 }
+                CleanSlider {
+                    Layout.fillWidth: true
+                    value: UiState.vividValue / 100.0
+                    onMoved: value => { UiState.vividValue = value * 100 }
+                }
+                Text {
+                    text: Math.round(UiState.vividValue) + "%"
+                    color: Theme.fg
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 11
+                }
+            }
 
             RowLayout {
                 Layout.fillWidth: true

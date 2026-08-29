@@ -18,7 +18,6 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
     color: "transparent"
-    visible: UiState.launcherVisible
 
     property string searchQuery: ""
     property string activeCategory: "All"
@@ -141,8 +140,15 @@ PanelWindow {
         reloadApps()
     }
 
-    onVisibleChanged: {
-        if (visible) {
+    property bool showing: UiState.launcherVisible
+    property real reveal: showing ? 1 : 0
+    Behavior on reveal {
+        NumberAnimation { duration: 250; easing.type: Easing.OutExpo }
+    }
+    visible: reveal > 0
+
+    onShowingChanged: {
+        if (showing) {
             searchQuery = ""
             searchInput.text = ""
             activeCategory = "All"
@@ -159,7 +165,7 @@ PanelWindow {
     // Backdrop: click outside closes launcher
     MouseArea {
         anchors.fill: parent
-        onClicked: root.close()
+        onClicked: UiState.launcherVisible = false
     }
 
     // Bottom slide-up card container
@@ -168,26 +174,21 @@ PanelWindow {
         // Exact width for 7 columns (7 * 120 = 840) + margins (24 * 2 = 48) = 888
         width: 888
         height: layout.implicitHeight + layout.anchors.topMargin + 24
+        
+        // Mathematically anchor to bottom edge with fixed margin
         anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 16
 
-        // Slide up completely from off-screen bottom edge to a small gap
-        y: root.visible ? (parent.height - height - 16) : parent.height + 20
-        opacity: root.visible ? 1 : 0
-        scale: root.visible ? 1 : 0.98
-
-        Behavior on y {
-            NumberAnimation { duration: 250; easing.type: Easing.OutExpo }
+        // Robust translation for animation independent of layout passes
+        transform: Translate {
+            y: (1 - root.reveal) * (launcherCard.height + 32)
         }
-        Behavior on opacity {
-            NumberAnimation { duration: 200; easing.type: Easing.OutQuad }
-        }
-        Behavior on scale {
-            NumberAnimation { duration: 250; easing.type: Easing.OutExpo }
-        }
+        opacity: root.reveal
 
         color: Theme.bg
         radius: 16
-        border.color: Theme.surface
+        border.color: Theme.accentGlow
         border.width: 1
 
         // Consume clicks on card so backdrop doesn't close launcher

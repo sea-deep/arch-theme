@@ -318,6 +318,27 @@ PanelWindow {
                     radius: 10
                     color: selected ? Theme.accent : (rowHover.hovered ? Theme.bgLight : "transparent")
 
+                    // Enable OS-level Drag and Drop for Clipboard Items
+                    Drag.active: dragHandler.active
+                    Drag.supportedActions: Qt.CopyAction
+                    Drag.dragType: Drag.Automatic
+                    Drag.mimeData: {
+                        if (root.mode === "clipboard") {
+                            if (resultRow.modelData.isImage) {
+                                return { "text/uri-list": "file://" + resultRow.modelData.filePath }
+                            } else {
+                                var txt = resultRow.modelData.content || resultRow.modelData.text || resultRow.modelData.label;
+                                return { "text/plain": txt }
+                            }
+                        }
+                        return {}
+                    }
+
+                    DragHandler {
+                        id: dragHandler
+                        target: null // Do not move the item visually, just initiate OS drag
+                    }
+
                     RowLayout {
                         anchors.fill: parent
                         anchors.leftMargin: 10
@@ -428,6 +449,19 @@ PanelWindow {
                     height: emojiGrid.cellHeight - 4
                     radius: 11
                     color: selected ? Theme.accent : (emojiHover.hovered ? Theme.bgLight : "transparent")
+
+                    // Enable OS-level Drag and Drop for Emoji Items
+                    Drag.active: dragHandler.active
+                    Drag.supportedActions: Qt.CopyAction
+                    Drag.dragType: Drag.Automatic
+                    Drag.mimeData: {
+                        return { "text/plain": emojiCell.modelData.symbol }
+                    }
+
+                    DragHandler {
+                        id: dragHandler
+                        target: null
+                    }
 
                     ColumnLayout {
                         anchors.fill: parent

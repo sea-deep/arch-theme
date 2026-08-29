@@ -27,7 +27,7 @@ PanelWindow {
 
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.exclusiveZone: Theme.barHeight
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+    WlrLayershell.keyboardFocus: root.overlayExpanded ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
     margins.top: Theme.outerGap
     margins.left: Theme.outerGap
     margins.right: Theme.outerGap
@@ -43,9 +43,9 @@ PanelWindow {
             x: 0
             y: 0
             width: root.width
-            height: Theme.barHeight
+            height: (root.overlayExpanded && !UiState.isDragging) ? root.height : Theme.barHeight
         }
-        // Retain each pill's animated geometry while it closes.
+        // Retain each pill's animated geometry while it closes or during drag.
         Region { item: hardwarePill }
         Region { item: trayExpander }
         Region { item: networkExpander }
@@ -85,7 +85,7 @@ PanelWindow {
         MouseArea {
             id: bgMouseArea
             anchors.fill: parent
-            enabled: root.overlayExpanded
+            enabled: root.overlayExpanded && !UiState.isDragging
             z: 0
             onClicked: UiState.closeOverlays()
         }

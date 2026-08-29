@@ -115,6 +115,7 @@ Singleton {
     property bool launcherVisible: false
     property bool clipboardVisible: false
     property string clipboardScreen: ""
+    property bool isDragging: false
 
     function toggleLauncher() {
         const shouldOpen = !launcherVisible

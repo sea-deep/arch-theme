@@ -409,6 +409,11 @@ Item {
                         preventStealing: true
                         drag.target: expDragProxy
                         cursorShape: Qt.PointingHandCursor
+                        Binding {
+                            target: UiState
+                            property: "isDragging"
+                            value: itemMouse.drag.active
+                        }
                         onPressed: {
                             expRow.grabToImage(function(result) {
                                 expDragProxy.Drag.imageSource = result.url;

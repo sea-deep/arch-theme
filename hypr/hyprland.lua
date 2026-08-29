@@ -176,8 +176,8 @@ end
 hl.bind(mainMod .. " + SHIFT + minus", hl.dsp.window.move({ workspace = "special:scratchpad" }))
 hl.bind(mainMod .. " + minus", hl.dsp.workspace.toggle_special("scratchpad"))
 
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("~/.config/hypr/screenshot.sh region"))
-hl.bind("Print", hl.dsp.exec_cmd("~/.config/hypr/screenshot.sh menu"))
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("qs ipc call screenshot toggle"))
+hl.bind("Print", hl.dsp.exec_cmd("qs ipc call screenshot toggle"))
 hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd("~/.config/hypr/screenshot.sh full"))
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("~/.config/hypr/toggle_recorder.sh"))
 

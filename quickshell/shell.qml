@@ -10,6 +10,7 @@ import "settings" as Settings
 import "notifications" as Notifications
 import "emoji" as Emoji
 import "launcher" as Launcher
+import "screenshot" as Screenshot
 
 ShellRoot {
     id: root
@@ -46,6 +47,7 @@ ShellRoot {
 
     Emoji.EmojiPicker {}
     Launcher.Launcher {}
+    Screenshot.ScreenshotMenu {}
 
     LazyLoader {
         active: UiState.selectorVisible
@@ -150,6 +152,13 @@ ShellRoot {
 
         function battery() {
             UiState.toggleQuickControl("battery")
+        }
+    }
+
+    IpcHandler {
+        target: "screenshot"
+        function toggle() {
+            UiState.screenshotVisible = !UiState.screenshotVisible
         }
     }
 

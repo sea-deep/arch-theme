@@ -313,46 +313,37 @@ Item {
                     width: listView.width
                     height: modelData.isImage ? 90 : 56
                     radius: Theme.radius - 2
-                    color: itemHover.hovered || ListView.isCurrentItem ? Theme.surface : Theme.bgLight
-                    border.color: itemHover.hovered || ListView.isCurrentItem ? Theme.accentGlow : Theme.bgDark
+                    color: itemMouse.containsMouse || ListView.isCurrentItem ? Theme.surface : Theme.bgLight
+                    border.color: itemMouse.containsMouse || ListView.isCurrentItem ? Theme.accentGlow : Theme.bgDark
                     border.width: 1
 
-                    // Enable OS-level Drag and Drop for Clipboard Items
-                    Drag.supportedActions: Qt.CopyAction
-                    Drag.dragType: Drag.Automatic
-                    Drag.mimeData: {
-                        if (modelData.isImage) {
-                            return {
-                                "text/uri-list": "file://" + modelData.filePath + "\r\n",
-                                "text/plain": "file://" + modelData.filePath
-                            }
-                        } else {
-                            var txt = modelData.value || modelData.label || "";
-                            return {
-                                "text/plain": txt,
-                                "text/plain;charset=utf-8": txt,
-                                "UTF8_STRING": txt
-                            }
-                        }
-                    }
-
-                    DragHandler {
-                        id: dragHandler
-                        target: null
-                        onActiveChanged: {
-                            if (active) {
-                                expRow.grabToImage(function(result) {
-                                    expRow.Drag.imageSource = result.url;
-                                    expRow.Drag.active = true;
-                                });
+                    Item {
+                        id: expDragProxy
+                        width: expRow.width
+                        height: expRow.height
+                        Drag.active: itemMouse.drag.active
+                        Drag.dragType: Drag.Automatic
+                        Drag.supportedActions: Qt.CopyAction | Qt.MoveAction | Qt.LinkAction
+                        Drag.hotSpot.x: 24
+                        Drag.hotSpot.y: 24
+                        Drag.imageSource: modelData.isImage ? ("file://" + modelData.filePath) : ""
+                        Drag.mimeData: {
+                            var data = {};
+                            if (modelData.isImage) {
+                                var uri = "file://" + modelData.filePath;
+                                data["text/uri-list"] = uri + "\r\n";
+                                data["x-special/gnome-copied-files"] = "copy\n" + uri + "\r\n";
+                                data["text/plain"] = uri;
+                                data["text/plain;charset=utf-8"] = uri;
                             } else {
-                                expRow.Drag.active = false;
+                                var txt = modelData.value || modelData.label || "";
+                                data["text/plain"] = txt;
+                                data["text/plain;charset=utf-8"] = txt;
+                                data["UTF8_STRING"] = txt;
                             }
+                            return data;
                         }
                     }
-
-                    HoverHandler { id: itemHover }
-                    TapHandler { onTapped: root.activate(modelData) }
 
                     RowLayout {
                         anchors.fill: parent
@@ -409,6 +400,21 @@ Item {
                                 font.pixelSize: 11
                             }
                         }
+                    }
+
+                    MouseArea {
+                        id: itemMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        preventStealing: true
+                        drag.target: expDragProxy
+                        cursorShape: Qt.PointingHandCursor
+                        onPressed: {
+                            expRow.grabToImage(function(result) {
+                                expDragProxy.Drag.imageSource = result.url;
+                            }, Qt.size(160, 48));
+                        }
+                        onClicked: root.activate(modelData)
                     }
                 }
 

@@ -43,8 +43,16 @@ PanelWindow {
             x: 0
             y: 0
             width: root.width
-            height: root.overlayExpanded ? root.height : Theme.barHeight
+            height: Theme.barHeight
         }
+        // Retain each pill's animated geometry while it closes.
+        Region { item: hardwarePill }
+        Region { item: trayExpander }
+        Region { item: networkExpander }
+        Region { item: notificationExpander }
+        Region { item: powerExpander }
+        Region { item: clockExpander }
+        Region { item: clipboardExpander }
         Region { item: workspacesModule }
     }
 

@@ -352,54 +352,44 @@ PanelWindow {
                     width: ListView.view.width
                     height: 58
                     radius: 10
-                    color: selected ? Theme.accent : (rowHover.hovered ? Theme.bgLight : "transparent")
+                    color: selected ? Theme.accent : (rowMouse.containsMouse ? Theme.bgLight : "transparent")
 
-                    // Enable OS-level Drag and Drop for Clipboard Items
-                    Drag.supportedActions: Qt.CopyAction
-                    Drag.dragType: Drag.Automatic
-                    Drag.mimeData: {
-                        if (root.mode === "clipboard") {
-                            if (resultRow.modelData.isImage) {
-                                return {
-                                    "text/uri-list": "file://" + resultRow.modelData.filePath + "\r\n",
-                                    "text/plain": "file://" + resultRow.modelData.filePath
+                    Item {
+                        id: dragProxy
+                        width: resultRow.width
+                        height: resultRow.height
+                        Drag.active: rowMouse.drag.active
+                        Drag.dragType: Drag.Automatic
+                        Drag.supportedActions: Qt.CopyAction | Qt.MoveAction | Qt.LinkAction
+                        Drag.hotSpot.x: 24
+                        Drag.hotSpot.y: 24
+                        Drag.imageSource: (root.mode === "clipboard" && resultRow.modelData.isImage)
+                            ? ("file://" + resultRow.modelData.filePath)
+                            : ""
+                        Drag.mimeData: {
+                            var data = {};
+                            if (root.mode === "clipboard") {
+                                if (resultRow.modelData.isImage) {
+                                    var uri = "file://" + resultRow.modelData.filePath;
+                                    data["text/uri-list"] = uri + "\r\n";
+                                    data["x-special/gnome-copied-files"] = "copy\n" + uri + "\r\n";
+                                    data["text/plain"] = uri;
+                                    data["text/plain;charset=utf-8"] = uri;
+                                } else {
+                                    var txt = resultRow.modelData.value || resultRow.modelData.label || "";
+                                    data["text/plain"] = txt;
+                                    data["text/plain;charset=utf-8"] = txt;
+                                    data["UTF8_STRING"] = txt;
                                 }
-                            } else {
-                                var txt = resultRow.modelData.value || resultRow.modelData.label || "";
-                                return {
-                                    "text/plain": txt,
-                                    "text/plain;charset=utf-8": txt,
-                                    "UTF8_STRING": txt
-                                }
+                            } else if (root.mode === "emoji") {
+                                var sym = resultRow.modelData.symbol || "";
+                                data["text/plain"] = sym;
+                                data["text/plain;charset=utf-8"] = sym;
+                                data["UTF8_STRING"] = sym;
                             }
-                        } else if (root.mode === "emoji") {
-                            var sym = resultRow.modelData.symbol || "";
-                            return {
-                                "text/plain": sym,
-                                "text/plain;charset=utf-8": sym,
-                                "UTF8_STRING": sym
-                            }
-                        }
-                        return {}
-                    }
-
-                    DragHandler {
-                        id: dragHandler
-                        target: null
-                        onActiveChanged: {
-                            if (active) {
-                                resultRow.grabToImage(function(result) {
-                                    resultRow.Drag.imageSource = result.url;
-                                    resultRow.Drag.active = true;
-                                });
-                            } else {
-                                resultRow.Drag.active = false;
-                            }
+                            return data;
                         }
                     }
-
-                    HoverHandler { id: rowHover }
-                    TapHandler { onTapped: root.activate(resultRow.modelData) }
 
                     RowLayout {
                         anchors.fill: parent
@@ -475,6 +465,21 @@ PanelWindow {
                             font.pixelSize: 16
                         }
                     }
+
+                    MouseArea {
+                        id: rowMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        preventStealing: true
+                        drag.target: dragProxy
+                        cursorShape: Qt.PointingHandCursor
+                        onPressed: {
+                            resultRow.grabToImage(function(result) {
+                                dragProxy.Drag.imageSource = result.url;
+                            }, Qt.size(160, 48));
+                        }
+                        onClicked: root.activate(resultRow.modelData)
+                    }
                 }
 
                 Text {
@@ -505,32 +510,19 @@ PanelWindow {
                     width: emojiGrid.cellWidth - 4
                     height: emojiGrid.cellHeight - 4
                     radius: 11
-                    color: selected ? Theme.accent : (emojiHover.hovered ? Theme.bgLight : "transparent")
+                    color: selected ? Theme.accent : (emojiMouse.containsMouse ? Theme.bgLight : "transparent")
 
-                    // Enable OS-level Drag and Drop for Emoji Items
-                    Drag.supportedActions: Qt.CopyAction
-                    Drag.dragType: Drag.Automatic
-                    Drag.mimeData: {
-                        return { "text/plain": emojiCell.modelData.symbol || "" };
-                    }
-
-                    DragHandler {
-                        id: dragHandler
-                        target: null
-                        onActiveChanged: {
-                            if (active) {
-                                emojiCell.grabToImage(function(result) {
-                                    emojiCell.Drag.imageSource = result.url;
-                                    emojiCell.Drag.active = true;
-                                });
-                            } else {
-                                emojiCell.Drag.active = false;
-                            }
+                    Item {
+                        id: emojiDragProxy
+                        width: emojiCell.width
+                        height: emojiCell.height
+                        Drag.active: emojiMouse.drag.active
+                        Drag.dragType: Drag.Automatic
+                        Drag.supportedActions: Qt.CopyAction
+                        Drag.mimeData: {
+                            return { "text/plain": emojiCell.modelData.symbol || "" };
                         }
                     }
-
-                    HoverHandler { id: emojiHover }
-                    TapHandler { onTapped: root.activate(emojiCell.modelData) }
 
                     ColumnLayout {
                         anchors.fill: parent
@@ -554,6 +546,21 @@ PanelWindow {
                             font.family: Theme.fontFamilySans
                             font.pixelSize: 10
                         }
+                    }
+
+                    MouseArea {
+                        id: emojiMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        preventStealing: true
+                        drag.target: emojiDragProxy
+                        cursorShape: Qt.PointingHandCursor
+                        onPressed: {
+                            emojiCell.grabToImage(function(result) {
+                                emojiDragProxy.Drag.imageSource = result.url;
+                            }, Qt.size(64, 64));
+                        }
+                        onClicked: root.activate(emojiCell.modelData)
                     }
                 }
 

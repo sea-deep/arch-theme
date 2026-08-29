@@ -228,11 +228,23 @@ Item {
                     }
                     Text {
                         Layout.fillWidth: true
-                        text: "Network"
-                        color: Theme.fg
+                        text: root.statusMessage !== "" ? root.statusMessage : (root.wifiDevice && root.wifiDevice.scannerEnabled ? "󰑐 Scanning" : "󰑐 Refresh")
+                        color: root.statusMessage !== "" ? Theme.accent : (scanHover.hovered ? Theme.accent : Theme.fg)
                         font.family: Theme.fontFamilySans
-                        font.pixelSize: 14
+                        font.pixelSize: 12
                         font.weight: Theme.fontWeight
+                        elide: Text.ElideRight
+                        
+                        HoverHandler { id: scanHover; enabled: root.statusMessage === "" }
+                        TapHandler {
+                            enabled: root.statusMessage === ""
+                            onTapped: {
+                                if (root.wifiDevice) {
+                                    root.wifiDevice.scannerEnabled = false
+                                    Qt.callLater(() => root.wifiDevice.scannerEnabled = true)
+                                }
+                            }
+                        }
                     }
                     RowLayout {
                         Layout.preferredWidth: 62
@@ -278,39 +290,7 @@ Item {
                     }
                 }
 
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 1
-                    color: Theme.surface
-                }
 
-                RowLayout {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 24
-                    Text {
-                        Layout.fillWidth: true
-                        text: root.statusMessage
-                        color: Theme.accent
-                        elide: Text.ElideRight
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 10
-                    }
-                    Text {
-                        text: root.wifiDevice && root.wifiDevice.scannerEnabled ? "󰑐 Scanning" : "󰑐 Refresh"
-                        color: scanHover.hovered ? Theme.accent : Theme.fgDim
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 10
-                        HoverHandler { id: scanHover }
-                        TapHandler {
-                            onTapped: {
-                                if (root.wifiDevice) {
-                                    root.wifiDevice.scannerEnabled = false
-                                    Qt.callLater(() => root.wifiDevice.scannerEnabled = true)
-                                }
-                            }
-                        }
-                    }
-                }
 
                 ListView {
                     id: networkList

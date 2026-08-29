@@ -158,16 +158,25 @@ Components.Pill {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
             function updateValue(mouseX) {
-                slider.moved(Math.max(0, Math.min(1, mouseX / width)))
+                var v = Math.max(0, Math.min(1, mouseX / width))
+                slider.value = v
+                slider.moved(v)
             }
             onPressed: mouse => updateValue(mouse.x)
-            onReleased: mouse => slider.released(Math.max(0, Math.min(1, mouse.x / width)))
+            onReleased: mouse => {
+                var v = Math.max(0, Math.min(1, mouse.x / width))
+                slider.value = v
+                slider.released(v)
+            }
             onPositionChanged: mouse => {
                 if (pressed)
                     updateValue(mouse.x)
             }
-            onWheel: wheel => slider.moved(Math.max(0, Math.min(1,
-                slider.value + (wheel.angleDelta.y > 0 ? 0.05 : -0.05))))
+            onWheel: wheel => {
+                var v = Math.max(0, Math.min(1, slider.value + (wheel.angleDelta.y > 0 ? 0.05 : -0.05)))
+                slider.value = v
+                slider.moved(v)
+            }
         }
     }
 

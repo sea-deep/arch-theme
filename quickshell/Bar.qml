@@ -32,27 +32,26 @@ PanelWindow {
     margins.left: Theme.outerGap
     margins.right: Theme.outerGap
 
+    onOverlayExpandedChanged: {
+        if (overlayExpanded) {
+            Qt.callLater(() => barContent.forceActiveFocus())
+        }
+    }
+
     mask: Region {
         Region {
             x: 0
             y: 0
             width: root.width
-            height: Theme.barHeight
+            height: root.overlayExpanded ? root.height : Theme.barHeight
         }
-        // Retain each pill's animated geometry while it closes.
-        Region { item: hardwarePill }
-        Region { item: trayExpander }
-        Region { item: networkExpander }
-        Region { item: notificationExpander }
-        Region { item: powerExpander }
-        Region { item: clockExpander }
-        Region { item: clipboardExpander }
         Region { item: workspacesModule }
     }
 
     Item {
         id: barContent
         Keys.onEscapePressed: UiState.closeOverlays()
+        focus: root.overlayExpanded
         anchors.fill: parent
 
         MouseArea {
@@ -60,16 +59,7 @@ PanelWindow {
             anchors.fill: parent
             enabled: root.overlayExpanded
             z: 0
-            onClicked: {
-                UiState.quickControlVisible = false
-                UiState.notificationCenterVisible = false
-                UiState.notificationPreviewVisible = false
-                UiState.powerMenuVisible = false
-                UiState.trayMenuVisible = false
-                UiState.clockMenuVisible = false
-                UiState.networkVisible = false
-                UiState.clipboardVisible = false
-            }
+            onClicked: UiState.closeOverlays()
         }
 
         // LEFT (Workspaces Expander)

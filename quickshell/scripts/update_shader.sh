@@ -21,7 +21,10 @@ else
 fi
 
 if [ "$COMFORT" == "0" ] && [ "$GRAYSCALE" == "0" ] && [ "$VIVID" == "0" ]; then
-    hyprctl repl "hl.config({ decoration = { screen_shader = '[[EMPTY]]' } })"
+    hyprctl eval "hl.config({ decoration = { screen_shader = '' } })" 2>/dev/null || true
+    hyprctl repl "hl.config({ decoration = { screen_shader = '' } })" 2>/dev/null || true
+    hyprctl keyword decoration:screen_shader "" 2>/dev/null || true
+    hyprctl seterror disable 2>/dev/null || true
     exit 0
 fi
 
@@ -86,5 +89,7 @@ sed -i "s/VIVID_VAL/$V_NORM/g" "$SHADER_FILE"
 sed -i "s/GRAYSCALE_VAL/$G_NORM/g" "$SHADER_FILE"
 sed -i "s/COMFORT_VAL/$C_NORM/g" "$SHADER_FILE"
 
-hyprctl repl "hl.config({ decoration = { screen_shader = '$SHADER_FILE' } })"
-hyprctl seterror disable
+hyprctl eval "hl.config({ decoration = { screen_shader = '$SHADER_FILE' } })" 2>/dev/null || true
+hyprctl repl "hl.config({ decoration = { screen_shader = '$SHADER_FILE' } })" 2>/dev/null || true
+hyprctl keyword decoration:screen_shader "$SHADER_FILE" 2>/dev/null || true
+hyprctl seterror disable 2>/dev/null || true

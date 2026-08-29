@@ -9,6 +9,7 @@ Item {
     id: root
 
     property string targetScreenName: ""
+    property int expandedWidth: 350
     readonly property bool expanded: UiState.clipboardVisible
         && (UiState.clipboardScreen === "" || UiState.clipboardScreen === targetScreenName)
     readonly property int fullBodyHeight: 400

@@ -88,7 +88,7 @@ Components.Pill {
                     anchors.right: parent.right
                     height: 2
                     color: Theme.accent
-                    visible: UiState.clockTab === "time"
+                    visible: UiState.clockTab === "time" && root.expanded
                 }
                 
                 MouseArea {
@@ -122,7 +122,7 @@ Components.Pill {
                     anchors.right: parent.right
                     height: 2
                     color: Theme.accent
-                    visible: UiState.clockTab === "calendar"
+                    visible: UiState.clockTab === "calendar" && root.expanded
                 }
 
                 MouseArea {

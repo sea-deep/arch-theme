@@ -43,9 +43,35 @@ Singleton {
         } catch(e) {}
     }
 
+    function setShader(mode, val) {
+        var rounded = Math.max(0, Math.min(100, Math.round(val)))
+        if (mode === "comfort") {
+            comfortValue = rounded
+            if (rounded > 0) {
+                grayscaleValue = 0
+                vividValue = 0
+            }
+        } else if (mode === "grayscale") {
+            grayscaleValue = rounded
+            if (rounded > 0) {
+                comfortValue = 0
+                vividValue = 0
+            }
+        } else if (mode === "vivid") {
+            vividValue = rounded
+            if (rounded > 0) {
+                comfortValue = 0
+                grayscaleValue = 0
+            }
+        }
+        if (isShaderInitialized) {
+            shaderUpdateTimer.restart()
+        }
+    }
+
     Timer {
         id: shaderUpdateTimer
-        interval: 40
+        interval: 35
         repeat: false
         onTriggered: {
             if (!root.isShaderInitialized) return

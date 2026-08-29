@@ -3,6 +3,7 @@ mkdir -p ~/.config/quickshell/state
 
 STATE_FILE="$HOME/.config/quickshell/state/shaders.json"
 SHADER_FILE="$HOME/.config/quickshell/state/current.frag"
+TMP_FILE="$HOME/.config/quickshell/state/current.frag.tmp"
 
 # Read existing state if not provided
 if [ ! -f "$STATE_FILE" ]; then
@@ -10,14 +11,14 @@ if [ ! -f "$STATE_FILE" ]; then
 fi
 
 if [ "$1" == "set_all" ]; then
-    COMFORT=$2
-    GRAYSCALE=$3
-    VIVID=$4
+    COMFORT=${2:-0}
+    GRAYSCALE=${3:-0}
+    VIVID=${4:-0}
     echo "{\"comfort\":$COMFORT,\"grayscale\":$GRAYSCALE,\"vivid\":$VIVID}" > "$STATE_FILE"
 else
-    COMFORT=$(jq -r '.comfort' "$STATE_FILE")
-    GRAYSCALE=$(jq -r '.grayscale' "$STATE_FILE")
-    VIVID=$(jq -r '.vivid' "$STATE_FILE")
+    COMFORT=$(jq -r '.comfort // 0' "$STATE_FILE" 2>/dev/null || echo 0)
+    GRAYSCALE=$(jq -r '.grayscale // 0' "$STATE_FILE" 2>/dev/null || echo 0)
+    VIVID=$(jq -r '.vivid // 0' "$STATE_FILE" 2>/dev/null || echo 0)
 fi
 
 if [ "$COMFORT" == "0" ] && [ "$GRAYSCALE" == "0" ] && [ "$VIVID" == "0" ]; then
@@ -25,16 +26,17 @@ if [ "$COMFORT" == "0" ] && [ "$GRAYSCALE" == "0" ] && [ "$VIVID" == "0" ]; then
     hyprctl repl "hl.config({ decoration = { screen_shader = '' } })" 2>/dev/null || true
     hyprctl keyword decoration:screen_shader "" 2>/dev/null || true
     hyprctl seterror disable 2>/dev/null || true
+    rm -f "$SHADER_FILE" "$TMP_FILE"
     exit 0
 fi
 
-# Normalize values (0 to 1)
-C_NORM=$(awk "BEGIN {printf \"%.3f\", $COMFORT / 100.0}")
-G_NORM=$(awk "BEGIN {printf \"%.3f\", $GRAYSCALE / 100.0}")
-V_NORM=$(awk "BEGIN {printf \"%.3f\", $VIVID / 100.0}")
+# Normalize values (0.0 to 1.0)
+C_NORM=$(awk "BEGIN {printf \"%.4f\", $COMFORT / 100.0}")
+G_NORM=$(awk "BEGIN {printf \"%.4f\", $GRAYSCALE / 100.0}")
+V_NORM=$(awk "BEGIN {printf \"%.4f\", $VIVID / 100.0}")
 
-# Generate shader
-cat << 'GLSL' > "$SHADER_FILE"
+# Generate shader atomically to temporary file first
+cat << GLSL > "$TMP_FILE"
 #version 300 es
 precision mediump float;
 in vec2 v_texcoord;
@@ -60,20 +62,20 @@ void main() {
     vec4 color = texture(tex, v_texcoord);
     vec3 rgb = color.rgb;
 
-    float vivid = VIVID_VAL;
+    float vivid = $V_NORM;
     if (vivid > 0.0) {
         vec3 hsv = rgb2hsv(rgb);
         hsv.y = clamp(hsv.y * (1.0 + vivid), 0.0, 1.0);
         rgb = hsv2rgb(hsv);
     }
 
-    float grayscale = GRAYSCALE_VAL;
+    float grayscale = $G_NORM;
     if (grayscale > 0.0) {
         float gray = dot(rgb, vec3(0.299, 0.587, 0.114));
         rgb = mix(rgb, vec3(gray), grayscale);
     }
 
-    float comfort = COMFORT_VAL;
+    float comfort = $C_NORM;
     if (comfort > 0.0) {
         rgb.b = mix(rgb.b, rgb.b * 0.4, comfort);
         rgb.g = mix(rgb.g, rgb.g * 0.8, comfort);
@@ -85,9 +87,7 @@ void main() {
 }
 GLSL
 
-sed -i "s/VIVID_VAL/$V_NORM/g" "$SHADER_FILE"
-sed -i "s/GRAYSCALE_VAL/$G_NORM/g" "$SHADER_FILE"
-sed -i "s/COMFORT_VAL/$C_NORM/g" "$SHADER_FILE"
+mv -f "$TMP_FILE" "$SHADER_FILE"
 
 hyprctl eval "hl.config({ decoration = { screen_shader = '$SHADER_FILE' } })" 2>/dev/null || true
 hyprctl repl "hl.config({ decoration = { screen_shader = '$SHADER_FILE' } })" 2>/dev/null || true

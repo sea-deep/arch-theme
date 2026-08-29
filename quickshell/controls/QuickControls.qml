@@ -159,13 +159,11 @@ Components.Pill {
             cursorShape: Qt.PointingHandCursor
             function updateValue(mouseX) {
                 var v = Math.max(0, Math.min(1, mouseX / width))
-                slider.value = v
                 slider.moved(v)
             }
             onPressed: mouse => updateValue(mouse.x)
             onReleased: mouse => {
                 var v = Math.max(0, Math.min(1, mouse.x / width))
-                slider.value = v
                 slider.released(v)
             }
             onPositionChanged: mouse => {
@@ -174,7 +172,6 @@ Components.Pill {
             }
             onWheel: wheel => {
                 var v = Math.max(0, Math.min(1, slider.value + (wheel.angleDelta.y > 0 ? 0.05 : -0.05)))
-                slider.value = v
                 slider.moved(v)
             }
         }
@@ -309,10 +306,10 @@ Components.Pill {
                     id: comfortSlider
                     Layout.fillWidth: true
                     value: UiState.comfortValue / 100.0
-                    onMoved: function(val) { UiState.comfortValue = val * 100 }
+                    onMoved: function(val) { UiState.setShader("comfort", val * 100) }
                 }
                 Text {
-                    text: Math.round(comfortSlider.value * 100) + "%"
+                    text: Math.round(UiState.comfortValue) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11
@@ -327,10 +324,10 @@ Components.Pill {
                     id: grayscaleSlider
                     Layout.fillWidth: true
                     value: UiState.grayscaleValue / 100.0
-                    onMoved: function(val) { UiState.grayscaleValue = val * 100 }
+                    onMoved: function(val) { UiState.setShader("grayscale", val * 100) }
                 }
                 Text {
-                    text: Math.round(grayscaleSlider.value * 100) + "%"
+                    text: Math.round(UiState.grayscaleValue) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11
@@ -345,10 +342,10 @@ Components.Pill {
                     id: vividSlider
                     Layout.fillWidth: true
                     value: UiState.vividValue / 100.0
-                    onMoved: function(val) { UiState.vividValue = val * 100 }
+                    onMoved: function(val) { UiState.setShader("vivid", val * 100) }
                 }
                 Text {
-                    text: Math.round(vividSlider.value * 100) + "%"
+                    text: Math.round(UiState.vividValue) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11
@@ -365,6 +362,7 @@ Components.Pill {
                     Layout.fillWidth: true
                     value: root.maxBrightness > 0 ? (root.currentBrightness / root.maxBrightness) : 0
                     onMoved: function(val) {
+                        brightnessSlider.value = val
                         Quickshell.execDetached([
                             "brightnessctl", "set", Math.max(1, Math.round(val * 100)) + "%"
                         ])

@@ -38,7 +38,7 @@ Components.Pill {
     focus: expanded
 
     Behavior on implicitHeight {
-        NumberAnimation { duration: 85; easing.type: Easing.OutCubic }
+        NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingDecelerate }
     }
 
     onExpandedChanged: {
@@ -134,7 +134,7 @@ Components.Pill {
             anchors.verticalCenter: parent.verticalCenter
             height: 6
             radius: 3
-            color: Theme.surface
+            color: Theme.surfaceVariant
             Rectangle {
                 width: parent.width * Math.max(0, Math.min(1, slider.value))
                 height: parent.height
@@ -265,7 +265,7 @@ Components.Pill {
         anchors.leftMargin: Theme.borderWidth
         anchors.rightMargin: Theme.borderWidth
         height: 1
-        color: Theme.surface
+        color: Theme.surfaceVariant
         visible: root.reveal > 0
     }
 

@@ -30,8 +30,8 @@ Item {
         ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
         : Theme.barHeight
     
-    Behavior on reveal { NumberAnimation { duration: 85; easing.type: Easing.OutCubic } }
-    Behavior on implicitWidth { NumberAnimation { duration: 85; easing.type: Easing.OutCubic } }
+    Behavior on reveal { NumberAnimation { duration: Theme.durationFast; easing.type: Theme.easingDecelerate } }
+    Behavior on implicitWidth { NumberAnimation { duration: Theme.durationFast; easing.type: Theme.easingDecelerate } }
 
     Connections {
         target: Hyprland
@@ -180,7 +180,7 @@ Item {
                         Layout.preferredWidth: 1
                         Layout.preferredHeight: 12
                         radius: 0.5
-                        color: Theme.surface
+                        color: Theme.surfaceVariant
                         Layout.alignment: Qt.AlignVCenter
                     }
 
@@ -385,7 +385,7 @@ Item {
             Rectangle {
                 Layout.fillWidth: true
                 height: 1
-                color: Theme.surface
+                color: Theme.surfaceVariant
                 Layout.bottomMargin: 2
             }
 

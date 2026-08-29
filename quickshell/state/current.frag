@@ -36,7 +36,7 @@ void main() {
         rgb = mix(rgb, vec3(gray), grayscale);
     }
 
-    float comfort = 0.550;
+    float comfort = 0.350;
     if (comfort > 0.0) {
         rgb.b = mix(rgb.b, rgb.b * 0.4, comfort);
         rgb.g = mix(rgb.g, rgb.g * 0.8, comfort);

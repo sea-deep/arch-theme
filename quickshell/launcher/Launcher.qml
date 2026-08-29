@@ -4,6 +4,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
+import "../components" as Components
 import "../theme"
 
 PanelWindow {
@@ -169,17 +170,16 @@ PanelWindow {
     }
 
     // Bottom slide-up card container
-    Rectangle {
+    Components.BottomDrawerSurface {
         id: launcherCard
         // Exact width for 7 columns (7 * 120 = 840) + margins (24 * 2 = 48) = 888
         width: 888
-        // Increase height by 16px to accommodate the sunken bottom
-        height: layout.implicitHeight + layout.anchors.topMargin + 24 + 16
+        height: layout.implicitHeight + layout.anchors.topMargin + 24
         
-        // Mathematically anchor to bottom edge, sink by 16px to hide bottom rounded corners
+        // Mathematically anchor perfectly flush to bottom edge
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: -16
+        anchors.bottomMargin: 0
 
         // Robust translation for animation independent of layout passes
         transform: Translate {
@@ -187,10 +187,7 @@ PanelWindow {
         }
         opacity: root.reveal
 
-        color: Theme.bg
-        radius: 16
-        border.color: Theme.accentGlow
-        border.width: 1
+        strokeColor: Theme.accentGlow
 
         // Consume clicks on card so backdrop doesn't close launcher
         MouseArea {

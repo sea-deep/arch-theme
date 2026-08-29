@@ -130,6 +130,18 @@ Components.Pill {
         implicitHeight: 26
         implicitWidth: 120
 
+        WheelHandler {
+            target: slider
+            orientation: Qt.Vertical
+            onWheel: (event) => {
+                var step = (event.angleDelta.y > 0 ? 0.05 : (event.angleDelta.y < 0 ? -0.05 : 0))
+                if (step !== 0) {
+                    slider.value = Math.max(slider.from, Math.min(slider.to, Number((slider.value + step).toFixed(2))))
+                    slider.moved()
+                }
+            }
+        }
+
         background: Rectangle {
             x: slider.leftPadding
             y: slider.topPadding + slider.availableHeight / 2 - height / 2

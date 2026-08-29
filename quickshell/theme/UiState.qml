@@ -17,18 +17,16 @@ Singleton {
     }
 
     property alias caffeineEnabled: persisted.caffeineEnabled
-    property alias comfortValue: persisted.comfortValue
-    property alias grayscaleValue: persisted.grayscaleValue
-    property alias vividValue: persisted.vividValue
+    property real comfortValue: 0
+    property real grayscaleValue: 0
+    property real vividValue: 0
 
     property bool isShaderInitialized: false
 
     FileView {
         id: shaderStateFile
         path: Quickshell.env("HOME") + "/.config/quickshell/state/shaders.json"
-        watchChanges: true
         printErrors: false
-        onFileChanged: root.loadShaderState()
     }
 
     function loadShaderState() {
@@ -64,9 +62,7 @@ Singleton {
                 grayscaleValue = 0
             }
         }
-        if (isShaderInitialized) {
-            shaderUpdateTimer.restart()
-        }
+        shaderUpdateTimer.restart()
     }
 
     Timer {
@@ -74,14 +70,15 @@ Singleton {
         interval: 35
         repeat: false
         onTriggered: {
-            if (!root.isShaderInitialized) return
-            Quickshell.execDetached(["bash", "-c", "$HOME/.config/quickshell/scripts/update_shader.sh set_all " + Math.round(comfortValue) + " " + Math.round(grayscaleValue) + " " + Math.round(vividValue)])
+            Quickshell.execDetached([
+                Quickshell.env("HOME") + "/.config/quickshell/scripts/update_shader.sh",
+                "set_all",
+                String(Math.round(comfortValue)),
+                String(Math.round(grayscaleValue)),
+                String(Math.round(vividValue))
+            ])
         }
     }
-
-    onComfortValueChanged: if (isShaderInitialized) shaderUpdateTimer.restart()
-    onGrayscaleValueChanged: if (isShaderInitialized) shaderUpdateTimer.restart()
-    onVividValueChanged: if (isShaderInitialized) shaderUpdateTimer.restart()
 
     Component.onCompleted: {
         loadShaderState()

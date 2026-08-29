@@ -30,6 +30,7 @@ Item {
     }
 
     visible: reveal > 0
+    onExpandedChanged: { if (!expanded) searchQuery = "" }
 
     FileView {
         id: clipboardFile
@@ -39,6 +40,29 @@ Item {
     }
 
     readonly property var clipboardEntries: parseClipboard(clipboardFile.text())
+    
+    property string searchQuery: ""
+    readonly property var filteredEntries: {
+        const query = searchQuery.toLowerCase()
+        if (query === "") return clipboardEntries
+        return clipboardEntries.filter(e => 
+            (e.label && e.label.toLowerCase().includes(query)) || 
+            (e.value && e.value.toLowerCase().includes(query))
+        )
+    }
+    
+    function timeAgo(dateString) {
+        if (!dateString) return ""
+        const parts = dateString.split(".")[0].replace(" ", "T")
+        const date = new Date(parts)
+        const now = new Date()
+        const diffSec = Math.floor((now - date) / 1000)
+        
+        if (diffSec < 60) return "just now"
+        if (diffSec < 3600) return Math.floor(diffSec / 60) + "m ago"
+        if (diffSec < 86400) return Math.floor(diffSec / 3600) + "h ago"
+        return Math.floor(diffSec / 86400) + "d ago"
+    }
 
     function parseClipboard(data) {
         if (!data) return []
@@ -126,21 +150,48 @@ Item {
                 spacing: 6
 
                 Text {
-                    text: "󰅌"
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 17
-                    color: Theme.purple
-                    Layout.alignment: Qt.AlignVCenter
-                }
-
-                Text {
                     text: "Clipboard"
                     font.family: Theme.fontFamilySans
                     font.pixelSize: 16
                     font.weight: Theme.fontWeight
                     color: Theme.fg
-                    Layout.fillWidth: true
                     Layout.alignment: Qt.AlignVCenter
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    implicitHeight: 28
+                    radius: 9
+                    color: Theme.bgLight
+                    border.color: searchInput.activeFocus ? Theme.accent : Theme.bgDark
+                    border.width: 1
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: 8
+                        anchors.rightMargin: 8
+                        spacing: 6
+                        
+                        Text {
+                            text: "󰍉"
+                            color: Theme.fgDim
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 12
+                        }
+                        
+                        TextInput {
+                            id: searchInput
+                            Layout.fillWidth: true
+                            color: Theme.fg
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 12
+                            verticalAlignment: TextInput.AlignVCenter
+                            clip: true
+                            selectByMouse: true
+                            text: root.searchQuery
+                            onTextChanged: root.searchQuery = text
+                        }
+                    }
                 }
 
                 Rectangle {
@@ -195,7 +246,7 @@ Item {
                 id: listView
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                model: root.clipboardEntries
+                model: root.filteredEntries
                 spacing: 10
                 clip: true
                 boundsBehavior: Flickable.StopAtBounds
@@ -218,7 +269,7 @@ Item {
                     border.color: itemHover.hovered ? Theme.accentGlow : Theme.bgDark
                     border.width: 1
 
-                    HoverHandler { id: itemHover }
+                    HoverHandler { id: itemHover; cursorShape: Qt.PointingHandCursor }
                     TapHandler { onTapped: root.activate(modelData) }
 
                     RowLayout {
@@ -270,7 +321,7 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: modelData.recorded
+                                text: root.timeAgo(modelData.recorded)
                                 color: Theme.fgDim
                                 font.family: Theme.fontFamilySans
                                 font.pixelSize: 11

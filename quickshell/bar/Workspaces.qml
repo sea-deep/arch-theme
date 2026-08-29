@@ -22,8 +22,8 @@ Item {
     property real reveal: isExpanded ? 1 : 0
     
     readonly property real collapsedWidth: topLayout.implicitWidth + 8
-    readonly property real expandedWidth: Math.max(340, collapsedWidth)
-    readonly property int bodyHeight: windowList.length > 0 ? Math.min(320, windowList.length * 38 + 16) : 0
+    readonly property real expandedWidth: Math.max(380, collapsedWidth + 52)
+    readonly property int bodyHeight: windowList.length > 0 ? Math.min(360, 36 + windowList.length * 36 + 14) : 0
     
     implicitWidth: reveal > 0 ? expandedWidth : collapsedWidth
     implicitHeight: reveal > 0
@@ -54,7 +54,6 @@ Item {
         onHoveredChanged: {
             if (hovered) {
                 closeTimer.stop()
-                switchPreviewTimer.stop()
                 root.isHovered = true
             } else {
                 closeTimer.restart()
@@ -338,6 +337,42 @@ Item {
             anchors.fill: parent
             spacing: 4
 
+            // Header: Workspace Title + Window Count
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.leftMargin: 6
+                Layout.rightMargin: 6
+                Layout.topMargin: 2
+                Layout.bottomMargin: 2
+                spacing: 8
+
+                Text {
+                    text: "Workspace " + (root.activeWs ? (root.activeWs.name || root.activeWs.id || "") : "")
+                    color: Theme.accent
+                    font.family: Theme.fontFamilySans
+                    font.pixelSize: 12
+                    font.weight: Font.Bold
+                }
+
+                Item { Layout.fillWidth: true }
+
+                Text {
+                    text: root.windowList.length + (root.windowList.length === 1 ? " window" : " windows")
+                    color: Theme.fgDim
+                    font.family: Theme.fontFamilySans
+                    font.pixelSize: 11
+                    font.weight: Theme.fontWeight
+                }
+            }
+
+            // Thin Separator Line
+            Rectangle {
+                Layout.fillWidth: true
+                height: 1
+                color: Theme.surface
+                Layout.bottomMargin: 2
+            }
+
             Repeater {
                 model: root.windowList
 
@@ -345,8 +380,8 @@ Item {
                     id: rowItem
                     required property var modelData
                     Layout.fillWidth: true
-                    implicitHeight: 34
-                    radius: 7
+                    implicitHeight: 32
+                    radius: 6
                     color: rowHover.containsMouse
                         ? Theme.surface
                         : (rowItem.modelData.activated ? Theme.bgLight : "transparent")

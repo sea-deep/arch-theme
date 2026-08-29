@@ -36,6 +36,27 @@ Components.Pill {
         return String(count).split('').map(function(c) { return superscripts[c] || c; }).join('');
     }
 
+    function getGroupedApps(toplevelsList) {
+        if (!toplevelsList) return [];
+        var groups = {};
+        var list = [];
+        for (var i = 0; i < toplevelsList.length; i++) {
+            var top = toplevelsList[i];
+            var icon = root.getAppIcon(top);
+            if (!groups[icon]) {
+                groups[icon] = {
+                    icon: icon,
+                    count: 0,
+                    toplevels: []
+                };
+                list.push(groups[icon]);
+            }
+            groups[icon].count++;
+            groups[icon].toplevels.push(top);
+        }
+        return list;
+    }
+
     RowLayout {
         id: layout
         anchors.centerIn: parent
@@ -54,10 +75,11 @@ Components.Pill {
                 property bool isActive: modelData.focused || modelData.active
                 property bool isUrgent: modelData.urgent
                 property var toplevelsList: modelData.toplevels ? modelData.toplevels.values : []
+                property var groupedApps: root.getGroupedApps(toplevelsList)
                 property int windowCount: toplevelsList.length
                 
-                readonly property int maxVisibleIcons: 3
-                readonly property int overflowCount: Math.max(0, windowCount - maxVisibleIcons)
+                readonly property int maxVisibleGroups: 3
+                readonly property int overflowCount: Math.max(0, groupedApps.length - maxVisibleGroups)
                 
                 implicitHeight: isSpecial ? 0 : 26
                 implicitWidth: isSpecial ? 0 : rowContent.implicitWidth + 12
@@ -82,59 +104,69 @@ Components.Pill {
                     anchors.centerIn: parent
                     spacing: 5
 
-                    // Workspace Number & Inactive Superscript
-                    RowLayout {
-                        spacing: 1
-                        
-                        Text {
-                            id: wsNum
-                            text: wsPill.modelData.name
-                            color: wsPill.isActive ? Theme.bgDark : (wsPill.isUrgent ? Theme.red : (wsHover.hovered ? Theme.blue : (wsPill.windowCount > 0 ? Theme.fg : Theme.fgDim)))
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSize
-                            font.weight: wsPill.isActive ? Font.Bold : Theme.fontWeight
-                        }
-
+                    // Workspace Number
+                    Text {
+                        id: wsNum
+                        text: wsPill.modelData.name
+                        color: wsPill.isActive ? Theme.bgDark : (wsPill.isUrgent ? Theme.red : (wsHover.hovered ? Theme.blue : (wsPill.windowCount > 0 ? Theme.fg : Theme.fgDim)))
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSize
+                        font.weight: wsPill.isActive ? Font.Bold : Theme.fontWeight
                     }
 
-                    // App icons for ALL occupied workspaces
+                    // Grouped App icons for ALL occupied workspaces
                     RowLayout {
-                        visible: wsPill.windowCount > 0
+                        visible: wsPill.groupedApps.length > 0
                         spacing: 4
 
                         Repeater {
-                            model: wsPill.toplevelsList.slice(0, wsPill.maxVisibleIcons)
+                            model: wsPill.groupedApps.slice(0, wsPill.maxVisibleGroups)
                             
-                            Rectangle {
-                                id: iconBox
+                            RowLayout {
+                                id: iconGroup
                                 required property var modelData
-                                width: 22
-                                height: 22
-                                radius: 5
-                                color: iconHover.containsMouse ? (wsPill.isActive ? Qt.rgba(0, 0, 0, 0.25) : Theme.bgLight) : "transparent"
+                                spacing: 1
 
-                                IconImage {
-                                    anchors.centerIn: parent
-                                    width: 18
-                                    height: 18
-                                    source: root.getAppIcon(iconBox.modelData)
-                                }
+                                Rectangle {
+                                    width: 22
+                                    height: 22
+                                    radius: 5
+                                    color: iconHover.containsMouse ? (wsPill.isActive ? Qt.rgba(0, 0, 0, 0.25) : Theme.bgLight) : "transparent"
 
-                                MouseArea {
-                                    id: iconHover
-                                    anchors.fill: parent
-                                    hoverEnabled: true
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: {
-                                        if (iconBox.modelData && iconBox.modelData.activate) {
-                                            iconBox.modelData.activate()
+                                    IconImage {
+                                        anchors.centerIn: parent
+                                        width: 18
+                                        height: 18
+                                        source: iconGroup.modelData.icon
+                                    }
+
+                                    MouseArea {
+                                        id: iconHover
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            if (iconGroup.modelData.toplevels && iconGroup.modelData.toplevels.length > 0) {
+                                                iconGroup.modelData.toplevels[0].activate()
+                                            }
                                         }
                                     }
+                                }
+
+                                // Superscript count if multiple windows of the same app exist (e.g. >_³)
+                                Text {
+                                    visible: iconGroup.modelData.count > 1
+                                    text: root.getSuperscript(iconGroup.modelData.count)
+                                    color: wsPill.isActive ? Theme.bgDark : Theme.accent
+                                    font.family: Theme.fontFamilySans
+                                    font.pixelSize: Theme.fontSize - 1
+                                    font.weight: Font.Bold
+                                    Layout.alignment: Qt.AlignTop
                                 }
                             }
                         }
 
-                        // Overflow counter (+N)
+                        // Overflow counter (+N) if more than maxVisibleGroups unique apps exist
                         Rectangle {
                             visible: wsPill.overflowCount > 0
                             height: 18

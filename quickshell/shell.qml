@@ -8,7 +8,9 @@ import "theme"
 import "selector" as Selector
 import "settings" as Settings
 import "notifications" as Notifications
+import "emoji" as Emoji
 import "notifications" as Notifications
+import "emoji" as Emoji
 
 ShellRoot {
     id: root
@@ -47,8 +49,18 @@ ShellRoot {
 // }
 
     LazyLoader {
+        active: UiState.emojiVisible
+        component: Component { Emoji.EmojiPicker {} }
+    }
+
+    LazyLoader {
         active: UiState.selectorVisible
         component: Component { Selector.Selector {} }
+    }
+
+    LazyLoader {
+        active: UiState.emojiVisible
+        component: Component { Emoji.EmojiPicker {} }
     }
 
     LazyLoader {
@@ -67,7 +79,7 @@ ShellRoot {
     IpcHandler {
         target: "emoji"
         function toggle() {
-            UiState.toggleSelector("emoji")
+            UiState.toggleEmoji()
         }
     }
 
@@ -85,7 +97,7 @@ ShellRoot {
         }
 
         function emoji() {
-            UiState.toggleSelector("emoji")
+            UiState.toggleEmoji()
         }
 
         function clipboard() {

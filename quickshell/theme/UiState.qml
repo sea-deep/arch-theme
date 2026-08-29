@@ -58,6 +58,7 @@ Singleton {
     property int trayMenuRightOffset: 2
     property bool networkVisible: false
     property string networkScreen: ""
+    property bool emojiVisible: false
     property bool clipboardVisible: false
     property string clipboardScreen: ""
 
@@ -173,6 +174,7 @@ Singleton {
 
     function closeOverlays() {
         clipboardVisible = false
+        emojiVisible = false
         selectorVisible = false
         notificationCenterVisible = false
         notificationPreviewVisible = false
@@ -182,5 +184,12 @@ Singleton {
         quickControlVisible = false
         trayMenuVisible = false
         networkVisible = false
+    }
+
+
+    function toggleEmoji() {
+        const shouldOpen = !emojiVisible
+        closeOverlays()
+        emojiVisible = shouldOpen
     }
 }

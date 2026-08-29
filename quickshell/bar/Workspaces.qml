@@ -18,8 +18,7 @@ Item {
         : []
     
     property bool isHovered: false
-    property bool switchPreviewActive: false
-    readonly property bool isExpanded: (root.isHovered || switchPreviewActive) && windowList.length > 0
+    readonly property bool isExpanded: root.isHovered && windowList.length > 0
     property real reveal: isExpanded ? 1 : 0
     
     readonly property real collapsedWidth: topLayout.implicitWidth + 8
@@ -34,49 +33,10 @@ Item {
     Behavior on reveal { NumberAnimation { duration: 110; easing.type: Easing.OutQuart } }
     Behavior on implicitWidth { NumberAnimation { duration: 120; easing.type: Easing.OutQuart } }
 
-    function triggerSwitchPreview() {
-        root.hoveredWorkspace = null;
-        
-        Qt.callLater(function() {
-            var ws = Hyprland.focusedWorkspace;
-            if (ws && !ws.name.startsWith("special:")) {
-                var count = ws.toplevels ? ws.toplevels.values.length : 0;
-                if (count > 0) {
-                    root.switchPreviewActive = true;
-                    switchPreviewTimer.restart();
-                } else {
-                    root.switchPreviewActive = false;
-                }
-            } else {
-                root.switchPreviewActive = false;
-            }
-        });
-    }
-
-    Timer {
-        id: switchPreviewTimer
-        interval: 1800
-        onTriggered: {
-            root.switchPreviewActive = false
-        }
-    }
-
     Connections {
         target: Hyprland
-
         function onFocusedWorkspaceChanged() {
-            root.triggerSwitchPreview()
-        }
-
-        function onActiveToplevelChanged() {
-            root.triggerSwitchPreview()
-        }
-
-        function onRawEvent(event) {
-            var evName = (typeof event === "string") ? event : (event && event.name ? event.name : "");
-            if (evName === "workspace" || evName === "focusedmon" || evName === "activewindow") {
-                root.triggerSwitchPreview()
-            }
+            root.hoveredWorkspace = null
         }
     }
 

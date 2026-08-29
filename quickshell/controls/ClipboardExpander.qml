@@ -249,15 +249,6 @@ Item {
                 model: root.filteredEntries
                 spacing: 10
                 clip: true
-                interactive: true
-                boundsBehavior: Flickable.StopAtBounds
-                
-                WheelHandler {
-                    property real speed: 80
-                    onWheel: (event) => {
-                        listView.contentY = Math.max(0, Math.min(listView.contentY - (event.angleDelta.y > 0 ? speed : -speed), listView.contentHeight - listView.height))
-                    }
-                }
 
                 delegate: Rectangle {
                     width: listView.width

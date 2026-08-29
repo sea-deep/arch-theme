@@ -12,7 +12,7 @@ PanelWindow {
     id: root
     required property var modelData
     screen: modelData
-    readonly property bool overlayExpanded: hardwarePill.expanded || trayExpander.expanded || networkExpander.expanded || notificationExpander.expanded || powerExpander.expanded || clockExpander.expanded
+    readonly property bool overlayExpanded: hardwarePill.expanded || trayExpander.expanded || networkExpander.expanded || notificationExpander.expanded || powerExpander.expanded || clockExpander.expanded || clipboardExpander.expanded
 
     anchors.top: true
     anchors.left: true
@@ -52,6 +52,7 @@ PanelWindow {
         Region { item: notificationExpander }
         Region { item: powerExpander }
         Region { item: clockExpander }
+        Region { item: clipboardExpander }
     }
 
     Item {
@@ -72,6 +73,7 @@ PanelWindow {
                 UiState.trayMenuVisible = false
                 UiState.clockMenuVisible = false
                 UiState.networkVisible = false
+                UiState.clipboardVisible = false
             }
         }
 

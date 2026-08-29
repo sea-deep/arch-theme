@@ -36,6 +36,7 @@ Singleton {
     Component.onCompleted: shaderUpdateTimer.start()
     property bool selectorVisible: false
     property bool screenshotVisible: false
+    property bool recorderMenuVisible: false
     property string selectorMode: "apps"
     property bool notificationCenterVisible: false
     property string notificationScreen: ""

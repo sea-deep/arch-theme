@@ -11,6 +11,7 @@ import "notifications" as Notifications
 import "emoji" as Emoji
 import "launcher" as Launcher
 import "screenshot" as Screenshot
+import "recorder" as Recorder
 
 ShellRoot {
     id: root
@@ -48,6 +49,7 @@ ShellRoot {
     Emoji.EmojiPicker {}
     Launcher.Launcher {}
     Screenshot.ScreenshotMenu {}
+    Recorder.RecorderMenu {}
 
     LazyLoader {
         active: UiState.selectorVisible
@@ -130,6 +132,13 @@ ShellRoot {
         function refresh() {
             if (!recorderProbe.running)
                 recorderProbe.running = true
+        }
+        function toggle() {
+            if (UiState.recorderActive) {
+                Quickshell.execDetached(["pkill", "-INT", "-x", "wf-recorder"])
+            } else {
+                UiState.recorderMenuVisible = !UiState.recorderMenuVisible
+            }
         }
     }
 

@@ -179,7 +179,7 @@ hl.bind(mainMod .. " + minus", hl.dsp.workspace.toggle_special("scratchpad"))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("qs ipc call screenshot toggle"))
 hl.bind("Print", hl.dsp.exec_cmd("qs ipc call screenshot toggle"))
 hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd("~/.config/hypr/screenshot.sh full"))
-hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("~/.config/hypr/toggle_recorder.sh"))
+hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("qs ipc call recorder toggle"))
 
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { locked = true })
 hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), { locked = true })

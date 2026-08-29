@@ -1,58 +1,69 @@
 #!/bin/bash
-# ── Section ──
-# Configuration & Setup
-SAVE_DIR="$HOME/Videos/Recordings"
-mkdir -p "$SAVE_DIR"
 
-# Refresh the single native Quickshell recorder state producer whether the
-# chooser succeeds, is cancelled, or an existing recording is stopped.
-refresh_quickshell_recorder() {
-    if command -v qs >/dev/null 2>&1; then
-        qs ipc call recorder refresh >/dev/null 2>&1 || true
-    fi
-}
-trap refresh_quickshell_recorder EXIT
-
-# ── Section ──
-# Stop Existing Recording
+# If no arguments, assume it's just being called to stop
 if pgrep -x wf-recorder > /dev/null; then
     pkill -INT -x wf-recorder
-    notify-send "Recording Stopped" "Video saved in $SAVE_DIR" -i video-x-generic -a Recorder
+    notify-send "Recording Stopped" "Video saved in ~/Videos/Recordings" -i video-x-generic -a Recorder
     exit 0
 fi
 
-# ── Section ──
-# Menu Handling
-full="Full Screen\0icon\x1fvideo-display"
-region="Selected Region\0icon\x1fselect-rectangular"
-window="Specific Window\0icon\x1fwindow-new"
-options="$full\n$region\n$window"
-chosen="$(echo -e "$options" | rofi -dmenu -i -p "Record" -show-icons -theme ~/.config/rofi/powermenu.rasi -theme-str 'window {location: center; anchor: center; x-offset: 0; y-offset: 0; width: 280px;} listview {lines: 3;}')"
+MODE=$1
+QUALITY=${2:-balanced}
+FORMAT=${3:-mp4}
 
-if [ -z "$chosen" ]; then exit 0; fi
+if [ -z "$MODE" ]; then
+    # We shouldn't be here without args unless stopping failed, but just in case
+    exit 0
+fi
 
-FILENAME="$SAVE_DIR/recording_$(date +%Y%m%d_%H%M%S).mp4"
-COMMON_ARGS="-c libx264 -p preset=ultrafast -p tune=zerolatency -p crf=15 -f $FILENAME"
+SAVE_DIR="$HOME/Videos/Recordings"
+mkdir -p "$SAVE_DIR"
 
-# ── Section ──
-# Capture Logic
-if [ "$chosen" = "Full Screen" ]; then
+FILENAME="$SAVE_DIR/recording_$(date +%Y%m%d_%H%M%S).$FORMAT"
+
+# Quality Presets
+if [ "$FORMAT" = "gif" ]; then
+    # GIF recording via imageio or similar is hard with wf-recorder directly natively.
+    # Instead we record mp4 and could convert, but wf-recorder supports GIF via lavf if compiled.
+    # We will just stick to mp4/mkv. Let's fallback to mp4.
+    FORMAT="mp4"
+fi
+
+if [ "$FORMAT" = "mp4" ]; then
+    CODEC="libx264"
+    if [ "$QUALITY" = "high" ]; then
+        CRF="15"
+    elif [ "$QUALITY" = "balanced" ]; then
+        CRF="23"
+    else
+        CRF="30"
+    fi
+elif [ "$FORMAT" = "mkv" ]; then
+    # HEVC is more efficient for MKV
+    CODEC="libx265"
+    if [ "$QUALITY" = "high" ]; then
+        CRF="18"
+    elif [ "$QUALITY" = "balanced" ]; then
+        CRF="28"
+    else
+        CRF="35"
+    fi
+fi
+
+COMMON_ARGS="-c $CODEC -p preset=fast -p tune=zerolatency -p crf=$CRF -f $FILENAME"
+
+# ── Capture Logic ──
+if [ "$MODE" = "full" ]; then
     wf-recorder $COMMON_ARGS &
-elif [ "$chosen" = "Selected Region" ]; then
-    GEOMETRY=$(slurp)
+elif [ "$MODE" = "region" ] || [ "$MODE" = "window" ]; then
+    if [ "$MODE" = "region" ]; then
+        GEOMETRY=$(slurp)
+    else
+        GEOMETRY=$(hyprctl clients -j | jq -r '.[] | select(.mapped == true) | "\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"' | slurp)
+    fi
     if [ -z "$GEOMETRY" ]; then exit 0; fi
-    # Fix for even dimensions required by libx264
-    GEOM=$(echo "$GEOMETRY" | awk -F'[, x]' '{
-        w = $3; h = $4;
-        if(w % 2 != 0) w++;
-        if(h % 2 != 0) h++;
-        print $1","$2" "w"x"h
-    }')
-    wf-recorder -g "$GEOM" $COMMON_ARGS &
-elif [ "$chosen" = "Specific Window" ]; then
-    GEOMETRY=$(hyprctl clients -j | jq -r '.[] | select(.mapped == true) | "\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"' | slurp)
-    if [ -z "$GEOMETRY" ]; then exit 0; fi
-    # Fix for even dimensions required by libx264
+    
+    # Fix for even dimensions required by libx264/x265
     GEOM=$(echo "$GEOMETRY" | awk -F'[, x]' '{
         w = $3; h = $4;
         if(w % 2 != 0) w++;
@@ -62,8 +73,10 @@ elif [ "$chosen" = "Specific Window" ]; then
     wf-recorder -g "$GEOM" $COMMON_ARGS &
 fi
 
-# ── Section ──
-# Notification Status
+sleep 0.5
 if pgrep -x wf-recorder > /dev/null; then
-    notify-send "Recording Started" "Press $mainMod+Shift+R to stop" -i media-record -a Recorder
+    notify-send "Recording Started" "Quality: $QUALITY | Format: $FORMAT" -i media-record -a Recorder
+    if command -v qs >/dev/null 2>&1; then
+        qs ipc call recorder refresh >/dev/null 2>&1 || true
+    fi
 fi

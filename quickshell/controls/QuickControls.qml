@@ -124,6 +124,8 @@ Components.Pill {
     component CleanSlider: Item {
         id: slider
         property real value: 0
+        readonly property real displayValue: mouseArea.pressed ? visualValue : value
+        property real visualValue: value
         signal moved(real value)
         signal released(real value)
         implicitHeight: 26
@@ -136,7 +138,7 @@ Components.Pill {
             radius: 3
             color: Theme.surfaceVariant
             Rectangle {
-                width: parent.width * Math.max(0, Math.min(1, slider.value))
+                width: parent.width * Math.max(0, Math.min(1, slider.displayValue))
                 height: parent.height
                 radius: parent.radius
                 color: Theme.accent
@@ -144,7 +146,7 @@ Components.Pill {
         }
 
         Rectangle {
-            x: Math.max(0, Math.min(parent.width - width, slider.value * parent.width - width / 2))
+            x: Math.max(0, Math.min(parent.width - width, slider.displayValue * parent.width - width / 2))
             anchors.verticalCenter: parent.verticalCenter
             width: 15
             height: 15
@@ -155,15 +157,18 @@ Components.Pill {
         }
 
         MouseArea {
+            id: mouseArea
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
             function updateValue(mouseX) {
                 var v = Math.max(0, Math.min(1, mouseX / width))
+                slider.visualValue = v
                 slider.moved(v)
             }
             onPressed: mouse => updateValue(mouse.x)
             onReleased: mouse => {
                 var v = Math.max(0, Math.min(1, mouse.x / width))
+                slider.visualValue = v
                 slider.released(v)
             }
             onPositionChanged: mouse => {
@@ -172,6 +177,7 @@ Components.Pill {
             }
             onWheel: wheel => {
                 var v = Math.max(0, Math.min(1, slider.value + (wheel.angleDelta.y > 0 ? 0.05 : -0.05)))
+                slider.visualValue = v
                 slider.moved(v)
             }
         }
@@ -309,7 +315,7 @@ Components.Pill {
                     onMoved: function(val) { UiState.setShader("comfort", val * 100) }
                 }
                 Text {
-                    text: Math.round(UiState.comfortValue) + "%"
+                    text: Math.round(comfortSlider.displayValue * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11
@@ -327,7 +333,7 @@ Components.Pill {
                     onMoved: function(val) { UiState.setShader("grayscale", val * 100) }
                 }
                 Text {
-                    text: Math.round(UiState.grayscaleValue) + "%"
+                    text: Math.round(grayscaleSlider.displayValue * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11
@@ -345,7 +351,7 @@ Components.Pill {
                     onMoved: function(val) { UiState.setShader("vivid", val * 100) }
                 }
                 Text {
-                    text: Math.round(UiState.vividValue) + "%"
+                    text: Math.round(vividSlider.displayValue * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11
@@ -362,14 +368,13 @@ Components.Pill {
                     Layout.fillWidth: true
                     value: root.maxBrightness > 0 ? (root.currentBrightness / root.maxBrightness) : 0
                     onMoved: function(val) {
-                        brightnessSlider.value = val
                         Quickshell.execDetached([
                             "brightnessctl", "set", Math.max(1, Math.round(val * 100)) + "%"
                         ])
                     }
                 }
                 Text {
-                    text: Math.round(brightnessSlider.value * 100) + "%"
+                    text: Math.round(brightnessSlider.displayValue * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11

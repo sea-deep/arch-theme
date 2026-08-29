@@ -18,8 +18,8 @@ Components.Pill {
             || "";
         
         var lower = cls.toLowerCase();
-        if (lower.includes("zed")) return Quickshell.iconPath("dev.zed.Zed", "text-editor");
-        if (lower.includes("zen")) return Quickshell.iconPath("zen", "zen-browser", "browser");
+        if (lower.includes("zed")) return Quickshell.iconPath("zed", "dev.zed.Zed", "zed-preview");
+        if (lower.includes("zen")) return Quickshell.iconPath("zen", "zen-browser");
         if (lower.includes("code")) return Quickshell.iconPath("visual-studio-code", "code-oss", "code");
         if (lower.includes("kitty")) return Quickshell.iconPath("kitty", "utilities-terminal");
         if (lower.includes("antigravity")) return Quickshell.iconPath("antigravity", "application-x-executable");
@@ -146,8 +146,9 @@ Components.Pill {
                                         hoverEnabled: true
                                         cursorShape: Qt.PointingHandCursor
                                         onClicked: {
+                                            wsPill.modelData.activate();
                                             if (iconGroup.modelData.toplevels && iconGroup.modelData.toplevels.length > 0) {
-                                                iconGroup.modelData.toplevels[0].activate()
+                                                iconGroup.modelData.toplevels[0].activate();
                                             }
                                         }
                                     }
@@ -159,9 +160,10 @@ Components.Pill {
                                     text: root.getSuperscript(iconGroup.modelData.count)
                                     color: wsPill.isActive ? Theme.bgDark : Theme.accent
                                     font.family: Theme.fontFamilySans
-                                    font.pixelSize: Theme.fontSize - 1
+                                    font.pixelSize: 13
                                     font.weight: Font.Bold
                                     Layout.alignment: Qt.AlignTop
+                                    Layout.leftMargin: 1
                                 }
                             }
                         }

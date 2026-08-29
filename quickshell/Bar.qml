@@ -80,7 +80,6 @@ PanelWindow {
             spacing: Theme.moduleSpacing
 
             BarModules.Workspaces {}
-            BarModules.WindowTitle {}
         }
 
         // CENTER (Clock + calendar expander)

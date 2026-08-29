@@ -95,21 +95,11 @@ Components.Pill {
                             font.weight: wsPill.isActive ? Font.Bold : Theme.fontWeight
                         }
 
-                        // Superscript count for inactive occupied workspaces with >1 windows
-                        Text {
-                            visible: !wsPill.isActive && wsPill.windowCount > 1
-                            text: root.getSuperscript(wsPill.windowCount)
-                            color: wsPill.isUrgent ? Theme.red : (wsHover.hovered ? Theme.blue : Theme.fgMuted)
-                            font.family: Theme.fontFamilySans
-                            font.pixelSize: Theme.fontSize - 2
-                            font.weight: Font.Bold
-                            Layout.alignment: Qt.AlignTop
-                        }
                     }
 
-                    // App icons for ACTIVE workspace
+                    // App icons for ALL occupied workspaces
                     RowLayout {
-                        visible: wsPill.isActive && wsPill.windowCount > 0
+                        visible: wsPill.windowCount > 0
                         spacing: 4
 
                         Repeater {
@@ -118,15 +108,15 @@ Components.Pill {
                             Rectangle {
                                 id: iconBox
                                 required property var modelData
-                                width: 18
-                                height: 18
-                                radius: 4
-                                color: iconHover.containsMouse ? Qt.rgba(0, 0, 0, 0.25) : "transparent"
+                                width: 22
+                                height: 22
+                                radius: 5
+                                color: iconHover.containsMouse ? (wsPill.isActive ? Qt.rgba(0, 0, 0, 0.25) : Theme.bgLight) : "transparent"
 
                                 IconImage {
                                     anchors.centerIn: parent
-                                    width: 14
-                                    height: 14
+                                    width: 18
+                                    height: 18
                                     source: root.getAppIcon(iconBox.modelData)
                                 }
 
@@ -147,18 +137,18 @@ Components.Pill {
                         // Overflow counter (+N)
                         Rectangle {
                             visible: wsPill.overflowCount > 0
-                            height: 16
-                            implicitWidth: overflowText.implicitWidth + 6
+                            height: 18
+                            implicitWidth: overflowText.implicitWidth + 8
                             radius: 4
-                            color: Qt.rgba(0, 0, 0, 0.2)
+                            color: wsPill.isActive ? Qt.rgba(0, 0, 0, 0.2) : Theme.surface
 
                             Text {
                                 id: overflowText
                                 anchors.centerIn: parent
                                 text: "+" + wsPill.overflowCount
-                                color: Theme.bgDark
+                                color: wsPill.isActive ? Theme.bgDark : Theme.fgDim
                                 font.family: Theme.fontFamilySans
-                                font.pixelSize: 10
+                                font.pixelSize: 11
                                 font.weight: Font.Bold
                             }
                         }

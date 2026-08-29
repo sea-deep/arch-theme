@@ -173,16 +173,17 @@ PanelWindow {
         id: launcherCard
         // Exact width for 7 columns (7 * 120 = 840) + margins (24 * 2 = 48) = 888
         width: 888
-        height: layout.implicitHeight + layout.anchors.topMargin + 24
+        // Increase height by 16px to accommodate the sunken bottom
+        height: layout.implicitHeight + layout.anchors.topMargin + 24 + 16
         
-        // Mathematically anchor to bottom edge with fixed margin
+        // Mathematically anchor to bottom edge, sink by 16px to hide bottom rounded corners
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 16
+        anchors.bottomMargin: -16
 
         // Robust translation for animation independent of layout passes
         transform: Translate {
-            y: (1 - root.reveal) * (launcherCard.height + 32)
+            y: (1 - root.reveal) * launcherCard.height
         }
         opacity: root.reveal
 
@@ -479,10 +480,6 @@ PanelWindow {
                         color: isSelected ? Theme.accent : (cardMouse.containsMouse ? Theme.bgLight : "transparent")
                         border.color: isSelected ? Theme.accent : (cardMouse.containsMouse ? Theme.surface : "transparent")
                         border.width: 1
-
-                        Behavior on color { ColorAnimation { duration: 150 } }
-                        Behavior on border.color { ColorAnimation { duration: 150 } }
-                        Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutBack; easing.overshoot: 1.5 } }
 
                         ColumnLayout {
                             anchors.fill: parent

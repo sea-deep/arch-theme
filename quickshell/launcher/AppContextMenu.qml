@@ -277,7 +277,59 @@ Rectangle {
             color: Theme.surface
         }
 
-        // 5. Copy Command
+        // 5. Uninstall App
+        Rectangle {
+            Layout.fillWidth: true
+            height: 28
+            radius: 6
+            color: uninstallHover.containsMouse ? Theme.bgLight : "transparent"
+            Behavior on color { ColorAnimation { duration: 100 } }
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: 8
+                anchors.rightMargin: 8
+                spacing: 8
+
+                IconImage {
+                    Layout.preferredWidth: 14
+                    Layout.preferredHeight: 14
+                    source: Quickshell.iconPath("user-trash", "application-x-executable")
+                }
+                Text {
+                    text: "Uninstall App"
+                    color: Theme.fg
+                    font.family: Theme.fontFamilySans
+                    font.pixelSize: 12
+                    Layout.fillWidth: true
+                }
+            }
+
+            MouseArea {
+                id: uninstallHover
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    if (root.app) {
+                        var execCmd = root.app.execString || root.app.id || ""
+                        if (execCmd) {
+                            var scriptPath = Quickshell.env("HOME") + "/.config/hypr/scripts/uninstall_app.sh"
+                            Quickshell.execDetached(["kitty", "--title", "Uninstall App", "bash", scriptPath, execCmd])
+                        }
+                    }
+                    root.actionTriggered()
+                }
+            }
+        }
+
+        Rectangle {
+            Layout.fillWidth: true
+            height: 1
+            color: Theme.surface
+        }
+
+        // 6. Copy Command
         Rectangle {
             Layout.fillWidth: true
             height: 28

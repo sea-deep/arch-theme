@@ -198,18 +198,16 @@ PanelWindow {
             }
 
             // Emoji grid
-            Item {
+            GridView {
+                id: grid
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-
-                GridView {
-                    id: grid
-                    anchors.fill: parent
-                    cellWidth: 39.5
-                    cellHeight: 39.5
-                    clip: true
-                    model: root.emojiCount
-                    activeFocusOnTab: true
+                Layout.minimumHeight: 100
+                cellWidth: 39.5
+                cellHeight: 39.5
+                clip: true
+                model: root.emojiCount
+                activeFocusOnTab: true
 
                     Keys.onEscapePressed: UiState.emojiVisible = false
                     Keys.onPressed: event => {
@@ -247,7 +245,6 @@ PanelWindow {
                         }
                     }
                 }
-            }
 
             // Category separator
             Rectangle {

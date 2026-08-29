@@ -48,10 +48,8 @@ ShellRoot {
 // Notifications.NotificationCenter {
 // }
 
-    LazyLoader {
-        active: UiState.emojiVisible
-        component: Component { Emoji.EmojiPicker {} }
-    }
+    Emoji.EmojiPicker {}
+
 
     LazyLoader {
         active: UiState.selectorVisible

@@ -86,12 +86,19 @@ PanelWindow {
 
     Component.onCompleted: {
         buildEmojiList()
-        // Use Qt.callLater so the GridView exists before we assign the model
-        Qt.callLater(function() {
+        filterEmojis("")
+    }
+
+    onVisibleChanged: {
+        if (visible) {
+            cursorX = -1
+            cursorY = -1
+            searchQuery = ""
+            searchInput.text = ""
             filterEmojis("")
             posProc.running = true
-            searchInput.forceActiveFocus()
-        })
+            Qt.callLater(function() { searchInput.forceActiveFocus() })
+        }
     }
 
     // Click outside to close

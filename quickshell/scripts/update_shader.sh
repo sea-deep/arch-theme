@@ -1,9 +1,9 @@
 #!/bin/bash
-mkdir -p ~/.config/quickshell/state
+STATE_DIR="$HOME/.config/quickshell/state"
+mkdir -p "$STATE_DIR"
 
-STATE_FILE="$HOME/.config/quickshell/state/shaders.json"
-SHADER_FILE="$HOME/.config/quickshell/state/current.frag"
-TMP_FILE="$HOME/.config/quickshell/state/current.frag.tmp"
+STATE_FILE="$STATE_DIR/shaders.json"
+TARGET_FLAG="$STATE_DIR/target_slot"
 
 # Read existing state if not provided
 if [ ! -f "$STATE_FILE" ]; then
@@ -24,18 +24,28 @@ fi
 if [ "$COMFORT" == "0" ] && [ "$GRAYSCALE" == "0" ] && [ "$VIVID" == "0" ]; then
     hyprctl eval "hl.config({ decoration = { screen_shader = '' } })" 2>/dev/null || true
     hyprctl repl "hl.config({ decoration = { screen_shader = '' } })" 2>/dev/null || true
-    hyprctl keyword decoration:screen_shader "" 2>/dev/null || true
     hyprctl seterror disable 2>/dev/null || true
-    rm -f "$SHADER_FILE" "$TMP_FILE"
     exit 0
 fi
+
+# Alternate between slot a and slot b so Hyprland detects the file path change immediately
+CUR_SLOT=$(cat "$TARGET_FLAG" 2>/dev/null || echo "b")
+if [ "$CUR_SLOT" == "a" ]; then
+    NEXT_SLOT="b"
+else
+    NEXT_SLOT="a"
+fi
+echo "$NEXT_SLOT" > "$TARGET_FLAG"
+
+SHADER_FILE="$STATE_DIR/shader_${NEXT_SLOT}.frag"
+TMP_FILE="$STATE_DIR/shader_${NEXT_SLOT}.frag.tmp"
 
 # Normalize values (0.0 to 1.0)
 C_NORM=$(awk "BEGIN {printf \"%.4f\", $COMFORT / 100.0}")
 G_NORM=$(awk "BEGIN {printf \"%.4f\", $GRAYSCALE / 100.0}")
 V_NORM=$(awk "BEGIN {printf \"%.4f\", $VIVID / 100.0}")
 
-# Generate shader atomically to temporary file first
+# Generate shader atomically
 cat << GLSL > "$TMP_FILE"
 #version 300 es
 precision mediump float;
@@ -91,5 +101,4 @@ mv -f "$TMP_FILE" "$SHADER_FILE"
 
 hyprctl eval "hl.config({ decoration = { screen_shader = '$SHADER_FILE' } })" 2>/dev/null || true
 hyprctl repl "hl.config({ decoration = { screen_shader = '$SHADER_FILE' } })" 2>/dev/null || true
-hyprctl keyword decoration:screen_shader "$SHADER_FILE" 2>/dev/null || true
 hyprctl seterror disable 2>/dev/null || true

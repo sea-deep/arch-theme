@@ -66,7 +66,7 @@ Components.Pill {
             anchors.fill: parent
             anchors.leftMargin: 14
             anchors.rightMargin: 14
-            spacing: 12
+            spacing: 16
 
             Item { Layout.fillWidth: true } // spacer
 
@@ -77,8 +77,8 @@ Components.Pill {
                 Row {
                     id: timeTabRow
                     anchors.centerIn: parent
-                    spacing: 0
-                    Text { text: "󰥔  "; color: Theme.purple; font.family: Theme.fontFamily; font.pixelSize: Theme.fontSize; font.weight: Theme.fontWeight }
+                    spacing: 6
+                    Text { text: "󰥔"; color: Theme.purple; font.family: Theme.fontFamily; font.pixelSize: Theme.fontSize; font.weight: Theme.fontWeight }
                     Text { text: Qt.formatDateTime(clock.date, root.twentyFourHour ? "H:mm" : "h:mm AP"); color: Theme.fg; font.family: Theme.fontFamily; font.pixelSize: Theme.fontSize; font.weight: Theme.fontWeight }
                 }
 
@@ -111,8 +111,8 @@ Components.Pill {
                 Row {
                     id: calendarTabRow
                     anchors.centerIn: parent
-                    spacing: 0
-                    Text { text: "󰃭  "; color: Theme.blue; font.family: Theme.fontFamily; font.pixelSize: Theme.fontSize; font.weight: Theme.fontWeight }
+                    spacing: 6
+                    Text { text: "󰃭"; color: Theme.blue; font.family: Theme.fontFamily; font.pixelSize: Theme.fontSize; font.weight: Theme.fontWeight }
                     Text { text: Qt.formatDateTime(clock.date, "MMM d"); color: Theme.fg; font.family: Theme.fontFamily; font.pixelSize: Theme.fontSize; font.weight: Theme.fontWeight }
                 }
 

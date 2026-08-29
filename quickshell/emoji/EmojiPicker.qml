@@ -39,6 +39,7 @@ PanelWindow {
     ]
 
     property var flatEmojis: []
+    property var displayEmojis: []
     property var categoryIndices: ({})
 
     Component.onCompleted: {
@@ -54,10 +55,12 @@ PanelWindow {
                     name: ems[j].name,
                     category: catName
                 })
+
                 idx++
             }
         }
         flatEmojis = list
+        displayEmojis = list
     }
 
     onVisibleChanged: {
@@ -152,7 +155,14 @@ PanelWindow {
                         font.family: Theme.fontFamilySans
                         font.pixelSize: 13
                         verticalAlignment: TextInput.AlignVCenter
-                        onTextChanged: root.searchQuery = text.toLowerCase()
+                        onTextChanged: {
+                            root.searchQuery = text.toLowerCase()
+                            if (root.searchQuery === "") {
+                                root.displayEmojis = root.flatEmojis
+                            } else {
+                                root.displayEmojis = root.flatEmojis.filter(e => e.name.toLowerCase().indexOf(root.searchQuery) !== -1)
+                            }
+                        }
                         Keys.onEscapePressed: UiState.emojiVisible = false
                         Keys.onPressed: event => {
                             if (event.key === Qt.Key_Down) {
@@ -166,17 +176,17 @@ PanelWindow {
             }
 
             // Grid
-            GridView {
-                id: grid
+            Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                GridView {
+                    id: grid
+                    anchors.fill: parent
                 cellWidth: 39.5
                 cellHeight: 39.5
                 clip: true
                 
-                model: root.searchQuery === "" ? root.flatEmojis : root.flatEmojis.filter(function(e) {
-                    return e.name.toLowerCase().indexOf(root.searchQuery) !== -1
-                })
+                model: root.displayEmojis
 
                 activeFocusOnTab: true
                 
@@ -214,10 +224,13 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         text: delegateRoot.modelData.char
+                        font.family: Theme.fontFamilySans
                         font.pixelSize: 22
                     }
                 }
             }
+
+                        }
 
             // Categories
             Rectangle {

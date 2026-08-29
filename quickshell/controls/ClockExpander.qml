@@ -133,14 +133,17 @@ Components.Pill {
         anchors.right: parent.right
         height: root.bodyHeight
 
-        ColumnLayout {
+        Item {
             anchors.fill: parent
             anchors.margins: 14
-            spacing: 14
 
             RowLayout {
+                id: tabsRow
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: 30
                 Layout.fillWidth: true
-                Layout.preferredHeight: 30
                 spacing: 8
 
                 Rectangle {
@@ -205,6 +208,11 @@ Components.Pill {
             }
 
             Item {
+                anchors.top: tabsRow.bottom
+                anchors.topMargin: 14
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 

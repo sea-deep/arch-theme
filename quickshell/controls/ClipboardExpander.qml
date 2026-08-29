@@ -9,11 +9,17 @@ Item {
     id: root
 
     property string targetScreenName: ""
-    property int expandedWidth: 350
     readonly property bool expanded: UiState.clipboardVisible
         && (UiState.clipboardScreen === "" || UiState.clipboardScreen === targetScreenName)
     readonly property int fullBodyHeight: 400
+    property real expandedWidth: 380
     property real reveal: expanded ? 1 : 0
+
+    implicitWidth: expanded || reveal > 0 ? expandedWidth : Theme.compactPillSize
+    implicitHeight: reveal > 0
+        ? Theme.barHeight + Theme.outerGap + fullBodyHeight * reveal
+        : Theme.barHeight
+    focus: expanded
 
     Behavior on reveal {
         NumberAnimation {

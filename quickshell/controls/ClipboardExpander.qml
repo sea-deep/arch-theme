@@ -30,16 +30,27 @@ Item {
     }
 
     visible: reveal > 0
-    onExpandedChanged: { if (!expanded) searchQuery = "" }
+    onExpandedChanged: {
+        if (expanded) {
+            clipboardFile.reload()
+            root.clipboardEntries = parseClipboard(clipboardFile.text())
+        } else {
+            searchQuery = ""
+        }
+    }
 
     FileView {
         id: clipboardFile
         path: Quickshell.env("HOME") + "/.config/clipse/clipboard_history.json"
         watchChanges: true
         printErrors: false
+        onFileChanged: {
+            clipboardFile.reload()
+            root.clipboardEntries = parseClipboard(clipboardFile.text())
+        }
     }
 
-    readonly property var clipboardEntries: parseClipboard(clipboardFile.text())
+    property var clipboardEntries: parseClipboard(clipboardFile.text())
     
     property string searchQuery: ""
     readonly property var filteredEntries: {
@@ -213,6 +224,7 @@ Item {
                     TapHandler { 
                         onTapped: {
                             Quickshell.execDetached(["clipse", "-clear"])
+                            root.clipboardEntries = []
                         }
                     }
                 }

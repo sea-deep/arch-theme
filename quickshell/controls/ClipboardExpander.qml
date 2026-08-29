@@ -74,21 +74,50 @@ Item {
         UiState.clipboardVisible = false
     }
 
-    Rectangle {
+    Components.ConnectedDropdownSurface {
+        anchors.fill: parent
+        tabWidth: Theme.compactPillSize
+        tabOnLeft: true
+        visible: root.reveal > 0
+    }
+
+    Item {
+        anchors.top: parent.top
+        anchors.left: parent.left
+        width: Theme.compactPillSize
+        height: Theme.barHeight
+
+        Text {
+            anchors.centerIn: parent
+            visible: root.reveal > 0
+            text: "󰅌"
+            color: Theme.purple
+            font.family: Theme.fontFamily
+            font.pixelSize: Theme.fontSize
+            font.weight: Theme.fontWeight
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            acceptedButtons: Qt.LeftButton
+            onClicked: UiState.toggleClipboard("")
+        }
+    }
+
+    Item {
         anchors.top: parent.top
         anchors.topMargin: Theme.barHeight + Theme.outerGap
         anchors.left: parent.left
         anchors.right: parent.right
-        height: root.fullBodyHeight * root.reveal
-        color: Theme.bg
-        radius: Theme.radius
-        border.color: Theme.bgDark
-        border.width: Theme.borderWidth
+        anchors.bottom: parent.bottom
+        visible: root.reveal > 0
+        opacity: root.reveal
         clip: true
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 12
+            anchors.margins: 14
             spacing: 12
 
             RowLayout {
@@ -166,12 +195,12 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 model: root.clipboardEntries
-                spacing: 6
+                spacing: 10
                 clip: true
 
                 delegate: Rectangle {
                     width: listView.width
-                    height: 50
+                    height: modelData.isImage ? 90 : 56
                     radius: Theme.radius - 2
                     color: itemHover.hovered ? Theme.surface : Theme.bgLight
                     border.color: itemHover.hovered ? Theme.accentGlow : Theme.bgDark
@@ -182,30 +211,58 @@ Item {
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.margins: 10
-                        spacing: 10
+                        anchors.margins: 12
+                        spacing: 12
 
                         Text {
+                            Layout.alignment: Qt.AlignTop
                             text: modelData.pinned ? "󰐃" : (modelData.isImage ? "󰋩" : "󰅍")
                             color: modelData.pinned ? Theme.yellow : Theme.purple
                             font.family: Theme.fontFamily
-                            font.pixelSize: 16
+                            font.pixelSize: 18
+                        }
+                        
+                        Image {
+                            visible: modelData.isImage
+                            Layout.alignment: Qt.AlignVCenter
+                            Layout.preferredWidth: 90
+                            Layout.fillHeight: true
+                            source: modelData.isImage ? "file://" + modelData.filePath : ""
+                            fillMode: Image.PreserveAspectCrop
+                            
+                            Rectangle {
+                                anchors.fill: parent
+                                color: "transparent"
+                                border.color: Theme.bgDark
+                                border.width: 1
+                            }
                         }
 
-                        Text {
+                        ColumnLayout {
                             Layout.fillWidth: true
-                            text: modelData.label || "(Empty)"
-                            color: Theme.fg
-                            font.family: Theme.fontFamilySans
-                            font.pixelSize: 13
-                            elide: Text.ElideRight
-                        }
+                            Layout.fillHeight: true
+                            spacing: 4
 
-                        Text {
-                            text: modelData.recorded
-                            color: Theme.fgDim
-                            font.family: Theme.fontFamilySans
-                            font.pixelSize: 11
+                            Text {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                text: modelData.label || "(Empty)"
+                                color: Theme.fg
+                                font.family: Theme.fontFamilySans
+                                font.pixelSize: 13
+                                wrapMode: Text.Wrap
+                                elide: Text.ElideRight
+                                maximumLineCount: modelData.isImage ? 2 : 1
+                                verticalAlignment: Qt.AlignVCenter
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: modelData.recorded
+                                color: Theme.fgDim
+                                font.family: Theme.fontFamilySans
+                                font.pixelSize: 11
+                            }
                         }
                     }
                 }
@@ -213,7 +270,9 @@ Item {
                 Text {
                     visible: listView.count === 0
                     anchors.centerIn: parent
-                    text: "󰅍\n\nClipboard empty"
+                    text: "󰅍
+
+Clipboard empty"
                     horizontalAlignment: Text.AlignHCenter
                     color: Theme.fgDim
                     font.family: Theme.fontFamily

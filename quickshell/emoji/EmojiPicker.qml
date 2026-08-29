@@ -264,36 +264,39 @@ PanelWindow {
                     color: isCurrent ? Theme.accent : (emojiMouseArea.containsMouse ? Theme.bgLight : "transparent")
                     radius: 8
 
-                    Item {
-                        id: emojiExpDragProxy
-                        width: delegateRoot.width
-                        height: delegateRoot.height
-                        Drag.active: emojiMouseArea.drag.active
-                        Drag.dragType: Drag.Automatic
-                        Drag.supportedActions: Qt.CopyAction | Qt.MoveAction | Qt.LinkAction
-                        Drag.mimeData: {
-                            var sym = delegateRoot.emoji ? delegateRoot.emoji.char : "";
-                            return {
-                                "text/plain": sym,
-                                "text/plain;charset=utf-8": sym,
-                                "UTF8_STRING": sym
-                            };
+                    // Enable OS-level Drag and Drop for Emoji Items
+                    Drag.supportedActions: Qt.CopyAction
+                    Drag.dragType: Drag.Automatic
+                    Drag.mimeData: {
+                        var sym = delegateRoot.emoji ? delegateRoot.emoji.char : "";
+                        return {
+                            "text/plain": sym,
+                            "text/plain;charset=utf-8": sym,
+                            "UTF8_STRING": sym
+                        };
+                    }
+
+                    DragHandler {
+                        id: dragHandler
+                        target: null
+                        onActiveChanged: {
+                            if (active) {
+                                delegateRoot.grabToImage(function(result) {
+                                    delegateRoot.Drag.imageSource = result.url;
+                                    delegateRoot.Drag.active = true;
+                                });
+                            } else {
+                                delegateRoot.Drag.active = false;
+                            }
                         }
                     }
 
-                    MouseArea {
-                        id: emojiMouseArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        drag.target: emojiExpDragProxy
-                        drag.threshold: 8
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            if (!drag.active) {
-                                grid.currentIndex = index
-                                if (delegateRoot.emoji)
-                                    root.selectEmoji(delegateRoot.emoji.char)
-                            }
+                    HoverHandler { id: emojiHover }
+                    TapHandler {
+                        onTapped: {
+                            grid.currentIndex = index
+                            if (delegateRoot.emoji)
+                                root.selectEmoji(delegateRoot.emoji.char)
                         }
                     }
 

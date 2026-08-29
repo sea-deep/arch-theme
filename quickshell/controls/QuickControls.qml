@@ -14,6 +14,7 @@ Components.Pill {
     property string targetScreenName: ""
     readonly property bool expanded: UiState.quickControlVisible
         && (UiState.quickControlScreen === "" || UiState.quickControlScreen === targetScreenName)
+    active: expanded || reveal > 0
     readonly property var audioStreams: Pipewire.nodes && Pipewire.nodes.values
         ? Pipewire.nodes.values.filter(node => node.isStream && node.audio !== null).slice(0, 3)
         : []

@@ -6,6 +6,7 @@ Rectangle {
     id: root
 
     property bool hovered: pillHover.hovered
+    property bool active: false
     property bool collapseWhenEmpty: false
     property bool isEmpty: false
 
@@ -17,7 +18,7 @@ Rectangle {
     color: Qt.rgba(Theme.bg.r, Theme.bg.g, Theme.bg.b, Theme.pillAlpha)
     radius: Theme.radius
     border.width: Theme.borderWidth
-    border.color: hovered ? Theme.accentGlow : Theme.bgDark
+    border.color: (hovered || active) ? Theme.accentGlow : Theme.bgDark
 
     Behavior on border.color {
         ColorAnimation { duration: 110 }

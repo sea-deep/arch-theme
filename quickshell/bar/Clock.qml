@@ -7,6 +7,7 @@ import "../components" as Components
 Components.Pill {
     id: root
     
+    active: UiState.clockMenuVisible
     implicitWidth: layout.implicitWidth + Theme.pillPaddingHoriz * 2
     
     SystemClock {

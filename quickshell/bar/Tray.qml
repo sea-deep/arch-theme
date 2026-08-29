@@ -10,6 +10,7 @@ Components.Pill {
     id: root
     required property var hostWindow
     
+    active: UiState.trayMenuVisible
     collapseWhenEmpty: true
     isEmpty: SystemTray.items.values.length === 0
     

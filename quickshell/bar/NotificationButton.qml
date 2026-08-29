@@ -8,6 +8,7 @@ import "../components" as Components
 Components.Pill {
     id: root
     
+    active: UiState.notificationCenterVisible || UiState.notificationPreviewVisible
     implicitWidth: Theme.compactPillSize
 
     readonly property string textVal: NotificationServer.dndEnabled

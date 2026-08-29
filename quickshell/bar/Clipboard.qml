@@ -7,6 +7,7 @@ import "../components" as Components
 Components.Pill {
     id: root
     
+    active: UiState.clipboardVisible
     implicitWidth: Theme.compactPillSize
     
     RowLayout {

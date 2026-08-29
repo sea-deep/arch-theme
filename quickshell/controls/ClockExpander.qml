@@ -21,7 +21,7 @@ Components.Pill {
     implicitHeight: Theme.barHeight + bodyHeight * reveal
     clip: true
     focus: expanded
-    border.color: expanded || reveal > 0 ? Theme.accent : (root.hovered ? Theme.accentGlow : Theme.bgDark)
+    border.color: expanded || reveal > 0 ? Theme.accentGlow : (root.hovered ? Theme.accentGlow : Theme.bgDark)
 
     Behavior on reveal { NumberAnimation { duration: 105; easing.type: Easing.OutQuart } }
 

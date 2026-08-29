@@ -26,9 +26,9 @@ if [ "$COMFORT" == "0" ] && [ "$GRAYSCALE" == "0" ] && [ "$VIVID" == "0" ]; then
 fi
 
 # Normalize values (0 to 1)
-C_NORM=$(awk "BEGIN {print $COMFORT / 100.0}")
-G_NORM=$(awk "BEGIN {print $GRAYSCALE / 100.0}")
-V_NORM=$(awk "BEGIN {print $VIVID / 100.0}")
+C_NORM=$(awk "BEGIN {printf \"%.3f\", $COMFORT / 100.0}")
+G_NORM=$(awk "BEGIN {printf \"%.3f\", $GRAYSCALE / 100.0}")
+V_NORM=$(awk "BEGIN {printf \"%.3f\", $VIVID / 100.0}")
 
 # Generate shader
 cat << 'GLSL' > "$SHADER_FILE"

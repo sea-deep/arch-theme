@@ -6,7 +6,7 @@ import "../theme"
 
 Rectangle {
     id: root
-    property var modelData: null
+    property var notification: null
     width: parent ? parent.width : 300
     height: content.height + 20
     color: Theme.bgLight
@@ -15,29 +15,29 @@ Rectangle {
     border.width: Theme.borderWidth
     
     // Safety check for null modelData
-    visible: modelData !== null
+    visible: notification !== null
 
     HoverHandler { id: hover }
 
     TapHandler {
         onTapped: {
-            if (!root.modelData) return;
-            if (root.modelData.actions) {
-                for (let i = 0; i < root.modelData.actions.length; i++) {
-                    if (root.modelData.actions[i].identifier === "default") {
-                        if (typeof root.modelData.actions[i].invoke === "function") {
-                            root.modelData.actions[i].invoke();
+            if (!root.notification) return;
+            if (root.notification.actions) {
+                for (let i = 0; i < root.notification.actions.length; i++) {
+                    if (root.notification.actions[i].identifier === "default") {
+                        if (typeof root.notification.actions[i].invoke === "function") {
+                            root.notification.actions[i].invoke();
                             return;
                         }
                     }
                 }
             }
-            if (typeof root.modelData.invoke === "function") {
-                root.modelData.invoke("default");
-            } else if (typeof root.modelData.invokeAction === "function") {
-                root.modelData.invokeAction("default");
+            if (typeof root.notification.invoke === "function") {
+                root.notification.invoke("default");
+            } else if (typeof root.notification.invokeAction === "function") {
+                root.notification.invokeAction("default");
             } else {
-                NotificationServer.dismiss(root.modelData);
+                NotificationServer.dismiss(root.notification);
             }
         }
     }
@@ -56,21 +56,21 @@ Rectangle {
             IconImage {
                 implicitWidth: 30
                 implicitHeight: 30
-                source: root.modelData && root.modelData.image !== ""
-                    ? root.modelData.image
-                    : Quickshell.iconPath(root.modelData ? root.modelData.appIcon : "", "dialog-information")
+                source: root.notification && root.notification.image !== ""
+                    ? root.notification.image
+                    : Quickshell.iconPath(root.notification ? root.notification.appIcon : "", "dialog-information")
             }
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 2
                 Text {
-                    text: root.modelData ? root.modelData.appName : ""
+                    text: root.notification ? root.notification.appName : ""
                     color: Theme.fgDim
                     font.pixelSize: 11
                     font.family: Theme.fontFamilySans
                 }
                 Text {
-                    text: root.modelData ? root.modelData.summary : ""
+                    text: root.notification ? root.notification.summary : ""
                     color: Theme.fg
                     font.weight: Theme.fontWeight
                     font.family: Theme.fontFamilySans
@@ -90,14 +90,14 @@ Rectangle {
                 }
                 TapHandler {
                     onTapped: {
-                        if (root.modelData) NotificationServer.dismiss(root.modelData)
+                        if (root.notification) NotificationServer.dismiss(root.notification)
                     }
                 }
             }
         }
 
         Text {
-            text: root.modelData ? root.modelData.body : ""
+            text: root.notification ? root.notification.body : ""
             textFormat: Text.StyledText
             color: Theme.fgDim
             font.family: Theme.fontFamilySans
@@ -117,10 +117,10 @@ Rectangle {
         Flow {
             Layout.fillWidth: true
             spacing: 8
-            visible: root.modelData && root.modelData.actions !== undefined && root.modelData.actions !== null && root.modelData.actions.length > 0
+            visible: root.notification && root.notification.actions !== undefined && root.notification.actions !== null && root.notification.actions.length > 0
             
             Repeater {
-                model: root.modelData ? root.modelData.actions : []
+                model: root.notification ? root.notification.actions : []
                 delegate: Rectangle {
                     visible: modelData.identifier !== "default"
                     width: visible ? implicitWidth : 0
@@ -143,13 +143,13 @@ Rectangle {
                     HoverHandler { id: hoverAction }
                     TapHandler { 
                         onTapped: {
-                            if (!root.modelData) return;
+                            if (!root.notification) return;
                             if (typeof modelData.invoke === "function") {
                                 modelData.invoke()
-                            } else if (typeof root.modelData.invoke === "function") {
-                                root.modelData.invoke(modelData.identifier)
-                            } else if (typeof root.modelData.invokeAction === "function") {
-                                root.modelData.invokeAction(modelData.identifier)
+                            } else if (typeof root.notification.invoke === "function") {
+                                root.notification.invoke(modelData.identifier)
+                            } else if (typeof root.notification.invokeAction === "function") {
+                                root.notification.invokeAction(modelData.identifier)
                             }
                         } 
                     }

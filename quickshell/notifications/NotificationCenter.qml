@@ -139,7 +139,7 @@ PanelWindow {
                 spacing: 10
                 clip: true
                 
-                delegate: NotificationCard {}
+                delegate: NotificationCard { notification: modelData }
                 
                 Text {
                     visible: listView.count === 0

@@ -209,7 +209,7 @@ hl.on("keybinds.submap", function(map)
     end
 end)
 
-hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprctl reload"))
+hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("~/.config/hypr/scripts/hot_reload.sh"))
 hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd("qs ipc call power toggle"))
 
 hl.window_rule({ name = "swappy-float", match = { class = "^(swappy)$" }, float = true })

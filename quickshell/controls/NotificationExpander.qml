@@ -197,7 +197,9 @@ Item {
                 spacing: 10
                 clip: true
                 
-                delegate: Notifications.NotificationCard {}
+                delegate: Notifications.NotificationCard {
+                    notification: modelData
+                }
                 
                 Text {
                     visible: listView.count === 0
@@ -223,7 +225,7 @@ Item {
                 
                 sourceComponent: Notifications.NotificationCard {
                     width: previewLoader.width
-                    modelData: Notifications.NotificationServer.latestNotification
+                    notification: Notifications.NotificationServer.latestNotification
                     implicitHeight: height
                     color: "transparent"
                     border.width: 0

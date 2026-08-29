@@ -30,13 +30,13 @@ void main() {
         rgb = hsv2rgb(hsv);
     }
 
-    float grayscale = 0.000;
+    float grayscale = 0.410;
     if (grayscale > 0.0) {
         float gray = dot(rgb, vec3(0.299, 0.587, 0.114));
         rgb = mix(rgb, vec3(gray), grayscale);
     }
 
-    float comfort = 0.350;
+    float comfort = 0.000;
     if (comfort > 0.0) {
         rgb.b = mix(rgb.b, rgb.b * 0.4, comfort);
         rgb.g = mix(rgb.g, rgb.g * 0.8, comfort);

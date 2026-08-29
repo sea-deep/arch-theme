@@ -306,45 +306,54 @@ Components.Pill {
                 Layout.fillWidth: true
                 Text { text: "󰖔"; color: Theme.yellow; font.family: Theme.fontFamily; font.pixelSize: 16 }
                 CleanSlider {
+                    id: comfortSlider
                     Layout.fillWidth: true
                     value: UiState.comfortValue / 100.0
-                    onMoved: value => { UiState.comfortValue = value * 100 }
+                    onMoved: function(val) { UiState.comfortValue = val * 100 }
                 }
                 Text {
-                    text: Math.round(UiState.comfortValue) + "%"
+                    text: Math.round(comfortSlider.value * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11
+                    Layout.preferredWidth: 32
+                    horizontalAlignment: Text.AlignRight
                 }
             }
             RowLayout {
                 Layout.fillWidth: true
                 Text { text: "󰈈"; color: Theme.fgDim; font.family: Theme.fontFamily; font.pixelSize: 16 }
                 CleanSlider {
+                    id: grayscaleSlider
                     Layout.fillWidth: true
                     value: UiState.grayscaleValue / 100.0
-                    onMoved: value => { UiState.grayscaleValue = value * 100 }
+                    onMoved: function(val) { UiState.grayscaleValue = val * 100 }
                 }
                 Text {
-                    text: Math.round(UiState.grayscaleValue) + "%"
+                    text: Math.round(grayscaleSlider.value * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11
+                    Layout.preferredWidth: 32
+                    horizontalAlignment: Text.AlignRight
                 }
             }
             RowLayout {
                 Layout.fillWidth: true
                 Text { text: "󰸌"; color: Theme.accent; font.family: Theme.fontFamily; font.pixelSize: 16 }
                 CleanSlider {
+                    id: vividSlider
                     Layout.fillWidth: true
                     value: UiState.vividValue / 100.0
-                    onMoved: value => { UiState.vividValue = value * 100 }
+                    onMoved: function(val) { UiState.vividValue = val * 100 }
                 }
                 Text {
-                    text: Math.round(UiState.vividValue) + "%"
+                    text: Math.round(vividSlider.value * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11
+                    Layout.preferredWidth: 32
+                    horizontalAlignment: Text.AlignRight
                 }
             }
 
@@ -352,17 +361,22 @@ Components.Pill {
                 Layout.fillWidth: true
                 Text { text: "󰃠"; color: Theme.yellow; font.family: Theme.fontFamily; font.pixelSize: 16 }
                 CleanSlider {
+                    id: brightnessSlider
                     Layout.fillWidth: true
-                    value: root.currentBrightness / root.maxBrightness
-                    onMoved: value => Quickshell.execDetached([
-                        "brightnessctl", "set", Math.max(1, Math.round(value * 100)) + "%"
-                    ])
+                    value: root.maxBrightness > 0 ? (root.currentBrightness / root.maxBrightness) : 0
+                    onMoved: function(val) {
+                        Quickshell.execDetached([
+                            "brightnessctl", "set", Math.max(1, Math.round(val * 100)) + "%"
+                        ])
+                    }
                 }
                 Text {
-                    text: Math.round((root.currentBrightness / root.maxBrightness) * 100) + "%"
+                    text: Math.round(brightnessSlider.value * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 11
+                    Layout.preferredWidth: 32
+                    horizontalAlignment: Text.AlignRight
                 }
             }
             Rectangle {

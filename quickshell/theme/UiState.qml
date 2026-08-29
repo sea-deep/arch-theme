@@ -60,6 +60,7 @@ Singleton {
     Component.onCompleted: {
         loadShaderState()
         root.isShaderInitialized = true
+        shaderUpdateTimer.restart()
     }
     property bool selectorVisible: false
     property bool screenshotVisible: false

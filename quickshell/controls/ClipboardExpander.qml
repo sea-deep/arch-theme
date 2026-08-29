@@ -23,7 +23,7 @@ Item {
 
     visible: reveal > 0
 
-    File {
+    FileView {
         id: clipboardFile
         path: Quickshell.env("HOME") + "/.config/clipse/clipboard_history.json"
         watchChanges: true

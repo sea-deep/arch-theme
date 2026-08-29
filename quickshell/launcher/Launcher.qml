@@ -169,15 +169,19 @@ PanelWindow {
         height: Math.min(580, parent.height - 80)
         anchors.horizontalCenter: parent.horizontalCenter
 
-        // Slide up from bottom animation
-        y: root.visible ? (parent.height - height - 24) : parent.height
+        // Slide up from bottom with scale animation
+        y: root.visible ? (parent.height - height - 24) : parent.height + 40
         opacity: root.visible ? 1 : 0
+        scale: root.visible ? 1 : 0.98
 
         Behavior on y {
-            NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
+            NumberAnimation { duration: 250; easing.type: Easing.OutExpo }
         }
         Behavior on opacity {
-            NumberAnimation { duration: 140 }
+            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+        }
+        Behavior on scale {
+            NumberAnimation { duration: 250; easing.type: Easing.OutExpo }
         }
 
         color: Theme.bg
@@ -196,34 +200,41 @@ PanelWindow {
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 18
-            spacing: 12
+            anchors.margins: 20
+            spacing: 16
 
             // Top Header: Search bar + app count badge
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 10
+                spacing: 12
 
                 // Search Bar
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 42
-                    radius: 10
+                    Layout.preferredHeight: 44
+                    radius: Theme.radius
                     color: Theme.bgLight
                     border.color: searchInput.activeFocus ? Theme.accent : Theme.surface
                     border.width: 1
 
+                    Behavior on border.color {
+                        ColorAnimation { duration: 150 }
+                    }
+
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: 12
+                        anchors.leftMargin: 16
                         anchors.rightMargin: 12
-                        spacing: 10
+                        spacing: 12
 
                         Text {
                             text: ""
                             color: searchInput.activeFocus ? Theme.accent : Theme.fgDim
                             font.family: Theme.fontFamily
-                            font.pixelSize: 15
+                            font.pixelSize: 16
+                            Behavior on color {
+                                ColorAnimation { duration: 150 }
+                            }
                         }
 
                         TextInput {
@@ -231,8 +242,10 @@ PanelWindow {
                             Layout.fillWidth: true
                             color: Theme.fg
                             font.family: Theme.fontFamilySans
-                            font.pixelSize: 14
+                            font.pixelSize: 15
                             verticalAlignment: TextInput.AlignVCenter
+                            selectionColor: Theme.accent
+                            selectedTextColor: Theme.bgDark
 
                             onTextChanged: {
                                 root.searchQuery = text
@@ -264,17 +277,18 @@ PanelWindow {
                         // Clear search button
                         Rectangle {
                             visible: searchInput.text.length > 0
-                            width: 22
-                            height: 22
-                            radius: 11
+                            width: 24
+                            height: 24
+                            radius: 12
                             color: clearHover.containsMouse ? Theme.surface : "transparent"
+                            Behavior on color { ColorAnimation { duration: 100 } }
 
                             Text {
                                 anchors.centerIn: parent
                                 text: ""
                                 color: Theme.fgDim
                                 font.family: Theme.fontFamily
-                                font.pixelSize: 11
+                                font.pixelSize: 12
                             }
 
                             MouseArea {
@@ -293,9 +307,9 @@ PanelWindow {
 
                 // App count badge
                 Rectangle {
-                    Layout.preferredHeight: 42
-                    implicitWidth: countText.implicitWidth + 20
-                    radius: 10
+                    Layout.preferredHeight: 44
+                    implicitWidth: countText.implicitWidth + 24
+                    radius: Theme.radius
                     color: Theme.bgLight
                     border.color: Theme.surface
                     border.width: 1
@@ -306,7 +320,7 @@ PanelWindow {
                         text: root.filteredApps.length + " apps"
                         color: Theme.fgDim
                         font.family: Theme.fontFamilySans
-                        font.pixelSize: 12
+                        font.pixelSize: 13
                         font.weight: Theme.fontWeight
                     }
                 }
@@ -315,12 +329,12 @@ PanelWindow {
             // Category filter chips row
             ScrollView {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 32
+                Layout.preferredHeight: 34
                 ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
                 ScrollBar.vertical.policy: ScrollBar.AlwaysOff
 
                 RowLayout {
-                    spacing: 6
+                    spacing: 8
 
                     Repeater {
                         model: root.categoryList
@@ -330,12 +344,15 @@ PanelWindow {
                             required property var modelData
                             readonly property bool isActive: root.activeCategory === modelData.id
 
-                            implicitWidth: chipRow.implicitWidth + 16
-                            implicitHeight: 30
-                            radius: 8
+                            implicitWidth: chipRow.implicitWidth + 24
+                            implicitHeight: 32
+                            radius: 16
                             color: isActive ? Theme.accent : (chipHover.containsMouse ? Theme.bgLight : "transparent")
                             border.color: isActive ? Theme.accent : (chipHover.containsMouse ? Theme.surface : "transparent")
                             border.width: 1
+
+                            Behavior on color { ColorAnimation { duration: 150 } }
+                            Behavior on border.color { ColorAnimation { duration: 150 } }
 
                             RowLayout {
                                 id: chipRow
@@ -344,17 +361,19 @@ PanelWindow {
 
                                 Text {
                                     text: catChip.modelData.icon
-                                    color: catChip.isActive ? Theme.bgDark : Theme.accent
+                                    color: catChip.isActive ? Theme.bgDark : (chipHover.containsMouse ? Theme.accent : Theme.fgDim)
                                     font.family: Theme.fontFamily
-                                    font.pixelSize: 12
+                                    font.pixelSize: 13
+                                    Behavior on color { ColorAnimation { duration: 150 } }
                                 }
 
                                 Text {
                                     text: catChip.modelData.label
                                     color: catChip.isActive ? Theme.bgDark : Theme.fg
                                     font.family: Theme.fontFamilySans
-                                    font.pixelSize: 12
-                                    font.weight: catChip.isActive ? Font.Bold : Font.Normal
+                                    font.pixelSize: 13
+                                    font.weight: catChip.isActive ? Font.Bold : Font.Medium
+                                    Behavior on color { ColorAnimation { duration: 150 } }
                                 }
                             }
 
@@ -385,8 +404,8 @@ PanelWindow {
                 id: grid
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                cellWidth: 120
-                cellHeight: 110
+                cellWidth: 124
+                cellHeight: 114
                 clip: true
                 model: root.filteredApps
                 activeFocusOnTab: true
@@ -431,65 +450,78 @@ PanelWindow {
                     }
                 }
 
-                delegate: Rectangle {
-                    id: delegateCard
-                    required property var modelData
-                    required property int index
-                    readonly property bool isSelected: grid.activeFocus && grid.currentIndex === index
+                delegate: Item {
+                    width: grid.cellWidth
+                    height: grid.cellHeight
 
-                    width: 114
-                    height: 104
-                    radius: 12
-                    color: isSelected ? Theme.accent : (cardMouse.containsMouse ? Theme.bgLight : "transparent")
-                    border.color: isSelected ? Theme.accent : (cardMouse.containsMouse ? Theme.surface : "transparent")
-                    border.width: 1
+                    Rectangle {
+                        id: delegateCard
+                        required property var modelData
+                        required property int index
+                        readonly property bool isSelected: grid.activeFocus && grid.currentIndex === index
 
-                    ColumnLayout {
-                        anchors.fill: parent
-                        anchors.margins: 8
-                        spacing: 6
+                        anchors.centerIn: parent
+                        width: grid.cellWidth - 10
+                        height: grid.cellHeight - 10
+                        radius: Theme.radius
 
-                        Item {
-                            Layout.alignment: Qt.AlignHCenter
-                            Layout.preferredWidth: 44
-                            Layout.preferredHeight: 44
+                        scale: isSelected ? 1.02 : (cardMouse.containsMouse ? 1.02 : 1.0)
+                        color: isSelected ? Theme.accent : (cardMouse.containsMouse ? Theme.bgLight : "transparent")
+                        border.color: isSelected ? Theme.accent : (cardMouse.containsMouse ? Theme.surface : "transparent")
+                        border.width: 1
 
-                            IconImage {
-                                anchors.fill: parent
-                                source: delegateCard.modelData && delegateCard.modelData.icon
-                                    ? Quickshell.iconPath(delegateCard.modelData.icon, "application-x-executable")
-                                    : ""
+                        Behavior on color { ColorAnimation { duration: 150 } }
+                        Behavior on border.color { ColorAnimation { duration: 150 } }
+                        Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutBack; easing.overshoot: 1.5 } }
+
+                        ColumnLayout {
+                            anchors.fill: parent
+                            anchors.margins: 10
+                            spacing: 8
+
+                            Item {
+                                Layout.alignment: Qt.AlignHCenter
+                                Layout.preferredWidth: 48
+                                Layout.preferredHeight: 48
+
+                                IconImage {
+                                    anchors.fill: parent
+                                    source: delegateCard.modelData && delegateCard.modelData.icon
+                                        ? Quickshell.iconPath(delegateCard.modelData.icon, "application-x-executable")
+                                        : ""
+                                }
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignHCenter
+                                text: delegateCard.modelData ? (delegateCard.modelData.name || "") : ""
+                                color: delegateCard.isSelected ? Theme.bgDark : Theme.fg
+                                font.family: Theme.fontFamilySans
+                                font.pixelSize: 12
+                                font.weight: Theme.fontWeight
+                                horizontalAlignment: Text.AlignHCenter
+                                elide: Text.ElideRight
+                                maximumLineCount: 2
+                                wrapMode: Text.Wrap
+                                Behavior on color { ColorAnimation { duration: 150 } }
                             }
                         }
 
-                        Text {
-                            Layout.fillWidth: true
-                            Layout.alignment: Qt.AlignHCenter
-                            text: delegateCard.modelData ? (delegateCard.modelData.name || "") : ""
-                            color: delegateCard.isSelected ? Theme.bgDark : Theme.fg
-                            font.family: Theme.fontFamilySans
-                            font.pixelSize: 11
-                            font.weight: Theme.fontWeight
-                            horizontalAlignment: Text.AlignHCenter
-                            elide: Text.ElideRight
-                            maximumLineCount: 2
-                            wrapMode: Text.Wrap
-                        }
-                    }
+                        MouseArea {
+                            id: cardMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            acceptedButtons: Qt.LeftButton | Qt.RightButton
+                            cursorShape: Qt.PointingHandCursor
 
-                    MouseArea {
-                        id: cardMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        acceptedButtons: Qt.LeftButton | Qt.RightButton
-                        cursorShape: Qt.PointingHandCursor
-
-                        onClicked: mouse => {
-                            grid.currentIndex = delegateCard.index
-                            if (mouse.button === Qt.LeftButton) {
-                                root.launch(delegateCard.modelData)
-                            } else if (mouse.button === Qt.RightButton) {
-                                root.openContextMenu(delegateCard.modelData, delegateCard)
+                            onClicked: mouse => {
+                                grid.currentIndex = delegateCard.index
+                                if (mouse.button === Qt.LeftButton) {
+                                    root.launch(delegateCard.modelData)
+                                } else if (mouse.button === Qt.RightButton) {
+                                    root.openContextMenu(delegateCard.modelData, delegateCard)
+                                }
                             }
                         }
                     }

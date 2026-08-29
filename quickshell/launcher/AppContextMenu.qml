@@ -18,6 +18,13 @@ Rectangle {
     border.width: 1
     clip: true
 
+    opacity: visible ? 1 : 0
+    scale: visible ? 1 : 0.95
+    transformOrigin: Item.TopLeft
+
+    Behavior on opacity { NumberAnimation { duration: 150 } }
+    Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutBack; easing.overshoot: 1.2 } }
+
     onAppChanged: {
         var list = []
         if (app) {
@@ -75,12 +82,12 @@ Rectangle {
             color: Theme.surface
         }
 
-        // 1. Launch / Open
-        Rectangle {
-            Layout.fillWidth: true
-            height: 28
-            radius: 6
-            color: openHover.containsMouse ? Theme.bgLight : "transparent"
+            Rectangle {
+                Layout.fillWidth: true
+                height: 28
+                radius: 6
+                color: openHover.containsMouse ? Theme.bgLight : "transparent"
+                Behavior on color { ColorAnimation { duration: 100 } }
 
             RowLayout {
                 anchors.fill: parent
@@ -125,6 +132,7 @@ Rectangle {
                 height: 28
                 radius: 6
                 color: actHover.containsMouse ? Theme.bgLight : "transparent"
+                Behavior on color { ColorAnimation { duration: 100 } }
 
                 RowLayout {
                     anchors.fill: parent
@@ -171,6 +179,7 @@ Rectangle {
             height: 28
             radius: 6
             color: termHover.containsMouse ? Theme.bgLight : "transparent"
+            Behavior on color { ColorAnimation { duration: 100 } }
 
             RowLayout {
                 anchors.fill: parent
@@ -219,6 +228,7 @@ Rectangle {
             height: 28
             radius: 6
             color: dgpuHover.containsMouse ? Theme.bgLight : "transparent"
+            Behavior on color { ColorAnimation { duration: 100 } }
 
             RowLayout {
                 anchors.fill: parent
@@ -273,6 +283,7 @@ Rectangle {
             height: 28
             radius: 6
             color: copyHover.containsMouse ? Theme.bgLight : "transparent"
+            Behavior on color { ColorAnimation { duration: 100 } }
 
             RowLayout {
                 anchors.fill: parent

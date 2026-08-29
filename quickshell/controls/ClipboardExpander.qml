@@ -1,4 +1,3 @@
-import QtQuick.Controls
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -23,24 +22,24 @@ Item {
     focus: expanded
 
     Behavior on reveal {
-        NumberAnimation {
-            duration: 250
-            easing.type: Easing.OutCubic
-        }
+        NumberAnimation { duration: 110; easing.type: Easing.OutQuart }
     }
 
     visible: reveal > 0
+
     onExpandedChanged: {
         if (expanded) {
             clipboardFile.reload()
             root.clipboardEntries = parseClipboard(clipboardFile.text())
             listView.currentIndex = 0
-            Qt.callLater(() => searchInput.forceActiveFocus())
+            Qt.callLater(() => root.forceActiveFocus())
         } else {
             searchQuery = ""
+            searchInput.text = ""
         }
     }
-    
+
+    // All keyboard handling lives on root — TextInput never steals focus
     Keys.onPressed: (event) => {
         if (event.key === Qt.Key_Down) {
             if (listView.currentIndex < listView.count - 1) {
@@ -62,6 +61,19 @@ Item {
         } else if (event.key === Qt.Key_Escape) {
             UiState.clipboardVisible = false
             event.accepted = true
+        } else if (event.key === Qt.Key_Backspace) {
+            if (searchQuery.length > 0) {
+                searchQuery = searchQuery.slice(0, -1)
+                searchInput.text = searchQuery
+                listView.currentIndex = 0
+            }
+            event.accepted = true
+        } else if (event.text && event.text.length === 1 && event.text.charCodeAt(0) >= 32) {
+            // Forward printable characters to search
+            searchQuery += event.text
+            searchInput.text = searchQuery
+            listView.currentIndex = 0
+            event.accepted = true
         }
     }
 
@@ -77,24 +89,24 @@ Item {
     }
 
     property var clipboardEntries: parseClipboard(clipboardFile.text())
-    
+
     property string searchQuery: ""
     readonly property var filteredEntries: {
         const query = searchQuery.toLowerCase()
         if (query === "") return clipboardEntries
-        return clipboardEntries.filter(e => 
-            (e.label && e.label.toLowerCase().includes(query)) || 
+        return clipboardEntries.filter(e =>
+            (e.label && e.label.toLowerCase().includes(query)) ||
             (e.value && e.value.toLowerCase().includes(query))
         )
     }
-    
+
     function timeAgo(dateString) {
         if (!dateString) return ""
         const parts = dateString.split(".")[0].replace(" ", "T")
         const date = new Date(parts)
         const now = new Date()
         const diffSec = Math.floor((now - date) / 1000)
-        
+
         if (diffSec < 60) return "just now"
         if (diffSec < 3600) return Math.floor(diffSec / 60) + "m ago"
         if (diffSec < 86400) return Math.floor(diffSec / 3600) + "h ago"
@@ -200,7 +212,7 @@ Item {
                     implicitHeight: 28
                     radius: 9
                     color: Theme.bgLight
-                    border.color: searchInput.activeFocus ? Theme.accent : Theme.bgDark
+                    border.color: searchQuery.length > 0 ? Theme.accent : Theme.bgDark
                     border.width: 1
 
                     RowLayout {
@@ -208,48 +220,30 @@ Item {
                         anchors.leftMargin: 8
                         anchors.rightMargin: 8
                         spacing: 6
-                        
+
                         Text {
                             text: "󰍉"
                             color: Theme.fgDim
                             font.family: Theme.fontFamily
                             font.pixelSize: 12
                         }
-                        
-                        TextInput {
+
+                        // Read-only display — root handles all keystrokes
+                        Text {
                             id: searchInput
                             Layout.fillWidth: true
                             color: Theme.fg
                             font.family: Theme.fontFamilySans
                             font.pixelSize: 12
-                            verticalAlignment: TextInput.AlignVCenter
-                            clip: true
-                            selectByMouse: true
                             text: root.searchQuery
-                            onTextChanged: root.searchQuery = text
-                            
-                            Keys.onPressed: (event) => {
-                                if (event.key === Qt.Key_Down) {
-                                    if (listView.currentIndex < listView.count - 1) {
-                                        listView.currentIndex++
-                                        listView.positionViewAtIndex(listView.currentIndex, ListView.Contain)
-                                    }
-                                    event.accepted = true
-                                } else if (event.key === Qt.Key_Up) {
-                                    if (listView.currentIndex > 0) {
-                                        listView.currentIndex--
-                                        listView.positionViewAtIndex(listView.currentIndex, ListView.Contain)
-                                    }
-                                    event.accepted = true
-                                } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                    if (listView.currentIndex >= 0 && listView.currentIndex < root.filteredEntries.length) {
-                                        root.activate(root.filteredEntries[listView.currentIndex])
-                                    }
-                                    event.accepted = true
-                                } else if (event.key === Qt.Key_Escape) {
-                                    UiState.clipboardVisible = false
-                                    event.accepted = true
-                                }
+                            elide: Text.ElideRight
+
+                            Text {
+                                anchors.verticalCenter: parent.verticalCenter
+                                visible: root.searchQuery.length === 0
+                                text: "Search…"
+                                color: Theme.fgMuted
+                                font: parent.font
                             }
                         }
                     }
@@ -271,7 +265,7 @@ Item {
                     }
 
                     HoverHandler { id: clearHover }
-                    TapHandler { 
+                    TapHandler {
                         onTapped: {
                             Quickshell.execDetached(["clipse", "-clear"])
                             root.clipboardEntries = []
@@ -310,9 +304,8 @@ Item {
                 Layout.fillHeight: true
                 model: root.filteredEntries
                 onCountChanged: {
-                    if (currentIndex >= count) {
+                    if (currentIndex >= count)
                         currentIndex = Math.max(0, count - 1)
-                    }
                 }
                 spacing: 10
                 clip: true
@@ -340,7 +333,7 @@ Item {
                             font.family: Theme.fontFamily
                             font.pixelSize: 18
                         }
-                        
+
                         Image {
                             visible: modelData.isImage
                             Layout.alignment: Qt.AlignVCenter
@@ -348,7 +341,7 @@ Item {
                             Layout.fillHeight: true
                             source: modelData.isImage ? "file://" + modelData.filePath : ""
                             fillMode: Image.PreserveAspectCrop
-                            
+
                             Rectangle {
                                 anchors.fill: parent
                                 color: "transparent"
@@ -389,9 +382,7 @@ Item {
                 Text {
                     visible: listView.count === 0
                     anchors.centerIn: parent
-                    text: "󰅍
-
-Clipboard empty"
+                    text: "󰅍\n\nClipboard empty"
                     horizontalAlignment: Text.AlignHCenter
                     color: Theme.fgDim
                     font.family: Theme.fontFamily

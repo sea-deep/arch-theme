@@ -319,7 +319,6 @@ PanelWindow {
                     color: selected ? Theme.accent : (rowHover.hovered ? Theme.bgLight : "transparent")
 
                     // Enable OS-level Drag and Drop for Clipboard Items
-                    Drag.active: dragHandler.active
                     Drag.supportedActions: Qt.CopyAction
                     Drag.dragType: Drag.Automatic
                     Drag.mimeData: {
@@ -336,7 +335,17 @@ PanelWindow {
 
                     DragHandler {
                         id: dragHandler
-                        target: null // Do not move the item visually, just initiate OS drag
+                        target: null // Do not move the item visually
+                        onActiveChanged: {
+                            if (active) {
+                                resultRow.grabToImage(function(result) {
+                                    resultRow.Drag.imageSource = result.url;
+                                    resultRow.Drag.active = true;
+                                });
+                            } else {
+                                resultRow.Drag.active = false;
+                            }
+                        }
                     }
 
                     RowLayout {
@@ -451,7 +460,6 @@ PanelWindow {
                     color: selected ? Theme.accent : (emojiHover.hovered ? Theme.bgLight : "transparent")
 
                     // Enable OS-level Drag and Drop for Emoji Items
-                    Drag.active: dragHandler.active
                     Drag.supportedActions: Qt.CopyAction
                     Drag.dragType: Drag.Automatic
                     Drag.mimeData: {
@@ -461,6 +469,16 @@ PanelWindow {
                     DragHandler {
                         id: dragHandler
                         target: null
+                        onActiveChanged: {
+                            if (active) {
+                                emojiCell.grabToImage(function(result) {
+                                    emojiCell.Drag.imageSource = result.url;
+                                    emojiCell.Drag.active = true;
+                                });
+                            } else {
+                                emojiCell.Drag.active = false;
+                            }
+                        }
                     }
 
                     ColumnLayout {

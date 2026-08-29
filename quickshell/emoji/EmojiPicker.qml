@@ -99,9 +99,10 @@ PanelWindow {
         }
     }
 
-    // Click outside to close
-    TapHandler {
-        onTapped: UiState.emojiVisible = false
+    // Click outside to close (backdrop)
+    MouseArea {
+        anchors.fill: parent
+        onClicked: UiState.emojiVisible = false
     }
 
     // Get cursor position
@@ -143,8 +144,12 @@ PanelWindow {
         border.color: Theme.surface
         border.width: 1
 
-        // Consume clicks so they don't close the popup
-        TapHandler {}
+        // Consume clicks so they don't hit the backdrop MouseArea
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.AllButtons
+            onClicked: {}
+        }
 
         ColumnLayout {
             anchors.fill: parent
@@ -256,12 +261,15 @@ PanelWindow {
 
                     width: grid.cellWidth
                     height: grid.cellHeight
-                    color: isCurrent ? Theme.accent : (hover.hovered ? Theme.bgLight : "transparent")
+                    color: isCurrent ? Theme.accent : (emojiMouseArea.containsMouse ? Theme.bgLight : "transparent")
                     radius: 8
 
-                    HoverHandler { id: hover }
-                    TapHandler {
-                        onTapped: {
+                    MouseArea {
+                        id: emojiMouseArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
                             grid.currentIndex = index
                             if (delegateRoot.emoji)
                                 root.selectEmoji(delegateRoot.emoji.char)
@@ -297,12 +305,15 @@ PanelWindow {
                         required property var modelData
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        color: catHover.hovered ? Theme.bgLight : "transparent"
+                        color: catMouseArea.containsMouse ? Theme.bgLight : "transparent"
                         radius: 4
 
-                        HoverHandler { id: catHover }
-                        TapHandler {
-                            onTapped: {
+                        MouseArea {
+                            id: catMouseArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
                                 var idx = root.categoryIndices[modelData.name]
                                 if (idx !== undefined) {
                                     grid.positionViewAtIndex(idx, GridView.Beginning)

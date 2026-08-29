@@ -43,7 +43,7 @@ PanelWindow {
             x: 0
             y: 0
             width: root.width
-            height: Theme.barHeight
+            height: (root.overlayExpanded && !clipboardExpander.isDragging) ? root.height : Theme.barHeight
         }
         // Retain each pill's animated geometry while it closes or during drag.
         Region { item: hardwarePill }
@@ -85,7 +85,7 @@ PanelWindow {
         MouseArea {
             id: bgMouseArea
             anchors.fill: parent
-            enabled: root.overlayExpanded
+            enabled: root.overlayExpanded && !clipboardExpander.isDragging
             z: 0
             onClicked: UiState.closeOverlays()
         }

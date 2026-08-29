@@ -35,13 +35,16 @@ arch-theme/
 
 ### A. Drag-and-Drop (DND) across Wayland Windows
 
-1. **Layer-Shell Surface Masking (`Bar.qml`):**
-   - **Rule:** `Bar.qml`'s `mask: Region` must **NEVER** cover the full screen (`root.height`).
-   - If `mask` covers the full screen, Hyprland gives all drop and pointer events to the invisible bar surface, blocking drops into desktop apps (Kitty, VSCode, Chrome, Discord).
-   - **Correct Pattern:** Use discrete child item regions:
+1. **Dynamic Layer-Shell Surface Masking (`Bar.qml`):**
+   - When NOT dragging, `Bar.qml` expands its `mask` to `root.height` with `bgMouseArea` enabled so clicking anywhere outside the menu (including empty desktop/wallpaper) immediately dismisses the dropdowns.
+   - When dragging (`clipboardExpander.isDragging == true`), `Bar.qml` automatically shrinks the mask to `Theme.barHeight` + discrete child regions (`Region { item: clipboardExpander }` etc.) so Hyprland routes drop events directly into Kitty, VSCode, Chrome, Discord.
+   - **Correct Pattern:**
      ```qml
      mask: Region {
-         Region { x: 0; y: 0; width: root.width; height: Theme.barHeight }
+         Region {
+             x: 0; y: 0; width: root.width
+             height: (root.overlayExpanded && !clipboardExpander.isDragging) ? root.height : Theme.barHeight
+         }
          Region { item: hardwarePill }
          Region { item: clipboardExpander }
          Region { item: networkExpander }
@@ -58,11 +61,11 @@ arch-theme/
    - Use `MouseArea` with `drag.target` set to a proxy `Item` (`expDragProxy`).
    - Provide `Drag.dragType: Drag.Automatic` and `Drag.supportedActions: Qt.CopyAction | Qt.MoveAction | Qt.LinkAction`.
    - **MIME Payload format:**
-     - Text: `text/plain`, `text/plain;charset=utf-8`, and `UTF8_STRING`.
+     - Text: `text/plain`, `text/plain;charset=utf-8`, `UTF8_STRING`, `STRING`, and `TEXT`.
      - Files / Images: RFC-2483 CRLF-delimited `text/uri-list` (`file:///path\r\n`) and `x-special/gnome-copied-files` (`copy\nfile:///path\r\n`).
 4. **Delegate Drag State Isolation:**
    - Never use global `Binding { target: UiState; property: "isDragging"; value: itemMouse.drag.active }` inside list delegates (competing rows will continuously overwrite it with `false`).
-   - Use explicit `onPressed` / `onReleased` / `onCanceled` handlers on the delegate's `MouseArea`.
+   - Use explicit `onPressed: root.isDragging = true` and `onReleased: root.isDragging = false` handlers on the delegate's `MouseArea`.
 
 ---
 

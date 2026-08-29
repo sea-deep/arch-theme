@@ -337,10 +337,12 @@ Item {
                                 data["text/plain"] = uri;
                                 data["text/plain;charset=utf-8"] = uri;
                             } else {
-                                var txt = modelData.value || modelData.label || "";
+                                var txt = String(modelData.value || modelData.label || "");
                                 data["text/plain"] = txt;
                                 data["text/plain;charset=utf-8"] = txt;
                                 data["UTF8_STRING"] = txt;
+                                data["STRING"] = txt;
+                                data["TEXT"] = txt;
                             }
                             return data;
                         }

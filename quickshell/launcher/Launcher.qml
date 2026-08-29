@@ -174,41 +174,14 @@ PanelWindow {
     }
 
     property bool showing: UiState.launcherVisible
-    property real reveal: 0
+    property real reveal: showing ? 1 : 0
 
-    states: [
-        State {
-            name: "open"
-            when: root.showing
-            PropertyChanges { target: root; reveal: 1 }
-        },
-        State {
-            name: "closed"
-            when: !root.showing
-            PropertyChanges { target: root; reveal: 0 }
+    Behavior on reveal {
+        NumberAnimation {
+            duration: root.showing ? 200 : 140
+            easing.type: root.showing ? Easing.OutCubic : Easing.InCubic
         }
-    ]
-
-    transitions: [
-        Transition {
-            from: "closed"; to: "open"
-            NumberAnimation {
-                target: root
-                property: "reveal"
-                duration: 200
-                easing.type: Easing.OutCubic
-            }
-        },
-        Transition {
-            from: "open"; to: "closed"
-            NumberAnimation {
-                target: root
-                property: "reveal"
-                duration: 140
-                easing.type: Easing.InCubic
-            }
-        }
-    ]
+    }
 
     visible: reveal > 0
 

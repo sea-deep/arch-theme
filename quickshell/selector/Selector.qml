@@ -442,6 +442,11 @@ PanelWindow {
                         preventStealing: true
                         drag.target: dragProxy
                         cursorShape: Qt.PointingHandCursor
+                        onPressed: {
+                            resultRow.grabToImage(function(result) {
+                                dragProxy.Drag.imageSource = result.url;
+                            }, Qt.size(160, 48));
+                        }
                         onClicked: root.activate(resultRow.modelData)
                     }
                 }
@@ -519,6 +524,11 @@ PanelWindow {
                         preventStealing: true
                         drag.target: emojiDragProxy
                         cursorShape: Qt.PointingHandCursor
+                        onPressed: {
+                            emojiCell.grabToImage(function(result) {
+                                emojiDragProxy.Drag.imageSource = result.url;
+                            }, Qt.size(64, 64));
+                        }
                         onClicked: root.activate(emojiCell.modelData)
                     }
                 }

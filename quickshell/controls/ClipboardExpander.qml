@@ -409,6 +409,11 @@ Item {
                         preventStealing: true
                         drag.target: expDragProxy
                         cursorShape: Qt.PointingHandCursor
+                        onPressed: {
+                            expRow.grabToImage(function(result) {
+                                expDragProxy.Drag.imageSource = result.url;
+                            }, Qt.size(160, 48));
+                        }
                         onClicked: root.activate(modelData)
                     }
                 }

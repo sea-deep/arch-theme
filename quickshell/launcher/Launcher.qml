@@ -175,13 +175,13 @@ PanelWindow {
         scale: root.visible ? 1 : 0.98
 
         Behavior on y {
-            NumberAnimation { duration: 250; easing.type: Easing.OutExpo }
+            NumberAnimation { duration: 350; easing.type: Easing.OutBack; easing.overshoot: 1.05 }
         }
         Behavior on opacity {
-            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+            NumberAnimation { duration: 250; easing.type: Easing.OutQuad }
         }
         Behavior on scale {
-            NumberAnimation { duration: 250; easing.type: Easing.OutExpo }
+            NumberAnimation { duration: 350; easing.type: Easing.OutBack; easing.overshoot: 1.05 }
         }
 
         color: Theme.bg
@@ -451,14 +451,16 @@ PanelWindow {
                 }
 
                 delegate: Item {
+                    id: delegateRoot
+                    required property var modelData
+                    required property int index
+
                     width: grid.cellWidth
                     height: grid.cellHeight
 
                     Rectangle {
                         id: delegateCard
-                        required property var modelData
-                        required property int index
-                        readonly property bool isSelected: grid.activeFocus && grid.currentIndex === index
+                        readonly property bool isSelected: grid.activeFocus && grid.currentIndex === delegateRoot.index
 
                         anchors.centerIn: parent
                         width: grid.cellWidth - 10
@@ -486,8 +488,8 @@ PanelWindow {
 
                                 IconImage {
                                     anchors.fill: parent
-                                    source: delegateCard.modelData && delegateCard.modelData.icon
-                                        ? Quickshell.iconPath(delegateCard.modelData.icon, "application-x-executable")
+                                    source: delegateRoot.modelData && delegateRoot.modelData.icon
+                                        ? Quickshell.iconPath(delegateRoot.modelData.icon, "application-x-executable")
                                         : ""
                                 }
                             }
@@ -495,7 +497,7 @@ PanelWindow {
                             Text {
                                 Layout.fillWidth: true
                                 Layout.alignment: Qt.AlignHCenter
-                                text: delegateCard.modelData ? (delegateCard.modelData.name || "") : ""
+                                text: delegateRoot.modelData ? (delegateRoot.modelData.name || "") : ""
                                 color: delegateCard.isSelected ? Theme.bgDark : Theme.fg
                                 font.family: Theme.fontFamilySans
                                 font.pixelSize: 12
@@ -516,11 +518,11 @@ PanelWindow {
                             cursorShape: Qt.PointingHandCursor
 
                             onClicked: mouse => {
-                                grid.currentIndex = delegateCard.index
+                                grid.currentIndex = delegateRoot.index
                                 if (mouse.button === Qt.LeftButton) {
-                                    root.launch(delegateCard.modelData)
+                                    root.launch(delegateRoot.modelData)
                                 } else if (mouse.button === Qt.RightButton) {
-                                    root.openContextMenu(delegateCard.modelData, delegateCard)
+                                    root.openContextMenu(delegateRoot.modelData, delegateCard)
                                 }
                             }
                         }

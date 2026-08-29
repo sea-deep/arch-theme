@@ -10,21 +10,18 @@ if [ ! -f "$STATE_FILE" ]; then
 fi
 
 if [ "$1" == "set_all" ]; then
-    # Update state
-    # Usage: ./update_shader.sh set_all 50 10 0
     COMFORT=$2
     GRAYSCALE=$3
     VIVID=$4
     echo "{\"comfort\":$COMFORT,\"grayscale\":$GRAYSCALE,\"vivid\":$VIVID}" > "$STATE_FILE"
 else
-    # Get current values
     COMFORT=$(jq -r '.comfort' "$STATE_FILE")
     GRAYSCALE=$(jq -r '.grayscale' "$STATE_FILE")
     VIVID=$(jq -r '.vivid' "$STATE_FILE")
 fi
 
 if [ "$COMFORT" == "0" ] && [ "$GRAYSCALE" == "0" ] && [ "$VIVID" == "0" ]; then
-    hyprctl keyword decoration:screen_shader "[[EMPTY]]"
+    hyprctl repl "hl.config({ decoration = { screen_shader = '[[EMPTY]]' } })"
     exit 0
 fi
 
@@ -35,8 +32,10 @@ V_NORM=$(awk "BEGIN {print $VIVID / 100.0}")
 
 # Generate shader
 cat << 'GLSL' > "$SHADER_FILE"
+#version 300 es
 precision mediump float;
-varying vec2 v_texcoord;
+in vec2 v_texcoord;
+layout(location = 0) out vec4 fragColor;
 uniform sampler2D tex;
 
 vec3 rgb2hsv(vec3 c) {
@@ -55,7 +54,7 @@ vec3 hsv2rgb(vec3 c) {
 }
 
 void main() {
-    vec4 color = texture2D(tex, v_texcoord);
+    vec4 color = texture(tex, v_texcoord);
     vec3 rgb = color.rgb;
 
     float vivid = VIVID_VAL;
@@ -79,7 +78,7 @@ void main() {
         rgb = clamp(rgb, 0.0, 1.0);
     }
 
-    gl_FragColor = vec4(rgb, color.a);
+    fragColor = vec4(rgb, color.a);
 }
 GLSL
 
@@ -87,4 +86,4 @@ sed -i "s/VIVID_VAL/$V_NORM/g" "$SHADER_FILE"
 sed -i "s/GRAYSCALE_VAL/$G_NORM/g" "$SHADER_FILE"
 sed -i "s/COMFORT_VAL/$C_NORM/g" "$SHADER_FILE"
 
-hyprctl keyword decoration:screen_shader "$SHADER_FILE"
+hyprctl repl "hl.config({ decoration = { screen_shader = '$SHADER_FILE' } })"

@@ -74,7 +74,7 @@ ShellRoot {
     IpcHandler {
         target: "clipboard"
         function toggle() {
-            UiState.toggleSelector("clipboard")
+            UiState.toggleClipboard("")
         }
     }
 
@@ -89,7 +89,7 @@ ShellRoot {
         }
 
         function clipboard() {
-            UiState.toggleSelector("clipboard")
+            UiState.toggleClipboard("")
         }
     }
 

@@ -28,7 +28,7 @@ Components.Pill {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
         onClicked: {
-            UiState.toggleSelector("clipboard")
+            UiState.toggleClipboard("")
         }
     }
 }

@@ -110,7 +110,12 @@ PanelWindow {
             BarModules.Recorder {}
             BarModules.CapsLock {}
             BarModules.AutoSleep { hostWindow: root }
-            BarModules.Clipboard {}
+            Item {
+                id: clipboardSlot
+                Layout.preferredWidth: Theme.compactPillSize
+                Layout.preferredHeight: Theme.barHeight
+                BarModules.Clipboard { anchors.centerIn: parent }
+            }
             Item {
                 id: notificationSlot
                 Layout.preferredWidth: Theme.compactPillSize
@@ -148,6 +153,15 @@ PanelWindow {
             z: 2
             x: rightModules.x + hardwareSlot.x
                 + (hardwareSlot.width - width) / 2
+            y: 0
+            targetScreenName: root.screen.name
+        }
+
+        Controls.ClipboardExpander {
+            id: clipboardExpander
+            z: 4
+            x: rightModules.x + clipboardSlot.x
+            expandedWidth: rightModules.width - clipboardSlot.x
             y: 0
             targetScreenName: root.screen.name
         }

@@ -58,6 +58,8 @@ Singleton {
     property int trayMenuRightOffset: 2
     property bool networkVisible: false
     property string networkScreen: ""
+    property bool clipboardVisible: false
+    property string clipboardScreen: ""
 
     function toggleSelector(mode) {
         if (selectorVisible && selectorMode === mode) {
@@ -142,6 +144,14 @@ Singleton {
         networkVisible = shouldOpen
     }
 
+    function toggleClipboard(screenName) {
+        const targetScreen = screenName || ""
+        const shouldOpen = !clipboardVisible || clipboardScreen !== targetScreen
+        closeOverlays()
+        clipboardScreen = targetScreen
+        clipboardVisible = shouldOpen
+    }
+
     function toggleTrayMenu(item, screenName, rightOffset) {
         const sameMenu = trayMenuVisible && trayMenuHandle === item.menu
         closeOverlays()
@@ -162,6 +172,7 @@ Singleton {
     }
 
     function closeOverlays() {
+        clipboardVisible = false
         selectorVisible = false
         notificationCenterVisible = false
         notificationPreviewVisible = false

@@ -130,9 +130,9 @@ Item {
 
                     Repeater {
                         model: [
-                            { name: "Lock", icon: "", action: ["hyprlock"], key: "L" },
+                            { name: "Lock", icon: "", action: ["loginctl", "lock-session"], key: "L" },
                             { name: "Suspend", icon: "󰤄", action: ["systemctl", "suspend"], key: "U" },
-                            { name: "Logout", icon: "󰍃", action: ["hyprctl", "dispatch", "exit"], key: "E" },
+                            { name: "Logout", icon: "󰍃", action: ["sh", "-c", "loginctl terminate-user $USER"], key: "E" },
                             { name: "Reboot", icon: "󰑐", action: ["systemctl", "reboot"], key: "R" },
                             { name: "Shutdown", icon: "󰐥", action: ["systemctl", "poweroff"], key: "S" },
                             { name: "Hibernate", icon: "󰒲", action: ["systemctl", "hibernate"], key: "H" }

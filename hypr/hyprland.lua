@@ -8,10 +8,10 @@ hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "1" })
 
 hl.config({
     windowrulev2 = {
-        "float,class:(polkit-gnome-authentication-agent-1)",
-        "stayfocused,class:(polkit-gnome-authentication-agent-1)",
-        "pin,class:(polkit-gnome-authentication-agent-1)",
-        "dimaround,class:(polkit-gnome-authentication-agent-1)",
+        "float,class:(polkit-kde-authentication-agent-1)",
+        "stayfocused,class:(polkit-kde-authentication-agent-1)",
+        "pin,class:(polkit-kde-authentication-agent-1)",
+        "dimaround,class:(polkit-kde-authentication-agent-1)",
     },
     input = {
         kb_layout = "us",
@@ -90,13 +90,13 @@ hl.env("XDG_SESSION_DESKTOP", "Hyprland")
 hl.env("GDK_BACKEND", "wayland,x11,*")
 
 hl.on("hyprland.start", function()
-    hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+    hl.exec_cmd("dbus-update-activation-environment --systemd --all")
     hl.exec_cmd("systemctl --user start xdg-desktop-portal-hyprland.service")
     hl.exec_cmd("swww-daemon || swaybg -i /home/dipak/code/arch-theme/wallpapers/satisfaction_waybar_blur.png -m fill")
     hl.exec_cmd("sleep 0.5 && swww img /home/dipak/code/arch-theme/wallpapers/satisfaction_waybar_blur.png --transition-type grow --transition-duration 1")
-    hl.exec_cmd("qs --no-duplicate")
+    hl.exec_cmd("QT_LOGGING_RULES=\"quickshell.network.warning=false\" qs --no-duplicate")
     hl.exec_cmd("hypridle")
-    hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
+    hl.exec_cmd("/usr/lib/polkit-kde-authentication-agent-1")
     hl.exec_cmd("wl-paste --type text --watch clipse -wl-store")
     hl.exec_cmd("wl-paste --type image --watch clipse -wl-store")
     hl.exec_cmd("sway-audio-idle-inhibit")

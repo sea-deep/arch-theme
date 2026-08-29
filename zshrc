@@ -138,3 +138,4 @@ export WOKWI_CLI_TOKEN="wok_xKFSa56mcHI6rcU1KHbZ2YHQxvDi4eux4db0b62b"
 # Ensure ~/bin is in PATH for wokwi-cli
 export PATH="$HOME/bin:$PATH"
 alias gwflash="cd ~/code/deeptrack/gateway && arduino-cli compile --fqbn esp32:esp32:esp32 . && arduino-cli upload -p /dev/ttyACM0 --fqbn esp32:esp32:esp32 ."
+alias qs='qs 2>&1 | grep -v "quickshell.network: Failed to get settings for"'

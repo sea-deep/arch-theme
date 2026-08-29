@@ -70,9 +70,9 @@ PanelWindow {
 
         Repeater {
             model: [
-                { name: "Lock", icon: "", action: ["hyprlock"], key: "l" },
+                { name: "Lock", icon: "", action: ["loginctl", "lock-session"], key: "l" },
                 { name: "Suspend", icon: "󰤄", action: ["systemctl", "suspend"], key: "u" },
-                { name: "Logout", icon: "󰍃", action: ["hyprctl", "dispatch", "exit"], key: "e" },
+                { name: "Logout", icon: "󰍃", action: ["sh", "-c", "loginctl terminate-user $USER"], key: "e" },
                 { name: "Reboot", icon: "󰑐", action: ["systemctl", "reboot"], key: "r" },
                 { name: "Shutdown", icon: "󰐥", action: ["systemctl", "poweroff"], key: "s" },
                 { name: "Hibernate", icon: "󰒲", action: ["systemctl", "hibernate"], key: "h" }

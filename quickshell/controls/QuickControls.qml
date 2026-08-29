@@ -22,7 +22,7 @@ Components.Pill {
         : []
     readonly property int bodyHeight: UiState.quickControlMode === "audio"
         ? 128 + audioStreams.length * 52
-        : (UiState.quickControlMode === "brightness" ? 94 : 158)
+        : (UiState.quickControlMode === "brightness" ? 188 : 158)
     readonly property var sink: Pipewire.defaultAudioSink
     readonly property var source: Pipewire.defaultAudioSource
     readonly property int maxBrightness: parseInt(maxBrightnessFile.text()) || 100

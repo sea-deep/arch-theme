@@ -16,6 +16,24 @@ Singleton {
     }
 
     property alias caffeineEnabled: persisted.caffeineEnabled
+    property alias comfortValue: persisted.comfortValue
+    property alias grayscaleValue: persisted.grayscaleValue
+    property alias vividValue: persisted.vividValue
+
+    Timer {
+        id: shaderUpdateTimer
+        interval: 32
+        repeat: false
+        onTriggered: {
+            Quickshell.execDetached(["bash", "-c", "quickshell/scripts/update_shader.sh set_all " + Math.round(comfortValue) + " " + Math.round(grayscaleValue) + " " + Math.round(vividValue)])
+        }
+    }
+
+    onComfortValueChanged: shaderUpdateTimer.restart()
+    onGrayscaleValueChanged: shaderUpdateTimer.restart()
+    onVividValueChanged: shaderUpdateTimer.restart()
+
+    Component.onCompleted: shaderUpdateTimer.start()
     property bool selectorVisible: false
     property string selectorMode: "apps"
     property bool notificationCenterVisible: false

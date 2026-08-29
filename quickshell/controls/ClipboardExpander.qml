@@ -252,15 +252,10 @@ Item {
                 interactive: true
                 boundsBehavior: Flickable.StopAtBounds
                 
-
-                
-                ScrollBar.vertical: ScrollBar {
-                    active: true
-                    width: 4
-                    contentItem: Rectangle {
-                        implicitWidth: 4
-                        radius: 2
-                        color: Theme.fgDim
+                WheelHandler {
+                    property real speed: 80
+                    onWheel: (event) => {
+                        listView.contentY = Math.max(0, Math.min(listView.contentY - (event.angleDelta.y > 0 ? speed : -speed), listView.contentHeight - listView.height))
                     }
                 }
 

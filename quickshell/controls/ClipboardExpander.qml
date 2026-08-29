@@ -25,8 +25,6 @@ Item {
         NumberAnimation { duration: 110; easing.type: Easing.OutQuart }
     }
 
-    visible: reveal > 0
-
     onExpandedChanged: {
         if (expanded) {
             clipboardFile.reload()

@@ -21,13 +21,12 @@ fi
 
 # ── Section ──
 # Capture Logic
+LATEST_BEFORE=$(ls -t "$SAVE_DIR" 2>/dev/null | head -n 1)
+wl-paste -t image/png > /tmp/clip_before.png 2>/dev/null
+
 if [ "$MODE" = "full" ]; then
-    grim - | wl-copy
-    notify-send "Screenshot Copied" "Full screen copied to clipboard." -i image-x-generic -a Screenshot
+    grim - | swappy -f -
 elif [ "$MODE" = "region" ] || [ "$MODE" = "window" ]; then
-    LATEST_BEFORE=$(ls -t "$SAVE_DIR" 2>/dev/null | head -n 1)
-    wl-paste -t image/png > /tmp/clip_before.png 2>/dev/null
-    
     if [ "$MODE" = "region" ]; then
         GEOMETRY=$(slurp)
     else
@@ -35,23 +34,23 @@ elif [ "$MODE" = "region" ] || [ "$MODE" = "window" ]; then
     fi
     
     if [ -z "$GEOMETRY" ]; then exit 0; fi
-    
     grim -g "$GEOMETRY" - | swappy -f -
-    sleep 0.2
-    LATEST_AFTER=$(ls -t "$SAVE_DIR" 2>/dev/null | head -n 1)
-    wl-paste -t image/png > /tmp/clip_after.png 2>/dev/null
-    
-    if [ "$LATEST_BEFORE" != "$LATEST_AFTER" ] && [ -n "$LATEST_AFTER" ]; then
-        NEW_FILE="$SAVE_DIR/$LATEST_AFTER"
-        ( ACTION=$(notify-send -A "open=Open Location" -w "Screenshot Saved" "Saved to $LATEST_AFTER" -i image-x-generic -a Swappy)
-          if [ "$ACTION" = "open" ]; then
-              dbus-send --print-reply --dest=org.freedesktop.FileManager1 /org/freedesktop/FileManager1 org.freedesktop.FileManager1.ShowItems array:string:"file://$NEW_FILE" string:""
-          fi ) &
-    fi
-    
-    if [ -s /tmp/clip_after.png ]; then
-        if [ ! -s /tmp/clip_before.png ] || ! cmp -s /tmp/clip_before.png /tmp/clip_after.png; then
-            notify-send "Screenshot Copied" "Copied to clipboard." -i image-x-generic -a Swappy
-        fi
+fi
+
+sleep 0.2
+LATEST_AFTER=$(ls -t "$SAVE_DIR" 2>/dev/null | head -n 1)
+wl-paste -t image/png > /tmp/clip_after.png 2>/dev/null
+
+if [ "$LATEST_BEFORE" != "$LATEST_AFTER" ] && [ -n "$LATEST_AFTER" ]; then
+    NEW_FILE="$SAVE_DIR/$LATEST_AFTER"
+    ( ACTION=$(notify-send -A "open=Open Location" -w "Screenshot Saved" "Saved to $LATEST_AFTER" -i image-x-generic -a Swappy)
+      if [ "$ACTION" = "open" ]; then
+          dbus-send --print-reply --dest=org.freedesktop.FileManager1 /org/freedesktop/FileManager1 org.freedesktop.FileManager1.ShowItems array:string:"file://$NEW_FILE" string:""
+      fi ) &
+fi
+
+if [ -s /tmp/clip_after.png ]; then
+    if [ ! -s /tmp/clip_before.png ] || ! cmp -s /tmp/clip_before.png /tmp/clip_after.png; then
+        notify-send "Screenshot Copied" "Copied to clipboard." -i image-x-generic -a Swappy
     fi
 fi

@@ -165,152 +165,168 @@ Item {
             Repeater {
                 model: Hyprland.workspaces
                 
-                Rectangle {
-                    id: wsPill
+                RowLayout {
+                    id: wsItem
                     required property var modelData
+                    required property int index
 
                     property bool isSpecial: modelData.name.startsWith("special:")
                     visible: !isSpecial
-                    
-                    property bool isActive: modelData.focused || modelData.active
-                    property bool isUrgent: modelData.urgent
-                    property var toplevelsList: modelData.toplevels ? modelData.toplevels.values : []
-                    property var groupedApps: root.getGroupedApps(toplevelsList)
-                    property int windowCount: toplevelsList.length
-                    
-                    readonly property int maxVisibleGroups: 3
-                    readonly property int overflowCount: Math.max(0, groupedApps.length - maxVisibleGroups)
-                    
-                    implicitHeight: isSpecial ? 0 : 26
-                    implicitWidth: isSpecial ? 0 : rowContent.implicitWidth + 8
-                    radius: 6
-                    
-                    Behavior on implicitWidth {
-                        NumberAnimation { duration: 140; easing.type: Easing.OutCubic }
+                    spacing: 3
+
+                    // Subtle vertical divider between workspaces
+                    Rectangle {
+                        visible: wsItem.index > 0 && !wsItem.isSpecial
+                        Layout.preferredWidth: 1
+                        Layout.preferredHeight: 12
+                        radius: 0.5
+                        color: Theme.surface
+                        Layout.alignment: Qt.AlignVCenter
                     }
-                    
-                    color: isActive ? Theme.accent : (wsHoverHandler.hovered ? Theme.surface : "transparent")
-                    
-                    HoverHandler {
-                        id: wsHoverHandler
-                        onHoveredChanged: {
-                            if (hovered) {
-                                closeTimer.stop()
-                                root.isHovered = true
-                                root.hoveredWorkspace = wsPill.modelData
-                            }
+
+                    Rectangle {
+                        id: wsPill
+
+                        property bool isActive: wsItem.modelData.focused || wsItem.modelData.active
+                        property bool isUrgent: wsItem.modelData.urgent
+                        property var toplevelsList: wsItem.modelData.toplevels ? wsItem.modelData.toplevels.values : []
+                        property var groupedApps: root.getGroupedApps(toplevelsList)
+                        property int windowCount: toplevelsList.length
+                        
+                        readonly property int maxVisibleGroups: 3
+                        readonly property int overflowCount: Math.max(0, groupedApps.length - maxVisibleGroups)
+                        
+                        implicitHeight: wsItem.isSpecial ? 0 : 26
+                        implicitWidth: wsItem.isSpecial ? 0 : rowContent.implicitWidth + 8
+                        radius: 6
+                        
+                        Behavior on implicitWidth {
+                            NumberAnimation { duration: 140; easing.type: Easing.OutCubic }
                         }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: wsPill.modelData.activate()
-                    }
-
-                    RowLayout {
-                        id: rowContent
-                        anchors.centerIn: parent
-                        spacing: 5
-
-                        // Workspace Number
-                        Text {
-                            id: wsNum
-                            text: wsPill.modelData.name
-                            color: wsPill.isActive ? Theme.bgDark : (wsPill.isUrgent ? Theme.red : (wsHoverHandler.hovered ? Theme.blue : (wsPill.windowCount > 0 ? Theme.fg : Theme.fgDim)))
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSize
-                            font.weight: wsPill.isActive ? Font.Bold : Theme.fontWeight
-                        }
-
-                        // Grouped App icons for ALL occupied workspaces
-                        RowLayout {
-                            visible: wsPill.groupedApps.length > 0
-                            spacing: 4
-
-                            Repeater {
-                                model: wsPill.groupedApps.slice(0, wsPill.maxVisibleGroups)
-                                
-                                RowLayout {
-                                    id: iconGroup
-                                    required property var modelData
-                                    spacing: 1
-
-                                    Rectangle {
-                                        width: 24
-                                        height: 24
-                                        radius: 6
-                                        color: iconHoverHandler.hovered ? (wsPill.isActive ? Qt.rgba(0, 0, 0, 0.25) : Theme.bgLight) : "transparent"
-
-                                        IconImage {
-                                            anchors.centerIn: parent
-                                            width: 20
-                                            height: 20
-                                            source: iconGroup.modelData.icon
-                                        }
-
-                                        HoverHandler {
-                                            id: iconHoverHandler
-                                            onHoveredChanged: {
-                                                if (hovered) {
-                                                    closeTimer.stop()
-                                                    root.isHovered = true
-                                                    root.hoveredWorkspace = wsPill.modelData
-                                                }
-                                            }
-                                        }
-
-                                        MouseArea {
-                                            anchors.fill: parent
-                                            cursorShape: Qt.PointingHandCursor
-                                            onClicked: {
-                                                wsPill.modelData.activate();
-                                                if (iconGroup.modelData.toplevels && iconGroup.modelData.toplevels.length > 0) {
-                                                    var top = iconGroup.modelData.toplevels[0];
-                                                    if (top.activate) top.activate();
-                                                    var addr = (top.address)
-                                                        || (top.lastIpcObject && top.lastIpcObject.address)
-                                                        || "";
-                                                    if (addr !== "") {
-                                                        Hyprland.dispatch("focuswindow address:" + addr);
-                                                    }
-                                                }
-                                                root.isHovered = false;
-                                                root.hoveredWorkspace = null;
-                                            }
-                                        }
-                                    }
-
-                                    // Superscript count if multiple windows of the same app exist (e.g. >_³)
-                                    Text {
-                                        visible: iconGroup.modelData.count > 1
-                                        text: root.getSuperscript(iconGroup.modelData.count)
-                                        color: wsPill.isActive ? Theme.bgDark : Theme.accent
-                                        font.family: Theme.fontFamilySans
-                                        font.pixelSize: 18
-                                        font.weight: Font.Black
-                                        Layout.alignment: Qt.AlignTop
-                                        Layout.topMargin: -1
-                                    }
+                        
+                        color: isActive ? Theme.accent : (wsHoverHandler.hovered ? Theme.surface : "transparent")
+                        
+                        HoverHandler {
+                            id: wsHoverHandler
+                            onHoveredChanged: {
+                                if (hovered) {
+                                    closeTimer.stop()
+                                    root.isHovered = true
+                                    root.hoveredWorkspace = wsItem.modelData
                                 }
                             }
+                        }
 
-                            // Overflow counter (+N) if more than maxVisibleGroups unique apps exist
-                            Rectangle {
-                                visible: wsPill.overflowCount > 0
-                                height: 18
-                                implicitWidth: overflowText.implicitWidth + 8
-                                radius: 4
-                                color: wsPill.isActive ? Qt.rgba(0, 0, 0, 0.2) : Theme.surface
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: wsItem.modelData.activate()
+                        }
 
-                                Text {
-                                    id: overflowText
-                                    anchors.centerIn: parent
-                                    text: "+" + wsPill.overflowCount
-                                    color: wsPill.isActive ? Theme.bgDark : Theme.fgDim
-                                    font.family: Theme.fontFamilySans
-                                    font.pixelSize: 11
-                                    font.weight: Font.Bold
+                        RowLayout {
+                            id: rowContent
+                            anchors.centerIn: parent
+                            spacing: 5
+
+                            // Workspace Number
+                            Text {
+                                id: wsNum
+                                text: wsItem.modelData.name
+                                color: wsPill.isActive ? Theme.bgDark : (wsPill.isUrgent ? Theme.red : (wsHoverHandler.hovered ? Theme.blue : (wsPill.windowCount > 0 ? Theme.fg : Theme.fgDim)))
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSize
+                                font.weight: wsPill.isActive ? Font.Bold : Theme.fontWeight
+                            }
+
+                            // Grouped App icons for ALL occupied workspaces
+                            RowLayout {
+                                visible: wsPill.groupedApps.length > 0
+                                spacing: 4
+
+                                Repeater {
+                                    model: wsPill.groupedApps.slice(0, wsPill.maxVisibleGroups)
+                                    
+                                    RowLayout {
+                                        id: iconGroup
+                                        required property var modelData
+                                        spacing: 1
+
+                                        Rectangle {
+                                            width: 24
+                                            height: 24
+                                            radius: 6
+                                            color: iconHoverHandler.hovered ? (wsPill.isActive ? Qt.rgba(0, 0, 0, 0.25) : Theme.bgLight) : "transparent"
+
+                                            IconImage {
+                                                anchors.centerIn: parent
+                                                width: 20
+                                                height: 20
+                                                source: iconGroup.modelData.icon
+                                            }
+
+                                            HoverHandler {
+                                                id: iconHoverHandler
+                                                onHoveredChanged: {
+                                                    if (hovered) {
+                                                        closeTimer.stop()
+                                                        root.isHovered = true
+                                                        root.hoveredWorkspace = wsItem.modelData
+                                                    }
+                                                }
+                                            }
+
+                                            MouseArea {
+                                                anchors.fill: parent
+                                                cursorShape: Qt.PointingHandCursor
+                                                onClicked: {
+                                                    wsItem.modelData.activate();
+                                                    if (iconGroup.modelData.toplevels && iconGroup.modelData.toplevels.length > 0) {
+                                                        var top = iconGroup.modelData.toplevels[0];
+                                                        if (top.activate) top.activate();
+                                                        var addr = (top.address)
+                                                            || (top.lastIpcObject && top.lastIpcObject.address)
+                                                            || "";
+                                                        if (addr !== "") {
+                                                            Hyprland.dispatch("focuswindow address:" + addr);
+                                                        }
+                                                    }
+                                                    root.isHovered = false;
+                                                    root.hoveredWorkspace = null;
+                                                }
+                                            }
+                                        }
+
+                                        // Superscript count if multiple windows of the same app exist (e.g. >_³)
+                                        Text {
+                                            visible: iconGroup.modelData.count > 1
+                                            text: root.getSuperscript(iconGroup.modelData.count)
+                                            color: wsPill.isActive ? Theme.bgDark : Theme.accent
+                                            font.family: Theme.fontFamilySans
+                                            font.pixelSize: 18
+                                            font.weight: Font.Black
+                                            Layout.alignment: Qt.AlignTop
+                                            Layout.topMargin: -1
+                                        }
+                                    }
+                                }
+
+                                // Overflow counter (+N) if more than maxVisibleGroups unique apps exist
+                                Rectangle {
+                                    visible: wsPill.overflowCount > 0
+                                    height: 18
+                                    implicitWidth: overflowText.implicitWidth + 8
+                                    radius: 4
+                                    color: wsPill.isActive ? Qt.rgba(0, 0, 0, 0.2) : Theme.surface
+
+                                    Text {
+                                        id: overflowText
+                                        anchors.centerIn: parent
+                                        text: "+" + wsPill.overflowCount
+                                        color: wsPill.isActive ? Theme.bgDark : Theme.fgDim
+                                        font.family: Theme.fontFamilySans
+                                        font.pixelSize: 11
+                                        font.weight: Font.Bold
+                                    }
                                 }
                             }
                         }

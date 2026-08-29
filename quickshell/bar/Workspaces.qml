@@ -260,8 +260,17 @@ Item {
                                             onClicked: {
                                                 wsPill.modelData.activate();
                                                 if (iconGroup.modelData.toplevels && iconGroup.modelData.toplevels.length > 0) {
-                                                    iconGroup.modelData.toplevels[0].activate();
+                                                    var top = iconGroup.modelData.toplevels[0];
+                                                    if (top.activate) top.activate();
+                                                    var addr = (top.address)
+                                                        || (top.lastIpcObject && top.lastIpcObject.address)
+                                                        || "";
+                                                    if (addr !== "") {
+                                                        Hyprland.dispatch("focuswindow address:" + addr);
+                                                    }
                                                 }
+                                                root.isHovered = false;
+                                                root.hoveredWorkspace = null;
                                             }
                                         }
                                     }
@@ -377,9 +386,19 @@ Item {
                             if (root.activeWs) {
                                 root.activeWs.activate()
                             }
-                            if (rowItem.modelData && rowItem.modelData.activate) {
-                                rowItem.modelData.activate()
+                            if (rowItem.modelData) {
+                                if (rowItem.modelData.activate) {
+                                    rowItem.modelData.activate()
+                                }
+                                var addr = (rowItem.modelData.address)
+                                    || (rowItem.modelData.lastIpcObject && rowItem.modelData.lastIpcObject.address)
+                                    || "";
+                                if (addr !== "") {
+                                    Hyprland.dispatch("focuswindow address:" + addr)
+                                }
                             }
+                            root.isHovered = false
+                            root.hoveredWorkspace = null
                         }
                     }
                 }

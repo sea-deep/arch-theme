@@ -13,18 +13,41 @@ Components.Pill {
     
     function getAppIcon(toplevel) {
         if (!toplevel) return Quickshell.iconPath("application-x-executable")
+        
         var cls = (toplevel.lastIpcObject && toplevel.lastIpcObject.class)
             || (toplevel.wayland && toplevel.wayland.appId)
             || "";
+        var initCls = (toplevel.lastIpcObject && toplevel.lastIpcObject.initialClass) || "";
+
+        // 1. Query Quickshell's native C++ DesktopEntries heuristic lookup
+        var entry = (cls ? DesktopEntries.heuristicLookup(cls) : null)
+            || (initCls ? DesktopEntries.heuristicLookup(initCls) : null);
         
-        var lower = cls.toLowerCase();
-        if (lower.includes("zed")) return Quickshell.iconPath("zed", "dev.zed.Zed", "zed-preview");
-        if (lower.includes("zen")) return Quickshell.iconPath("zen", "zen-browser");
-        if (lower.includes("code")) return Quickshell.iconPath("visual-studio-code", "code-oss", "code");
-        if (lower.includes("kitty")) return Quickshell.iconPath("kitty", "utilities-terminal");
-        if (lower.includes("antigravity")) return Quickshell.iconPath("antigravity", "application-x-executable");
-        
-        return Quickshell.iconPath(cls, lower, "application-x-executable");
+        if (entry && entry.icon) {
+            var direct = Quickshell.iconPath(entry.icon);
+            if (direct && direct !== "") return direct;
+        }
+
+        // 2. Dynamic candidate generator (extracts reverse-domain IDs, clean names, and fallbacks)
+        var candidates = [];
+        if (entry && entry.icon) candidates.push(entry.icon);
+        if (cls) {
+            candidates.push(cls);
+            candidates.push(cls.toLowerCase());
+            var parts = cls.split(".");
+            if (parts.length > 1) {
+                var last = parts[parts.length - 1];
+                candidates.push(last);
+                candidates.push(last.toLowerCase());
+            }
+        }
+        if (initCls && initCls !== cls) {
+            candidates.push(initCls);
+            candidates.push(initCls.toLowerCase());
+        }
+        candidates.push("application-x-executable");
+
+        return Quickshell.iconPath.apply(Quickshell, candidates);
     }
 
     function getSuperscript(count) {

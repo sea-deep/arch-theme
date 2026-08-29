@@ -47,6 +47,7 @@ PanelWindow {
         Region { item: powerExpander }
         Region { item: clockExpander }
         Region { item: clipboardExpander }
+        Region { item: workspacesModule.previewPopup }
     }
 
     Item {
@@ -71,7 +72,7 @@ PanelWindow {
             }
         }
 
-        // LEFT (Workspaces + Title)
+        // LEFT (Workspaces)
         RowLayout {
             z: 1
             anchors.left: parent.left
@@ -79,7 +80,9 @@ PanelWindow {
             height: Theme.barHeight
             spacing: Theme.moduleSpacing
 
-            BarModules.Workspaces {}
+            BarModules.Workspaces {
+                id: workspacesModule
+            }
         }
 
         // CENTER (Clock + calendar expander)

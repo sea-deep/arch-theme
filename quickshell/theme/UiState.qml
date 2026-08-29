@@ -17,9 +17,9 @@ Singleton {
     }
 
     property alias caffeineEnabled: persisted.caffeineEnabled
-    property real comfortValue: 0
-    property real grayscaleValue: 0
-    property real vividValue: 0
+    property alias comfortValue: persisted.comfortValue
+    property alias grayscaleValue: persisted.grayscaleValue
+    property alias vividValue: persisted.vividValue
 
     property bool isShaderInitialized: false
 
@@ -27,6 +27,11 @@ Singleton {
         id: shaderStateFile
         path: Quickshell.env("HOME") + "/.config/quickshell/state/shaders.json"
         printErrors: false
+        onTextChanged: {
+            if (!root.isShaderInitialized) {
+                root.loadShaderState()
+            }
+        }
     }
 
     function loadShaderState() {
@@ -83,7 +88,9 @@ Singleton {
     Component.onCompleted: {
         loadShaderState()
         root.isShaderInitialized = true
-        shaderUpdateTimer.restart()
+        if (comfortValue > 0 || grayscaleValue > 0 || vividValue > 0) {
+            shaderUpdateTimer.restart()
+        }
     }
     property bool selectorVisible: false
     property bool screenshotVisible: false

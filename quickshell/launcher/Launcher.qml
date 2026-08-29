@@ -105,8 +105,19 @@ PanelWindow {
     function launch(app) {
         if (!app) return
         close()
+
+        if (app.runInTerminal) {
+            var execCmd = app.execString || (app.command ? (typeof app.command.join === "function" ? app.command.join(" ") : app.command) : app.id)
+            execCmd = execCmd.replace(/%[a-zA-Z]/g, "").trim()
+            Quickshell.execDetached(["kitty", "-e", "sh", "-c", execCmd])
+            return
+        }
+
         if (app.execute) {
             app.execute()
+        } else if (app.execString) {
+            var cmd = app.execString.replace(/%[a-zA-Z]/g, "").trim()
+            Quickshell.execDetached(["sh", "-c", cmd])
         }
     }
 

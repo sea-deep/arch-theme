@@ -117,7 +117,18 @@ Rectangle {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
-                    if (root.app && root.app.execute) root.app.execute()
+                    if (root.app) {
+                        if (root.app.runInTerminal) {
+                            var execCmd = root.app.execString || (root.app.command ? (typeof root.app.command.join === "function" ? root.app.command.join(" ") : root.app.command) : root.app.id)
+                            execCmd = execCmd.replace(/%[a-zA-Z]/g, "").trim()
+                            Quickshell.execDetached(["kitty", "-e", "sh", "-c", execCmd])
+                        } else if (root.app.execute) {
+                            root.app.execute()
+                        } else if (root.app.execString) {
+                            var cmd = root.app.execString.replace(/%[a-zA-Z]/g, "").trim()
+                            Quickshell.execDetached(["sh", "-c", cmd])
+                        }
+                    }
                     root.actionTriggered()
                 }
             }

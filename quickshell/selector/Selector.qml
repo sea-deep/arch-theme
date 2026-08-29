@@ -120,7 +120,16 @@ PanelWindow {
             return
 
         if (root.mode === "apps") {
-            entry.execute()
+            if (entry.runInTerminal) {
+                var execCmd = entry.execString || (entry.command ? (typeof entry.command.join === "function" ? entry.command.join(" ") : entry.command) : entry.id)
+                execCmd = execCmd.replace(/%[a-zA-Z]/g, "").trim()
+                Quickshell.execDetached(["kitty", "-e", "sh", "-c", execCmd])
+            } else if (entry.execute) {
+                entry.execute()
+            } else if (entry.execString) {
+                var cmd = entry.execString.replace(/%[a-zA-Z]/g, "").trim()
+                Quickshell.execDetached(["sh", "-c", cmd])
+            }
         } else if (root.mode === "emoji") {
             Quickshell.clipboardText = entry.symbol
         } else if (entry.isImage) {

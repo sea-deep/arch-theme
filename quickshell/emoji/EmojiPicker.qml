@@ -14,15 +14,11 @@ PanelWindow {
     anchors.bottom: true
     anchors.left: true
     anchors.right: true
-    WlrLayershell.layer: WlrLayer.Top
+    WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
     color: "transparent"
     visible: UiState.emojiVisible
-
-    mask: Region {
-        item: popup
-    }
 
     property int cursorX: -1
     property int cursorY: -1
@@ -258,9 +254,9 @@ PanelWindow {
 
                 delegate: Rectangle {
                     id: delegateRoot
-                    required property var modelData
                     required property int index
-                    property var emoji: modelData
+
+                    property var emoji: index < root.displayEmojis.length ? root.displayEmojis[index] : null
                     property bool isCurrent: (grid.activeFocus && grid.currentIndex === index)
 
                     width: grid.cellWidth
@@ -268,37 +264,11 @@ PanelWindow {
                     color: isCurrent ? Theme.accent : (emojiMouseArea.containsMouse ? Theme.bgLight : "transparent")
                     radius: 8
 
-                    Item {
-                        id: emojiExpDragProxy
-                        width: delegateRoot.width
-                        height: delegateRoot.height
-                        Drag.active: emojiMouseArea.drag.active
-                        Drag.dragType: Drag.Automatic
-                        Drag.supportedActions: Qt.CopyAction | Qt.MoveAction | Qt.LinkAction
-                        Drag.hotSpot.x: 16
-                        Drag.hotSpot.y: 16
-                        Drag.mimeData: {
-                            var sym = delegateRoot.emoji ? delegateRoot.emoji.char : "";
-                            return {
-                                "text/plain": sym,
-                                "text/plain;charset=utf-8": sym,
-                                "UTF8_STRING": sym
-                            };
-                        }
-                    }
-
                     MouseArea {
                         id: emojiMouseArea
                         anchors.fill: parent
                         hoverEnabled: true
-                        preventStealing: true
-                        drag.target: emojiExpDragProxy
                         cursorShape: Qt.PointingHandCursor
-                        onPressed: {
-                            delegateRoot.grabToImage(function(result) {
-                                emojiExpDragProxy.Drag.imageSource = result.url;
-                            }, Qt.size(64, 64));
-                        }
                         onClicked: {
                             grid.currentIndex = index
                             if (delegateRoot.emoji)

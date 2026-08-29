@@ -512,18 +512,6 @@ PanelWindow {
                     radius: 11
                     color: selected ? Theme.accent : (emojiMouse.containsMouse ? Theme.bgLight : "transparent")
 
-                    Item {
-                        id: emojiDragProxy
-                        width: emojiCell.width
-                        height: emojiCell.height
-                        Drag.active: emojiMouse.drag.active
-                        Drag.dragType: Drag.Automatic
-                        Drag.supportedActions: Qt.CopyAction
-                        Drag.mimeData: {
-                            return { "text/plain": emojiCell.modelData.symbol || "" };
-                        }
-                    }
-
                     ColumnLayout {
                         anchors.fill: parent
                         anchors.margins: 6
@@ -552,14 +540,7 @@ PanelWindow {
                         id: emojiMouse
                         anchors.fill: parent
                         hoverEnabled: true
-                        preventStealing: true
-                        drag.target: emojiDragProxy
                         cursorShape: Qt.PointingHandCursor
-                        onPressed: {
-                            emojiCell.grabToImage(function(result) {
-                                emojiDragProxy.Drag.imageSource = result.url;
-                            }, Qt.size(64, 64));
-                        }
                         onClicked: root.activate(emojiCell.modelData)
                     }
                 }

@@ -41,15 +41,28 @@ Item {
         }
     }
     
-    Keys.onDownPressed: listView.incrementCurrentIndex()
-    Keys.onUpPressed: listView.decrementCurrentIndex()
-    Keys.onReturnPressed: {
-        if (listView.currentIndex >= 0 && listView.currentIndex < root.filteredEntries.length) {
-            root.activate(root.filteredEntries[listView.currentIndex])
+    Keys.onPressed: (event) => {
+        if (event.key === Qt.Key_Down) {
+            if (listView.currentIndex < listView.count - 1) {
+                listView.currentIndex++
+                listView.positionViewAtIndex(listView.currentIndex, ListView.Contain)
+            }
+            event.accepted = true
+        } else if (event.key === Qt.Key_Up) {
+            if (listView.currentIndex > 0) {
+                listView.currentIndex--
+                listView.positionViewAtIndex(listView.currentIndex, ListView.Contain)
+            }
+            event.accepted = true
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+            if (listView.currentIndex >= 0 && listView.currentIndex < root.filteredEntries.length) {
+                root.activate(root.filteredEntries[listView.currentIndex])
+            }
+            event.accepted = true
+        } else if (event.key === Qt.Key_Escape) {
+            UiState.clipboardVisible = false
+            event.accepted = true
         }
-    }
-    Keys.onEscapePressed: {
-        UiState.clipboardVisible = false
     }
 
     FileView {
@@ -215,15 +228,29 @@ Item {
                             text: root.searchQuery
                             onTextChanged: root.searchQuery = text
                             
-                            Keys.onDownPressed: (event) => { listView.incrementCurrentIndex(); event.accepted = true }
-                            Keys.onUpPressed: (event) => { listView.decrementCurrentIndex(); event.accepted = true }
-                            Keys.onReturnPressed: (event) => {
-                                if (listView.currentIndex >= 0 && listView.currentIndex < root.filteredEntries.length) {
-                                    root.activate(root.filteredEntries[listView.currentIndex])
+                            Keys.onPressed: (event) => {
+                                if (event.key === Qt.Key_Down) {
+                                    if (listView.currentIndex < listView.count - 1) {
+                                        listView.currentIndex++
+                                        listView.positionViewAtIndex(listView.currentIndex, ListView.Contain)
+                                    }
+                                    event.accepted = true
+                                } else if (event.key === Qt.Key_Up) {
+                                    if (listView.currentIndex > 0) {
+                                        listView.currentIndex--
+                                        listView.positionViewAtIndex(listView.currentIndex, ListView.Contain)
+                                    }
+                                    event.accepted = true
+                                } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                                    if (listView.currentIndex >= 0 && listView.currentIndex < root.filteredEntries.length) {
+                                        root.activate(root.filteredEntries[listView.currentIndex])
+                                    }
+                                    event.accepted = true
+                                } else if (event.key === Qt.Key_Escape) {
+                                    UiState.clipboardVisible = false
+                                    event.accepted = true
                                 }
-                                event.accepted = true
                             }
-                            Keys.onEscapePressed: (event) => { UiState.clipboardVisible = false; event.accepted = true }
                         }
                     }
                 }

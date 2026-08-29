@@ -151,15 +151,15 @@ Components.Pill {
                                 spacing: 1
 
                                 Rectangle {
-                                    width: 22
-                                    height: 22
-                                    radius: 5
+                                    width: 24
+                                    height: 24
+                                    radius: 6
                                     color: iconHover.containsMouse ? (wsPill.isActive ? Qt.rgba(0, 0, 0, 0.25) : Theme.bgLight) : "transparent"
 
                                     IconImage {
                                         anchors.centerIn: parent
-                                        width: 18
-                                        height: 18
+                                        width: 20
+                                        height: 20
                                         source: iconGroup.modelData.icon
                                     }
 
@@ -183,10 +183,10 @@ Components.Pill {
                                     text: root.getSuperscript(iconGroup.modelData.count)
                                     color: wsPill.isActive ? Theme.bgDark : Theme.accent
                                     font.family: Theme.fontFamilySans
-                                    font.pixelSize: 13
-                                    font.weight: Font.Bold
+                                    font.pixelSize: 18
+                                    font.weight: Font.Black
                                     Layout.alignment: Qt.AlignTop
-                                    Layout.leftMargin: 1
+                                    Layout.topMargin: -1
                                 }
                             }
                         }

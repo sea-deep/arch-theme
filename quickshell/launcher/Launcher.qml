@@ -175,12 +175,12 @@ PanelWindow {
         // Exact width for 7 columns (7 * 120 = 840) + margins (24 * 2 = 48) = 888
         width: 888
         // Increase height to compensate for the hidden bottom border
-        height: layout.implicitHeight + layout.anchors.topMargin + 24 + Theme.borderWidth
+        height: layout.implicitHeight + layout.anchors.topMargin + 24
         
         // Mathematically anchor perfectly flush to bottom edge, hiding the bottom border
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: -Theme.borderWidth
+        anchors.bottomMargin: 3
 
         // Robust translation for animation independent of layout passes
         transform: Translate {

@@ -1,7 +1,6 @@
 pragma Singleton
 import QtQuick
 import Quickshell
-import Quickshell.Io
 import Quickshell.Services.Notifications as QSNotifications
 
 Singleton {
@@ -40,12 +39,6 @@ Singleton {
         dndEnabled = !dndEnabled
     }
 
-    Process {
-        id: soundProcess
-        command: ["bash", "-c", "paplay /usr/share/sounds/freedesktop/stereo/message.oga &"]
-        running: false
-    }
-
     QSNotifications.NotificationServer {
         id: server
         actionsSupported: true
@@ -61,11 +54,8 @@ Singleton {
             if (!notification.lastGeneration)
                 root.unreadCount++
 
-            if (!root.dndEnabled && !notification.lastGeneration) {
-                soundProcess.running = false
-                soundProcess.running = true
+            if (!root.dndEnabled && !notification.lastGeneration)
                 root.notificationReceived(notification)
-            }
         }
     }
 }

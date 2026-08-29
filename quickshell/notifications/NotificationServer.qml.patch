@@ -1,0 +1,18 @@
+--- quickshell/notifications/NotificationServer.qml
++++ quickshell/notifications/NotificationServer.qml
+@@ -35,2 +35,8 @@
+ 
++    Process {
++        id: soundProcess
++        command: ["paplay", "/usr/share/sounds/freedesktop/stereo/message.oga"]
++        running: false
++    }
++
+     QSNotifications.NotificationServer {
+@@ -47,3 +53,5 @@
+-            if (!root.dndEnabled && !notification.lastGeneration)
++            if (!root.dndEnabled && !notification.lastGeneration) {
++                soundProcess.running = true
+                 root.notificationReceived(notification)
++            }
+         }

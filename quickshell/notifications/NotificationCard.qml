@@ -6,19 +6,22 @@ import "../theme"
 
 Rectangle {
     id: root
-    required property var modelData
+    property var modelData: null
     width: parent ? parent.width : 300
     height: content.height + 20
     color: Theme.bgLight
     radius: Theme.radius - 2
     border.color: hover.hovered ? Theme.accentGlow : Theme.bgDark
     border.width: Theme.borderWidth
+    
+    // Safety check for null modelData
+    visible: modelData !== null
 
     HoverHandler { id: hover }
 
     TapHandler {
         onTapped: {
-            // Try to find a default action and invoke it, otherwise dismiss
+            if (!root.modelData) return;
             if (root.modelData.actions) {
                 for (let i = 0; i < root.modelData.actions.length; i++) {
                     if (root.modelData.actions[i].identifier === "default") {
@@ -29,7 +32,6 @@ Rectangle {
                     }
                 }
             }
-            // Fallbacks if action objects don't have .invoke()
             if (typeof root.modelData.invoke === "function") {
                 root.modelData.invoke("default");
             } else if (typeof root.modelData.invokeAction === "function") {
@@ -54,21 +56,21 @@ Rectangle {
             IconImage {
                 implicitWidth: 30
                 implicitHeight: 30
-                source: root.modelData.image !== ""
+                source: root.modelData && root.modelData.image !== ""
                     ? root.modelData.image
-                    : Quickshell.iconPath(root.modelData.appIcon, "dialog-information")
+                    : Quickshell.iconPath(root.modelData ? root.modelData.appIcon : "", "dialog-information")
             }
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 2
                 Text {
-                    text: root.modelData.appName
+                    text: root.modelData ? root.modelData.appName : ""
                     color: Theme.fgDim
                     font.pixelSize: 11
                     font.family: Theme.fontFamilySans
                 }
                 Text {
-                    text: root.modelData.summary
+                    text: root.modelData ? root.modelData.summary : ""
                     color: Theme.fg
                     font.weight: Theme.fontWeight
                     font.family: Theme.fontFamilySans
@@ -87,13 +89,15 @@ Rectangle {
                     color: Theme.fg
                 }
                 TapHandler {
-                    onTapped: NotificationServer.dismiss(root.modelData)
+                    onTapped: {
+                        if (root.modelData) NotificationServer.dismiss(root.modelData)
+                    }
                 }
             }
         }
 
         Text {
-            text: root.modelData.body
+            text: root.modelData ? root.modelData.body : ""
             textFormat: Text.StyledText
             color: Theme.fgDim
             font.family: Theme.fontFamilySans
@@ -113,12 +117,11 @@ Rectangle {
         Flow {
             Layout.fillWidth: true
             spacing: 8
-            visible: root.modelData.actions !== undefined && root.modelData.actions !== null && root.modelData.actions.length > 0
+            visible: root.modelData && root.modelData.actions !== undefined && root.modelData.actions !== null && root.modelData.actions.length > 0
             
             Repeater {
-                model: root.modelData.actions
+                model: root.modelData ? root.modelData.actions : []
                 delegate: Rectangle {
-                    // Hide default action button
                     visible: modelData.identifier !== "default"
                     width: visible ? implicitWidth : 0
                     height: visible ? implicitHeight : 0
@@ -140,6 +143,7 @@ Rectangle {
                     HoverHandler { id: hoverAction }
                     TapHandler { 
                         onTapped: {
+                            if (!root.modelData) return;
                             if (typeof modelData.invoke === "function") {
                                 modelData.invoke()
                             } else if (typeof root.modelData.invoke === "function") {

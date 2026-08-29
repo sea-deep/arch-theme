@@ -14,7 +14,7 @@ Components.Pill {
         && (UiState.clockScreen === "" || UiState.clockScreen === targetScreenName)
     readonly property int topWidth: Math.max(300,
         Math.ceil(topLayout.implicitWidth + Theme.pillPaddingHoriz * 2))
-    readonly property int bodyHeight: 284
+    readonly property int bodyHeight: 312
     readonly property date displayMonth: new Date(clock.date.getFullYear(),
         clock.date.getMonth() + monthOffset, 1)
     property real reveal: expanded ? 1 : 0
@@ -85,7 +85,7 @@ Components.Pill {
                 font.weight: Theme.fontWeight
             }
             Text {
-                text: Qt.formatDateTime(clock.date, "h:mm AP") + "   "
+                text: Qt.formatDateTime(clock.date, root.twentyFourHour ? "H:mm" : "h:mm AP") + "   "
                 color: Theme.fg
                 font.family: Theme.fontFamily
                 font.pixelSize: Theme.fontSize
@@ -135,27 +135,39 @@ Components.Pill {
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 10
-            spacing: 4
+            anchors.margins: 14
+            spacing: 14
 
             RowLayout {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 28
-                spacing: 6
+                Layout.preferredHeight: 30
+                spacing: 8
 
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    radius: 8
+                    radius: 6
                     color: UiState.clockTab === "calendar" ? Theme.accent
                         : (calendarTabHover.hovered ? Theme.surface : Theme.bgLight)
-                    Text {
+                    
+                    Row {
                         anchors.centerIn: parent
-                        text: "󰃭  Calendar"
-                        color: UiState.clockTab === "calendar" ? Theme.bgDark : Theme.fg
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 11
-                        font.weight: Theme.fontWeight
+                        spacing: 8
+                        Text {
+                            text: "󰃭"
+                            color: UiState.clockTab === "calendar" ? Theme.bgDark : Theme.fg
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 13
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Text {
+                            text: "Calendar"
+                            color: UiState.clockTab === "calendar" ? Theme.bgDark : Theme.fg
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 12
+                            font.weight: Theme.fontWeight
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
                     }
                     HoverHandler { id: calendarTabHover }
                     TapHandler { onTapped: UiState.clockTab = "calendar" }
@@ -164,200 +176,235 @@ Components.Pill {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    radius: 8
+                    radius: 6
                     color: UiState.clockTab === "time" ? Theme.accent
                         : (timeTabHover.hovered ? Theme.surface : Theme.bgLight)
-                    Text {
+                    
+                    Row {
                         anchors.centerIn: parent
-                        text: "󰥔  Time"
-                        color: UiState.clockTab === "time" ? Theme.bgDark : Theme.fg
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 11
-                        font.weight: Theme.fontWeight
+                        spacing: 8
+                        Text {
+                            text: "󰥔"
+                            color: UiState.clockTab === "time" ? Theme.bgDark : Theme.fg
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 13
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Text {
+                            text: "Time"
+                            color: UiState.clockTab === "time" ? Theme.bgDark : Theme.fg
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 12
+                            font.weight: Theme.fontWeight
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
                     }
                     HoverHandler { id: timeTabHover }
                     TapHandler { onTapped: UiState.clockTab = "time" }
                 }
             }
 
-            RowLayout {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 30
-                visible: UiState.clockTab === "calendar"
-                spacing: 6
-
-                Rectangle {
-                    Layout.preferredWidth: 28
-                    Layout.preferredHeight: 28
-                    radius: 8
-                    color: previousHover.hovered ? Theme.accent : Theme.bgLight
-                    Text {
-                        anchors.centerIn: parent
-                        text: "󰁍"
-                        color: previousHover.hovered ? Theme.bgDark : Theme.fg
-                        font.family: Theme.fontFamily
-                    }
-                    HoverHandler { id: previousHover }
-                    TapHandler { onTapped: root.monthOffset-- }
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignHCenter
-                    text: Qt.formatDate(root.displayMonth, "MMMM yyyy")
-                    color: Theme.fg
-                    font.family: Theme.fontFamilySans
-                    font.pixelSize: 14
-                    font.weight: Theme.fontWeight
-                }
-
-                Rectangle {
-                    Layout.preferredWidth: 28
-                    Layout.preferredHeight: 28
-                    radius: 8
-                    color: nextHover.hovered ? Theme.accent : Theme.bgLight
-                    Text {
-                        anchors.centerIn: parent
-                        text: "󰅂"
-                        color: nextHover.hovered ? Theme.bgDark : Theme.fg
-                        font.family: Theme.fontFamily
-                    }
-                    HoverHandler { id: nextHover }
-                    TapHandler { onTapped: root.monthOffset++ }
-                }
-            }
-
-            Grid {
-                id: weekdayGrid
-                Layout.fillWidth: true
-                Layout.preferredHeight: 18
-                visible: UiState.clockTab === "calendar"
-                columns: 7
-
-                Repeater {
-                    model: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
-                    Text {
-                        required property string modelData
-                        width: weekdayGrid.width / 7
-                        height: weekdayGrid.height
-                        text: modelData
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                        color: Theme.fgDim
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 10
-                        font.weight: Theme.fontWeight
-                    }
-                }
-            }
-
-            Grid {
-                id: dayGrid
+            Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                visible: UiState.clockTab === "calendar"
-                columns: 7
-                columnSpacing: 4
-                rowSpacing: 4
 
-                Repeater {
-                    model: 42
+                Item {
+                    anchors.fill: parent
+                    visible: UiState.clockTab === "calendar"
 
-                    Rectangle {
-                        id: dayCell
-                        required property int index
-                        readonly property date dayDate: root.cellDate(index)
-                        readonly property bool inMonth: dayDate.getMonth() === root.displayMonth.getMonth()
-                            && dayDate.getFullYear() === root.displayMonth.getFullYear()
-                        readonly property bool isToday: root.sameDay(dayDate, clock.date)
-                        width: (dayGrid.width - dayGrid.columnSpacing * 6) / 7
-                        height: (dayGrid.height - dayGrid.rowSpacing * 5) / 6
-                        radius: 7
-                        color: isToday ? Theme.accent
-                            : (dayHover.hovered ? Theme.surface : "transparent")
+                    ColumnLayout {
+                        anchors.fill: parent
+                        spacing: 12
 
-                        Text {
-                            anchors.centerIn: parent
-                            text: dayCell.dayDate.getDate()
-                            color: dayCell.isToday ? Theme.bgDark
-                                : (dayCell.inMonth ? Theme.fg : Theme.fgMuted)
-                            opacity: dayCell.inMonth || dayCell.isToday ? 1 : 0.55
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 11
-                            font.weight: dayCell.isToday ? Font.Bold : Font.Medium
-                        }
+                        Item {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 26
 
-                        HoverHandler { id: dayHover }
-                        TapHandler {
-                            onTapped: {
-                                if (dayCell.dayDate < root.displayMonth)
-                                    root.monthOffset--
-                                else if (!dayCell.inMonth)
-                                    root.monthOffset++
+                            Rectangle {
+                                anchors.left: parent.left
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: 26
+                                height: 26
+                                radius: 6
+                                color: previousHover.hovered ? Theme.accent : Theme.bgLight
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "󰁍"
+                                    color: previousHover.hovered ? Theme.bgDark : Theme.fg
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 14
+                                }
+                                HoverHandler { id: previousHover }
+                                TapHandler { onTapped: root.monthOffset-- }
+                            }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: Qt.formatDate(root.displayMonth, "MMMM yyyy")
+                                color: Theme.fg
+                                font.family: Theme.fontFamilySans
+                                font.pixelSize: 14
+                                font.weight: Theme.fontWeight
+                            }
+
+                            Rectangle {
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: 26
+                                height: 26
+                                radius: 6
+                                color: nextHover.hovered ? Theme.accent : Theme.bgLight
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "󰅂"
+                                    color: nextHover.hovered ? Theme.bgDark : Theme.fg
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 14
+                                }
+                                HoverHandler { id: nextHover }
+                                TapHandler { onTapped: root.monthOffset++ }
                             }
                         }
+
+                        Grid {
+                            id: weekdayGrid
+                            Layout.alignment: Qt.AlignHCenter
+                            columns: 7
+                            columnSpacing: 6
+                            
+                            Repeater {
+                                model: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+                                Item {
+                                    width: 28
+                                    height: 18
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: modelData
+                                        color: Theme.fgDim
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: 11
+                                        font.weight: Theme.fontWeight
+                                    }
+                                }
+                            }
+                        }
+
+                        Grid {
+                            id: dayGrid
+                            Layout.alignment: Qt.AlignHCenter
+                            columns: 7
+                            columnSpacing: 6
+                            rowSpacing: 6
+
+                            Repeater {
+                                model: 42
+
+                                Item {
+                                    id: dayCellWrapper
+                                    required property int index
+                                    width: 28
+                                    height: 28
+
+                                    Rectangle {
+                                        id: dayCell
+                                        readonly property date dayDate: root.cellDate(dayCellWrapper.index)
+                                        readonly property bool inMonth: dayDate.getMonth() === root.displayMonth.getMonth()
+                                            && dayDate.getFullYear() === root.displayMonth.getFullYear()
+                                        readonly property bool isToday: root.sameDay(dayDate, clock.date)
+                                        
+                                        anchors.centerIn: parent
+                                        width: 24
+                                        height: 24
+                                        radius: 6
+                                        color: isToday ? Theme.accent
+                                            : (dayHover.hovered ? Theme.surface : "transparent")
+
+                                        Text {
+                                            anchors.centerIn: parent
+                                            text: dayCell.dayDate.getDate()
+                                            color: dayCell.isToday ? Theme.bgDark
+                                                : (dayCell.inMonth ? Theme.fg : Theme.fgMuted)
+                                            opacity: dayCell.inMonth || dayCell.isToday ? 1 : 0.3
+                                            font.family: Theme.fontFamily
+                                            font.pixelSize: 11
+                                            font.weight: dayCell.isToday ? Font.Bold : Font.Medium
+                                        }
+
+                                        HoverHandler { id: dayHover }
+                                        TapHandler {
+                                            onTapped: {
+                                                if (dayCell.dayDate < root.displayMonth)
+                                                    root.monthOffset--
+                                                else if (!dayCell.inMonth)
+                                                    root.monthOffset++
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        Item { Layout.fillHeight: true }
                     }
                 }
-            }
 
-            ColumnLayout {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                visible: UiState.clockTab === "time"
-                spacing: 10
+                Item {
+                    anchors.fill: parent
+                    visible: UiState.clockTab === "time"
 
-                Item { Layout.fillHeight: true }
-
-                Text {
-                    Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignHCenter
-                    text: Qt.formatDateTime(clock.date,
-                        root.twentyFourHour ? "HH:mm:ss" : "hh:mm:ss AP")
-                    color: Theme.fg
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 28
-                    font.weight: Font.Bold
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignHCenter
-                    text: Qt.formatDateTime(clock.date, "dddd, MMMM d, yyyy")
-                    color: Theme.fgDim
-                    font.family: Theme.fontFamilySans
-                    font.pixelSize: 13
-                    font.weight: Theme.fontWeight
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignHCenter
-                    text: Qt.formatDateTime(clock.date, "t")
-                    color: Theme.purple
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 11
-                }
-
-                Rectangle {
-                    Layout.alignment: Qt.AlignHCenter
-                    Layout.preferredWidth: 164
-                    Layout.preferredHeight: 32
-                    radius: 8
-                    color: timeFormatHover.hovered ? Theme.accent : Theme.bgLight
-
-                    Text {
+                    ColumnLayout {
                         anchors.centerIn: parent
-                        text: root.twentyFourHour ? "Use 12-hour clock" : "Use 24-hour clock"
-                        color: timeFormatHover.hovered ? Theme.bgDark : Theme.fg
-                        font.family: Theme.fontFamilySans
-                        font.pixelSize: 11
-                        font.weight: Theme.fontWeight
-                    }
-                    HoverHandler { id: timeFormatHover }
-                    TapHandler { onTapped: root.twentyFourHour = !root.twentyFourHour }
-                }
+                        width: parent.width
+                        spacing: 8
 
-                Item { Layout.fillHeight: true }
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: Qt.formatDateTime(clock.date, root.twentyFourHour ? "H:mm:ss" : "h:mm:ss AP")
+                            color: Theme.fg
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 24
+                            font.weight: Font.Bold
+                        }
+
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: Qt.formatDateTime(clock.date, "dddd, MMMM d, yyyy")
+                            color: Theme.fgDim
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 13
+                            font.weight: Theme.fontWeight
+                        }
+
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: Qt.formatDateTime(clock.date, "t")
+                            color: Theme.purple
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 11
+                        }
+                        
+                        Item { Layout.preferredHeight: 6 }
+
+                        Rectangle {
+                            Layout.alignment: Qt.AlignHCenter
+                            Layout.preferredWidth: 140
+                            Layout.preferredHeight: 26
+                            radius: 6
+                            color: timeFormatHover.hovered ? Theme.accent : Theme.bgLight
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: root.twentyFourHour ? "Use 12-hour clock" : "Use 24-hour clock"
+                                color: timeFormatHover.hovered ? Theme.bgDark : Theme.fg
+                                font.family: Theme.fontFamilySans
+                                font.pixelSize: 11
+                                font.weight: Theme.fontWeight
+                            }
+                            HoverHandler { id: timeFormatHover }
+                            TapHandler { onTapped: root.twentyFourHour = !root.twentyFourHour }
+                        }
+                    }
+                }
             }
         }
     }

@@ -126,11 +126,11 @@ UseSystemBell=true
 XftAntialias=true
 XftHintStyle=hintfull
 XftSubPixel=rgb
-fixed=FiraCode Nerd Font,10,-1,5,50,0,0,0,0,0
-font=IBM Plex Sans,10,-1,5,50,0,0,0,0,0
-menuFont=IBM Plex Sans,10,-1,5,50,0,0,0,0,0
-smallestReadableFont=IBM Plex Sans,8,-1,5,50,0,0,0,0,0
-toolBarFont=IBM Plex Sans,10,-1,5,50,0,0,0,0,0
+fixed=FiraCode Nerd Font,10,-1,5,63,0,0,0,0,0
+font=IBM Plex Sans,10,-1,5,63,0,0,0,0,0
+menuFont=IBM Plex Sans,10,-1,5,63,0,0,0,0,0
+smallestReadableFont=IBM Plex Sans,8,-1,5,63,0,0,0,0,0
+toolBarFont=IBM Plex Sans,10,-1,5,63,0,0,0,0,0
 
 [Icons]
 Theme=TokyoNight-SE

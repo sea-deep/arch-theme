@@ -396,6 +396,7 @@ Item {
                                 color: Theme.fg
                                 font.family: Theme.fontFamilySans
                                 font.pixelSize: 13
+                                font.weight: Theme.fontWeight
                                 wrapMode: Text.Wrap
                                 elide: Text.ElideRight
                                 maximumLineCount: modelData.isImage ? 2 : 1
@@ -408,6 +409,7 @@ Item {
                                 color: Theme.fgDim
                                 font.family: Theme.fontFamilySans
                                 font.pixelSize: 11
+                                font.weight: Theme.fontWeight
                             }
                         }
                     }

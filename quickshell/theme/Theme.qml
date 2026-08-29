@@ -32,7 +32,8 @@ QtObject {
     readonly property int    fontSizeSmall:  11
     readonly property int    fontSize:       14
     readonly property int    fontSizeLarge:  16
-    readonly property int    fontWeight:     600
+    readonly property int    fontWeight:     Font.DemiBold
+    readonly property int    fontWeightBold: Font.Bold
 
     // Geometry
     readonly property int    barHeight:          34

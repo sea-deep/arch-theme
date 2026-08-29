@@ -43,9 +43,10 @@ PanelWindow {
             x: 0
             y: 0
             width: root.width
-            height: (root.overlayExpanded && !clipboardExpander.isDragging) ? root.height : Theme.barHeight
+            height: Theme.barHeight
         }
-        // Retain each pill's animated geometry while it closes or during drag.
+        // Keep the layer surface out of client-window space so native Wayland
+        // drag focus and drops always reach the application underneath.
         Region { item: hardwarePill }
         Region { item: trayExpander }
         Region { item: networkExpander }

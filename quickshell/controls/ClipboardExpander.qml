@@ -311,6 +311,7 @@ Item {
 
                 delegate: Rectangle {
                     id: expRow
+                    property bool nativeDragStarted: false
                     width: listView.width
                     height: modelData.isImage ? 90 : 56
                     radius: Theme.radius - 2
@@ -324,11 +325,13 @@ Item {
                         height: expRow.height
                         Drag.active: itemMouse.drag.active
                         Drag.dragType: Drag.Automatic
-                        // Clipboard entries are copied, never moved. Advertising
-                        // Move makes Qt propose it first, which causes copy-only
-                        // targets such as editors and browsers to reject the drag.
-                        Drag.supportedActions: Qt.CopyAction
+                        Drag.supportedActions: Qt.CopyAction | Qt.MoveAction | Qt.LinkAction
                         Drag.proposedAction: Qt.CopyAction
+                        Drag.onDragStarted: expRow.nativeDragStarted = true
+                        Drag.onDragFinished: {
+                            expRow.nativeDragStarted = false
+                            root.isDragging = false
+                        }
                         Drag.hotSpot.x: 24
                         Drag.hotSpot.y: 24
                         Drag.imageSource: modelData.isImage ? ("file://" + modelData.filePath) : ""
@@ -417,13 +420,22 @@ Item {
                         drag.target: expDragProxy
                         cursorShape: Qt.PointingHandCursor
                         onPressed: {
+                            expRow.nativeDragStarted = false
                             root.isDragging = true
                             expRow.grabToImage(function(result) {
                                 expDragProxy.Drag.imageSource = result.url;
                             }, Qt.size(160, 48));
                         }
-                        onReleased: root.isDragging = false
-                        onCanceled: root.isDragging = false
+                        // Keep the focus-change guard active until Qt finishes the
+                        // native operation, including delivery of the final drop.
+                        onReleased: {
+                            if (!expRow.nativeDragStarted)
+                                root.isDragging = false
+                        }
+                        onCanceled: {
+                            if (!expRow.nativeDragStarted)
+                                root.isDragging = false
+                        }
                         onClicked: root.activate(modelData)
                     }
                 }

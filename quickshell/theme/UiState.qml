@@ -20,20 +20,46 @@ Singleton {
     property alias grayscaleValue: persisted.grayscaleValue
     property alias vividValue: persisted.vividValue
 
+    property bool isShaderInitialized: false
+
+    FileView {
+        id: shaderStateFile
+        path: Quickshell.env("HOME") + "/.config/quickshell/state/shaders.json"
+        watchChanges: true
+        printErrors: false
+        onFileChanged: root.loadShaderState()
+    }
+
+    function loadShaderState() {
+        var text = shaderStateFile.text()
+        if (!text || text.trim() === "") return
+        try {
+            var data = JSON.parse(text)
+            if (data.comfort !== undefined) root.comfortValue = Number(data.comfort)
+            if (data.grayscale !== undefined) root.grayscaleValue = Number(data.grayscale)
+            if (data.vivid !== undefined) root.vividValue = Number(data.vivid)
+            root.isShaderInitialized = true
+        } catch(e) {}
+    }
+
     Timer {
         id: shaderUpdateTimer
-        interval: 32
+        interval: 40
         repeat: false
         onTriggered: {
+            if (!root.isShaderInitialized) return
             Quickshell.execDetached(["bash", "-c", "$HOME/.config/quickshell/scripts/update_shader.sh set_all " + Math.round(comfortValue) + " " + Math.round(grayscaleValue) + " " + Math.round(vividValue)])
         }
     }
 
-    onComfortValueChanged: shaderUpdateTimer.restart()
-    onGrayscaleValueChanged: shaderUpdateTimer.restart()
-    onVividValueChanged: shaderUpdateTimer.restart()
+    onComfortValueChanged: if (isShaderInitialized) shaderUpdateTimer.restart()
+    onGrayscaleValueChanged: if (isShaderInitialized) shaderUpdateTimer.restart()
+    onVividValueChanged: if (isShaderInitialized) shaderUpdateTimer.restart()
 
-    Component.onCompleted: shaderUpdateTimer.start()
+    Component.onCompleted: {
+        loadShaderState()
+        root.isShaderInitialized = true
+    }
     property bool selectorVisible: false
     property bool screenshotVisible: false
     property bool recorderMenuVisible: false

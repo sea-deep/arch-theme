@@ -196,7 +196,6 @@ Item {
     }
 
     Keys.onEscapePressed: root.close()
-    Shortcut { sequence: "Escape"; onActivated: root.close() }
 
     QsMenuOpener {
         id: menuOpener

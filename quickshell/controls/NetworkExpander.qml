@@ -149,7 +149,6 @@ Item {
     }
 
     Keys.onEscapePressed: root.handleEscape()
-    Shortcut { sequence: "Escape"; onActivated: root.handleEscape() }
 
     Components.ConnectedDropdownSurface {
         anchors.fill: parent

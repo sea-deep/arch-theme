@@ -10,11 +10,6 @@ import "controls" as Controls
 PanelWindow {
     WlrLayershell.namespace: "quickshell"
     id: root
-    Shortcut {
-        sequence: "Escape"
-        onActivated: UiState.closeOverlays()
-        context: Qt.WindowShortcut
-    }
     required property var modelData
     screen: modelData
     readonly property bool overlayExpanded: hardwarePill.expanded || trayExpander.expanded || networkExpander.expanded || notificationExpander.expanded || powerExpander.expanded || clockExpander.expanded
@@ -61,6 +56,7 @@ PanelWindow {
 
     Item {
         id: barContent
+        Keys.onEscapePressed: UiState.closeOverlays()
         anchors.fill: parent
 
         MouseArea {

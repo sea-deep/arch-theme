@@ -64,7 +64,6 @@ Components.Pill {
             event.accepted = true
         }
     }
-    Shortcut { sequence: "Escape"; onActivated: UiState.clockMenuVisible = false }
 
     Item {
         id: topButton

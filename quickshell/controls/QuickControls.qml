@@ -49,7 +49,6 @@ Components.Pill {
     }
 
     Keys.onEscapePressed: UiState.quickControlVisible = false
-    Shortcut { sequence: "Escape"; onActivated: UiState.quickControlVisible = false }
 
     PwObjectTracker { objects: [root.sink, root.source].concat(root.audioStreams) }
 

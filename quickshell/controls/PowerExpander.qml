@@ -51,7 +51,6 @@ Item {
             event.accepted = true
         }
     }
-    Shortcut { sequence: "Escape"; onActivated: UiState.powerMenuVisible = false }
 
     Process { id: actionProcess }
 

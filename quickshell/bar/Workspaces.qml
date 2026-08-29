@@ -6,40 +6,31 @@ import Quickshell.Widgets
 import "../theme"
 import "../components" as Components
 
-Item {
+Components.Pill {
     id: root
     
-    implicitWidth: mainPill.implicitWidth
-    implicitHeight: Theme.barHeight
+    property var hoveredWorkspace: null
     
-    property var previewWorkspace: null
-    property real popupReveal: previewVisible ? 1 : 0
-    readonly property bool previewVisible: previewWorkspace !== null
-        && (previewWorkspace.toplevels ? previewWorkspace.toplevels.values.length > 0 : false)
+    // Target workspace to display in the pull-down body: hovered workspace, or current active workspace
+    readonly property var currentTargetWorkspace: hoveredWorkspace
+        || (Hyprland.focusedWorkspace && Hyprland.focusedWorkspace.toplevels && Hyprland.focusedWorkspace.toplevels.values.length > 0 ? Hyprland.focusedWorkspace : null)
     
-    readonly property alias previewPopup: dropdownCard
-
-    Behavior on popupReveal {
-        NumberAnimation { duration: 160; easing.type: Easing.OutQuart }
-    }
-
-    Timer {
-        id: closeTimer
-        interval: 220
-        onTriggered: {
-            if (!dropdownHover.containsMouse && !layoutHover.containsMouse) {
-                root.previewWorkspace = null
-            }
-        }
-    }
-
-    function scheduleClose() {
-        closeTimer.restart()
-    }
-
-    function cancelClose() {
-        closeTimer.stop()
-    }
+    readonly property var windowList: currentTargetWorkspace && currentTargetWorkspace.toplevels
+        ? currentTargetWorkspace.toplevels.values
+        : []
+    
+    readonly property bool isExpanded: pillMouse.containsMouse && windowList.length > 0
+    property real reveal: isExpanded ? 1 : 0
+    readonly property int bodyHeight: Math.min(260, windowList.length * 34 + 8)
+    
+    implicitWidth: Math.max(layout.implicitWidth + 14, reveal > 0 ? Math.min(360, Math.max(260, titleColumn.implicitWidth + 24)) : 0)
+    implicitHeight: Theme.barHeight + (reveal * bodyHeight)
+    clip: true
+    
+    Behavior on reveal { NumberAnimation { duration: 120; easing.type: Easing.OutQuart } }
+    Behavior on implicitWidth { NumberAnimation { duration: 130; easing.type: Easing.OutQuart } }
+    
+    border.color: isExpanded || reveal > 0 ? Theme.accentGlow : (pillMouse.containsMouse ? Theme.accentGlow : Theme.bgDark)
 
     function getAppIcon(toplevel) {
         if (!toplevel) return Quickshell.iconPath("application-x-executable")
@@ -110,25 +101,27 @@ Item {
         return list;
     }
 
-    // Main Workspaces Pill
-    Components.Pill {
-        id: mainPill
-        anchors.left: parent.left
-        anchors.top: parent.top
-        implicitWidth: layout.implicitWidth + 10
+    MouseArea {
+        id: pillMouse
+        anchors.fill: parent
+        hoverEnabled: true
+        acceptedButtons: Qt.NoButton
+        onExited: root.hoveredWorkspace = null
+    }
 
-        MouseArea {
-            id: layoutHover
-            anchors.fill: parent
-            hoverEnabled: true
-            acceptedButtons: Qt.NoButton
-            onEntered: root.cancelClose()
-            onExited: root.scheduleClose()
-        }
+    // TOP BAR SECTION (Workspaces numbers + App icons)
+    Item {
+        id: topSection
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: Theme.barHeight
 
         RowLayout {
             id: layout
-            anchors.centerIn: parent
+            anchors.left: parent.left
+            anchors.leftMargin: 4
+            anchors.verticalCenter: parent.verticalCenter
             spacing: 4
             
             Repeater {
@@ -165,17 +158,8 @@ Item {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         hoverEnabled: true
-                        onEntered: {
-                            root.cancelClose()
-                            root.previewWorkspace = wsPill.modelData
-                        }
-                        onExited: {
-                            root.scheduleClose()
-                        }
-                        onClicked: {
-                            wsPill.modelData.activate()
-                            root.previewWorkspace = null
-                        }
+                        onEntered: root.hoveredWorkspace = wsPill.modelData
+                        onClicked: wsPill.modelData.activate()
                     }
 
                     RowLayout {
@@ -224,17 +208,12 @@ Item {
                                             anchors.fill: parent
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
-                                            onEntered: {
-                                                root.cancelClose()
-                                                root.previewWorkspace = wsPill.modelData
-                                            }
-                                            onExited: root.scheduleClose()
+                                            onEntered: root.hoveredWorkspace = wsPill.modelData
                                             onClicked: {
                                                 wsPill.modelData.activate();
                                                 if (iconGroup.modelData.toplevels && iconGroup.modelData.toplevels.length > 0) {
                                                     iconGroup.modelData.toplevels[0].activate();
                                                 }
-                                                root.previewWorkspace = null
                                             }
                                         }
                                     }
@@ -278,157 +257,79 @@ Item {
         }
     }
 
-    // Pull-down Workspace Title Bar Preview Card
-    Rectangle {
-        id: dropdownCard
-        z: 999
+    // EXPANDABLE PULL-DOWN BODY (Clean list of window titles in current/hovered workspace)
+    Item {
+        id: expandableBody
+        anchors.top: topSection.bottom
         anchors.left: parent.left
-        y: Theme.barHeight + 6 + (1 - root.popupReveal) * -8
-        opacity: root.popupReveal
-        visible: root.popupReveal > 0
-
-        implicitWidth: Math.min(420, Math.max(280, cardContent.implicitWidth + 24))
-        implicitHeight: cardContent.implicitHeight + 20
-
-        color: Theme.bg
-        radius: Theme.radius
-        border.width: 1
-        border.color: Theme.accentGlow
-
-        MouseArea {
-            id: dropdownHover
-            anchors.fill: parent
-            hoverEnabled: true
-            onEntered: root.cancelClose()
-            onExited: root.scheduleClose()
-        }
-
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        visible: root.reveal > 0
+        opacity: root.reveal
+        
         ColumnLayout {
-            id: cardContent
+            id: titleColumn
             anchors.fill: parent
-            anchors.margins: 10
-            spacing: 6
+            anchors.margins: 6
+            spacing: 3
 
-            // Header: Workspace Title Badge
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 8
+            Repeater {
+                model: root.windowList
 
                 Rectangle {
-                    width: 20
-                    height: 20
-                    radius: 5
-                    color: Theme.accent
+                    id: rowItem
+                    required property var modelData
+                    Layout.fillWidth: true
+                    implicitHeight: 30
+                    radius: 6
+                    color: rowHover.containsMouse
+                        ? Theme.surface
+                        : (rowItem.modelData.activated ? Theme.bgLight : "transparent")
 
-                    Text {
-                        anchors.centerIn: parent
-                        text: root.previewWorkspace ? root.previewWorkspace.name : ""
-                        color: Theme.bgDark
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 11
-                        font.weight: Font.Bold
-                    }
-                }
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: 6
+                        anchors.rightMargin: 6
+                        spacing: 8
 
-                Text {
-                    text: root.previewWorkspace
-                        ? ("Workspace " + root.previewWorkspace.name + "  ·  " + (root.previewWorkspace.toplevels ? root.previewWorkspace.toplevels.values.length : 0) + " open")
-                        : ""
-                    color: Theme.fgDim
-                    font.family: Theme.fontFamilySans
-                    font.pixelSize: 12
-                    font.weight: Theme.fontWeight
-                }
-
-                Item { Layout.fillWidth: true }
-            }
-
-            // Window list
-            ColumnLayout {
-                Layout.fillWidth: true
-                spacing: 4
-
-                Repeater {
-                    model: root.previewWorkspace && root.previewWorkspace.toplevels
-                        ? root.previewWorkspace.toplevels.values
-                        : []
-
-                    Rectangle {
-                        id: windowRow
-                        required property var modelData
-                        Layout.fillWidth: true
-                        implicitHeight: 38
-                        radius: 8
-                        color: rowMouse.containsMouse
-                            ? Theme.surface
-                            : (windowRow.modelData.activated ? Theme.bgLight : "transparent")
-                        border.width: windowRow.modelData.activated ? 1 : 0
-                        border.color: Theme.accentGlow
-
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.leftMargin: 8
-                            anchors.rightMargin: 8
-                            spacing: 10
-
-                            // App Icon
-                            IconImage {
-                                width: 22
-                                height: 22
-                                Layout.alignment: Qt.AlignVCenter
-                                source: root.getAppIcon(windowRow.modelData)
-                            }
-
-                            // Window Title & App Class
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 1
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: windowRow.modelData.title || windowRow.modelData.lastIpcObject.class || "(Untitled Window)"
-                                    color: windowRow.modelData.activated ? Theme.accent : Theme.fg
-                                    font.family: Theme.fontFamilySans
-                                    font.pixelSize: 12
-                                    font.weight: windowRow.modelData.activated ? Font.Bold : Theme.fontWeight
-                                    elide: Text.ElideRight
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: (windowRow.modelData.lastIpcObject && windowRow.modelData.lastIpcObject.class) || ""
-                                    color: Theme.fgMuted
-                                    font.family: Theme.fontFamilySans
-                                    font.pixelSize: 10
-                                    elide: Text.ElideRight
-                                    visible: text !== ""
-                                }
-                            }
-
-                            // Active focus indicator dot
-                            Rectangle {
-                                width: 6
-                                height: 6
-                                radius: 3
-                                color: Theme.accent
-                                visible: windowRow.modelData.activated
-                                Layout.alignment: Qt.AlignVCenter
-                            }
+                        IconImage {
+                            width: 18
+                            height: 18
+                            Layout.alignment: Qt.AlignVCenter
+                            source: root.getAppIcon(rowItem.modelData)
                         }
 
-                        MouseArea {
-                            id: rowMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                if (root.previewWorkspace) {
-                                    root.previewWorkspace.activate()
-                                }
-                                if (windowRow.modelData && windowRow.modelData.activate) {
-                                    windowRow.modelData.activate()
-                                }
-                                root.previewWorkspace = null
+                        Text {
+                            Layout.fillWidth: true
+                            text: rowItem.modelData.title || (rowItem.modelData.lastIpcObject && rowItem.modelData.lastIpcObject.class) || "(Window)"
+                            color: rowItem.modelData.activated ? Theme.accent : Theme.fg
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 12
+                            font.weight: rowItem.modelData.activated ? Font.Bold : Theme.fontWeight
+                            elide: Text.ElideRight
+                        }
+
+                        Rectangle {
+                            width: 6
+                            height: 6
+                            radius: 3
+                            color: Theme.accent
+                            visible: rowItem.modelData.activated
+                            Layout.alignment: Qt.AlignVCenter
+                        }
+                    }
+
+                    MouseArea {
+                        id: rowHover
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            if (root.currentTargetWorkspace) {
+                                root.currentTargetWorkspace.activate()
+                            }
+                            if (rowItem.modelData && rowItem.modelData.activate) {
+                                rowItem.modelData.activate()
                             }
                         }
                     }

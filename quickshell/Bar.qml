@@ -47,7 +47,7 @@ PanelWindow {
         Region { item: powerExpander }
         Region { item: clockExpander }
         Region { item: clipboardExpander }
-        Region { item: workspacesModule.previewPopup }
+        Region { item: workspacesModule }
     }
 
     Item {

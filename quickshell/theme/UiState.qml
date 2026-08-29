@@ -59,10 +59,21 @@ Singleton {
     property bool networkVisible: false
     property string networkScreen: ""
     property bool emojiVisible: false
+    property bool launcherVisible: false
     property bool clipboardVisible: false
     property string clipboardScreen: ""
 
+    function toggleLauncher() {
+        const shouldOpen = !launcherVisible
+        closeOverlays()
+        launcherVisible = shouldOpen
+    }
+
     function toggleSelector(mode) {
+        if (mode === "apps") {
+            toggleLauncher()
+            return
+        }
         if (selectorVisible && selectorMode === mode) {
             selectorVisible = false
             return
@@ -173,6 +184,7 @@ Singleton {
     }
 
     function closeOverlays() {
+        launcherVisible = false
         clipboardVisible = false
         emojiVisible = false
         selectorVisible = false

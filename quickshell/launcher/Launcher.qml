@@ -3,101 +3,516 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
-import Quickshell.Io
+import Quickshell.Widgets
 import "../theme"
 
 PanelWindow {
-    WlrLayershell.namespace: "quickshell"
+    WlrLayershell.namespace: "quickshell-launcher"
     id: root
+
     anchors.top: true
     anchors.bottom: true
     anchors.left: true
     anchors.right: true
     WlrLayershell.layer: WlrLayer.Overlay
-    color: Qt.rgba(26/255, 27/255, 38/255, 0.7)
-    
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+
+    color: "transparent"
     visible: UiState.launcherVisible
 
-    onVisibleChanged: {
-        if (visible) {
-            searchInput.forceActiveFocus()
-            searchInput.text = ""
+    property string searchQuery: ""
+    property string activeCategory: "All"
+    property var filteredApps: []
+    property var allApps: []
+
+    readonly property var categoryList: [
+        { id: "All", label: "All", icon: "󰀻" },
+        { id: "Development", label: "Development", icon: "" },
+        { id: "Network", label: "Internet", icon: "󰖟" },
+        { id: "AudioVideo", label: "Multimedia", icon: "󰎈" },
+        { id: "Utility", label: "Utilities", icon: "󰛄" },
+        { id: "System", label: "System", icon: "󰒓" },
+        { id: "Settings", label: "Settings", icon: "" },
+        { id: "Game", label: "Games", icon: "󰊗" }
+    ]
+
+    function reloadApps() {
+        var raw = DesktopEntries.applications.values || []
+        var valid = []
+        for (var i = 0; i < raw.length; i++) {
+            var app = raw[i]
+            if (app && !app.noDisplay && app.name) {
+                valid.push(app)
+            }
+        }
+        // Sort alphabetically by name
+        valid.sort(function(a, b) {
+            return (a.name || "").localeCompare(b.name || "")
+        })
+        allApps = valid
+        filterApps()
+    }
+
+    function filterApps() {
+        var query = root.searchQuery.trim().toLowerCase()
+        var cat = root.activeCategory
+        var result = []
+
+        for (var i = 0; i < allApps.length; i++) {
+            var app = allApps[i]
+
+            // Category check
+            if (cat !== "All") {
+                var cats = app.categories || []
+                var matchCat = false
+                for (var c = 0; c < cats.length; c++) {
+                    if (cats[c].toLowerCase().indexOf(cat.toLowerCase()) !== -1) {
+                        matchCat = true
+                        break
+                    }
+                }
+                if (!matchCat) continue
+            }
+
+            // Search query check
+            if (query !== "") {
+                var nameMatch = (app.name || "").toLowerCase().indexOf(query) !== -1
+                var commentMatch = (app.comment || "").toLowerCase().indexOf(query) !== -1
+                var genMatch = (app.genericName || "").toLowerCase().indexOf(query) !== -1
+                var keyMatch = false
+                var keywords = app.keywords || []
+                for (var k = 0; k < keywords.length; k++) {
+                    if (keywords[k].toLowerCase().indexOf(query) !== -1) {
+                        keyMatch = true
+                        break
+                    }
+                }
+
+                if (!nameMatch && !commentMatch && !genMatch && !keyMatch) {
+                    continue
+                }
+            }
+
+            result.push(app)
+        }
+
+        root.filteredApps = result
+        if (grid.currentIndex >= result.length) {
+            grid.currentIndex = Math.max(0, result.length - 1)
         }
     }
 
-    TapHandler {
-        onTapped: UiState.launcherVisible = false
+    function launch(app) {
+        if (!app) return
+        close()
+        if (app.execute) {
+            app.execute()
+        }
     }
 
+    function close() {
+        contextMenu.visible = false
+        UiState.launcherVisible = false
+    }
+
+    function openContextMenu(app, targetItem) {
+        contextMenu.app = app
+        var pos = targetItem.mapToItem(launcherCard, 0, 0)
+        var menuX = pos.x + targetItem.width + 8
+        var menuY = pos.y
+
+        // Bounds check inside launcherCard
+        if (menuX + contextMenu.width > launcherCard.width - 16) {
+            menuX = pos.x - contextMenu.width - 8
+        }
+        if (menuX < 16) menuX = 16
+
+        if (menuY + contextMenu.implicitHeight > launcherCard.height - 16) {
+            menuY = launcherCard.height - contextMenu.implicitHeight - 16
+        }
+        if (menuY < 16) menuY = 16
+
+        contextMenu.x = menuX
+        contextMenu.y = menuY
+        contextMenu.visible = true
+    }
+
+    Component.onCompleted: {
+        reloadApps()
+    }
+
+    onVisibleChanged: {
+        if (visible) {
+            searchQuery = ""
+            searchInput.text = ""
+            activeCategory = "All"
+            contextMenu.visible = false
+            reloadApps()
+            Qt.callLater(function() {
+                searchInput.forceActiveFocus()
+            })
+        } else {
+            contextMenu.visible = false
+        }
+    }
+
+    // Backdrop: click outside closes launcher
+    MouseArea {
+        anchors.fill: parent
+        onClicked: root.close()
+    }
+
+    // Bottom slide-up card container
     Rectangle {
-        width: 500
-        height: Math.min(600, appList.contentHeight + 80)
-        anchors.centerIn: parent
+        id: launcherCard
+        width: Math.min(880, parent.width - 48)
+        height: Math.min(580, parent.height - 80)
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        // Slide up from bottom animation
+        y: root.visible ? (parent.height - height - 24) : parent.height
+        opacity: root.visible ? 1 : 0
+
+        Behavior on y {
+            NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
+        }
+        Behavior on opacity {
+            NumberAnimation { duration: 140 }
+        }
+
         color: Theme.bg
         radius: 16
-        border.color: Theme.accent
+        border.color: Theme.surface
         border.width: 1
 
-        TapHandler {
-            // consume clicks on the card
+        // Consume clicks on card so backdrop doesn't close launcher
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.AllButtons
+            onClicked: {
+                if (contextMenu.visible) contextMenu.visible = false
+            }
         }
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 16
+            anchors.margins: 18
             spacing: 12
 
-            Rectangle {
+            // Top Header: Search bar + app count badge
+            RowLayout {
                 Layout.fillWidth: true
-                height: 40
-                color: Theme.bgLight
-                radius: 8
+                spacing: 10
+
+                // Search Bar
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 42
+                    radius: 10
+                    color: Theme.bgLight
+                    border.color: searchInput.activeFocus ? Theme.accent : Theme.surface
+                    border.width: 1
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: 12
+                        anchors.rightMargin: 12
+                        spacing: 10
+
+                        Text {
+                            text: ""
+                            color: searchInput.activeFocus ? Theme.accent : Theme.fgDim
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 15
+                        }
+
+                        TextInput {
+                            id: searchInput
+                            Layout.fillWidth: true
+                            color: Theme.fg
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 14
+                            verticalAlignment: TextInput.AlignVCenter
+
+                            onTextChanged: {
+                                root.searchQuery = text
+                                root.filterApps()
+                                grid.currentIndex = 0
+                            }
+
+                            Keys.onEscapePressed: root.close()
+                            Keys.onDownPressed: {
+                                if (grid.count > 0) {
+                                    grid.forceActiveFocus()
+                                    grid.currentIndex = 0
+                                }
+                            }
+                            Keys.onReturnPressed: {
+                                if (root.filteredApps.length > 0) {
+                                    var idx = (grid.currentIndex >= 0 && grid.currentIndex < root.filteredApps.length) ? grid.currentIndex : 0
+                                    root.launch(root.filteredApps[idx])
+                                }
+                            }
+                            Keys.onEnterPressed: {
+                                if (root.filteredApps.length > 0) {
+                                    var idx = (grid.currentIndex >= 0 && grid.currentIndex < root.filteredApps.length) ? grid.currentIndex : 0
+                                    root.launch(root.filteredApps[idx])
+                                }
+                            }
+                        }
+
+                        // Clear search button
+                        Rectangle {
+                            visible: searchInput.text.length > 0
+                            width: 22
+                            height: 22
+                            radius: 11
+                            color: clearHover.containsMouse ? Theme.surface : "transparent"
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: ""
+                                color: Theme.fgDim
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 11
+                            }
+
+                            MouseArea {
+                                id: clearHover
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    searchInput.text = ""
+                                    searchInput.forceActiveFocus()
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // App count badge
+                Rectangle {
+                    Layout.preferredHeight: 42
+                    implicitWidth: countText.implicitWidth + 20
+                    radius: 10
+                    color: Theme.bgLight
+                    border.color: Theme.surface
+                    border.width: 1
+
+                    Text {
+                        id: countText
+                        anchors.centerIn: parent
+                        text: root.filteredApps.length + " apps"
+                        color: Theme.fgDim
+                        font.family: Theme.fontFamilySans
+                        font.pixelSize: 12
+                        font.weight: Theme.fontWeight
+                    }
+                }
+            }
+
+            // Category filter chips row
+            ScrollView {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 32
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                ScrollBar.vertical.policy: ScrollBar.AlwaysOff
 
                 RowLayout {
-                    anchors.fill: parent
-                    anchors.margins: 8
-                    Text {
-                        text: ""
-                        font.family: Theme.fontFamily
-                        color: Theme.fgDim
-                    }
-                    TextInput {
-                        id: searchInput
-                        Layout.fillWidth: true
-                        color: Theme.fg
-                        font.family: Theme.fontFamilySans
-                        font.pixelSize: 16
-                        
-                        Keys.onEscapePressed: UiState.launcherVisible = false
-                        Keys.onDownPressed: appList.currentIndex = Math.min(appList.count - 1, appList.currentIndex + 1)
-                        Keys.onUpPressed: appList.currentIndex = Math.max(0, appList.currentIndex - 1)
-                        Keys.onReturnPressed: {
-                            if (appList.currentItem) {
-                                appList.currentItem.launch()
+                    spacing: 6
+
+                    Repeater {
+                        model: root.categoryList
+
+                        Rectangle {
+                            id: catChip
+                            required property var modelData
+                            readonly property bool isActive: root.activeCategory === modelData.id
+
+                            implicitWidth: chipRow.implicitWidth + 16
+                            implicitHeight: 30
+                            radius: 8
+                            color: isActive ? Theme.accent : (chipHover.containsMouse ? Theme.bgLight : "transparent")
+                            border.color: isActive ? Theme.accent : (chipHover.containsMouse ? Theme.surface : "transparent")
+                            border.width: 1
+
+                            RowLayout {
+                                id: chipRow
+                                anchors.centerIn: parent
+                                spacing: 6
+
+                                Text {
+                                    text: catChip.modelData.icon
+                                    color: catChip.isActive ? Theme.bgDark : Theme.accent
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 12
+                                }
+
+                                Text {
+                                    text: catChip.modelData.label
+                                    color: catChip.isActive ? Theme.bgDark : Theme.fg
+                                    font.family: Theme.fontFamilySans
+                                    font.pixelSize: 12
+                                    font.weight: catChip.isActive ? Font.Bold : Font.Normal
+                                }
+                            }
+
+                            MouseArea {
+                                id: chipHover
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    root.activeCategory = catChip.modelData.id
+                                    root.filterApps()
+                                    searchInput.forceActiveFocus()
+                                }
                             }
                         }
                     }
                 }
             }
 
-            ListView {
-                id: appList
+            Rectangle {
+                Layout.fillWidth: true
+                height: 1
+                color: Theme.surface
+            }
+
+            // Apps Grid
+            GridView {
+                id: grid
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                cellWidth: 120
+                cellHeight: 110
                 clip: true
-                model: DesktopEntries.applications.values.filter(function(app) {
-                    var query = searchInput.text.toLowerCase();
-                    if (query === "") return !app.noDisplay;
-                    return !app.noDisplay && (
-                        (app.name && app.name.toLowerCase().includes(query)) || 
-                        (app.comment && app.comment.toLowerCase().includes(query)) ||
-                        (app.genericName && app.genericName.toLowerCase().includes(query))
-                    );
-                })
-                
-                delegate: AppEntry {}
+                model: root.filteredApps
+                activeFocusOnTab: true
+                highlightFollowsCurrentItem: true
+                keyNavigationEnabled: true
+
+                readonly property int columns: Math.floor(width / cellWidth)
+
+                Keys.onEscapePressed: {
+                    if (contextMenu.visible) {
+                        contextMenu.visible = false
+                    } else {
+                        root.close()
+                    }
+                }
+
+                Keys.onReturnPressed: {
+                    if (currentIndex >= 0 && currentIndex < root.filteredApps.length) {
+                        root.launch(root.filteredApps[currentIndex])
+                    }
+                }
+                Keys.onEnterPressed: {
+                    if (currentIndex >= 0 && currentIndex < root.filteredApps.length) {
+                        root.launch(root.filteredApps[currentIndex])
+                    }
+                }
+
+                Keys.onPressed: event => {
+                    if (event.key === Qt.Key_Up && currentIndex < columns) {
+                        searchInput.forceActiveFocus()
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_Backspace) {
+                        searchInput.forceActiveFocus()
+                        if (searchInput.text.length > 0) {
+                            searchInput.text = searchInput.text.slice(0, -1)
+                        }
+                        event.accepted = true
+                    } else if (event.text && event.text.length > 0 && event.text.charCodeAt(0) >= 32 && event.key !== Qt.Key_Space) {
+                        searchInput.forceActiveFocus()
+                        searchInput.text += event.text
+                        event.accepted = true
+                    }
+                }
+
+                delegate: Rectangle {
+                    id: delegateCard
+                    required property var modelData
+                    required property int index
+                    readonly property bool isSelected: grid.activeFocus && grid.currentIndex === index
+
+                    width: 114
+                    height: 104
+                    radius: 12
+                    color: isSelected ? Theme.accent : (cardMouse.containsMouse ? Theme.bgLight : "transparent")
+                    border.color: isSelected ? Theme.accent : (cardMouse.containsMouse ? Theme.surface : "transparent")
+                    border.width: 1
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 8
+                        spacing: 6
+
+                        Item {
+                            Layout.alignment: Qt.AlignHCenter
+                            Layout.preferredWidth: 44
+                            Layout.preferredHeight: 44
+
+                            IconImage {
+                                anchors.fill: parent
+                                source: delegateCard.modelData && delegateCard.modelData.icon
+                                    ? Quickshell.iconPath(delegateCard.modelData.icon, "application-x-executable")
+                                    : ""
+                            }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignHCenter
+                            text: delegateCard.modelData ? (delegateCard.modelData.name || "") : ""
+                            color: delegateCard.isSelected ? Theme.bgDark : Theme.fg
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 11
+                            font.weight: Theme.fontWeight
+                            horizontalAlignment: Text.AlignHCenter
+                            elide: Text.ElideRight
+                            maximumLineCount: 2
+                            wrapMode: Text.Wrap
+                        }
+                    }
+
+                    MouseArea {
+                        id: cardMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        cursorShape: Qt.PointingHandCursor
+
+                        onClicked: mouse => {
+                            grid.currentIndex = delegateCard.index
+                            if (mouse.button === Qt.LeftButton) {
+                                root.launch(delegateCard.modelData)
+                            } else if (mouse.button === Qt.RightButton) {
+                                root.openContextMenu(delegateCard.modelData, delegateCard)
+                            }
+                        }
+                    }
+                }
+
+                // Empty search result placeholder
+                Text {
+                    visible: root.filteredApps.length === 0
+                    anchors.centerIn: parent
+                    text: "  No applications found"
+                    color: Theme.fgDim
+                    font.family: Theme.fontFamilySans
+                    font.pixelSize: 15
+                }
             }
         }
+
+        // Floating Right-Click Option Selector Context Menu
+        AppContextMenu {
+            id: contextMenu
+            visible: false
+            z: 10
+            onActionTriggered: root.close()
+        }
     }
-    
 }

@@ -9,8 +9,7 @@ import "selector" as Selector
 import "settings" as Settings
 import "notifications" as Notifications
 import "emoji" as Emoji
-import "notifications" as Notifications
-import "emoji" as Emoji
+import "launcher" as Launcher
 
 ShellRoot {
     id: root
@@ -43,21 +42,15 @@ ShellRoot {
     Variants {
         model: Quickshell.screens
         Bar {}
-}
-
-// Notifications.NotificationCenter {
-// }
+    }
 
     Emoji.EmojiPicker {}
-
+    Launcher.Launcher {}
 
     LazyLoader {
         active: UiState.selectorVisible
         component: Component { Selector.Selector {} }
     }
-
-
-
 
     LazyLoader {
         active: UiState.settingsVisible
@@ -68,7 +61,7 @@ ShellRoot {
     IpcHandler {
         target: "launcher"
         function toggle() {
-            UiState.toggleSelector("apps")
+            UiState.toggleLauncher()
         }
     }
 
@@ -89,7 +82,7 @@ ShellRoot {
     IpcHandler {
         target: "selector"
         function apps() {
-            UiState.toggleSelector("apps")
+            UiState.toggleLauncher()
         }
 
         function emoji() {

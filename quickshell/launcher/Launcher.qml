@@ -174,10 +174,42 @@ PanelWindow {
     }
 
     property bool showing: UiState.launcherVisible
-    property real reveal: showing ? 1 : 0
-    Behavior on reveal {
-        NumberAnimation { duration: 140; easing.type: Easing.OutQuart }
-    }
+    property real reveal: 0
+
+    states: [
+        State {
+            name: "open"
+            when: root.showing
+            PropertyChanges { target: root; reveal: 1 }
+        },
+        State {
+            name: "closed"
+            when: !root.showing
+            PropertyChanges { target: root; reveal: 0 }
+        }
+    ]
+
+    transitions: [
+        Transition {
+            from: "closed"; to: "open"
+            NumberAnimation {
+                target: root
+                property: "reveal"
+                duration: 200
+                easing.type: Easing.OutCubic
+            }
+        },
+        Transition {
+            from: "open"; to: "closed"
+            NumberAnimation {
+                target: root
+                property: "reveal"
+                duration: 140
+                easing.type: Easing.InCubic
+            }
+        }
+    ]
+
     visible: reveal > 0
 
     onShowingChanged: {
@@ -200,10 +232,15 @@ PanelWindow {
         }
     }
 
-    // Backdrop: click outside closes launcher
+    // Backdrop: dim background and click outside closes launcher
     MouseArea {
         anchors.fill: parent
         onClicked: UiState.launcherVisible = false
+
+        Rectangle {
+            anchors.fill: parent
+            color: Qt.rgba(0, 0, 0, root.reveal * 0.45)
+        }
     }
 
     // Bottom slide-up card container
@@ -219,10 +256,18 @@ PanelWindow {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 3
 
-        // Robust translation for animation independent of layout passes
-        transform: Translate {
-            y: (1 - root.reveal) * launcherCard.height
-        }
+        // Modern subtle 60px vertical slide + micro-scale for silky smooth motion
+        transform: [
+            Translate {
+                y: (1 - root.reveal) * 64
+            },
+            Scale {
+                origin.x: launcherCard.width / 2
+                origin.y: launcherCard.height
+                xScale: 0.96 + (0.04 * root.reveal)
+                yScale: xScale
+            }
+        ]
         opacity: root.reveal
 
         strokeColor: Theme.accentGlow

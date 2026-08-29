@@ -12,7 +12,7 @@ Components.Pill {
     property bool twentyFourHour: false
     readonly property bool expanded: UiState.clockMenuVisible
         && (UiState.clockScreen === "" || UiState.clockScreen === targetScreenName)
-    readonly property int topWidth: Math.max(300,
+    readonly property int topWidth: Math.max(280,
         Math.ceil(topLayout.implicitWidth + Theme.pillPaddingHoriz * 2))
     readonly property int bodyHeight: 312
     readonly property date displayMonth: new Date(clock.date.getFullYear(),
@@ -143,7 +143,6 @@ Components.Pill {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 height: 30
-                Layout.fillWidth: true
                 spacing: 8
 
                 Rectangle {
@@ -210,11 +209,9 @@ Components.Pill {
             Item {
                 anchors.top: tabsRow.bottom
                 anchors.topMargin: 14
-                anchors.bottom: parent.bottom
                 anchors.left: parent.left
                 anchors.right: parent.right
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+                anchors.bottom: parent.bottom
 
                 Item {
                     anchors.fill: parent

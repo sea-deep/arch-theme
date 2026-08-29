@@ -96,7 +96,7 @@ Components.Pill {
         // The bar owns a full-screen light-dismiss region while expanded.
         // Close it before pkexec so the Polkit agent can receive input.
         UiState.quickControlVisible = false
-        tlpApplyProcess.command = ["/usr/bin/setsid", "-w", "/usr/bin/pkexec", "/usr/bin/tlp", profile]
+        tlpApplyProcess.command = ["/usr/bin/pkexec", "/usr/bin/tlp", profile]
         Qt.callLater(() => tlpApplyProcess.running = true)
     }
 

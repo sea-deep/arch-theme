@@ -11,7 +11,7 @@ Item {
     
     property var hoveredWorkspace: null
     
-    readonly property var activeWs: hoveredWorkspace || Hyprland.focusedWorkspace
+    readonly property var activeWs: (hoveredWorkspace !== null ? hoveredWorkspace : Hyprland.focusedWorkspace)
     
     readonly property var windowList: activeWs && activeWs.toplevels
         ? activeWs.toplevels.values
@@ -35,7 +35,6 @@ Item {
     Behavior on implicitWidth { NumberAnimation { duration: 120; easing.type: Easing.OutQuart } }
 
     function triggerSwitchPreview() {
-        if (root.isHovered) return;
         root.hoveredWorkspace = null;
         
         Qt.callLater(function() {
@@ -69,8 +68,13 @@ Item {
             root.triggerSwitchPreview()
         }
 
-        function onRawEvent(name, data) {
-            if (name === "workspace" || name === "focusedmon" || name === "movewindow" || name === "openwindow") {
+        function onActiveToplevelChanged() {
+            root.triggerSwitchPreview()
+        }
+
+        function onRawEvent(event) {
+            var evName = (typeof event === "string") ? event : (event && event.name ? event.name : "");
+            if (evName === "workspace" || evName === "focusedmon" || evName === "activewindow") {
                 root.triggerSwitchPreview()
             }
         }

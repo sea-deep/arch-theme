@@ -264,10 +264,24 @@ PanelWindow {
                     color: isCurrent ? Theme.accent : (emojiMouseArea.containsMouse ? Theme.bgLight : "transparent")
                     radius: 8
 
+                    Item {
+                        id: emojiExpDragProxy
+                        width: delegateRoot.width
+                        height: delegateRoot.height
+                        Drag.active: emojiMouseArea.drag.active
+                        Drag.dragType: Drag.Automatic
+                        Drag.supportedActions: Qt.CopyAction
+                        Drag.mimeData: {
+                            return { "text/plain": delegateRoot.emoji ? delegateRoot.emoji.char : "" };
+                        }
+                    }
+
                     MouseArea {
                         id: emojiMouseArea
                         anchors.fill: parent
                         hoverEnabled: true
+                        preventStealing: true
+                        drag.target: emojiExpDragProxy
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
                             grid.currentIndex = index

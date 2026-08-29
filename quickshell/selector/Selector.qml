@@ -23,6 +23,10 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 
+    mask: Region {
+        item: panel
+    }
+
     property var emojis: []
 
     readonly property string mode: UiState.selectorMode
@@ -316,35 +320,28 @@ PanelWindow {
                     width: ListView.view.width
                     height: 58
                     radius: 10
-                    color: selected ? Theme.accent : (rowHover.hovered ? Theme.bgLight : "transparent")
+                    color: selected ? Theme.accent : (rowMouse.containsMouse ? Theme.bgLight : "transparent")
 
-                    // Enable OS-level Drag and Drop for Clipboard Items
-                    Drag.supportedActions: Qt.CopyAction
-                    Drag.dragType: Drag.Automatic
-                    Drag.mimeData: {
-                        if (root.mode === "clipboard") {
-                            if (resultRow.modelData.isImage) {
-                                return { "text/uri-list": "file://" + resultRow.modelData.filePath }
-                            } else {
-                                var txt = resultRow.modelData.content || resultRow.modelData.text || resultRow.modelData.label;
-                                return { "text/plain": txt }
+                    Item {
+                        id: dragProxy
+                        width: resultRow.width
+                        height: resultRow.height
+                        Drag.active: rowMouse.drag.active
+                        Drag.dragType: Drag.Automatic
+                        Drag.supportedActions: Qt.CopyAction
+                        Drag.mimeData: {
+                            var data = {};
+                            if (root.mode === "clipboard") {
+                                if (resultRow.modelData.isImage) {
+                                    data["text/uri-list"] = "file://" + resultRow.modelData.filePath;
+                                    data["text/plain"] = "file://" + resultRow.modelData.filePath;
+                                } else {
+                                    data["text/plain"] = resultRow.modelData.value || resultRow.modelData.label || "";
+                                }
+                            } else if (root.mode === "emoji") {
+                                data["text/plain"] = resultRow.modelData.symbol || "";
                             }
-                        }
-                        return {}
-                    }
-
-                    DragHandler {
-                        id: dragHandler
-                        target: null // Do not move the item visually
-                        onActiveChanged: {
-                            if (active) {
-                                resultRow.grabToImage(function(result) {
-                                    resultRow.Drag.imageSource = result.url;
-                                    resultRow.Drag.active = true;
-                                });
-                            } else {
-                                resultRow.Drag.active = false;
-                            }
+                            return data;
                         }
                     }
 
@@ -423,9 +420,14 @@ PanelWindow {
                         }
                     }
 
-                    HoverHandler { id: rowHover }
-                    TapHandler {
-                        onTapped: root.activate(resultRow.modelData)
+                    MouseArea {
+                        id: rowMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        preventStealing: true
+                        drag.target: dragProxy
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.activate(resultRow.modelData)
                     }
                 }
 
@@ -457,27 +459,17 @@ PanelWindow {
                     width: emojiGrid.cellWidth - 4
                     height: emojiGrid.cellHeight - 4
                     radius: 11
-                    color: selected ? Theme.accent : (emojiHover.hovered ? Theme.bgLight : "transparent")
+                    color: selected ? Theme.accent : (emojiMouse.containsMouse ? Theme.bgLight : "transparent")
 
-                    // Enable OS-level Drag and Drop for Emoji Items
-                    Drag.supportedActions: Qt.CopyAction
-                    Drag.dragType: Drag.Automatic
-                    Drag.mimeData: {
-                        return { "text/plain": emojiCell.modelData.symbol }
-                    }
-
-                    DragHandler {
-                        id: dragHandler
-                        target: null
-                        onActiveChanged: {
-                            if (active) {
-                                emojiCell.grabToImage(function(result) {
-                                    emojiCell.Drag.imageSource = result.url;
-                                    emojiCell.Drag.active = true;
-                                });
-                            } else {
-                                emojiCell.Drag.active = false;
-                            }
+                    Item {
+                        id: emojiDragProxy
+                        width: emojiCell.width
+                        height: emojiCell.height
+                        Drag.active: emojiMouse.drag.active
+                        Drag.dragType: Drag.Automatic
+                        Drag.supportedActions: Qt.CopyAction
+                        Drag.mimeData: {
+                            return { "text/plain": emojiCell.modelData.symbol || "" };
                         }
                     }
 
@@ -505,8 +497,15 @@ PanelWindow {
                         }
                     }
 
-                    HoverHandler { id: emojiHover }
-                    TapHandler { onTapped: root.activate(emojiCell.modelData) }
+                    MouseArea {
+                        id: emojiMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        preventStealing: true
+                        drag.target: emojiDragProxy
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.activate(emojiCell.modelData)
+                    }
                 }
 
                 Text {

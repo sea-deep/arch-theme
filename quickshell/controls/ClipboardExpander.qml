@@ -309,15 +309,32 @@ Item {
                 clip: true
 
                 delegate: Rectangle {
+                    id: expRow
                     width: listView.width
                     height: modelData.isImage ? 90 : 56
                     radius: Theme.radius - 2
-                    color: itemHover.hovered || ListView.isCurrentItem ? Theme.surface : Theme.bgLight
-                    border.color: itemHover.hovered || ListView.isCurrentItem ? Theme.accentGlow : Theme.bgDark
+                    color: itemMouse.containsMouse || ListView.isCurrentItem ? Theme.surface : Theme.bgLight
+                    border.color: itemMouse.containsMouse || ListView.isCurrentItem ? Theme.accentGlow : Theme.bgDark
                     border.width: 1
 
-                    HoverHandler { id: itemHover; cursorShape: Qt.PointingHandCursor }
-                    TapHandler { onTapped: root.activate(modelData) }
+                    Item {
+                        id: expDragProxy
+                        width: expRow.width
+                        height: expRow.height
+                        Drag.active: itemMouse.drag.active
+                        Drag.dragType: Drag.Automatic
+                        Drag.supportedActions: Qt.CopyAction
+                        Drag.mimeData: {
+                            var data = {};
+                            if (modelData.isImage) {
+                                data["text/uri-list"] = "file://" + modelData.filePath;
+                                data["text/plain"] = "file://" + modelData.filePath;
+                            } else {
+                                data["text/plain"] = modelData.value || modelData.label || "";
+                            }
+                            return data;
+                        }
+                    }
 
                     RowLayout {
                         anchors.fill: parent
@@ -374,6 +391,16 @@ Item {
                                 font.pixelSize: 11
                             }
                         }
+                    }
+
+                    MouseArea {
+                        id: itemMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        preventStealing: true
+                        drag.target: expDragProxy
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.activate(modelData)
                     }
                 }
 

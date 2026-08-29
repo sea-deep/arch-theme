@@ -23,7 +23,7 @@ Shape {
 
     ShapePath {
         strokeWidth: Theme.borderWidth
-        strokeColor: Theme.accent
+        strokeColor: Theme.bgDark
         fillColor: Theme.bg
         joinStyle: ShapePath.RoundJoin
 

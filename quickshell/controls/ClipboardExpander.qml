@@ -1,3 +1,4 @@
+import QtQuick.Controls
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -197,6 +198,17 @@ Item {
                 model: root.clipboardEntries
                 spacing: 10
                 clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                
+                ScrollBar.vertical: ScrollBar {
+                    active: true
+                    width: 4
+                    contentItem: Rectangle {
+                        implicitWidth: 4
+                        radius: 2
+                        color: Theme.fgDim
+                    }
+                }
 
                 delegate: Rectangle {
                     width: listView.width

@@ -72,17 +72,12 @@ PanelWindow {
             }
         }
 
-        // LEFT (Workspaces)
-        RowLayout {
-            z: 1
+        // LEFT (Workspaces Expander)
+        BarModules.Workspaces {
+            id: workspacesModule
+            z: 3
             anchors.left: parent.left
             anchors.top: parent.top
-            height: Theme.barHeight
-            spacing: Theme.moduleSpacing
-
-            BarModules.Workspaces {
-                id: workspacesModule
-            }
         }
 
         // CENTER (Clock + calendar expander)

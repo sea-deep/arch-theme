@@ -9,28 +9,51 @@ import "../components" as Components
 Components.Pill {
     id: root
     
-    property var hoveredWorkspace: null
+    property var targetWorkspace: null
     
-    // Target workspace to display in the pull-down body: hovered workspace, or current active workspace
-    readonly property var currentTargetWorkspace: hoveredWorkspace
+    // Fallback to active workspace if no specific workspace hovered
+    readonly property var activeWs: targetWorkspace
         || (Hyprland.focusedWorkspace && Hyprland.focusedWorkspace.toplevels && Hyprland.focusedWorkspace.toplevels.values.length > 0 ? Hyprland.focusedWorkspace : null)
     
-    readonly property var windowList: currentTargetWorkspace && currentTargetWorkspace.toplevels
-        ? currentTargetWorkspace.toplevels.values
+    readonly property var windowList: activeWs && activeWs.toplevels
+        ? activeWs.toplevels.values
         : []
     
-    readonly property bool isExpanded: pillMouse.containsMouse && windowList.length > 0
+    property bool hovered: false
+    readonly property bool isExpanded: root.hovered && windowList.length > 0
     property real reveal: isExpanded ? 1 : 0
-    readonly property int bodyHeight: Math.min(260, windowList.length * 34 + 8)
     
-    implicitWidth: Math.max(layout.implicitWidth + 14, reveal > 0 ? Math.min(360, Math.max(260, titleColumn.implicitWidth + 24)) : 0)
+    readonly property int bodyHeight: windowList.length > 0 ? Math.min(320, windowList.length * 42 + 36) : 0
+    
+    implicitWidth: Math.max(topLayout.implicitWidth + 14, reveal > 0 ? 320 : 0)
     implicitHeight: Theme.barHeight + (reveal * bodyHeight)
     clip: true
     
-    Behavior on reveal { NumberAnimation { duration: 120; easing.type: Easing.OutQuart } }
-    Behavior on implicitWidth { NumberAnimation { duration: 130; easing.type: Easing.OutQuart } }
+    Behavior on reveal { NumberAnimation { duration: 130; easing.type: Easing.OutQuart } }
+    Behavior on implicitWidth { NumberAnimation { duration: 140; easing.type: Easing.OutQuart } }
     
-    border.color: isExpanded || reveal > 0 ? Theme.accentGlow : (pillMouse.containsMouse ? Theme.accentGlow : Theme.bgDark)
+    border.color: isExpanded || reveal > 0 ? Theme.accentGlow : (root.hovered ? Theme.accentGlow : Theme.bgDark)
+
+    Timer {
+        id: closeTimer
+        interval: 260
+        onTriggered: {
+            root.hovered = false
+            root.targetWorkspace = null
+        }
+    }
+
+    HoverHandler {
+        id: globalHover
+        onHoveredChanged: {
+            if (hovered) {
+                closeTimer.stop()
+                root.hovered = true
+            } else {
+                closeTimer.restart()
+            }
+        }
+    }
 
     function getAppIcon(toplevel) {
         if (!toplevel) return Quickshell.iconPath("application-x-executable")
@@ -101,14 +124,6 @@ Components.Pill {
         return list;
     }
 
-    MouseArea {
-        id: pillMouse
-        anchors.fill: parent
-        hoverEnabled: true
-        acceptedButtons: Qt.NoButton
-        onExited: root.hoveredWorkspace = null
-    }
-
     // TOP BAR SECTION (Workspaces numbers + App icons)
     Item {
         id: topSection
@@ -118,7 +133,7 @@ Components.Pill {
         height: Theme.barHeight
 
         RowLayout {
-            id: layout
+            id: topLayout
             anchors.left: parent.left
             anchors.leftMargin: 4
             anchors.verticalCenter: parent.verticalCenter
@@ -151,14 +166,22 @@ Components.Pill {
                         NumberAnimation { duration: 140; easing.type: Easing.OutCubic }
                     }
                     
-                    color: isActive ? Theme.accent : (wsHover.containsMouse ? Theme.surface : "transparent")
+                    color: isActive ? Theme.accent : (wsHoverHandler.hovered ? Theme.surface : "transparent")
                     
+                    HoverHandler {
+                        id: wsHoverHandler
+                        onHoveredChanged: {
+                            if (hovered) {
+                                closeTimer.stop()
+                                root.hovered = true
+                                root.targetWorkspace = wsPill.modelData
+                            }
+                        }
+                    }
+
                     MouseArea {
-                        id: wsHover
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        hoverEnabled: true
-                        onEntered: root.hoveredWorkspace = wsPill.modelData
                         onClicked: wsPill.modelData.activate()
                     }
 
@@ -171,7 +194,7 @@ Components.Pill {
                         Text {
                             id: wsNum
                             text: wsPill.modelData.name
-                            color: wsPill.isActive ? Theme.bgDark : (wsPill.isUrgent ? Theme.red : (wsHover.containsMouse ? Theme.blue : (wsPill.windowCount > 0 ? Theme.fg : Theme.fgDim)))
+                            color: wsPill.isActive ? Theme.bgDark : (wsPill.isUrgent ? Theme.red : (wsHoverHandler.hovered ? Theme.blue : (wsPill.windowCount > 0 ? Theme.fg : Theme.fgDim)))
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSize
                             font.weight: wsPill.isActive ? Font.Bold : Theme.fontWeight
@@ -194,7 +217,7 @@ Components.Pill {
                                         width: 24
                                         height: 24
                                         radius: 6
-                                        color: iconHover.containsMouse ? (wsPill.isActive ? Qt.rgba(0, 0, 0, 0.25) : Theme.bgLight) : "transparent"
+                                        color: iconHoverHandler.hovered ? (wsPill.isActive ? Qt.rgba(0, 0, 0, 0.25) : Theme.bgLight) : "transparent"
 
                                         IconImage {
                                             anchors.centerIn: parent
@@ -203,12 +226,20 @@ Components.Pill {
                                             source: iconGroup.modelData.icon
                                         }
 
+                                        HoverHandler {
+                                            id: iconHoverHandler
+                                            onHoveredChanged: {
+                                                if (hovered) {
+                                                    closeTimer.stop()
+                                                    root.hovered = true
+                                                    root.targetWorkspace = wsPill.modelData
+                                                }
+                                            }
+                                        }
+
                                         MouseArea {
-                                            id: iconHover
                                             anchors.fill: parent
-                                            hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
-                                            onEntered: root.hoveredWorkspace = wsPill.modelData
                                             onClicked: {
                                                 wsPill.modelData.activate();
                                                 if (iconGroup.modelData.toplevels && iconGroup.modelData.toplevels.length > 0) {
@@ -268,11 +299,34 @@ Components.Pill {
         opacity: root.reveal
         
         ColumnLayout {
-            id: titleColumn
             anchors.fill: parent
-            anchors.margins: 6
-            spacing: 3
+            anchors.margins: 8
+            spacing: 4
 
+            // Small discrete header
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 6
+
+                Rectangle {
+                    width: 6
+                    height: 6
+                    radius: 3
+                    color: Theme.accent
+                }
+
+                Text {
+                    text: root.activeWs ? ("Workspace " + root.activeWs.name) : "Windows"
+                    color: Theme.fgDim
+                    font.family: Theme.fontFamilySans
+                    font.pixelSize: 11
+                    font.weight: Font.Bold
+                }
+
+                Item { Layout.fillWidth: true }
+            }
+
+            // Window items
             Repeater {
                 model: root.windowList
 
@@ -280,7 +334,7 @@ Components.Pill {
                     id: rowItem
                     required property var modelData
                     Layout.fillWidth: true
-                    implicitHeight: 30
+                    implicitHeight: 34
                     radius: 6
                     color: rowHover.containsMouse
                         ? Theme.surface
@@ -288,25 +342,30 @@ Components.Pill {
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: 6
-                        anchors.rightMargin: 6
-                        spacing: 8
+                        anchors.leftMargin: 8
+                        anchors.rightMargin: 8
+                        spacing: 10
 
                         IconImage {
-                            width: 18
-                            height: 18
+                            width: 20
+                            height: 20
                             Layout.alignment: Qt.AlignVCenter
                             source: root.getAppIcon(rowItem.modelData)
                         }
 
-                        Text {
+                        ColumnLayout {
                             Layout.fillWidth: true
-                            text: rowItem.modelData.title || (rowItem.modelData.lastIpcObject && rowItem.modelData.lastIpcObject.class) || "(Window)"
-                            color: rowItem.modelData.activated ? Theme.accent : Theme.fg
-                            font.family: Theme.fontFamilySans
-                            font.pixelSize: 12
-                            font.weight: rowItem.modelData.activated ? Font.Bold : Theme.fontWeight
-                            elide: Text.ElideRight
+                            spacing: 1
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: rowItem.modelData.title || (rowItem.modelData.lastIpcObject && rowItem.modelData.lastIpcObject.class) || "(Window)"
+                                color: rowItem.modelData.activated ? Theme.accent : Theme.fg
+                                font.family: Theme.fontFamilySans
+                                font.pixelSize: 12
+                                font.weight: rowItem.modelData.activated ? Font.Bold : Theme.fontWeight
+                                elide: Text.ElideRight
+                            }
                         }
 
                         Rectangle {
@@ -325,8 +384,8 @@ Components.Pill {
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
-                            if (root.currentTargetWorkspace) {
-                                root.currentTargetWorkspace.activate()
+                            if (root.activeWs) {
+                                root.activeWs.activate()
                             }
                             if (rowItem.modelData && rowItem.modelData.activate) {
                                 rowItem.modelData.activate()

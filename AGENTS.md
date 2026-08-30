@@ -135,6 +135,18 @@ arch-theme/
 
 ---
 
+### F. Full-Width Fluid Bar & Module Hover Architecture
+
+1. **Edge-to-Edge Fluid Surface:**
+   - `Bar.qml` uses `margins.top: 0`, `margins.left: 0`, `margins.right: 0` and `Theme.outerGap: 0` to eliminate corner gaps and prevent wallpaper bleed.
+   - An underlying full-width `Rectangle` (`color: Theme.bg`) spans the status bar height with a crisp 1px `Theme.bgDark` bottom boundary.
+2. **Pill Elevation & Hover Feedback:**
+   - All modules deriving from `Components.Pill` render idle backgrounds as `Theme.bgDark`, transitioning to `Theme.bgLight` / `Theme.surface` and `Theme.accentGlow` borders on hover with `ColorAnimation { duration: 120 }`.
+3. **Unified Clock Hit-Testing:**
+   - `ClockExpander.qml` contains a root header `MouseArea` covering the entire time, date, and middle spacer region so clicking anywhere on the clock pill reliably toggles the menu or switches tabs.
+
+---
+
 ## 3. Verification & Testing Checklist for Agents
 
 Before concluding any change:
@@ -145,3 +157,4 @@ Before concluding any change:
 - [ ] Verify `UiState.qml` aliases all persisted properties (`caffeineEnabled`, `comfortValue`, `grayscaleValue`, `vividValue`).
 - [ ] Commit with concise, descriptive commit messages and push to `origin/feat/hyprland-quickshell`.
 - [ ] **DO NOT reload quickshell.** Notify the user that changes are pushed and ready for manual testing.
+

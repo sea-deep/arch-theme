@@ -41,7 +41,7 @@ QtObject {
     readonly property int    radius:             12
     readonly property int    radiusSmall:        6
     readonly property int    borderWidth:        2
-    readonly property int    outerGap:           2
+    readonly property int    outerGap:           0
     readonly property int    moduleSpacing:      4
     readonly property int    compactPillSize:    barHeight
     readonly property int    pillPaddingHoriz:   14

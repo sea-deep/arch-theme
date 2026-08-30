@@ -22,15 +22,15 @@ PanelWindow {
     // pill made every bar module jump during the close animation and left the
     // revealed controls outside the compositor's input region.
     implicitHeight: Math.max(Theme.barHeight,
-        root.screen ? root.screen.height - Theme.outerGap : Theme.barHeight)
+        root.screen ? root.screen.height : Theme.barHeight)
     color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.exclusiveZone: Theme.barHeight
     WlrLayershell.keyboardFocus: root.overlayExpanded ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
-    margins.top: Theme.outerGap
-    margins.left: Theme.outerGap
-    margins.right: Theme.outerGap
+    margins.top: 0
+    margins.left: 0
+    margins.right: 0
 
     onOverlayExpandedChanged: {
         if (overlayExpanded) {
@@ -81,6 +81,25 @@ PanelWindow {
         focus: root.overlayExpanded
         anchors.fill: parent
 
+        // Continuous full-width fluid black status bar background
+        Rectangle {
+            id: solidBarBg
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: Theme.barHeight
+            color: Theme.bg
+            z: 0
+
+            Rectangle {
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: 1
+                color: Theme.bgDark
+            }
+        }
+
         MouseArea {
             id: bgMouseArea
             anchors.fill: parent
@@ -94,6 +113,7 @@ PanelWindow {
             id: workspacesModule
             z: 3
             anchors.left: parent.left
+            anchors.leftMargin: 6
             anchors.top: parent.top
         }
 
@@ -112,6 +132,7 @@ PanelWindow {
             id: rightModules
             z: 1
             anchors.right: parent.right
+            anchors.rightMargin: 6
             anchors.top: parent.top
             width: implicitWidth
             height: Theme.barHeight

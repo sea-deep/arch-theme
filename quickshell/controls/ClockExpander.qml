@@ -61,6 +61,13 @@ Components.Pill {
         anchors.right: parent.right
         height: Theme.barHeight
 
+        // Full header background click handler — clicking anywhere (including center gap) triggers toggle
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: UiState.toggleClock(root.targetScreenName)
+        }
+
         RowLayout {
             id: topLayout
             anchors.fill: parent
@@ -93,9 +100,12 @@ Components.Pill {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        if (UiState.clockTab === "time") UiState.toggleClock(root.targetScreenName)
-                        else {
-                            if (!root.expanded) UiState.toggleClock(root.targetScreenName)
+                        if (!root.expanded) {
+                            UiState.toggleClock(root.targetScreenName)
+                            UiState.clockTab = "time"
+                        } else if (UiState.clockTab === "time") {
+                            UiState.toggleClock(root.targetScreenName)
+                        } else {
                             UiState.clockTab = "time"
                         }
                     }
@@ -129,9 +139,12 @@ Components.Pill {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        if (UiState.clockTab === "calendar") UiState.toggleClock(root.targetScreenName)
-                        else {
-                            if (!root.expanded) UiState.toggleClock(root.targetScreenName)
+                        if (!root.expanded) {
+                            UiState.toggleClock(root.targetScreenName)
+                            UiState.clockTab = "calendar"
+                        } else if (UiState.clockTab === "calendar") {
+                            UiState.toggleClock(root.targetScreenName)
+                        } else {
                             UiState.clockTab = "calendar"
                         }
                     }

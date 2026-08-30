@@ -143,7 +143,7 @@ Item {
         width: root.collapsedWidth
         height: Theme.barHeight
         visible: root.reveal <= 0
-        border.color: root.isHovered ? Theme.accentGlow : Theme.bgDark
+        hovered: root.isHovered
     }
 
     // TOP BAR SECTION (Workspaces numbers + App icons)

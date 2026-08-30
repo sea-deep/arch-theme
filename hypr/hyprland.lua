@@ -229,7 +229,7 @@ local function set_display_scale(target_scale)
     })
 end
 
-local function step_scale(direction)
+local function cycle_scale()
     local monitors = hl.get_monitors()
     local current = (monitors[1] and monitors[1].scale) or 1.0
     current = math.floor(current * 100 + 0.5) / 100
@@ -244,20 +244,15 @@ local function step_scale(direction)
         end
     end
 
-    local next_idx = current_idx + direction
+    local next_idx = current_idx + 1
     if next_idx > #scale_steps then
         next_idx = 1
-    elseif next_idx < 1 then
-        next_idx = #scale_steps
     end
 
     set_display_scale(scale_steps[next_idx])
 end
 
-hl.bind(mainMod .. " + equal", function() step_scale(1) end)
-hl.bind(mainMod .. " + plus", function() step_scale(1) end)
-hl.bind(mainMod .. " + CONTROL + equal", function() step_scale(-1) end)
-hl.bind(mainMod .. " + CONTROL + minus", function() step_scale(-1) end)
+hl.bind(mainMod .. " + equal", cycle_scale)
 
 hl.window_rule({ name = "swappy-float", match = { class = "^(swappy)$" }, float = true })
 hl.window_rule({ name = "pavucontrol-float", match = { class = "^(org.pulseaudio.pavucontrol)$" }, float = true, size = "450 265", move = "875 0" })

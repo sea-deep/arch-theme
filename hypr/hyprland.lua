@@ -3,8 +3,8 @@ local terminal = "kitty"
 local fileManager = "thunar"
 local browser = "zen-browser"
 
-hl.monitor({ output = "eDP-1", mode = "1920x1080@60.050", position = "0x0", scale = "1.25" })
-hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "1.25" })
+hl.monitor({ output = "eDP-1", mode = "1920x1080@60.050", position = "0x0", scale = "1.15" })
+hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "1.15" })
 
 hl.config({
     xwayland = {
@@ -124,6 +124,8 @@ hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("qs ipc call selector clipboard"))
 hl.bind(mainMod .. " + period", hl.dsp.exec_cmd("qs ipc call selector emoji"))
 hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd(terminal .. " -e btop"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("qs ipc call notifications toggle"))
+hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("qs ipc call notifications dismissAll"))
+hl.bind(mainMod .. " + BackSpace", hl.dsp.exec_cmd("qs ipc call notifications dismissAll"))
 
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen(0))

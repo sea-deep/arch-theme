@@ -20,8 +20,8 @@ Singleton {
         var current = (activeToasts || []).slice()
         current = current.filter(n => n && n !== notification && (!n.id || n.id !== notification.id))
         current.unshift(notification)
-        if (current.length > 4)
-            current = current.slice(0, 4)
+        if (current.length > 8)
+            current = current.slice(0, 8)
         activeToasts = current
     }
 

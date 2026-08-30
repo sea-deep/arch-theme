@@ -118,6 +118,18 @@ ShellRoot {
         function toggle() {
             UiState.toggleNotifications()
         }
+
+        function dismissAll() {
+            Notifications.NotificationServer.clearAll()
+            UiState.notificationCenterVisible = false
+            UiState.notificationPreviewVisible = false
+        }
+
+        function clear() {
+            Notifications.NotificationServer.clearAll()
+            UiState.notificationCenterVisible = false
+            UiState.notificationPreviewVisible = false
+        }
     }
 
     IpcHandler {

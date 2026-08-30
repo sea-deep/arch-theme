@@ -155,6 +155,8 @@ Components.Pill {
 
     Components.ConnectedDropdownSurface {
         anchors.fill: parent
+        tabCentered: true
+        tabWidth: root.topWidth
         visible: root.reveal > 0
     }
 

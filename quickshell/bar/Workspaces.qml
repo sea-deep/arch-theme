@@ -142,7 +142,8 @@ Item {
         anchors.left: parent.left
         width: root.collapsedWidth
         height: Theme.barHeight
-        active: root.isHovered || root.reveal > 0
+        visible: root.reveal <= 0
+        hovered: root.isHovered
     }
 
     // TOP BAR SECTION (Workspaces numbers + App icons)

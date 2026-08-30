@@ -163,7 +163,7 @@ Item {
         anchors.left: parent.left
         width: Theme.compactPillSize
         height: Theme.barHeight
-        active: root.expanded || root.reveal > 0
+        visible: root.reveal <= 0
     }
 
     Item {

@@ -239,6 +239,8 @@ Components.Pill {
 
     Components.ConnectedDropdownSurface {
         anchors.fill: parent
+        tabCentered: true
+        tabWidth: metricRow.implicitWidth + 12
         visible: root.reveal > 0
     }
 

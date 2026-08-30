@@ -6,16 +6,24 @@ Shape {
     id: root
 
     property color fillColor: Theme.bgLight
-    property real shoulderRadius: 14
-    property real cornerRadius: Theme.radius
-    property real leftShoulder: shoulderRadius
-    property real rightShoulder: shoulderRadius
-    property real bodyTop: Theme.barHeight
     property real tabWidth: Theme.compactPillSize
     property bool tabOnLeft: false
-    readonly property real bodyHeight: Math.max(0, height - bodyTop)
+    property bool tabCentered: false
+    readonly property real bodyTop: Theme.barHeight
+    readonly property real bodyExtent: Math.max(0, height - bodyTop)
+    readonly property real bodyCorner: Math.min(Theme.radius, bodyExtent / 2)
+    readonly property real effectiveTabWidth: Math.min(width, Math.max(Theme.compactPillSize, tabWidth))
+    readonly property real tabLeft: tabCentered
+        ? (width - effectiveTabWidth) / 2
+        : (tabOnLeft ? 0 : width - effectiveTabWidth)
+    readonly property real shoulder: Math.min(Theme.radius, Math.max(0, width - effectiveTabWidth) / 2)
 
     preferredRendererType: Shape.CurveRenderer
+
+    transform: Scale {
+        origin.x: root.width / 2
+        xScale: (root.tabOnLeft && !root.tabCentered) ? -1 : 1
+    }
 
     ShapePath {
         strokeWidth: 0
@@ -23,64 +31,125 @@ Shape {
         fillColor: root.fillColor
         joinStyle: ShapePath.RoundJoin
 
-        // Start at left shoulder where bar bottom meets inverted fillet
-        startX: -root.leftShoulder
-        startY: root.bodyTop
+        // CASE A: Centered tab (shoulders on both sides)
+        // CASE B: Tab on right (or flipped for tab on left)
+        startX: root.tabCentered
+            ? (root.tabLeft + Theme.radius)
+            : (root.width - root.effectiveTabWidth + Theme.radius)
+        startY: 0
 
-        // Inverted fillet on top-left: curves concavely from (-S, bodyTop) into (0, bodyTop + S)
-        PathQuad {
-            controlX: 0
-            controlY: root.bodyTop
-            x: 0
-            y: root.bodyTop + root.leftShoulder
-        }
-
-        // Left edge going down to bottom-left corner
+        // 1. Top of tab
         PathLine {
-            x: 0
-            y: Math.max(root.bodyTop + root.leftShoulder, root.height - root.cornerRadius)
+            x: root.tabCentered
+                ? (root.tabLeft + root.effectiveTabWidth - Theme.radius)
+                : (root.width - Theme.radius)
+            y: 0
         }
 
-        // Bottom-left rounded corner
+        // 2. Top-right corner of tab
         PathQuad {
-            controlX: 0
-            controlY: root.height
-            x: Math.min(root.cornerRadius, root.width / 2)
-            y: root.height
+            controlX: root.tabCentered ? (root.tabLeft + root.effectiveTabWidth) : root.width
+            controlY: 0
+            x: root.tabCentered ? (root.tabLeft + root.effectiveTabWidth) : root.width
+            y: Theme.radius
         }
 
-        // Bottom edge going right
+        // 3. Right side of tab down towards body
         PathLine {
-            x: Math.max(root.cornerRadius, root.width - root.cornerRadius)
-            y: root.height
+            x: root.tabCentered ? (root.tabLeft + root.effectiveTabWidth) : root.width
+            y: root.tabCentered ? (root.bodyTop - root.shoulder) : (root.height - root.bodyCorner)
         }
 
-        // Bottom-right rounded corner
+        // 4. (Centered only) Right concave shoulder into dropdown body top
+        PathQuad {
+            controlX: root.tabCentered ? (root.tabLeft + root.effectiveTabWidth) : root.width
+            controlY: root.tabCentered ? root.bodyTop : 0
+            x: root.tabCentered ? (root.tabLeft + root.effectiveTabWidth + root.shoulder) : root.width
+            y: root.tabCentered ? root.bodyTop : 0
+        }
+
+        // 5. (Centered only) Across body top to top-right corner
+        PathLine {
+            x: root.tabCentered ? (root.width - root.bodyCorner) : root.width
+            y: root.tabCentered ? root.bodyTop : (root.height - root.bodyCorner)
+        }
+
+        // 6. (Centered only) Top-right corner of body
+        PathQuad {
+            controlX: root.tabCentered ? root.width : root.width
+            controlY: root.tabCentered ? root.bodyTop : root.height
+            x: root.tabCentered ? root.width : (root.width - root.bodyCorner)
+            y: root.tabCentered ? (root.bodyTop + root.bodyCorner) : root.height
+        }
+
+        // 7. Right wall of dropdown body
+        PathLine {
+            x: root.width
+            y: root.height - root.bodyCorner
+        }
+
+        // 8. Bottom-right corner
         PathQuad {
             controlX: root.width
             controlY: root.height
-            x: root.width
-            y: Math.max(root.bodyTop + root.rightShoulder, root.height - root.cornerRadius)
+            x: root.width - root.bodyCorner
+            y: root.height
         }
 
-        // Right edge going up to right shoulder
+        // 9. Bottom edge
         PathLine {
-            x: root.width
-            y: root.bodyTop + root.rightShoulder
+            x: root.bodyCorner
+            y: root.height
         }
 
-        // Inverted fillet on top-right: curves concavely from (W, bodyTop + S) into (W + S, bodyTop)
+        // 10. Bottom-left corner
         PathQuad {
-            controlX: root.width
+            controlX: 0
+            controlY: root.height
+            x: 0
+            y: root.height - root.bodyCorner
+        }
+
+        // 11. Left wall of dropdown body
+        PathLine {
+            x: 0
+            y: root.bodyTop + root.bodyCorner
+        }
+
+        // 12. Top-left corner of dropdown body
+        PathQuad {
+            controlX: 0
             controlY: root.bodyTop
-            x: root.width + root.rightShoulder
+            x: root.bodyCorner
             y: root.bodyTop
         }
 
-        // Top edge closing back to start
+        // 13. Across body top to left concave shoulder
         PathLine {
-            x: -root.leftShoulder
+            x: (root.tabCentered ? root.tabLeft : (root.width - root.effectiveTabWidth)) - root.shoulder
             y: root.bodyTop
+        }
+
+        // 14. Concave shoulder curving up into tab left wall
+        PathQuad {
+            controlX: root.tabCentered ? root.tabLeft : (root.width - root.effectiveTabWidth)
+            controlY: root.bodyTop
+            x: root.tabCentered ? root.tabLeft : (root.width - root.effectiveTabWidth)
+            y: root.bodyTop - root.shoulder
+        }
+
+        // 15. Left wall of tab
+        PathLine {
+            x: root.tabCentered ? root.tabLeft : (root.width - root.effectiveTabWidth)
+            y: Theme.radius
+        }
+
+        // 16. Top-left corner of tab closing back to start
+        PathQuad {
+            controlX: root.tabCentered ? root.tabLeft : (root.width - root.effectiveTabWidth)
+            controlY: 0
+            x: (root.tabCentered ? root.tabLeft : (root.width - root.effectiveTabWidth)) + Theme.radius
+            y: 0
         }
     }
 }

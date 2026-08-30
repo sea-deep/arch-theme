@@ -11,12 +11,7 @@ PanelWindow {
     required property var modelData
     screen: modelData
 
-    readonly property bool hasTiledWindows: {
-        const ws = Hyprland.focusedWorkspace
-        if (!ws || !ws.toplevels || !ws.toplevels.values)
-            return false
-        return ws.toplevels.values.length > 0
-    }
+    readonly property bool hasTiledWindows: Hyprland.activeToplevel !== null
 
     anchors.bottom: true
     anchors.left: true

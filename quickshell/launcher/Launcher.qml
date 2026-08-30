@@ -203,7 +203,7 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: Theme.durationSlow
+            duration: root.showing ? Theme.durationMedium : Theme.durationFast
             easing.type: Theme.easingDecelerate
         }
     }

@@ -109,7 +109,12 @@ PanelWindow {
                     }
 
                     HoverHandler { id: clearHover }
-                    TapHandler { onTapped: NotificationServer.clearAll() }
+                    TapHandler {
+                        onTapped: {
+                            NotificationServer.clearAll()
+                            UiState.notificationCenterVisible = false
+                        }
+                    }
                 }
 
                 Rectangle {

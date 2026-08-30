@@ -43,6 +43,25 @@ Item {
         }
     }
 
+    Connections {
+        target: Notifications.NotificationServer.notificationList
+        function onValuesChanged() {
+            if (UiState.notificationCenterVisible && Notifications.NotificationServer.notificationList.values.length === 0) {
+                closeAutoTimer.restart()
+            }
+        }
+    }
+
+    Timer {
+        id: closeAutoTimer
+        interval: 180
+        onTriggered: {
+            if (UiState.notificationCenterVisible && Notifications.NotificationServer.notificationList.values.length === 0) {
+                UiState.notificationCenterVisible = false
+            }
+        }
+    }
+
     onShowingChanged: {
         if (expanded) {
             if (UiState.notificationCenterVisible)
@@ -186,7 +205,12 @@ Item {
                     }
 
                     HoverHandler { id: clearHover }
-                    TapHandler { onTapped: Notifications.NotificationServer.clearAll() }
+                    TapHandler {
+                        onTapped: {
+                            Notifications.NotificationServer.clearAll()
+                            UiState.notificationCenterVisible = false
+                        }
+                    }
                 }
             }
 
@@ -201,6 +225,11 @@ Item {
                 delegate: Notifications.NotificationCard {
                     width: listView.width
                     notification: modelData
+                    onDismissed: {
+                        if (listView.count <= 1) {
+                            UiState.notificationCenterVisible = false
+                        }
+                    }
                 }
                 
                 Text {

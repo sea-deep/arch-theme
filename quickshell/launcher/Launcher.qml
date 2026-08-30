@@ -256,8 +256,6 @@ PanelWindow {
             y: (1 - root.reveal) * (launcherCard.height + 24)
         }
 
-        strokeColor: Theme.surfaceVariant
-
         // Consume clicks on card so backdrop doesn't close launcher
         MouseArea {
             anchors.fill: parent
@@ -288,12 +286,7 @@ PanelWindow {
                     Layout.preferredHeight: Theme.barHeight
                     radius: Theme.radius
                     color: Theme.bgDark
-                    border.color: searchInput.activeFocus ? Theme.accent : Theme.surfaceVariant
-                    border.width: searchInput.activeFocus ? 1.5 : 1
-
-                    Behavior on border.color {
-                        ColorAnimation { duration: Theme.durationFast }
-                    }
+                    border.width: 0
 
                     RowLayout {
                         anchors.fill: parent
@@ -428,8 +421,7 @@ PanelWindow {
                     implicitWidth: countText.implicitWidth + 20
                     radius: Theme.radius
                     color: Theme.bgDark
-                    border.color: Theme.surfaceVariant
-                    border.width: 1
+                    border.width: 0
 
                     Text {
                         id: countText
@@ -632,13 +624,9 @@ PanelWindow {
                         color: isSelected 
                             ? Theme.surface 
                             : (cardMouse.containsMouse ? Theme.bgLight : Theme.bgDark)
-                        border.color: isSelected 
-                            ? Theme.accent 
-                            : (cardMouse.containsMouse ? Theme.surfaceVariant : "transparent")
-                        border.width: isSelected ? 1.5 : 1
+                        border.width: 0
 
                         Behavior on color { ColorAnimation { duration: Theme.durationFast } }
-                        Behavior on border.color { ColorAnimation { duration: Theme.durationFast } }
                         Behavior on scale { NumberAnimation { duration: Theme.durationFast; easing.type: Easing.OutQuad } }
 
                         ColumnLayout {

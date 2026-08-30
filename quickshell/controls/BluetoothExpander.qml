@@ -374,11 +374,9 @@ Item {
                             radius: Theme.radiusSmall
                             color: modelData.connected ? Theme.accent
                                 : (devHover.hovered ? Theme.surface : Theme.bgLight)
-                            border.color: modelData.connected ? Theme.accent : (devHover.hovered ? Theme.surfaceVariant : "transparent")
-                            border.width: 1
+                            border.width: 0
 
                             Behavior on color { ColorAnimation { duration: Theme.durationFast } }
-                            Behavior on border.color { ColorAnimation { duration: Theme.durationFast } }
 
                             RowLayout {
                                 anchors.fill: parent

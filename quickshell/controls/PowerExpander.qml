@@ -14,7 +14,7 @@ Item {
     readonly property int bodyHeight: 240
     property real reveal: expanded ? 1 : 0
 
-    implicitWidth: expanded || reveal > 0 ? 280 : Theme.compactPillSize
+    implicitWidth: expanded || reveal > 0 ? 320 : Theme.compactPillSize
     implicitHeight: reveal > 0
         ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
         : Theme.barHeight
@@ -172,12 +172,10 @@ Item {
                             Layout.fillHeight: true
                             Layout.minimumWidth: 0
                             radius: Theme.radiusSmall
-                            color: btnMouseArea.containsMouse ? Theme.accent : Theme.bgLight
-                            border.color: btnMouseArea.containsMouse ? Theme.accent : Theme.surfaceVariant
-                            border.width: 1
+                            color: btnMouseArea.containsMouse ? Theme.accent : Theme.surface
+                            border.width: 0
 
                             Behavior on color { ColorAnimation { duration: Theme.durationFast } }
-                            Behavior on border.color { ColorAnimation { duration: Theme.durationFast } }
 
                             RowLayout {
                                 anchors.fill: parent

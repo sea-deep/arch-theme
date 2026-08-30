@@ -477,16 +477,29 @@ PanelWindow {
                     HoverHandler { id: rowHover }
                 }
             }
+        }
+
+        // Empty state overlay
+        ColumnLayout {
+            anchors.centerIn: parent
+            anchors.verticalCenterOffset: 24
+            visible: listView.count === 0
+            spacing: 8
 
             Text {
-                visible: listView.count === 0
                 Layout.alignment: Qt.AlignHCenter
-                Layout.topMargin: 40
-                text: "󰅍\n\nClipboard empty"
-                horizontalAlignment: Text.AlignHCenter
-                color: Theme.fgDim
+                text: "󰅍"
+                color: Theme.fgMuted
                 font.family: Theme.fontFamily
-                font.pixelSize: 14
+                font.pixelSize: 28
+            }
+
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                text: root.searchQuery.length > 0 ? "No matching items" : "Clipboard empty"
+                color: Theme.fgDim
+                font.family: Theme.fontFamilySans
+                font.pixelSize: 13
                 font.weight: Theme.fontWeight
             }
         }

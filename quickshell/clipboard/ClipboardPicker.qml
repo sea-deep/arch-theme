@@ -22,8 +22,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? 90 : 70
-            easing.type: root.showing ? Easing.OutCubic : Easing.InCubic
+            duration: root.showing ? 80 : 60
+            easing.type: root.showing ? Easing.OutQuad : Easing.InQuad
         }
     }
 
@@ -176,8 +176,10 @@ PanelWindow {
         y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
         visible: root.cursorX >= 0 || !posProc.running
 
-        scale: 0.94 + 0.06 * root.reveal
-        opacity: Math.min(1.0, root.reveal * 1.2)
+        opacity: root.reveal
+        transform: Translate {
+            y: (1 - root.reveal) * 6
+        }
 
         color: Theme.bg
         radius: 12

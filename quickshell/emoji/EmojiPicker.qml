@@ -23,8 +23,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? 90 : 70
-            easing.type: root.showing ? Easing.OutCubic : Easing.InCubic
+            duration: root.showing ? 80 : 60
+            easing.type: root.showing ? Easing.OutQuad : Easing.InQuad
         }
     }
 
@@ -81,11 +81,16 @@ PanelWindow {
     }
 
     function filterEmojis(query) {
+        if (query === "") {
+            root.displayEmojis = root.allEmojis
+            root.emojiCount = root.allEmojis.length
+            return
+        }
         var src = root.allEmojis
         var result = []
         for (var i = 0; i < src.length; i++) {
             var e = src[i]
-            if (query === "" || e.name.toLowerCase().indexOf(query) !== -1) {
+            if (e.name.toLowerCase().indexOf(query) !== -1) {
                 result.push(e)
             }
         }
@@ -100,14 +105,16 @@ PanelWindow {
 
     Component.onCompleted: {
         buildEmojiList()
-        filterEmojis("")
+        root.displayEmojis = root.allEmojis
+        root.emojiCount = root.allEmojis.length
     }
 
     onShowingChanged: {
         if (showing) {
             searchQuery = ""
             searchInput.text = ""
-            filterEmojis("")
+            root.displayEmojis = root.allEmojis
+            root.emojiCount = root.allEmojis.length
             posProc.running = true
             Qt.callLater(function() { searchInput.forceActiveFocus() })
         }
@@ -158,8 +165,10 @@ PanelWindow {
         y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
         visible: root.cursorX >= 0 || !posProc.running
 
-        scale: 0.94 + 0.06 * root.reveal
-        opacity: Math.min(1.0, root.reveal * 1.2)
+        opacity: root.reveal
+        transform: Translate {
+            y: (1 - root.reveal) * 6
+        }
 
         color: Theme.bg
         radius: 12

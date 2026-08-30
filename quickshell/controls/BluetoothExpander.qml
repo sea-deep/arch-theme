@@ -85,20 +85,21 @@ Item {
     }
 
     function sendFile(device) {
+        const scriptPath = Quickshell.env("HOME") + "/code/arch-theme/quickshell/scripts/bt-send.py"
         if (!device) {
-            Quickshell.execDetached(["blueman-sendto"])
+            Quickshell.execDetached(["python3", scriptPath])
         } else {
             const addr = device.address || ""
             if (addr !== "") {
-                Quickshell.execDetached(["blueman-sendto", "--device=" + addr])
+                Quickshell.execDetached(["python3", scriptPath, addr])
             } else {
-                Quickshell.execDetached(["blueman-sendto"])
+                Quickshell.execDetached(["python3", scriptPath])
             }
         }
     }
 
     function openManager() {
-        Quickshell.execDetached(["blueman-manager"])
+        Quickshell.execDetached(["kitty", "--class", "floating_term", "-e", "bluetoothctl"])
     }
 
     function getDeviceIcon(device) {

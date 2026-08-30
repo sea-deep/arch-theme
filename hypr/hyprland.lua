@@ -3,8 +3,8 @@ local terminal = "kitty"
 local fileManager = "thunar"
 local browser = "zen-browser"
 
-hl.monitor({ output = "eDP-1", mode = "1920x1080@60.050", position = "0x0", scale = 1.2 })
-hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1.2 })
+hl.monitor({ output = "eDP-1", mode = "1920x1080@60.050", position = "0x0", scale = 1.0 })
+hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1.0 })
 
 hl.config({
     xwayland = {
@@ -51,13 +51,8 @@ hl.config({
         rounding = 10,
         dim_inactive = true,
         dim_strength = 0.15,
-        active_opacity = 1.0,
-        inactive_opacity = 1.0,
         blur = { enabled = false },
         shadow = { enabled = false },
-    },
-    animations = {
-        enabled = true,
     },
     misc = {
         force_default_wallpaper = 0,
@@ -65,8 +60,9 @@ hl.config({
     }
 })
 
--- Hyprland's native Lua provider uses curve/animation objects; string arrays
--- inside hl.config are ignored. Keep opening and closing on the same quick,
+-- Bezier Curves & Animations
+-- All transitions standardise on the macOS curve. Layer windows (Waybar/SwayNC)
+-- should appear without a floating pop-in; normal app windows pop in with the
 -- fluid curve, and leave opacity transitions disabled.
 hl.curve("macOS", { type = "bezier", points = { {0.16, 1}, {0.3, 1} } })
 hl.animation({ leaf = "global",      enabled = true,  speed = 10,  bezier = "default" })
@@ -104,6 +100,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("wl-paste --type image --watch clipse -wl-store")
     hl.exec_cmd("sway-audio-idle-inhibit")
     hl.exec_cmd("gsettings set org.gnome.desktop.wm.preferences button-layout ':close'")
+    hl.exec_cmd("gsettings set org.gnome.desktop.interface text-scaling-factor 1.15")
     hl.exec_cmd("gsettings set org.gnome.desktop.interface cursor-theme breeze_cursors")
     hl.exec_cmd("gsettings set org.gnome.desktop.interface cursor-size 24")
     hl.exec_cmd("gsettings set org.gnome.desktop.sound theme-name Pop")

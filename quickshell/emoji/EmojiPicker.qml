@@ -19,17 +19,7 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
     color: "transparent"
-    property bool showing: UiState.emojiVisible
-    property real reveal: showing ? 1 : 0
-
-    Behavior on reveal {
-        NumberAnimation {
-            duration: 60
-            easing.type: Easing.OutQuad
-        }
-    }
-
-    visible: reveal > 0
+    visible: UiState.emojiVisible
 
     Shortcut {
         sequence: "Escape"
@@ -123,8 +113,8 @@ PanelWindow {
         root.emojiCount = root.allEmojis.length
     }
 
-    onShowingChanged: {
-        if (showing) {
+    onVisibleChanged: {
+        if (visible) {
             searchQuery = ""
             searchInput.text = ""
             root.displayEmojis = root.allEmojis
@@ -146,15 +136,6 @@ PanelWindow {
         height: 440
         x: root.cursorX < 0 ? (root.width - width) / 2 : root.cursorX
         y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
-        visible: true
-
-        transform: Scale {
-            origin.x: popup.width / 2
-            origin.y: popup.height / 2
-            xScale: 0.96 + (0.04 * root.reveal)
-            yScale: xScale
-        }
-        opacity: root.reveal
 
         color: Theme.bg
         radius: 12

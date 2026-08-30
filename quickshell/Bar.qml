@@ -113,7 +113,7 @@ PanelWindow {
             id: workspacesModule
             z: 3
             anchors.left: parent.left
-            anchors.leftMargin: 6
+            anchors.leftMargin: 0
             anchors.top: parent.top
         }
 
@@ -132,7 +132,7 @@ PanelWindow {
             id: rightModules
             z: 1
             anchors.right: parent.right
-            anchors.rightMargin: 6
+            anchors.rightMargin: 0
             anchors.top: parent.top
             width: implicitWidth
             height: Theme.barHeight

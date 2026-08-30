@@ -201,15 +201,15 @@ Item {
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 28
-                    spacing: 7
+                    spacing: 8
 
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 8
 
                         Text {
-                            text: root.isDiscovering ? "󰑐" : "󰂯"
-                            color: root.isDiscovering ? Theme.accent : (scanHover.hovered ? Theme.accent : Theme.blue)
+                            text: root.isDiscovering ? "󰑐" : (root.isPowered ? "󰂯" : "󰂲")
+                            color: root.isDiscovering ? Theme.accent : (root.isPowered ? (scanHover.hovered ? Theme.accent : Theme.blue) : Theme.fgDim)
                             font.family: Theme.fontFamily
                             font.pixelSize: 16
 
@@ -245,20 +245,22 @@ Item {
                     }
 
                     RowLayout {
-                        Layout.preferredWidth: 62
+                        spacing: 8
                         Layout.preferredHeight: 26
+
                         Text {
                             text: root.isPowered ? "On" : "Off"
                             color: root.isPowered ? Theme.accent : Theme.fgDim
-                            font.family: Theme.fontFamily
+                            font.family: Theme.fontFamilySans
                             font.pixelSize: 12
                             font.weight: Theme.fontWeight
                         }
+
                         Rectangle {
-                            Layout.preferredWidth: 30
+                            Layout.preferredWidth: 32
                             Layout.preferredHeight: 18
                             radius: height / 2
-                            color: root.isPowered ? Theme.accent : Theme.surface
+                            color: root.isPowered ? Theme.accent : Theme.surfaceVariant
 
                             Rectangle {
                                 width: 14
@@ -281,53 +283,43 @@ Item {
                             }
                         }
                     }
-
-                    Text {
-                        text: "󰅖"
-                        color: closeHover.hovered ? Theme.red : Theme.fgDim
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 14
-                        HoverHandler { id: closeHover }
-                        TapHandler { onTapped: root.close() }
-                    }
                 }
 
                 // Adapter off state
-                Rectangle {
+                Item {
                     visible: !root.adapter || !root.isPowered
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    radius: Theme.radiusSmall
-                    color: Theme.bgLight
 
                     ColumnLayout {
                         anchors.centerIn: parent
-                        spacing: 8
+                        spacing: 10
 
                         Text {
                             Layout.alignment: Qt.AlignHCenter
                             text: "󰂲"
-                            color: Theme.fgDim
+                            color: Theme.fgMuted
                             font.family: Theme.fontFamily
-                            font.pixelSize: 32
+                            font.pixelSize: 28
                         }
 
                         Text {
                             Layout.alignment: Qt.AlignHCenter
-                            text: !root.adapter ? "No Bluetooth Adapter" : "Bluetooth is off"
-                            color: Theme.fg
+                            text: !root.adapter ? "No Bluetooth Adapter" : "Bluetooth is turned off"
+                            color: Theme.fgDim
                             font.family: Theme.fontFamilySans
-                            font.pixelSize: 12
+                            font.pixelSize: 13
                             font.weight: Theme.fontWeight
                         }
 
                         Rectangle {
                             visible: root.adapter !== null && !root.isPowered
                             Layout.alignment: Qt.AlignHCenter
-                            implicitWidth: turnOnText.implicitWidth + 20
+                            implicitWidth: turnOnText.implicitWidth + 24
                             implicitHeight: 28
                             radius: Theme.radiusSmall
                             color: turnOnHover.hovered ? Theme.accentGlow : Theme.accent
+                            Behavior on color { ColorAnimation { duration: Theme.durationFast } }
 
                             Text {
                                 id: turnOnText
@@ -335,7 +327,7 @@ Item {
                                 text: "Turn On"
                                 color: Theme.bgDark
                                 font.family: Theme.fontFamilySans
-                                font.pixelSize: 13
+                                font.pixelSize: 12
                                 font.weight: Theme.fontWeightBold
                             }
 

@@ -261,21 +261,21 @@ Item {
                         }
                     }
                     RowLayout {
-                        Layout.preferredWidth: 62
+                        spacing: 8
                         Layout.preferredHeight: 26
                         Text {
-                            text: "Wi-Fi"
-                            color: Theme.fgDim
-                            font.family: Theme.fontFamily
+                            text: Networking.wifiEnabled ? "On" : "Off"
+                            color: Networking.wifiEnabled ? Theme.accent : Theme.fgDim
+                            font.family: Theme.fontFamilySans
                             font.pixelSize: 12
                             font.weight: Theme.fontWeight
                         }
                         Rectangle {
                             id: wifiSwitch
-                            Layout.preferredWidth: 30
+                            Layout.preferredWidth: 32
                             Layout.preferredHeight: 18
                             radius: height / 2
-                            color: Networking.wifiEnabled ? Theme.accent : Theme.surface
+                            color: Networking.wifiEnabled ? Theme.accent : Theme.surfaceVariant
 
                             Rectangle {
                                 width: 14
@@ -293,14 +293,6 @@ Item {
                             HoverHandler { id: wifiToggleHover }
                             TapHandler { onTapped: Networking.wifiEnabled = !Networking.wifiEnabled }
                         }
-                    }
-                    Text {
-                        text: "󰅖"
-                        color: closeHover.hovered ? Theme.red : Theme.fgDim
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 14
-                        HoverHandler { id: closeHover }
-                        TapHandler { onTapped: root.close() }
                     }
                 }
 

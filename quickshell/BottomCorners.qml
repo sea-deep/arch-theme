@@ -37,6 +37,8 @@ PanelWindow {
         Region { item: leftBar }
         Region { item: rightBar }
         Region { item: bottomBar }
+        Region { item: topLeftCorner }
+        Region { item: topRightCorner }
         Region { item: leftCorner }
         Region { item: rightCorner }
     }
@@ -81,6 +83,33 @@ PanelWindow {
         anchors.right: parent.right
         height: 2
         color: Theme.bg
+        opacity: root.hasTiledWindows ? 1.0 : 0.0
+        visible: opacity > 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
+        }
+    }
+
+    Components.InvertedCorner {
+        id: topLeftCorner
+        anchors.top: parent.top
+        anchors.left: parent.left
+        cornerRadius: 10
+        opacity: root.hasTiledWindows ? 1.0 : 0.0
+        visible: opacity > 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
+        }
+    }
+
+    Components.InvertedCorner {
+        id: topRightCorner
+        anchors.top: parent.top
+        anchors.right: parent.right
+        cornerRadius: 10
+        flipHorizontal: true
         opacity: root.hasTiledWindows ? 1.0 : 0.0
         visible: opacity > 0
 

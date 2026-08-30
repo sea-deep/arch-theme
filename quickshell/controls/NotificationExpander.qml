@@ -13,7 +13,7 @@ Item {
     readonly property bool showing: UiState.notificationCenterVisible || UiState.notificationPreviewVisible
     readonly property int fullBodyHeight: 500
     readonly property int previewBodyHeight: Math.min(500, previewLayout.implicitHeight + 24)
-    readonly property int bodyHeight: UiState.notificationCenterVisible ? fullBodyHeight : Math.max(0, previewBodyHeight)
+    property real bodyHeight: UiState.notificationCenterVisible ? fullBodyHeight : Math.max(0, previewBodyHeight)
     property real expandedWidth: 380
     property real maximumBodyHeight: 500
     property real reveal: showing ? 1 : 0

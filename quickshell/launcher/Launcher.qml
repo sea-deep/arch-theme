@@ -53,9 +53,6 @@ PanelWindow {
                 var key = app.name.toLowerCase() + "::" + cleanExec.toLowerCase()
                 if (seen[key]) continue
                 seen[key] = true
-                if (app.icon) {
-                    app.iconPath = Quickshell.iconPath(app.icon, "application-x-executable")
-                }
                 valid.push(app)
             }
         }
@@ -187,8 +184,9 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? 75 : 50
-            easing.type: root.showing ? Easing.OutCubic : Easing.InCubic
+            duration: root.showing ? 180 : 110
+            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
+            easing.overshoot: 1.08
         }
     }
 
@@ -232,7 +230,7 @@ PanelWindow {
         width: 888
         // Increase height to compensate for the hidden bottom border
         height: layout.implicitHeight + layout.anchors.topMargin + 24
-
+        
         // Mathematically anchor perfectly flush to bottom edge, hiding the bottom border
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
@@ -567,12 +565,9 @@ PanelWindow {
 
                                 IconImage {
                                     anchors.fill: parent
-                                    asynchronous: true
-                                    source: (delegateRoot.modelData && delegateRoot.modelData.iconPath)
-                                        ? delegateRoot.modelData.iconPath
-                                        : (delegateRoot.modelData && delegateRoot.modelData.icon
-                                            ? Quickshell.iconPath(delegateRoot.modelData.icon, "application-x-executable")
-                                            : "")
+                                    source: delegateRoot.modelData && delegateRoot.modelData.icon
+                                        ? Quickshell.iconPath(delegateRoot.modelData.icon, "application-x-executable")
+                                        : ""
                                 }
                             }
 

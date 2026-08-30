@@ -18,21 +18,11 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
     color: "transparent"
-    property bool showing: UiState.emojiVisible
-    property real reveal: showing ? 1 : 0
-
-    Behavior on reveal {
-        NumberAnimation {
-            duration: root.showing ? 45 : 35
-            easing.type: root.showing ? Easing.OutQuad : Easing.InQuad
-        }
-    }
-
-    visible: reveal > 0
+    visible: UiState.emojiVisible
 
     Shortcut {
         sequence: "Escape"
-        enabled: root.showing
+        enabled: UiState.emojiVisible
         onActivated: UiState.emojiVisible = false
     }
 
@@ -81,16 +71,11 @@ PanelWindow {
     }
 
     function filterEmojis(query) {
-        if (query === "") {
-            root.displayEmojis = root.allEmojis
-            root.emojiCount = root.allEmojis.length
-            return
-        }
         var src = root.allEmojis
         var result = []
         for (var i = 0; i < src.length; i++) {
             var e = src[i]
-            if (e.name.toLowerCase().indexOf(query) !== -1) {
+            if (query === "" || e.name.toLowerCase().indexOf(query) !== -1) {
                 result.push(e)
             }
         }
@@ -105,16 +90,16 @@ PanelWindow {
 
     Component.onCompleted: {
         buildEmojiList()
-        root.displayEmojis = root.allEmojis
-        root.emojiCount = root.allEmojis.length
+        filterEmojis("")
     }
 
-    onShowingChanged: {
-        if (showing) {
+    onVisibleChanged: {
+        if (visible) {
+            cursorX = -1
+            cursorY = -1
             searchQuery = ""
             searchInput.text = ""
-            root.displayEmojis = root.allEmojis
-            root.emojiCount = root.allEmojis.length
+            filterEmojis("")
             posProc.running = true
             Qt.callLater(function() { searchInput.forceActiveFocus() })
         }
@@ -124,11 +109,6 @@ PanelWindow {
     MouseArea {
         anchors.fill: parent
         onClicked: UiState.emojiVisible = false
-
-        Rectangle {
-            anchors.fill: parent
-            color: Qt.rgba(0, 0, 0, root.reveal * 0.35)
-        }
     }
 
     // Get cursor position
@@ -165,18 +145,17 @@ PanelWindow {
         y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
         visible: root.cursorX >= 0 || !posProc.running
 
-        opacity: root.reveal
-        transform: Translate {
-            y: (1 - root.reveal) * 6
-        }
-
         color: Theme.bg
         radius: 12
         border.color: Theme.surface
         border.width: 1
 
         // Consume clicks so they don't hit the backdrop MouseArea
-        TapHandler {}
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.AllButtons
+            onClicked: {}
+        }
 
         ColumnLayout {
             anchors.fill: parent

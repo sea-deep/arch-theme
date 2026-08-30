@@ -17,21 +17,11 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
     color: "transparent"
-    property bool showing: UiState.clipboardVisible
-    property real reveal: showing ? 1 : 0
-
-    Behavior on reveal {
-        NumberAnimation {
-            duration: root.showing ? 45 : 35
-            easing.type: root.showing ? Easing.OutQuad : Easing.InQuad
-        }
-    }
-
-    visible: reveal > 0
+    visible: UiState.clipboardVisible
 
     Shortcut {
         sequence: "Escape"
-        enabled: root.showing
+        enabled: UiState.clipboardVisible
         onActivated: UiState.clipboardVisible = false
     }
 
@@ -45,7 +35,7 @@ PanelWindow {
             x: 0
             y: 0
             width: root.width
-            height: (root.showing && !root.isDragging) ? root.height : 0
+            height: root.isDragging ? 0 : root.height
         }
         Region { item: popup }
     }
@@ -119,8 +109,10 @@ PanelWindow {
         ])
     }
 
-    onShowingChanged: {
-        if (showing) {
+    onVisibleChanged: {
+        if (visible) {
+            cursorX = -1
+            cursorY = -1
             searchQuery = ""
             searchInput.text = ""
             clipboardFile.reload()
@@ -133,13 +125,8 @@ PanelWindow {
     // Click outside to close (backdrop)
     MouseArea {
         anchors.fill: parent
-        enabled: !root.isDragging && root.showing
+        enabled: !root.isDragging
         onClicked: UiState.clipboardVisible = false
-
-        Rectangle {
-            anchors.fill: parent
-            color: Qt.rgba(0, 0, 0, root.reveal * 0.35)
-        }
     }
 
     // Get cursor position
@@ -175,11 +162,6 @@ PanelWindow {
         x: root.cursorX < 0 ? (root.width - width) / 2 : root.cursorX
         y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
         visible: root.cursorX >= 0 || !posProc.running
-
-        opacity: root.reveal
-        transform: Translate {
-            y: (1 - root.reveal) * 6
-        }
 
         color: Theme.bg
         radius: 12

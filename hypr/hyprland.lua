@@ -216,6 +216,49 @@ end)
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("sh -c '$HOME/.config/hypr/scripts/hot_reload.sh'"))
 hl.bind(mainMod .. " + SHIFT + E", hl.dsp.global("quickshell:power"))
 
+-- Dynamic Display Scaling Shortcuts (as per Hyprland's preferred scale steps)
+local scale_steps = { 1.0, 1.2, 1.25, 1.5 }
+
+local function set_display_scale(target_scale)
+    hl.monitor({ output = "eDP-1", mode = "1920x1080@60.050", position = "0x0", scale = target_scale })
+    hl.monitor({ output = "", mode = "preferred", position = "auto", scale = target_scale })
+    hl.notification.create({
+        text = string.format("Display Scale: %.2fx", target_scale),
+        time = 1800,
+        color = "rgba(57, 197, 187, 1.0)"
+    })
+end
+
+local function step_scale(direction)
+    local monitors = hl.get_monitors()
+    local current = (monitors[1] and monitors[1].scale) or 1.0
+    current = math.floor(current * 100 + 0.5) / 100
+
+    local current_idx = 1
+    local min_diff = 999
+    for i, s in ipairs(scale_steps) do
+        local diff = math.abs(s - current)
+        if diff < min_diff then
+            min_diff = diff
+            current_idx = i
+        end
+    end
+
+    local next_idx = current_idx + direction
+    if next_idx > #scale_steps then
+        next_idx = 1
+    elseif next_idx < 1 then
+        next_idx = #scale_steps
+    end
+
+    set_display_scale(scale_steps[next_idx])
+end
+
+hl.bind(mainMod .. " + equal", function() step_scale(1) end)
+hl.bind(mainMod .. " + plus", function() step_scale(1) end)
+hl.bind(mainMod .. " + CONTROL + equal", function() step_scale(-1) end)
+hl.bind(mainMod .. " + CONTROL + minus", function() step_scale(-1) end)
+
 hl.window_rule({ name = "swappy-float", match = { class = "^(swappy)$" }, float = true })
 hl.window_rule({ name = "pavucontrol-float", match = { class = "^(org.pulseaudio.pavucontrol)$" }, float = true, size = "450 265", move = "875 0" })
 hl.window_rule({ name = "clipse-float", match = { class = "^(clipse)$" }, float = true, size = "800 600", center = true })

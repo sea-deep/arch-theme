@@ -6,6 +6,11 @@ test_*.qml
 quickshell/state/*.frag
 quickshell/state/target_slot
 quickshell/state/*.tmp
+quickshell/state/brightness.txt
+
+# Python cache
+__pycache__/
+*.py[cod]
 
 # QML language server config
 .qmlls.ini

@@ -22,9 +22,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? 160 : 100
-            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
-            easing.overshoot: 1.08
+            duration: 60
+            easing.type: Easing.OutQuad
         }
     }
 
@@ -135,15 +134,16 @@ PanelWindow {
 
     onShowingChanged: {
         if (showing) {
-            cursorX = -1
-            cursorY = -1
-            posProc.running = false
-            posProc.running = true
+            cursorX = UiState.cursorX
+            cursorY = UiState.cursorY
+            if (cursorX >= 0 && cursorY >= 0) {
+                updateCoordinates(cursorX, cursorY)
+            }
             searchQuery = ""
             searchInput.text = ""
             clipboardFile.reload()
             listView.currentIndex = 0
-            Qt.callLater(function() { searchInput.forceActiveFocus() })
+            searchInput.forceActiveFocus()
         }
     }
 
@@ -155,25 +155,8 @@ PanelWindow {
 
         Rectangle {
             anchors.fill: parent
-            color: Qt.rgba(0, 0, 0, root.reveal * 0.35)
-        }
-    }
-
-    // Fallback cursor position fetcher if opened without pre-supplied coordinates
-    Process {
-        id: posProc
-        command: ["hyprctl", "cursorpos"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var parts = text.trim().split(",")
-                if (parts.length === 2) {
-                    var cx = parseInt(parts[0].trim())
-                    var cy = parseInt(parts[1].trim())
-                    if (!isNaN(cx) && !isNaN(cy)) {
-                        root.updateCoordinates(cx, cy)
-                    }
-                }
-            }
+            color: "#000000"
+            opacity: root.reveal * 0.35
         }
     }
 
@@ -184,15 +167,15 @@ PanelWindow {
         height: 440
         x: root.cursorX < 0 ? (root.width - width) / 2 : root.cursorX
         y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
-        visible: root.cursorX >= 0 || !posProc.running
+        visible: true
 
         transform: Scale {
             origin.x: popup.width / 2
             origin.y: popup.height / 2
-            xScale: 0.94 + (0.06 * root.reveal)
+            xScale: 0.96 + (0.04 * root.reveal)
             yScale: xScale
         }
-        opacity: Math.min(1.0, root.reveal * 1.2)
+        opacity: root.reveal
 
         color: Theme.bg
         radius: 12

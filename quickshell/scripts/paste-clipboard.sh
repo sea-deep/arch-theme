@@ -17,7 +17,7 @@ else
 fi
 
 # Small delay to allow Quickshell overlay to close and target window to regain focus
-sleep 0.12
+sleep 0.04
 
 # Simulate Ctrl+V paste keypress via wtype
 wtype -M ctrl -k v -m ctrl 2>/dev/null || true

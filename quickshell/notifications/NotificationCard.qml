@@ -15,30 +15,25 @@ Item {
     height: implicitHeight
     clip: false
 
-    visible: notification !== null && opacity > 0
+    visible: notification !== null
 
-    property real slideOffset: 0
     readonly property bool isSwiping: dragArea.drag.active
-
-    Behavior on slideOffset {
-        enabled: !dragArea.drag.active
-        NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
-    }
 
     ParallelAnimation {
         id: dismissAnim
+        property real targetX: 0
         NumberAnimation {
             target: cardContainer
             property: "x"
-            to: root.slideOffset < 0 ? -root.width - 40 : root.width + 40
-            duration: 180
+            to: dismissAnim.targetX
+            duration: 160
             easing.type: Easing.OutQuad
         }
         NumberAnimation {
-            target: root
+            target: cardContainer
             property: "opacity"
             to: 0
-            duration: 180
+            duration: 160
             easing.type: Easing.OutQuad
         }
         onFinished: {
@@ -49,14 +44,22 @@ Item {
         }
     }
 
+    NumberAnimation {
+        id: snapBackAnim
+        target: cardContainer
+        property: "x"
+        to: 0
+        duration: 150
+        easing.type: Easing.OutCubic
+    }
+
     Rectangle {
         id: cardContainer
-        anchors.left: parent.left
-        anchors.right: parent.right
-        x: root.slideOffset
-        implicitHeight: content.implicitHeight + 18
+        width: root.width
+        x: 0
+        implicitHeight: content.implicitHeight + 14
         height: implicitHeight
-        color: hover.hovered ? Theme.surface : Theme.bgLight
+        color: hover.hovered ? Theme.surface : "transparent"
         radius: Theme.radiusSmall
         border.width: 0
 
@@ -69,16 +72,15 @@ Item {
             enabled: root.slidable
             drag.target: cardContainer
             drag.axis: Drag.XAxis
-            drag.minimumX: -root.width
-            drag.maximumX: root.width
+            drag.minimumX: -root.width * 1.5
+            drag.maximumX: root.width * 1.5
 
             onReleased: {
-                if (Math.abs(cardContainer.x) > 75) {
-                    root.slideOffset = cardContainer.x
+                if (Math.abs(cardContainer.x) > 60) {
+                    dismissAnim.targetX = cardContainer.x > 0 ? root.width + 40 : -root.width - 40
                     dismissAnim.start()
                 } else {
-                    root.slideOffset = 0
-                    cardContainer.x = 0
+                    snapBackAnim.start()
                 }
             }
 

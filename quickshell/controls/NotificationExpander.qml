@@ -197,6 +197,7 @@ Item {
                 clip: true
                 
                 delegate: Notifications.NotificationCard {
+                    width: listView.width
                     notification: modelData
                 }
                 
@@ -271,8 +272,7 @@ Item {
 
                         Notifications.NotificationCard {
                             id: toastCard
-                            anchors.left: parent.left
-                            anchors.right: parent.right
+                            width: toastDelegate.width
                             notification: toastDelegate.modelData
                             onDismissed: {
                                 Notifications.NotificationServer.removeToast(toastDelegate.modelData)

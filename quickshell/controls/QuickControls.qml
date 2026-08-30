@@ -38,6 +38,10 @@ Components.Pill {
     clip: false
     focus: expanded
 
+    Behavior on reveal {
+        NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingDecelerate }
+    }
+
     Behavior on implicitHeight {
         NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingDecelerate }
     }

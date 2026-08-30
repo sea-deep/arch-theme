@@ -49,12 +49,12 @@ QtObject {
     readonly property int    compactPaddingRight: 8
     readonly property real   pillAlpha:          1.0
 
-    // Android Material You / Emphasized Motion Tokens
-    readonly property int    durationFast:       90
-    readonly property int    durationMedium:     150
-    readonly property int    durationSlow:       220
+    // Standardized Motion & Transition Tokens
+    readonly property int    durationFast:       100
+    readonly property int    durationMedium:     160
+    readonly property int    durationSlow:       240
     readonly property var    easingEnter:        [0.05, 0.7, 0.1, 1.0]
     readonly property var    easingExit:         [0.3, 0.0, 0.8, 0.15]
     readonly property int    easingDecelerate:   Easing.OutCubic
-    readonly property int    easingEmphasized:   Easing.OutBack
+    readonly property int    easingEmphasized:   Easing.OutCubic
 }

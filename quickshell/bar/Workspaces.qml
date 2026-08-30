@@ -30,8 +30,8 @@ Item {
         ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
         : Theme.barHeight
     
-    Behavior on reveal { NumberAnimation { duration: Theme.durationFast; easing.type: Theme.easingDecelerate } }
-    Behavior on implicitWidth { NumberAnimation { duration: Theme.durationFast; easing.type: Theme.easingDecelerate } }
+    Behavior on reveal { NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingDecelerate } }
+    Behavior on implicitWidth { NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingDecelerate } }
 
     Connections {
         target: Hyprland

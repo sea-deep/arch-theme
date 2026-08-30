@@ -34,43 +34,10 @@ PanelWindow {
     margins.right: 0
 
     mask: Region {
-        Region { item: leftBar }
-        Region { item: rightBar }
-        Region { item: bottomBar }
         Region { item: topLeftCorner }
         Region { item: topRightCorner }
         Region { item: leftCorner }
         Region { item: rightCorner }
-    }
-
-    // Thin left vertical bar connecting top-left corner to bottom-left corner
-    Rectangle {
-        id: leftBar
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        width: 2
-        color: Theme.bg
-    }
-
-    // Thin right vertical bar connecting top-right corner to bottom-right corner
-    Rectangle {
-        id: rightBar
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        width: 2
-        color: Theme.bg
-    }
-
-    // Thin bottom horizontal bar connecting bottom-left corner to bottom-right corner
-    Rectangle {
-        id: bottomBar
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        height: 2
-        color: Theme.bg
     }
 
     Components.InvertedCorner {
@@ -78,6 +45,12 @@ PanelWindow {
         anchors.top: parent.top
         anchors.left: parent.left
         cornerRadius: 10
+        opacity: root.hasTiledWindows ? 1.0 : 0.0
+        visible: opacity > 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
+        }
     }
 
     Components.InvertedCorner {
@@ -86,6 +59,12 @@ PanelWindow {
         anchors.right: parent.right
         cornerRadius: 10
         flipHorizontal: true
+        opacity: root.hasTiledWindows ? 1.0 : 0.0
+        visible: opacity > 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
+        }
     }
 
     Components.InvertedCorner {
@@ -94,6 +73,12 @@ PanelWindow {
         anchors.left: parent.left
         cornerRadius: 10
         flipVertical: true
+        opacity: root.hasTiledWindows ? 1.0 : 0.0
+        visible: opacity > 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
+        }
     }
 
     Components.InvertedCorner {
@@ -103,5 +88,11 @@ PanelWindow {
         cornerRadius: 10
         flipHorizontal: true
         flipVertical: true
+        opacity: root.hasTiledWindows ? 1.0 : 0.0
+        visible: opacity > 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
+        }
     }
 }

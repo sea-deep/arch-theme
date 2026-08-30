@@ -31,8 +31,28 @@ Item {
         && UiState.trayMenuHandle !== null
         && (UiState.trayMenuScreen === "" || UiState.trayMenuScreen === targetScreenName)
     readonly property int itemHeight: 32
+    readonly property bool firstItemRedundant: {
+        if (root.menuStack.length !== 0 || menuOpener.children.values.length === 0)
+            return false
+        const first = menuOpener.children.values[0]
+        if (!first) return false
+        const title = (UiState.trayMenuTitle || "").trim().toLowerCase()
+        const firstText = (first.text || "").trim().toLowerCase()
+        return !first.enabled && (firstText === title || firstText === "")
+    }
+    readonly property int visibleItemCount: {
+        const total = menuOpener.children.values.length
+        if (total === 0) return 1
+        let count = total
+        if (firstItemRedundant) {
+            count--
+            if (total > 1 && menuOpener.children.values[1] && menuOpener.children.values[1].isSeparator)
+                count--
+        }
+        return Math.max(1, count)
+    }
     readonly property int bodyHeight: Math.min(380,
-        46 + Math.max(1, menuOpener.children.values.length) * itemHeight + 12)
+        46 + visibleItemCount * itemHeight + 12)
     property real reveal: expanded ? 1 : 0
 
     property real expandedWidth: Math.max(260, collapsedWidth)
@@ -265,20 +285,14 @@ Item {
                         onClicked: mouse => {
                             const item = trayItemDelegate.modelData
                             const hasValidMenu = item && item.hasMenu && item.menu !== null
-                            if (mouse.button === Qt.LeftButton) {
-                                if (item.onlyMenu && hasValidMenu) {
+                            if (mouse.button === Qt.LeftButton || mouse.button === Qt.RightButton) {
+                                if (hasValidMenu) {
                                     root.toggleMenu(item)
                                 } else {
                                     item.activate()
                                 }
                             } else if (mouse.button === Qt.MiddleButton) {
                                 item.secondaryActivate()
-                            } else if (mouse.button === Qt.RightButton) {
-                                if (hasValidMenu) {
-                                    root.toggleMenu(item)
-                                } else {
-                                    item.secondaryActivate()
-                                }
                             }
                         }
                         onWheel: wheel => {
@@ -427,11 +441,16 @@ Item {
                     required property var modelData
                     required property int index
                     readonly property var menuEntry: modelData
+                    readonly property bool isRedundantTitle: root.firstItemRedundant && delegateRoot.index === 0
+                    readonly property bool isRedundantSeparator: delegateRoot.modelData.isSeparator && (delegateRoot.index === 0 || (delegateRoot.index === 1 && root.firstItemRedundant))
+                    readonly property bool shouldHide: isRedundantTitle || isRedundantSeparator
+
                     width: ListView.view.width
-                    height: modelData.isSeparator ? 9 : root.itemHeight
+                    height: shouldHide ? 0 : (modelData.isSeparator ? 9 : root.itemHeight)
+                    visible: !shouldHide
 
                     Rectangle {
-                        visible: delegateRoot.modelData.isSeparator
+                        visible: delegateRoot.modelData.isSeparator && !delegateRoot.shouldHide
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
@@ -443,7 +462,7 @@ Item {
 
                     Rectangle {
                         anchors.fill: parent
-                        visible: !delegateRoot.modelData.isSeparator
+                        visible: !delegateRoot.modelData.isSeparator && !delegateRoot.shouldHide
                         radius: Theme.radiusSmall
                         color: delegateRoot.modelData.enabled
                                 && (delegateRoot.ListView.isCurrentItem || entryHover.hovered)

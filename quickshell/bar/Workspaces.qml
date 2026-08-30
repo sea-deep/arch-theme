@@ -201,6 +201,7 @@ Item {
 
     // Organic Connected Dropdown Surface when expanded
     Components.ConnectedDropdownSurface {
+        z: 1
         anchors.fill: parent
         hasLeftShoulder: false
         hasRightShoulder: true
@@ -210,6 +211,7 @@ Item {
 
     // Default Pill Surface when collapsed
     Rectangle {
+        z: 2
         anchors.top: parent.top
         anchors.left: parent.left
         width: root.collapsedWidth
@@ -233,7 +235,7 @@ Item {
         anchors.left: parent.left
         width: root.collapsedWidth
         height: Theme.barHeight
-        z: 2
+        z: 3
 
         RowLayout {
             id: topLayout
@@ -426,7 +428,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.margins: 10
         visible: root.reveal > 0
-        opacity: root.reveal
+        opacity: Math.max(0.0, Math.min(1.0, (root.reveal - 0.15) / 0.85))
         z: 2
         
         ColumnLayout {

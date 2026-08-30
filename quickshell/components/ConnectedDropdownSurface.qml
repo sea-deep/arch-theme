@@ -19,10 +19,15 @@ Shape {
     property bool tabOnLeft: false
     property bool tabCentered: false
 
-    readonly property real leftExt: hasLeftShoulder ? shoulderRadius : 0
-    readonly property real rightExt: hasRightShoulder ? shoulderRadius : 0
-    readonly property real botLeftExt: hasBottomLeftInverted ? shoulderRadius : 0
-    readonly property real botRightExt: hasBottomRightInverted ? shoulderRadius : 0
+    readonly property real bodyHeight: Math.max(0, root.height - root.bodyTop)
+    readonly property real geomScale: Math.min(1.0, bodyHeight / Math.max(1, (root.shoulderRadius + root.cornerRadius)))
+    readonly property real effShoulder: root.shoulderRadius * geomScale
+    readonly property real effCorner: Math.min(root.cornerRadius * geomScale, root.width / 2)
+
+    readonly property real leftExt: hasLeftShoulder ? effShoulder : 0
+    readonly property real rightExt: hasRightShoulder ? effShoulder : 0
+    readonly property real botLeftExt: hasBottomLeftInverted ? effShoulder : 0
+    readonly property real botRightExt: hasBottomRightInverted ? effShoulder : 0
 
     preferredRendererType: Shape.CurveRenderer
 
@@ -49,22 +54,22 @@ Shape {
             x: 0
             y: root.hasBottomLeftInverted
                 ? (root.height + root.botLeftExt)
-                : Math.max(root.bodyTop + root.leftExt, root.height - root.cornerRadius)
+                : (root.height - root.effCorner)
         }
 
         // 4. Bottom-Left corner (concave inverted fillet if enabled, else convex rounded)
         PathQuad {
             controlX: 0
             controlY: root.height
-            x: root.hasBottomLeftInverted ? root.botLeftExt : Math.min(root.cornerRadius, root.width / 2)
+            x: root.hasBottomLeftInverted ? root.botLeftExt : root.effCorner
             y: root.height
         }
 
         // 5. Bottom horizontal edge
         PathLine {
             x: root.hasBottomRightInverted
-                ? Math.max(root.cornerRadius, root.width - root.botRightExt)
-                : Math.max(root.cornerRadius, root.width - root.cornerRadius)
+                ? (root.width - root.botRightExt)
+                : (root.width - root.effCorner)
             y: root.height
         }
 
@@ -75,7 +80,7 @@ Shape {
             x: root.width
             y: root.hasBottomRightInverted
                 ? (root.height + root.botRightExt)
-                : Math.max(root.bodyTop + root.rightExt, root.height - root.cornerRadius)
+                : (root.height - root.effCorner)
         }
 
         // 7. Right vertical wall up to top-right shoulder

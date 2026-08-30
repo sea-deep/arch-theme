@@ -62,6 +62,7 @@ Item {
     }
 
     Components.ConnectedDropdownSurface {
+        z: 1
         anchors.fill: parent
         hasLeftShoulder: true
         hasRightShoulder: false
@@ -70,6 +71,7 @@ Item {
     }
 
     Components.Pill {
+        z: 2
         anchors.top: parent.top
         anchors.left: parent.left
         width: Theme.compactPillSize
@@ -89,6 +91,7 @@ Item {
     }
 
     Item {
+        z: 3
         anchors.top: parent.top
         anchors.left: parent.left
         width: Theme.compactPillSize
@@ -121,13 +124,14 @@ Item {
     }
 
     Item {
+        z: 2
         anchors.top: parent.top
         anchors.topMargin: Theme.barHeight + Theme.outerGap
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         visible: root.reveal > 0
-        opacity: root.reveal
+        opacity: Math.max(0.0, Math.min(1.0, (root.reveal - 0.15) / 0.85))
         clip: true
 
         ColumnLayout {

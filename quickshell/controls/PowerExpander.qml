@@ -52,6 +52,7 @@ Item {
     }
 
     Components.ConnectedDropdownSurface {
+        z: 1
         anchors.fill: parent
         hasLeftShoulder: true
         hasRightShoulder: false
@@ -60,6 +61,7 @@ Item {
     }
 
     Rectangle {
+        z: 2
         anchors.top: parent.top
         anchors.right: parent.right
         width: Theme.compactPillSize
@@ -79,6 +81,7 @@ Item {
     }
 
     Item {
+        z: 3
         anchors.top: parent.top
         anchors.right: parent.right
         width: Theme.compactPillSize
@@ -100,12 +103,14 @@ Item {
     }
 
     Rectangle {
+        z: 2
         anchors.top: parent.top
         anchors.topMargin: Theme.barHeight + Theme.outerGap
         anchors.left: parent.left
         anchors.right: parent.right
         height: root.bodyHeight * root.reveal
         visible: height > 0
+        opacity: Math.max(0.0, Math.min(1.0, (root.reveal - 0.15) / 0.85))
         color: "transparent"
         border.width: 0
         clip: true

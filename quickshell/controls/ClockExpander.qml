@@ -153,6 +153,7 @@ Components.Pill {
     }
 
     Components.ConnectedDropdownSurface {
+        z: 1
         anchors.fill: parent
         hasLeftShoulder: true
         hasRightShoulder: true
@@ -160,6 +161,7 @@ Components.Pill {
     }
 
     Item {
+        z: 2
         anchors.top: parent.top
         anchors.topMargin: Theme.barHeight
         anchors.left: parent.left
@@ -167,6 +169,7 @@ Components.Pill {
         height: root.bodyHeight * root.reveal
         clip: true
         visible: root.reveal > 0
+        opacity: Math.max(0.0, Math.min(1.0, (root.reveal - 0.15) / 0.85))
 
         Item {
             anchors.fill: parent

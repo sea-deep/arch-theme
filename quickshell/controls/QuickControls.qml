@@ -42,10 +42,6 @@ Components.Pill {
         NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingDecelerate }
     }
 
-    Behavior on implicitHeight {
-        NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingDecelerate }
-    }
-
     onExpandedChanged: {
         if (expanded) {
             Qt.callLater(() => root.forceActiveFocus())
@@ -242,6 +238,7 @@ Components.Pill {
     }
 
     Components.ConnectedDropdownSurface {
+        z: 1
         anchors.fill: parent
         hasLeftShoulder: true
         hasRightShoulder: true
@@ -250,6 +247,7 @@ Components.Pill {
 
     RowLayout {
         id: metricRow
+        z: 2
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
         height: Theme.barHeight
@@ -261,6 +259,7 @@ Components.Pill {
     }
 
     Item {
+        z: 2
         anchors.top: parent.top
         anchors.topMargin: Theme.barHeight
         anchors.left: parent.left
@@ -268,6 +267,7 @@ Components.Pill {
         height: root.bodyHeight * root.reveal
         clip: true
         visible: root.reveal > 0
+        opacity: Math.max(0.0, Math.min(1.0, (root.reveal - 0.15) / 0.85))
 
         ColumnLayout {
             anchors.fill: parent

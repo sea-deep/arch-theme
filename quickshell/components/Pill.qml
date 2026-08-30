@@ -15,7 +15,7 @@ Rectangle {
     Layout.preferredHeight: Theme.barHeight
     visible: !collapseWhenEmpty || !isEmpty
 
-    color: (active || hovered) ? Theme.bgLight : "transparent"
+    color: (hovered && !active) ? Theme.bgLight : "transparent"
     radius: Theme.radius
     border.width: 0
     border.color: "transparent"

@@ -131,8 +131,8 @@ Item {
     // Organic Connected Dropdown Surface when expanded
     Components.ConnectedDropdownSurface {
         anchors.fill: parent
-        tabWidth: root.collapsedWidth
-        tabOnLeft: true
+        hasLeftShoulder: false
+        hasRightShoulder: true
         visible: root.reveal > 0
     }
 

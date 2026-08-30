@@ -213,8 +213,8 @@ Item {
 
     Components.ConnectedDropdownSurface {
         anchors.fill: parent
-        tabOnLeft: true
-        tabWidth: root.collapsedWidth
+        hasLeftShoulder: true
+        hasRightShoulder: true
         visible: root.reveal > 0
     }
 

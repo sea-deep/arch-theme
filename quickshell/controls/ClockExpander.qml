@@ -19,9 +19,8 @@ Components.Pill {
 
     implicitWidth: topWidth
     implicitHeight: Theme.barHeight + bodyHeight * reveal
-    clip: true
+    clip: false
     focus: expanded
-    border.color: expanded || reveal > 0 ? Theme.accentGlow : (root.hovered ? Theme.accentGlow : Theme.bgDark)
 
     Behavior on reveal { NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingDecelerate } }
 
@@ -155,8 +154,8 @@ Components.Pill {
 
     Components.ConnectedDropdownSurface {
         anchors.fill: parent
-        tabCentered: true
-        tabWidth: root.topWidth
+        hasLeftShoulder: true
+        hasRightShoulder: true
         visible: root.reveal > 0
     }
 
@@ -165,7 +164,9 @@ Components.Pill {
         anchors.topMargin: Theme.barHeight
         anchors.left: parent.left
         anchors.right: parent.right
-        height: root.bodyHeight
+        height: root.bodyHeight * root.reveal
+        clip: true
+        visible: root.reveal > 0
 
         Item {
             anchors.fill: parent

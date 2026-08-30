@@ -35,7 +35,7 @@ Components.Pill {
 
     implicitWidth: metricRow.implicitWidth + 12
     implicitHeight: Theme.barHeight + bodyHeight * reveal
-    clip: true
+    clip: false
     focus: expanded
 
     Behavior on implicitHeight {
@@ -239,8 +239,8 @@ Components.Pill {
 
     Components.ConnectedDropdownSurface {
         anchors.fill: parent
-        tabCentered: true
-        tabWidth: metricRow.implicitWidth + 12
+        hasLeftShoulder: true
+        hasRightShoulder: true
         visible: root.reveal > 0
     }
 
@@ -261,7 +261,9 @@ Components.Pill {
         anchors.topMargin: Theme.barHeight
         anchors.left: parent.left
         anchors.right: parent.right
-        height: root.bodyHeight
+        height: root.bodyHeight * root.reveal
+        clip: true
+        visible: root.reveal > 0
 
         ColumnLayout {
             anchors.fill: parent

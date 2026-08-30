@@ -153,8 +153,8 @@ Item {
 
     Components.ConnectedDropdownSurface {
         anchors.fill: parent
-        tabOnLeft: true
-        tabWidth: Theme.compactPillSize
+        hasLeftShoulder: true
+        hasRightShoulder: true
         visible: root.reveal > 0
     }
 

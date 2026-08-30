@@ -18,7 +18,7 @@ Item {
     property bool rootMenuRetained: false
     property bool rootMenuLoading: false
     property int rootMenuLoadAttempts: 0
-    readonly property real collapsedWidth: trayItems.length === 1 ? Theme.compactPillSize : Math.max(Theme.compactPillSize, trayRow.implicitWidth + Theme.pillPaddingHoriz * 2)
+    readonly property real collapsedWidth: trayItems.length <= 1 ? Theme.compactPillSize : Math.max(Theme.compactPillSize, trayItems.length * 28 + Theme.pillPaddingHoriz * 2)
     readonly property real topWidth: collapsedWidth
     readonly property var trayItems: SystemTray.items.values.filter(item => {
         // The NetworkManager applet is replaced by NetworkExpander, which uses
@@ -261,8 +261,7 @@ Item {
 
         Row {
             id: trayRow
-            anchors.centerIn: parent
-            spacing: 8
+            anchors.fill: parent
 
             Repeater {
                 model: root.trayItems
@@ -270,11 +269,13 @@ Item {
                 Item {
                     id: trayItemDelegate
                     required property var modelData
-                    width: 18
-                    height: 18
+                    width: root.trayItems.length > 0 ? (root.collapsedWidth / root.trayItems.length) : 0
+                    height: Theme.barHeight
 
                     IconImage {
-                        anchors.fill: parent
+                        width: 18
+                        height: 18
+                        anchors.centerIn: parent
                         source: trayItemDelegate.modelData.icon
                     }
 

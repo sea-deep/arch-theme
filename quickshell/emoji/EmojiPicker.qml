@@ -94,10 +94,12 @@ PanelWindow {
     }
 
     function updateCoordinates(cx, cy) {
+        var screenW = (root.screen && root.screen.width > 0) ? root.screen.width : (root.width > 0 ? root.width : 1920)
+        var screenH = (root.screen && root.screen.height > 0) ? root.screen.height : (root.height > 0 ? root.height : 1080)
         var popupW = 340
         var popupH = 440
-        if (cx + popupW > root.width) cx = root.width - popupW - 10
-        if (cy + popupH > root.height) cy = root.height - popupH - 10
+        if (cx + popupW > screenW) cx = screenW - popupW - 10
+        if (cy + popupH > screenH) cy = screenH - popupH - 10
         if (cx < 10) cx = 10
         if (cy < 10) cy = 10
         root.cursorX = cx

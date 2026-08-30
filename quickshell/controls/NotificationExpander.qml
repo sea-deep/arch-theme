@@ -29,6 +29,9 @@ Item {
     Behavior on reveal {
         NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingDecelerate }
     }
+    Behavior on bodyHeight {
+        NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingDecelerate }
+    }
 
     Connections {
         target: Notifications.NotificationServer
@@ -190,7 +193,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 model: Notifications.NotificationServer.notificationList
-                spacing: 10
+                spacing: 8
                 clip: true
                 
                 delegate: Notifications.NotificationCard {
@@ -233,13 +236,35 @@ Item {
                         implicitHeight: toastCard.implicitHeight
                         height: implicitHeight
 
+                        opacity: 0
+                        y: -10
+
+                        Component.onCompleted: {
+                            enterAnim.start()
+                        }
+
+                        ParallelAnimation {
+                            id: enterAnim
+                            NumberAnimation { target: toastDelegate; property: "opacity"; to: 1.0; duration: 180; easing.type: Easing.OutCubic }
+                            NumberAnimation { target: toastDelegate; property: "y"; to: 0; duration: 180; easing.type: Easing.OutCubic }
+                        }
+
                         Timer {
                             id: toastTimer
                             interval: toastDelegate.modelData && toastDelegate.modelData.expireTimeout > 0
                                 ? Math.max(2000, toastDelegate.modelData.expireTimeout * 1000)
                                 : 5000
-                            running: !toastHover.hovered
+                            running: !toastHover.hovered && !toastCard.isSwiping
                             onTriggered: {
+                                exitAnim.start()
+                            }
+                        }
+
+                        ParallelAnimation {
+                            id: exitAnim
+                            NumberAnimation { target: toastDelegate; property: "opacity"; to: 0; duration: 160; easing.type: Easing.InQuad }
+                            NumberAnimation { target: toastDelegate; property: "scale"; to: 0.95; duration: 160; easing.type: Easing.InQuad }
+                            onFinished: {
                                 Notifications.NotificationServer.removeToast(toastDelegate.modelData)
                             }
                         }
@@ -249,6 +274,9 @@ Item {
                             anchors.left: parent.left
                             anchors.right: parent.right
                             notification: toastDelegate.modelData
+                            onDismissed: {
+                                Notifications.NotificationServer.removeToast(toastDelegate.modelData)
+                            }
                         }
 
                         HoverHandler {

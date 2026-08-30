@@ -31,7 +31,7 @@ Item {
             return right.signalStrength - left.signalStrength
         })
     }
-    readonly property int bodyHeight: pendingNetwork ? 420 : 352
+    readonly property int bodyHeight: pendingNetwork ? 444 : 376
     property real reveal: expanded ? 1 : 0
 
     property real expandedWidth: 350
@@ -453,6 +453,36 @@ Item {
                             }
                             HoverHandler { id: connectHover }
                             TapHandler { onTapped: root.connectWithPassword() }
+                        }
+                    }
+                }
+
+                // Footer: Settings link
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 22
+                    spacing: 8
+
+                    Item { Layout.fillWidth: true }
+
+                    RowLayout {
+                        spacing: 5
+                        Text {
+                            text: "󰒓"
+                            color: wifiSettingsHov.hovered ? Theme.accent : Theme.fgDim
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 12
+                        }
+                        Text {
+                            text: "Settings"
+                            color: wifiSettingsHov.hovered ? Theme.accent : Theme.fgDim
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 10
+                            font.weight: Theme.fontWeight
+                        }
+                        HoverHandler { id: wifiSettingsHov }
+                        TapHandler {
+                            onTapped: Quickshell.execDetached(["nm-connection-editor"])
                         }
                     }
                 }

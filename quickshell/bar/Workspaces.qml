@@ -428,7 +428,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.margins: 10
         visible: root.reveal > 0
-        clip: true
+        opacity: Math.max(0.0, Math.min(1.0, (root.reveal - 0.15) / 0.85))
         z: 2
         
         ColumnLayout {

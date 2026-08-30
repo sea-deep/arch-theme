@@ -131,6 +131,7 @@ Item {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         visible: root.reveal > 0
+        opacity: Math.max(0.0, Math.min(1.0, (root.reveal - 0.15) / 0.85))
         clip: true
 
         ColumnLayout {

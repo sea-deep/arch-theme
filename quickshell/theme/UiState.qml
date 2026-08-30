@@ -126,6 +126,21 @@ Singleton {
     property int cursorX: -1
     property int cursorY: -1
 
+    readonly property bool hasActiveOverlay: quickControlVisible
+        || clockMenuVisible
+        || powerMenuVisible
+        || trayMenuVisible
+        || networkVisible
+        || notificationCenterVisible
+        || notificationPreviewVisible
+        || launcherVisible
+        || selectorVisible
+        || emojiVisible
+        || clipboardVisible
+        || settingsVisible
+        || screenshotVisible
+        || recorderMenuVisible
+
     function toggleLauncher() {
         const shouldOpen = !launcherVisible
         closeOverlays()

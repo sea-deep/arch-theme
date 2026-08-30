@@ -204,7 +204,7 @@ Item {
                             NumberAnimation { duration: 140; easing.type: Easing.OutCubic }
                         }
                         
-                        color: isActive ? Theme.accent : (wsHoverHandler.hovered ? Theme.surface : "transparent")
+                        color: isActive ? Theme.accent : (wsHoverHandler.hovered && !UiState.hasActiveOverlay ? Theme.surface : "transparent")
                         
                         HoverHandler {
                             id: wsHoverHandler

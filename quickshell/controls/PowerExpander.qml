@@ -11,10 +11,10 @@ Item {
     property string targetScreenName: ""
     readonly property bool expanded: UiState.powerMenuVisible
         && (UiState.powerScreen === "" || UiState.powerScreen === targetScreenName)
-    readonly property int bodyHeight: 228
+    readonly property int bodyHeight: 240
     property real reveal: expanded ? 1 : 0
 
-    implicitWidth: expanded || reveal > 0 ? 250 : Theme.compactPillSize
+    implicitWidth: expanded || reveal > 0 ? 280 : Theme.compactPillSize
     implicitHeight: reveal > 0
         ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
         : Theme.barHeight
@@ -122,26 +122,38 @@ Item {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 8
-                spacing: 7
+                anchors.margins: 10
+                spacing: 8
 
-                Text {
+                RowLayout {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 25
-                    text: "Session"
-                    color: Theme.fg
-                    font.family: Theme.fontFamilySans
-                    font.pixelSize: 14
-                    font.weight: Theme.fontWeight
-                    verticalAlignment: Text.AlignVCenter
+                    Layout.preferredHeight: 24
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: "Session"
+                        color: Theme.fg
+                        font.family: Theme.fontFamilySans
+                        font.pixelSize: 15
+                        font.weight: Theme.fontWeightBold
+                    }
+
+                    Text {
+                        text: "󰅖"
+                        color: closeHover.hovered ? Theme.red : Theme.fgDim
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 14
+                        HoverHandler { id: closeHover }
+                        TapHandler { onTapped: UiState.powerMenuVisible = false }
+                    }
                 }
 
                 GridLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     columns: 2
-                    rowSpacing: 6
-                    columnSpacing: 6
+                    rowSpacing: 8
+                    columnSpacing: 8
 
                     Repeater {
                         model: [
@@ -159,37 +171,58 @@ Item {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             Layout.minimumWidth: 0
-                            radius: 9
+                            radius: Theme.radiusSmall
                             color: btnMouseArea.containsMouse ? Theme.accent : Theme.bgLight
+                            border.color: btnMouseArea.containsMouse ? Theme.accent : Theme.surfaceVariant
+                            border.width: 1
+
+                            Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+                            Behavior on border.color { ColorAnimation { duration: Theme.durationFast } }
+
                             RowLayout {
                                 anchors.fill: parent
-                                anchors.leftMargin: 9
-                                anchors.rightMargin: 8
-                                spacing: 7
+                                anchors.leftMargin: 12
+                                anchors.rightMargin: 10
+                                spacing: 8
+
                                 Text {
-                                    Layout.preferredWidth: 18
+                                    Layout.preferredWidth: 20
                                     horizontalAlignment: Text.AlignHCenter
                                     text: actionButton.modelData.icon
                                     color: btnMouseArea.containsMouse ? Theme.bgDark : Theme.red
                                     font.family: Theme.fontFamily
-                                    font.pixelSize: 14
+                                    font.pixelSize: 16
+                                    Behavior on color { ColorAnimation { duration: Theme.durationFast } }
                                 }
+
                                 Text {
                                     Layout.fillWidth: true
                                     text: actionButton.modelData.name
                                     color: btnMouseArea.containsMouse ? Theme.bgDark : Theme.fg
                                     font.family: Theme.fontFamilySans
-                                    font.pixelSize: 11
+                                    font.pixelSize: 13
                                     font.weight: Theme.fontWeight
                                     elide: Text.ElideRight
+                                    Behavior on color { ColorAnimation { duration: Theme.durationFast } }
                                 }
-                                Text {
-                                    text: actionButton.modelData.key
-                                    color: btnMouseArea.containsMouse ? Theme.bgDark : Theme.fgMuted
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: 9
+
+                                Rectangle {
+                                    implicitWidth: 20
+                                    implicitHeight: 20
+                                    radius: 4
+                                    color: btnMouseArea.containsMouse ? Qt.rgba(0, 0, 0, 0.25) : Theme.surface
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: actionButton.modelData.key
+                                        color: btnMouseArea.containsMouse ? Theme.bgDark : Theme.fgDim
+                                        font.family: Theme.fontFamilySans
+                                        font.pixelSize: 11
+                                        font.weight: Theme.fontWeightBold
+                                    }
                                 }
                             }
+
                             MouseArea {
                                 id: btnMouseArea
                                 anchors.fill: parent

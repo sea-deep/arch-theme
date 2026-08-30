@@ -37,7 +37,7 @@ QtObject {
 
     // Geometry
     readonly property bool   showClipboardOnBar: false
-    readonly property int    barHeight:          34
+    readonly property int    barHeight:          32
     readonly property int    radius:             12
     readonly property int    radiusSmall:        6
     readonly property int    borderWidth:        2

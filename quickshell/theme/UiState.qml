@@ -115,9 +115,10 @@ Singleton {
     property string trayMenuTitle: ""
     property string trayMenuIcon: ""
     property string trayMenuScreen: ""
-    property int trayMenuRightOffset: 2
     property bool networkVisible: false
     property string networkScreen: ""
+    property bool bluetoothVisible: false
+    property string bluetoothScreen: ""
     property bool emojiVisible: false
     property bool launcherVisible: false
     property bool clipboardVisible: false
@@ -131,6 +132,7 @@ Singleton {
         || powerMenuVisible
         || trayMenuVisible
         || networkVisible
+        || bluetoothVisible
         || notificationCenterVisible
         || notificationPreviewVisible
         || launcherVisible
@@ -234,6 +236,14 @@ Singleton {
         networkVisible = shouldOpen
     }
 
+    function toggleBluetooth(screenName) {
+        const targetScreen = screenName || ""
+        const shouldOpen = !bluetoothVisible || bluetoothScreen !== targetScreen
+        closeOverlays()
+        bluetoothScreen = targetScreen
+        bluetoothVisible = shouldOpen
+    }
+
     function toggleClipboard(screenName) {
         const shouldOpen = !clipboardVisible
         closeOverlays()
@@ -272,6 +282,7 @@ Singleton {
         quickControlVisible = false
         trayMenuVisible = false
         networkVisible = false
+        bluetoothVisible = false
     }
 
     function toggleEmoji() {

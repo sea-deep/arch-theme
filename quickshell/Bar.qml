@@ -52,6 +52,7 @@ PanelWindow {
         // Retain each pill's animated geometry while it closes.
         Region { item: hardwarePill }
         Region { item: trayExpander }
+        Region { item: bluetoothExpander }
         Region { item: networkExpander }
         Region { item: notificationExpander }
         Region { item: powerExpander }
@@ -186,6 +187,11 @@ PanelWindow {
                 Layout.preferredHeight: Theme.barHeight
             }
             Item {
+                id: bluetoothSlot
+                Layout.preferredWidth: Theme.compactPillSize
+                Layout.preferredHeight: Theme.barHeight
+            }
+            Item {
                 id: networkSlot
                 Layout.preferredWidth: Theme.compactPillSize
                 Layout.preferredHeight: Theme.barHeight
@@ -239,6 +245,15 @@ PanelWindow {
             z: 3
             x: rightModules.x + traySlot.x
             expandedWidth: rightModules.width - traySlot.x
+            y: 0
+            targetScreenName: root.screen.name
+        }
+
+        Controls.BluetoothExpander {
+            id: bluetoothExpander
+            z: 4
+            x: rightModules.x + bluetoothSlot.x
+            expandedWidth: rightModules.width - bluetoothSlot.x
             y: 0
             targetScreenName: root.screen.name
         }

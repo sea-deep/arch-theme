@@ -12,7 +12,7 @@ Shape {
 
     implicitWidth: cornerRadius
     implicitHeight: cornerRadius
-    preferredRendererType: Shape.CurveRenderer
+    preferredRendererType: Shape.GeometryRenderer
 
     transform: Scale {
         origin.x: root.width / 2
@@ -22,10 +22,11 @@ Shape {
     }
 
     ShapePath {
-        strokeWidth: 0
-        strokeColor: "transparent"
+        strokeWidth: 1.5
+        strokeColor: root.fillColor
         fillColor: root.fillColor
         joinStyle: ShapePath.RoundJoin
+        capStyle: ShapePath.RoundCap
 
         // Start at corner (0, 0)
         startX: 0

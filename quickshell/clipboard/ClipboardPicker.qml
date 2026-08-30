@@ -133,6 +133,9 @@ PanelWindow {
 
     onShowingChanged: {
         if (showing) {
+            cursorX = -1
+            cursorY = -1
+            posProc.running = false
             posProc.running = true
             searchQuery = ""
             searchInput.text = ""
@@ -164,7 +167,9 @@ PanelWindow {
                 if (parts.length === 2) {
                     var cx = parseInt(parts[0].trim())
                     var cy = parseInt(parts[1].trim())
-                    root.updateCoordinates(cx, cy)
+                    if (!isNaN(cx) && !isNaN(cy)) {
+                        root.updateCoordinates(cx, cy)
+                    }
                 }
             }
         }

@@ -1,79 +1,43 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import Quickshell
+import Quickshell.Wayland
 import Quickshell.Io
 import "../theme"
-import "../components" as Components
 
-Item {
+PanelWindow {
+    WlrLayershell.namespace: "quickshell-clipboard"
     id: root
+    anchors.top: true
+    anchors.bottom: true
+    anchors.left: true
+    anchors.right: true
+    WlrLayershell.layer: WlrLayer.Top
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
-    property string targetScreenName: ""
-    readonly property bool expanded: UiState.clipboardVisible
-        && (UiState.clipboardScreen === "" || UiState.clipboardScreen === targetScreenName)
-    readonly property int fullBodyHeight: 400
-    property real expandedWidth: 380
-    property real reveal: expanded ? 1 : 0
+    color: "transparent"
+    visible: UiState.clipboardVisible
+
+    Shortcut {
+        sequence: "Escape"
+        enabled: UiState.clipboardVisible
+        onActivated: UiState.clipboardVisible = false
+    }
+
+    property int cursorX: -1
+    property int cursorY: -1
+    property string searchQuery: ""
     property bool isDragging: false
 
-    implicitWidth: expanded || reveal > 0 ? expandedWidth : Theme.compactPillSize
-    implicitHeight: reveal > 0
-        ? Theme.barHeight + Theme.outerGap + fullBodyHeight * reveal
-        : Theme.barHeight
-    focus: expanded
-
-    Behavior on reveal {
-        NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingDecelerate }
-    }
-
-    onExpandedChanged: {
-        if (expanded) {
-            clipboardFile.reload()
-            root.clipboardEntries = parseClipboard(clipboardFile.text())
-            listView.currentIndex = 0
-            Qt.callLater(() => root.forceActiveFocus())
-        } else {
-            searchQuery = ""
-            searchInput.text = ""
+    mask: Region {
+        Region {
+            x: 0
+            y: 0
+            width: root.width
+            height: root.isDragging ? 0 : root.height
         }
-    }
-
-    // All keyboard handling lives on root — TextInput never steals focus
-    Keys.onPressed: (event) => {
-        if (event.key === Qt.Key_Down) {
-            if (listView.currentIndex < listView.count - 1) {
-                listView.currentIndex++
-                listView.positionViewAtIndex(listView.currentIndex, ListView.Contain)
-            }
-            event.accepted = true
-        } else if (event.key === Qt.Key_Up) {
-            if (listView.currentIndex > 0) {
-                listView.currentIndex--
-                listView.positionViewAtIndex(listView.currentIndex, ListView.Contain)
-            }
-            event.accepted = true
-        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-            if (listView.currentIndex >= 0 && listView.currentIndex < root.filteredEntries.length) {
-                root.activate(root.filteredEntries[listView.currentIndex])
-            }
-            event.accepted = true
-        } else if (event.key === Qt.Key_Escape) {
-            UiState.clipboardVisible = false
-            event.accepted = true
-        } else if (event.key === Qt.Key_Backspace) {
-            if (searchQuery.length > 0) {
-                searchQuery = searchQuery.slice(0, -1)
-                searchInput.text = searchQuery
-                listView.currentIndex = 0
-            }
-            event.accepted = true
-        } else if (event.text && event.text.length === 1 && event.text.charCodeAt(0) >= 32) {
-            // Forward printable characters to search
-            searchQuery += event.text
-            searchInput.text = searchQuery
-            listView.currentIndex = 0
-            event.accepted = true
-        }
+        Region { item: popup }
     }
 
     FileView {
@@ -89,9 +53,8 @@ Item {
 
     property var clipboardEntries: parseClipboard(clipboardFile.text())
 
-    property string searchQuery: ""
     readonly property var filteredEntries: {
-        const query = searchQuery.toLowerCase()
+        const query = searchQuery.trim().toLowerCase()
         if (query === "") return clipboardEntries
         return clipboardEntries.filter(e =>
             (e.label && e.label.toLowerCase().includes(query)) ||
@@ -139,120 +102,200 @@ Item {
     }
 
     function activate(entry) {
-        if (entry.isImage) {
-            Quickshell.execDetached(["bash", Quickshell.shellPath("scripts/copy-image.sh"), entry.filePath])
-        } else {
-            Quickshell.clipboardText = entry.value
-        }
+        if (!entry) return
         UiState.clipboardVisible = false
+        Quickshell.execDetached([
+            "bash",
+            Quickshell.shellPath("scripts/paste-clipboard.sh"),
+            entry.isImage ? "image" : "text",
+            entry.isImage ? entry.filePath : entry.value
+        ])
     }
 
-    Components.ConnectedDropdownSurface {
-        anchors.fill: parent
-        tabWidth: Theme.compactPillSize
-        tabOnLeft: true
-        visible: root.reveal > 0
-    }
-
-    Item {
-        anchors.top: parent.top
-        anchors.left: parent.left
-        width: Theme.compactPillSize
-        height: Theme.barHeight
-
-        Text {
-            anchors.centerIn: parent
-            visible: root.reveal > 0
-            text: "󰅌"
-            color: Theme.purple
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSize
-            font.weight: Theme.fontWeight
+    onVisibleChanged: {
+        if (visible) {
+            cursorX = -1
+            cursorY = -1
+            searchQuery = ""
+            searchInput.text = ""
+            clipboardFile.reload()
+            root.clipboardEntries = parseClipboard(clipboardFile.text())
+            listView.currentIndex = 0
+            posProc.running = true
+            Qt.callLater(function() { searchInput.forceActiveFocus() })
         }
+    }
 
+    // Click outside to close (backdrop)
+    MouseArea {
+        anchors.fill: parent
+        enabled: !root.isDragging
+        onClicked: UiState.clipboardVisible = false
+    }
+
+    // Get cursor position
+    Process {
+        id: posProc
+        command: ["hyprctl", "cursorpos"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var parts = text.trim().split(",")
+                if (parts.length === 2) {
+                    var cx = parseInt(parts[0].trim())
+                    var cy = parseInt(parts[1].trim())
+                    var popupW = 340
+                    var popupH = 440
+
+                    if (cx + popupW > root.width) cx = root.width - popupW - 10
+                    if (cy + popupH > root.height) cy = root.height - popupH - 10
+                    if (cx < 10) cx = 10
+                    if (cy < 10) cy = 10
+
+                    root.cursorX = cx
+                    root.cursorY = cy
+                }
+            }
+        }
+    }
+
+    // Popup
+    Rectangle {
+        id: popup
+        width: 340
+        height: 440
+        x: root.cursorX < 0 ? (root.width - width) / 2 : root.cursorX
+        y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
+        visible: root.cursorX >= 0 || !posProc.running
+
+        color: Theme.bg
+        radius: 12
+        border.color: Theme.surface
+        border.width: 1
+
+        // Consume clicks so they don't hit the backdrop MouseArea
         MouseArea {
             anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            acceptedButtons: Qt.LeftButton
-            onClicked: UiState.toggleClipboard("")
+            acceptedButtons: Qt.AllButtons
+            onClicked: {}
         }
-    }
-
-    Item {
-        anchors.top: parent.top
-        anchors.topMargin: Theme.barHeight + Theme.outerGap
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        visible: root.reveal > 0
-        opacity: root.reveal
-        clip: true
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 14
-            spacing: 12
+            anchors.margins: 12
+            spacing: 10
 
+            // Header: Title + search bar + Clear button
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 6
-
-                Text {
-                    text: "Clipboard"
-                    font.family: Theme.fontFamilySans
-                    font.pixelSize: 16
-                    font.weight: Theme.fontWeight
-                    color: Theme.fg
-                    Layout.alignment: Qt.AlignVCenter
-                }
+                spacing: 8
 
                 Rectangle {
                     Layout.fillWidth: true
-                    implicitHeight: 28
-                    radius: 9
+                    Layout.preferredHeight: 36
                     color: Theme.bgLight
-                    border.color: searchQuery.length > 0 ? Theme.accent : Theme.bgDark
+                    radius: 8
+                    border.color: searchInput.activeFocus ? Theme.accent : "transparent"
                     border.width: 1
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: 8
-                        anchors.rightMargin: 8
-                        spacing: 6
+                        anchors.margins: 8
+                        spacing: 8
 
                         Text {
                             text: "󰍉"
                             color: Theme.fgDim
                             font.family: Theme.fontFamily
-                            font.pixelSize: 12
+                            font.pixelSize: 14
                         }
 
-                        // Read-only display — root handles all keystrokes
-                        Text {
+                        TextInput {
                             id: searchInput
                             Layout.fillWidth: true
                             color: Theme.fg
                             font.family: Theme.fontFamilySans
-                            font.pixelSize: 12
-                            text: root.searchQuery
-                            elide: Text.ElideRight
+                            font.pixelSize: 13
+                            verticalAlignment: TextInput.AlignVCenter
 
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
-                                visible: root.searchQuery.length === 0
-                                text: "Search…"
+                                visible: parent.text.length === 0
+                                text: "Search clipboard…"
                                 color: Theme.fgMuted
                                 font: parent.font
+                            }
+
+                            onTextChanged: {
+                                root.searchQuery = text
+                                listView.currentIndex = 0
+                                listView.positionViewAtBeginning()
+                            }
+
+                            Keys.onEscapePressed: UiState.clipboardVisible = false
+                            Keys.onDownPressed: {
+                                if (listView.count > 0) {
+                                    listView.currentIndex = Math.min(listView.count - 1, listView.currentIndex + 1)
+                                    listView.positionViewAtIndex(listView.currentIndex, ListView.Contain)
+                                }
+                            }
+                            Keys.onUpPressed: {
+                                if (listView.count > 0) {
+                                    listView.currentIndex = Math.max(0, listView.currentIndex - 1)
+                                    listView.positionViewAtIndex(listView.currentIndex, ListView.Contain)
+                                }
+                            }
+                            Keys.onReturnPressed: {
+                                if (root.filteredEntries.length > 0) {
+                                    var idx = (listView.currentIndex >= 0 && listView.currentIndex < root.filteredEntries.length) ? listView.currentIndex : 0
+                                    root.activate(root.filteredEntries[idx])
+                                }
+                            }
+                            Keys.onEnterPressed: {
+                                if (root.filteredEntries.length > 0) {
+                                    var idx = (listView.currentIndex >= 0 && listView.currentIndex < root.filteredEntries.length) ? listView.currentIndex : 0
+                                    root.activate(root.filteredEntries[idx])
+                                }
+                            }
+                        }
+
+                        // Clear search text button
+                        Rectangle {
+                            visible: searchInput.text.length > 0
+                            width: 18
+                            height: 18
+                            radius: 9
+                            color: clearTextHover.containsMouse ? Theme.surface : "transparent"
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: ""
+                                color: Theme.fgDim
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 10
+                            }
+
+                            MouseArea {
+                                id: clearTextHover
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    searchInput.text = ""
+                                    searchInput.forceActiveFocus()
+                                }
                             }
                         }
                     }
                 }
 
+                // Clear history button
                 Rectangle {
-                    implicitWidth: clearLabel.implicitWidth + 16
-                    implicitHeight: 28
-                    radius: 9
-                    color: clearHover.hovered ? Theme.surface : Theme.bgLight
+                    implicitWidth: clearLabel.implicitWidth + 14
+                    Layout.preferredHeight: 36
+                    radius: 8
+                    color: clearHover.containsMouse ? Theme.surface : Theme.bgLight
+                    border.color: Theme.surface
+                    border.width: 1
 
                     Text {
                         id: clearLabel
@@ -261,62 +304,54 @@ Item {
                         color: Theme.accent
                         font.family: Theme.fontFamilySans
                         font.pixelSize: 11
+                        font.weight: Theme.fontWeight
                     }
 
-                    HoverHandler { id: clearHover }
-                    TapHandler {
-                        onTapped: {
+                    MouseArea {
+                        id: clearHover
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
                             Quickshell.execDetached(["clipse", "-clear"])
                             root.clipboardEntries = []
                         }
                     }
                 }
-
-                Rectangle {
-                    implicitWidth: 28
-                    implicitHeight: 28
-                    radius: 9
-                    color: closeHover.hovered ? Theme.surface : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "×"
-                        color: Theme.fgMuted
-                        font.family: Theme.fontFamilySans
-                        font.pixelSize: 18
-                    }
-
-                    HoverHandler { id: closeHover }
-                    TapHandler { onTapped: UiState.clipboardVisible = false }
-                }
             }
 
+            // Divider
             Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 1
                 color: Theme.surface
             }
 
+            // Entries List
             ListView {
                 id: listView
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 model: root.filteredEntries
+                clip: true
+                spacing: 6
+                boundsBehavior: Flickable.StopAtBounds
+
                 onCountChanged: {
                     if (currentIndex >= count)
                         currentIndex = Math.max(0, count - 1)
                 }
-                spacing: 10
-                clip: true
 
                 delegate: Rectangle {
                     id: expRow
                     property bool nativeDragStarted: false
                     width: listView.width
-                    height: modelData.isImage ? 90 : 56
-                    radius: Theme.radius - 2
-                    color: itemMouse.containsMouse || ListView.isCurrentItem ? Theme.surface : Theme.bgLight
-                    border.color: itemMouse.containsMouse || ListView.isCurrentItem ? Theme.accentGlow : Theme.bgDark
+                    height: modelData.isImage ? 80 : 52
+                    radius: 8
+
+                    readonly property bool isCurrent: (listView.currentIndex === index)
+                    color: isCurrent ? Theme.surface : (rowHover.containsMouse ? Theme.bgLight : "transparent")
+                    border.color: isCurrent ? Theme.accent : (rowHover.containsMouse ? Theme.surface : "transparent")
                     border.width: 1
 
                     Item {
@@ -327,7 +362,10 @@ Item {
                         Drag.dragType: Drag.Automatic
                         Drag.supportedActions: Qt.CopyAction | Qt.MoveAction | Qt.LinkAction
                         Drag.proposedAction: Qt.CopyAction
-                        Drag.onDragStarted: expRow.nativeDragStarted = true
+                        Drag.onDragStarted: {
+                            expRow.nativeDragStarted = true
+                            root.isDragging = true
+                        }
                         Drag.onDragFinished: {
                             expRow.nativeDragStarted = false
                             root.isDragging = false
@@ -357,21 +395,21 @@ Item {
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.margins: 12
-                        spacing: 12
+                        anchors.margins: 8
+                        spacing: 8
 
                         Text {
-                            Layout.alignment: Qt.AlignTop
+                            Layout.alignment: Qt.AlignVCenter
                             text: modelData.pinned ? "󰐃" : (modelData.isImage ? "󰋩" : "󰅍")
-                            color: modelData.pinned ? Theme.yellow : Theme.purple
+                            color: modelData.pinned ? Theme.yellow : (modelData.isImage ? Theme.purple : Theme.accent)
                             font.family: Theme.fontFamily
-                            font.pixelSize: 18
+                            font.pixelSize: 16
                         }
 
                         Image {
                             visible: modelData.isImage
                             Layout.alignment: Qt.AlignVCenter
-                            Layout.preferredWidth: 90
+                            Layout.preferredWidth: 64
                             Layout.fillHeight: true
                             source: modelData.isImage ? "file://" + modelData.filePath : ""
                             fillMode: Image.PreserveAspectCrop
@@ -387,15 +425,15 @@ Item {
                         ColumnLayout {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
-                            spacing: 4
+                            spacing: 2
 
                             Text {
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
                                 text: modelData.label || "(Empty)"
-                                color: Theme.fg
+                                color: expRow.isCurrent ? Theme.fg : Theme.fgDim
                                 font.family: Theme.fontFamilySans
-                                font.pixelSize: 13
+                                font.pixelSize: 12
                                 font.weight: Theme.fontWeight
                                 wrapMode: Text.Wrap
                                 elide: Text.ElideRight
@@ -406,9 +444,9 @@ Item {
                             Text {
                                 Layout.fillWidth: true
                                 text: root.timeAgo(modelData.recorded)
-                                color: Theme.fgDim
+                                color: Theme.fgMuted
                                 font.family: Theme.fontFamilySans
-                                font.pixelSize: 11
+                                font.pixelSize: 10
                                 font.weight: Theme.fontWeight
                             }
                         }
@@ -423,13 +461,11 @@ Item {
                         cursorShape: Qt.PointingHandCursor
                         onPressed: {
                             expRow.nativeDragStarted = false
-                            root.isDragging = true
+                            listView.currentIndex = index
                             expRow.grabToImage(function(result) {
                                 expDragProxy.Drag.imageSource = result.url;
                             }, Qt.size(160, 48));
                         }
-                        // Keep the focus-change guard active until Qt finishes the
-                        // native operation, including delivery of the final drop.
                         onReleased: {
                             if (!expRow.nativeDragStarted)
                                 root.isDragging = false
@@ -440,17 +476,21 @@ Item {
                         }
                         onClicked: root.activate(modelData)
                     }
-                }
 
-                Text {
-                    visible: listView.count === 0
-                    anchors.centerIn: parent
-                    text: "󰅍\n\nClipboard empty"
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Theme.fgDim
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 16
+                    HoverHandler { id: rowHover }
                 }
+            }
+
+            Text {
+                visible: listView.count === 0
+                Layout.alignment: Qt.AlignHCenter
+                Layout.topMargin: 40
+                text: "󰅍\n\nClipboard empty"
+                horizontalAlignment: Text.AlignHCenter
+                color: Theme.fgDim
+                font.family: Theme.fontFamily
+                font.pixelSize: 14
+                font.weight: Theme.fontWeight
             }
         }
     }

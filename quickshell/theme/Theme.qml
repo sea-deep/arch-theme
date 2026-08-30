@@ -36,6 +36,7 @@ QtObject {
     readonly property int    fontWeightBold: Font.Bold
 
     // Geometry
+    readonly property bool   showClipboardOnBar: false
     readonly property int    barHeight:          34
     readonly property int    radius:             12
     readonly property int    radiusSmall:        6

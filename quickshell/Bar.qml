@@ -12,7 +12,7 @@ PanelWindow {
     id: root
     required property var modelData
     screen: modelData
-    readonly property bool overlayExpanded: hardwarePill.expanded || trayExpander.expanded || networkExpander.expanded || notificationExpander.expanded || powerExpander.expanded || clockExpander.expanded || clipboardExpander.expanded
+    readonly property bool overlayExpanded: hardwarePill.expanded || trayExpander.expanded || networkExpander.expanded || notificationExpander.expanded || powerExpander.expanded || clockExpander.expanded
 
     anchors.top: true
     anchors.left: true
@@ -43,16 +43,15 @@ PanelWindow {
             x: 0
             y: 0
             width: root.width
-            height: (root.overlayExpanded && !clipboardExpander.isDragging) ? root.height : Theme.barHeight
+            height: root.overlayExpanded ? root.height : Theme.barHeight
         }
-        // Retain each pill's animated geometry while it closes or during drag.
+        // Retain each pill's animated geometry while it closes.
         Region { item: hardwarePill }
         Region { item: trayExpander }
         Region { item: networkExpander }
         Region { item: notificationExpander }
         Region { item: powerExpander }
         Region { item: clockExpander }
-        Region { item: clipboardExpander }
         Region { item: workspacesModule }
     }
 
@@ -65,12 +64,12 @@ PanelWindow {
     Connections {
         target: Hyprland
         function onActiveToplevelChanged() {
-            if (root.overlayExpanded && !clipboardExpander.isDragging) {
+            if (root.overlayExpanded) {
                 UiState.closeOverlays()
             }
         }
         function onFocusedWorkspaceChanged() {
-            if (root.overlayExpanded && !clipboardExpander.isDragging) {
+            if (root.overlayExpanded) {
                 UiState.closeOverlays()
             }
         }
@@ -85,7 +84,7 @@ PanelWindow {
         MouseArea {
             id: bgMouseArea
             anchors.fill: parent
-            enabled: root.overlayExpanded && !clipboardExpander.isDragging
+            enabled: root.overlayExpanded
             z: 0
             onClicked: UiState.closeOverlays()
         }
@@ -123,7 +122,8 @@ PanelWindow {
             BarModules.AutoSleep { hostWindow: root }
             Item {
                 id: clipboardSlot
-                Layout.preferredWidth: Theme.compactPillSize
+                visible: Theme.showClipboardOnBar
+                Layout.preferredWidth: Theme.showClipboardOnBar ? Theme.compactPillSize : 0
                 Layout.preferredHeight: Theme.barHeight
                 BarModules.Clipboard { anchors.centerIn: parent }
             }
@@ -164,15 +164,6 @@ PanelWindow {
             z: 2
             x: rightModules.x + hardwareSlot.x
                 + (hardwareSlot.width - width) / 2
-            y: 0
-            targetScreenName: root.screen.name
-        }
-
-        Controls.ClipboardExpander {
-            id: clipboardExpander
-            z: 4
-            x: rightModules.x + clipboardSlot.x
-            expandedWidth: rightModules.width - clipboardSlot.x
             y: 0
             targetScreenName: root.screen.name
         }

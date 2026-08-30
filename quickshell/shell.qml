@@ -9,6 +9,7 @@ import "selector" as Selector
 import "settings" as Settings
 import "notifications" as Notifications
 import "emoji" as Emoji
+import "clipboard" as Clipboard
 import "launcher" as Launcher
 import "screenshot" as Screenshot
 import "recorder" as Recorder
@@ -55,6 +56,7 @@ ShellRoot {
     }
 
     Emoji.EmojiPicker {}
+    Clipboard.ClipboardPicker {}
     Launcher.Launcher {}
     Screenshot.ScreenshotMenu {}
     Recorder.RecorderMenu {}

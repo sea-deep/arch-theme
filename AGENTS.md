@@ -35,28 +35,23 @@ arch-theme/
 
 ### A. Drag-and-Drop (DND) across Wayland Windows
 
-1. **Dynamic Layer-Shell Surface Masking (`Bar.qml`):**
-   - When NOT dragging, `Bar.qml` expands its `mask` to `root.height` with `bgMouseArea` enabled so clicking anywhere outside the menu (including empty desktop/wallpaper) immediately dismisses the dropdowns.
-   - When dragging (`clipboardExpander.isDragging == true`), `Bar.qml` automatically shrinks the mask to `Theme.barHeight` + discrete child regions (`Region { item: clipboardExpander }` etc.) so Hyprland routes drop events directly into Kitty, VSCode, Chrome, Discord.
+1. **Standalone Cursor Popups (`ClipboardPicker.qml`):**
+   - Clipboard is an independent cursor-following overlay window (`quickshell/clipboard/ClipboardPicker.qml`).
+   - When NOT dragging, `ClipboardPicker.qml` expands its `mask` to `root.height` with a backdrop `MouseArea` to dismiss upon clicking outside.
+   - When dragging (`root.isDragging == true`), `ClipboardPicker.qml` dynamically shrinks the mask to `Region { item: popup }` so Hyprland routes drop events directly into client windows (Kitty, VSCode, Chrome, Discord).
    - **Correct Pattern:**
      ```qml
      mask: Region {
          Region {
              x: 0; y: 0; width: root.width
-             height: (root.overlayExpanded && !clipboardExpander.isDragging) ? root.height : Theme.barHeight
+             height: root.isDragging ? 0 : root.height
          }
-         Region { item: hardwarePill }
-         Region { item: clipboardExpander }
-         Region { item: networkExpander }
-         Region { item: notificationExpander }
-         Region { item: powerExpander }
-         Region { item: clockExpander }
-         Region { item: workspacesModule }
+         Region { item: popup }
      }
      ```
 2. **Layer Level (`WlrLayershell.layer`):**
-   - Use `WlrLayer.Top` for `Bar.qml` and `Selector.qml` to allow Wayland DnD drops onto client windows.
-3. **QtQuick Wayland Drag Mechanics (`ClipboardExpander.qml`):**
+   - Use `WlrLayer.Top` for `Bar.qml`, `Selector.qml`, and `ClipboardPicker.qml` to allow Wayland DnD drops onto client windows.
+3. **QtQuick Wayland Drag Mechanics (`ClipboardPicker.qml`):**
    - `DragHandler` does not initiate `wl_data_device.start_drag` in Qt 6 Wayland QPA.
    - Use `MouseArea` with `drag.target` set to a proxy `Item` (`expDragProxy`).
    - Provide `Drag.dragType: Drag.Automatic` and `Drag.supportedActions: Qt.CopyAction | Qt.MoveAction | Qt.LinkAction`.
@@ -66,6 +61,8 @@ arch-theme/
 4. **Delegate Drag State & Lifecycle Isolation:**
    - Never use global `Binding { target: UiState; property: "isDragging"; value: itemMouse.drag.active }` inside list delegates (competing rows will continuously overwrite it with `false`).
    - Use explicit `onPressed`, `onReleased`, `onCanceled`, `Drag.onDragStarted`, and `Drag.onDragFinished` handlers on the delegate's `MouseArea` and `expDragProxy`.
+5. **Copy + Auto-Paste Execution:**
+   - Activating an entry executes `scripts/paste-clipboard.sh` which sets the Wayland clipboard via `wl-copy` and sends a simulated <kbd>Ctrl+V</kbd> keypress via `wtype` after a 120ms window focus delay.
 
 ---
 

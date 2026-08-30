@@ -276,7 +276,7 @@ Item {
                         readonly property int maxVisibleGroups: 3
                         readonly property int overflowCount: Math.max(0, groupedApps.length - maxVisibleGroups)
                         
-                        implicitHeight: wsItem.isSpecial ? 0 : 28
+                        implicitHeight: wsItem.isSpecial ? 0 : 30
                         implicitWidth: wsItem.isSpecial ? 0 : rowContent.implicitWidth + 8
                         radius: 6
                         
@@ -306,7 +306,7 @@ Item {
                         RowLayout {
                             id: rowContent
                             anchors.centerIn: parent
-                            spacing: 4
+                            spacing: 5
 
                             // Workspace Number
                             Text {
@@ -332,15 +332,15 @@ Item {
                                         spacing: 1
 
                                         Rectangle {
-                                            width: 22
-                                            height: 22
+                                            width: 24
+                                            height: 24
                                             radius: 5
                                             color: iconHoverHandler.hovered ? (wsPill.isActive ? Qt.rgba(0, 0, 0, 0.25) : Theme.bgLight) : "transparent"
 
                                             IconImage {
                                                 anchors.centerIn: parent
-                                                width: 18
-                                                height: 18
+                                                width: 20
+                                                height: 20
                                                 source: iconGroup.modelData.icon
                                             }
 

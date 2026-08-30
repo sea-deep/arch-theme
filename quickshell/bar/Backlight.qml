@@ -53,7 +53,7 @@ Item {
         spacing: 4
         
         Text {
-            Layout.preferredWidth: 18
+            Layout.preferredWidth: 20
             horizontalAlignment: Text.AlignHCenter
             text: root.getIcon()
             color: Theme.yellow

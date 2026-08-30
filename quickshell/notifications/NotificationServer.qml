@@ -15,10 +15,22 @@ Singleton {
 
     signal notificationReceived(var notification)
 
+    function areSameNotification(a, b) {
+        if (!a || !b) return false
+        if (a === b) return true
+        if (a.id !== undefined && a.id !== null && b.id !== undefined && b.id !== null) {
+            return a.id === b.id
+        }
+        if (a.summary === b.summary && a.body === b.body && a.appName === b.appName) {
+            return true
+        }
+        return false
+    }
+
     function addToast(notification) {
         if (!notification) return
         var current = (activeToasts || []).slice()
-        current = current.filter(n => n && n !== notification && (!n.id || n.id !== notification.id))
+        current = current.filter(n => !areSameNotification(n, notification))
         current.unshift(notification)
         if (current.length > 8)
             current = current.slice(0, 8)
@@ -27,7 +39,7 @@ Singleton {
 
     function removeToast(notification) {
         if (!notification) return
-        activeToasts = (activeToasts || []).filter(n => n && n !== notification && (!n.id || n.id !== notification.id))
+        activeToasts = (activeToasts || []).filter(n => !areSameNotification(n, notification))
         if (activeToasts.length === 0) {
             UiState.notificationPreviewVisible = false
         }

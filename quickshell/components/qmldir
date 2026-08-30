@@ -1,1 +1,4 @@
 BottomDrawerSurface 1.0 BottomDrawerSurface.qml
+ConnectedDropdownSurface 1.0 ConnectedDropdownSurface.qml
+InvertedCorner 1.0 InvertedCorner.qml
+Pill 1.0 Pill.qml

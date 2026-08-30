@@ -230,7 +230,8 @@ PanelWindow {
 
         Rectangle {
             anchors.fill: parent
-            color: Qt.rgba(0, 0, 0, root.reveal * 0.5)
+            color: "#000000"
+            opacity: root.reveal * 0.5
         }
     }
 
@@ -542,8 +543,8 @@ PanelWindow {
                 Layout.alignment: Qt.AlignHCenter
                 cellWidth: 120
                 cellHeight: 110
-                clip: true
-                cacheBuffer: 600
+                clip: false
+                cacheBuffer: 110
                 reuseItems: true
                 model: root.filteredApps
                 activeFocusOnTab: true
@@ -614,7 +615,6 @@ PanelWindow {
                         height: grid.cellHeight - 8
                         radius: Theme.radius
 
-                        scale: isSelected ? 1.03 : (cardMouse.containsMouse ? 1.02 : 1.0)
                         color: isSelected 
                             ? Theme.surface 
                             : (cardMouse.containsMouse ? Theme.bgLight : Theme.bgDark)
@@ -627,6 +627,8 @@ PanelWindow {
                             anchors.horizontalCenter: parent.horizontalCenter
                             width: 44
                             height: 44
+                            sourceSize: Qt.size(48, 48)
+                            asynchronous: true
                             source: delegateRoot.modelData ? (delegateRoot.modelData.iconSource || "") : ""
                         }
 

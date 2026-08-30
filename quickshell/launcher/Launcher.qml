@@ -187,7 +187,7 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? 130 : 80
+            duration: root.showing ? 75 : 50
             easing.type: root.showing ? Easing.OutCubic : Easing.InCubic
         }
     }

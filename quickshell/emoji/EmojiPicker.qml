@@ -23,7 +23,7 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? 80 : 60
+            duration: root.showing ? 45 : 35
             easing.type: root.showing ? Easing.OutQuad : Easing.InQuad
         }
     }

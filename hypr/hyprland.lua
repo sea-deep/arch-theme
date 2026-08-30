@@ -183,7 +183,7 @@ hl.bind(mainMod .. " + minus", hl.dsp.workspace.toggle_special("scratchpad"))
 
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("qs ipc call screenshot toggle"))
 hl.bind("Print", hl.dsp.exec_cmd("qs ipc call screenshot toggle"))
-hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd("~/.config/hypr/screenshot.sh full"))
+hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd("sh -c '$HOME/.config/hypr/screenshot.sh full'"))
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("qs ipc call recorder toggle"))
 
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { locked = true })
@@ -214,7 +214,7 @@ hl.on("keybinds.submap", function(map)
     end
 end)
 
-hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("~/.config/hypr/scripts/hot_reload.sh"))
+hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("sh -c '$HOME/.config/hypr/scripts/hot_reload.sh'"))
 hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd("qs ipc call power toggle"))
 
 hl.window_rule({ name = "swappy-float", match = { class = "^(swappy)$" }, float = true })

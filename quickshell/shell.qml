@@ -20,6 +20,34 @@ ShellRoot {
     Component.onCompleted: {
         recorderProbe.running = true
         polkitService.running = true
+        micProbe.running = true
+        cameraProbe.running = true
+    }
+
+    Process {
+        id: micProbe
+        command: [Quickshell.shellPath("scripts/mic_status.sh")]
+        stdout: SplitParser {
+            onRead: data => {
+                try {
+                    const json = JSON.parse(data)
+                    UiState.micActive = !!json.active
+                } catch(e) {}
+            }
+        }
+    }
+
+    Process {
+        id: cameraProbe
+        command: [Quickshell.shellPath("scripts/camera_status.sh")]
+        stdout: SplitParser {
+            onRead: data => {
+                try {
+                    const json = JSON.parse(data)
+                    UiState.cameraActive = !!json.active
+                } catch(e) {}
+            }
+        }
     }
 
     Process {

@@ -167,6 +167,8 @@ PanelWindow {
             spacing: Theme.moduleSpacing
 
             BarModules.Recorder {}
+            BarModules.CameraIndicator {}
+            BarModules.MicIndicator {}
             BarModules.CapsLock {}
             BarModules.AutoSleep { hostWindow: root }
             Item {

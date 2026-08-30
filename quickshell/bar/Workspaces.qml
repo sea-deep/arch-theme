@@ -276,9 +276,9 @@ Item {
                         readonly property int maxVisibleGroups: 3
                         readonly property int overflowCount: Math.max(0, groupedApps.length - maxVisibleGroups)
                         
-                        implicitHeight: wsItem.isSpecial ? 0 : 32
-                        implicitWidth: wsItem.isSpecial ? 0 : rowContent.implicitWidth + 10
-                        radius: 8
+                        implicitHeight: wsItem.isSpecial ? 0 : 28
+                        implicitWidth: wsItem.isSpecial ? 0 : rowContent.implicitWidth + 8
+                        radius: 6
                         
                         Behavior on implicitWidth {
                             NumberAnimation { duration: 140; easing.type: Easing.OutCubic }
@@ -306,7 +306,7 @@ Item {
                         RowLayout {
                             id: rowContent
                             anchors.centerIn: parent
-                            spacing: 5
+                            spacing: 4
 
                             // Workspace Number
                             Text {
@@ -321,7 +321,7 @@ Item {
                             // Grouped App icons for ALL occupied workspaces
                             RowLayout {
                                 visible: wsPill.groupedApps.length > 0
-                                spacing: 4
+                                spacing: 3
 
                                 Repeater {
                                     model: wsPill.groupedApps.slice(0, wsPill.maxVisibleGroups)
@@ -332,15 +332,15 @@ Item {
                                         spacing: 1
 
                                         Rectangle {
-                                            width: 24
-                                            height: 24
-                                            radius: 6
+                                            width: 22
+                                            height: 22
+                                            radius: 5
                                             color: iconHoverHandler.hovered ? (wsPill.isActive ? Qt.rgba(0, 0, 0, 0.25) : Theme.bgLight) : "transparent"
 
                                             IconImage {
                                                 anchors.centerIn: parent
-                                                width: 20
-                                                height: 20
+                                                width: 18
+                                                height: 18
                                                 source: iconGroup.modelData.icon
                                             }
 

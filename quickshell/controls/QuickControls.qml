@@ -179,19 +179,39 @@ Components.Pill {
         required property var node
         property string label: ""
         property string icon: ""
+        property real maxVolume: 1.0
         readonly property bool available: node !== null && node.audio !== null && node.ready
-        spacing: 7
+        readonly property bool isMuted: available && node.audio.muted
+        spacing: 8
 
-        Text {
-            text: audioRow.icon
-            color: Theme.blue
-            font.family: Theme.fontFamily
-            font.pixelSize: 15
-            Layout.preferredWidth: 18
+        Rectangle {
+            implicitWidth: 28
+            implicitHeight: 28
+            radius: Theme.radiusSmall
+            color: audioRow.isMuted ? Theme.red : (iconHover.hovered ? Theme.bgLight : "transparent")
+            Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+
+            Text {
+                anchors.centerIn: parent
+                text: audioRow.isMuted ? (audioRow.icon === "󰍬" ? "󰍭" : "󰖁") : audioRow.icon
+                color: audioRow.isMuted ? Theme.bgDark : (iconHover.hovered ? Theme.accent : Theme.blue)
+                font.family: Theme.fontFamily
+                font.pixelSize: 15
+            }
+
+            HoverHandler { id: iconHover }
+            TapHandler {
+                onTapped: {
+                    if (audioRow.available)
+                        audioRow.node.audio.muted = !audioRow.node.audio.muted
+                }
+            }
         }
+
         ColumnLayout {
             Layout.fillWidth: true
-            spacing: 0
+            spacing: 2
+
             RowLayout {
                 Layout.fillWidth: true
                 Text {
@@ -199,41 +219,28 @@ Components.Pill {
                     color: Theme.fgDim
                     font.family: Theme.fontFamily
                     font.pixelSize: 12
+                    font.weight: Theme.fontWeight
                     elide: Text.ElideRight
                     Layout.fillWidth: true
                 }
                 Text {
-                    text: audioRow.available ? Math.round(audioRow.node.audio.volume * 100) + "%" : "--%"
-                    color: Theme.fg
+                    text: audioRow.isMuted ? "Muted" : (audioRow.available ? Math.round(audioRow.node.audio.volume * 100) + "%" : "--%")
+                    color: audioRow.isMuted ? Theme.red : Theme.fg
                     font.family: Theme.fontFamily
                     font.pixelSize: 12
+                    font.weight: Theme.fontWeight
                 }
             }
+
             CleanSlider {
+                id: rowSlider
                 Layout.fillWidth: true
-                value: audioRow.available ? Math.min(1, audioRow.node.audio.volume) : 0
-                onMoved: value => {
+                from: 0.0
+                to: audioRow.maxVolume
+                value: audioRow.available ? Math.min(to, audioRow.node.audio.volume) : 0
+                onMoved: {
                     if (audioRow.available)
-                        audioRow.node.audio.volume = value
-                }
-            }
-        }
-        Rectangle {
-            implicitWidth: 28
-            implicitHeight: 28
-            radius: Theme.radiusSmall
-            color: audioRow.available && audioRow.node.audio.muted ? Theme.red : Theme.bgLight
-            Text {
-                anchors.centerIn: parent
-                text: audioRow.available && audioRow.node.audio.muted ? "󰖁" : audioRow.icon
-                color: audioRow.available && audioRow.node.audio.muted ? Theme.bgDark : Theme.blue
-                font.family: Theme.fontFamily
-            }
-            HoverHandler { id: muteHover }
-            TapHandler {
-                onTapped: {
-                    if (audioRow.available)
-                        audioRow.node.audio.muted = !audioRow.node.audio.muted
+                        audioRow.node.audio.volume = rowSlider.value
                 }
             }
         }
@@ -277,8 +284,8 @@ Components.Pill {
             spacing: 6
             visible: UiState.quickControlMode === "audio"
 
-            AudioRow { Layout.fillWidth: true; node: root.sink; label: "Output"; icon: "󰕾" }
-            AudioRow { Layout.fillWidth: true; node: root.source; label: "Microphone"; icon: "󰍬" }
+            AudioRow { Layout.fillWidth: true; node: root.sink; label: "Output"; icon: "󰕾"; maxVolume: 1.5 }
+            AudioRow { Layout.fillWidth: true; node: root.source; label: "Microphone"; icon: "󰍬"; maxVolume: 1.0 }
             Repeater {
                 model: root.audioStreams
                 AudioRow {
@@ -287,6 +294,7 @@ Components.Pill {
                     node: modelData
                     label: modelData.description || modelData.nickname || modelData.name || "Application"
                     icon: "󰎈"
+                    maxVolume: 1.0
                 }
             }
         }

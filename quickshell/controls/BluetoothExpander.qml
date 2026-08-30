@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls as QQC2
 import Quickshell
 import Quickshell.Bluetooth
 import "../theme"
@@ -43,10 +44,10 @@ Item {
         return allDevices.find(d => d && d.connected) || null
     }
 
-    readonly property int bodyHeight: !isPowered ? 160 : Math.max(220, Math.min(380, 50 + pairedDevices.length * 58 + (isDiscovering || availableDevices.length > 0 ? 120 : 0)))
+    readonly property int bodyHeight: !isPowered ? 160 : 420
     property real reveal: expanded ? 1 : 0
 
-    property real expandedWidth: 320
+    property real expandedWidth: 360
     implicitWidth: expanded || reveal > 0 ? expandedWidth : Theme.compactPillSize
     implicitHeight: reveal > 0
         ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
@@ -71,6 +72,23 @@ Item {
 
     function toggle() {
         UiState.toggleBluetooth(targetScreenName)
+    }
+
+    function sendFile(device) {
+        if (!device) {
+            Quickshell.execDetached(["blueman-sendto"])
+        } else {
+            const addr = device.address || ""
+            if (addr !== "") {
+                Quickshell.execDetached(["blueman-sendto", "--device=" + addr])
+            } else {
+                Quickshell.execDetached(["blueman-sendto"])
+            }
+        }
+    }
+
+    function openManager() {
+        Quickshell.execDetached(["blueman-manager"])
     }
 
     function getDeviceIcon(device) {
@@ -190,39 +208,20 @@ Item {
                         spacing: 8
                         
                         Text {
-                            text: root.statusMessage !== "" ? "󰀨" : (root.isDiscovering ? "󰑐" : "󰂯")
-                            color: root.statusMessage !== "" ? Theme.red : (scanHover.hovered ? Theme.accent : Theme.blue)
+                            text: "󰂯"
+                            color: Theme.blue
                             font.family: Theme.fontFamily
                             font.pixelSize: 18
-                            
-                            RotationAnimation on rotation {
-                                running: root.isDiscovering
-                                from: 0; to: 360
-                                duration: 1000
-                                loops: Animation.Infinite
-                            }
                         }
 
                         Text {
                             Layout.fillWidth: true
-                            text: root.statusMessage !== "" 
-                                ? root.statusMessage 
-                                : (root.isDiscovering ? "Scanning..." : "Bluetooth")
-                            color: root.statusMessage !== "" ? Theme.red : (scanHover.hovered ? Theme.accent : Theme.fg)
+                            text: "Bluetooth"
+                            color: Theme.fg
                             font.family: Theme.fontFamilySans
                             font.pixelSize: 15
                             font.weight: Theme.fontWeightBold
                             elide: Text.ElideRight
-                        }
-
-                        HoverHandler { id: scanHover; enabled: root.isPowered }
-                        TapHandler {
-                            enabled: root.isPowered
-                            onTapped: {
-                                if (root.adapter) {
-                                    root.adapter.discovering = !root.adapter.discovering
-                                }
-                            }
                         }
                     }
 
@@ -336,112 +335,287 @@ Item {
                     }
                 }
 
-                // Devices List when powered on
-                Item {
+                // Main Controls & Device Lists when powered on
+                ColumnLayout {
                     visible: root.adapter !== null && root.isPowered
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    spacing: 8
 
-                    ListView {
-                        id: devicesList
-                        anchors.fill: parent
-                        clip: true
+                    // Quick Action Buttons (Scan/Pair + Send Files + Manager)
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 32
                         spacing: 6
-                        boundsBehavior: Flickable.StopAtBounds
-                        model: root.pairedDevices
 
-                        header: ColumnLayout {
-                            width: devicesList.width
-                            spacing: 4
-                            visible: root.pairedDevices.length > 0
+                        // Scan / Pair Toggle Button
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            radius: Theme.radiusSmall
+                            color: root.isDiscovering 
+                                ? Theme.accent 
+                                : (scanBtnHover.hovered ? Theme.surface : Theme.bgLight)
+
+                            Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+
+                            RowLayout {
+                                anchors.centerIn: parent
+                                spacing: 6
+
+                                Text {
+                                    text: "󰑐"
+                                    color: root.isDiscovering ? Theme.bgDark : Theme.accent
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 14
+
+                                    RotationAnimation on rotation {
+                                        running: root.isDiscovering
+                                        from: 0; to: 360
+                                        duration: 1000
+                                        loops: Animation.Infinite
+                                    }
+                                }
+
+                                Text {
+                                    text: root.isDiscovering ? "Scanning..." : "Pair New Device"
+                                    color: root.isDiscovering ? Theme.bgDark : Theme.fg
+                                    font.family: Theme.fontFamilySans
+                                    font.pixelSize: 11
+                                    font.weight: Theme.fontWeightBold
+                                }
+                            }
+
+                            HoverHandler { id: scanBtnHover }
+                            TapHandler {
+                                onTapped: {
+                                    if (root.adapter) {
+                                        root.adapter.discovering = !root.adapter.discovering
+                                    }
+                                }
+                            }
+                        }
+
+                        // Send Files Button
+                        Rectangle {
+                            Layout.preferredWidth: sendRow.implicitWidth + 16
+                            Layout.fillHeight: true
+                            radius: Theme.radiusSmall
+                            color: sendBtnHover.hovered ? Theme.surface : Theme.bgLight
+
+                            Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+
+                            RowLayout {
+                                id: sendRow
+                                anchors.centerIn: parent
+                                spacing: 5
+
+                                Text {
+                                    text: "󰇮"
+                                    color: Theme.blue
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 13
+                                }
+
+                                Text {
+                                    text: "Send Files"
+                                    color: Theme.fg
+                                    font.family: Theme.fontFamilySans
+                                    font.pixelSize: 11
+                                    font.weight: Theme.fontWeight
+                                }
+                            }
+
+                            HoverHandler { id: sendBtnHover }
+                            TapHandler {
+                                onTapped: root.sendFile(root.connectedDevice)
+                            }
+                        }
+
+                        // Open Manager Button
+                        Rectangle {
+                            Layout.preferredWidth: 32
+                            Layout.fillHeight: true
+                            radius: Theme.radiusSmall
+                            color: mgrBtnHover.hovered ? Theme.surface : Theme.bgLight
+
+                            Behavior on color { ColorAnimation { duration: Theme.durationFast } }
 
                             Text {
+                                anchors.centerIn: parent
+                                text: "󰒓"
+                                color: Theme.fgDim
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 14
+                            }
+
+                            HoverHandler { id: mgrBtnHover }
+                            TapHandler {
+                                onTapped: root.openManager()
+                            }
+                        }
+                    }
+
+                    // Scrollable List of Paired & Available Devices
+                    QQC2.ScrollView {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        clip: true
+                        QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+
+                        ColumnLayout {
+                            width: parent ? parent.width : 340
+                            spacing: 8
+
+                            // Section 1: Paired Devices Header
+                            Text {
+                                visible: root.pairedDevices.length > 0
                                 text: "PAIRED DEVICES"
                                 color: Theme.fgDim
                                 font.family: Theme.fontFamilySans
                                 font.pixelSize: 11
                                 font.weight: Theme.fontWeightBold
                                 Layout.leftMargin: 2
-                                Layout.bottomMargin: 2
                             }
-                        }
 
-                        delegate: Rectangle {
-                            id: pairedDelegate
-                            required property var modelData
-                            width: ListView.view.width
-                            height: 52
-                            radius: Theme.radiusSmall
-                            color: modelData.connected ? Theme.accent
-                                : (devHover.hovered ? Theme.surface : Theme.bgLight)
-                            border.width: 0
+                            Repeater {
+                                model: root.pairedDevices
 
-                            Behavior on color { ColorAnimation { duration: Theme.durationFast } }
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 12
-                                anchors.rightMargin: 10
-                                spacing: 10
-
-                                Text {
-                                    text: root.getDeviceIcon(pairedDelegate.modelData)
-                                    color: pairedDelegate.modelData.connected ? Theme.bgDark : Theme.blue
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: 22
-                                }
-
-                                ColumnLayout {
+                                Rectangle {
+                                    id: pairedDelegate
+                                    required property var modelData
                                     Layout.fillWidth: true
-                                    spacing: 1
+                                    Layout.preferredHeight: 52
+                                    radius: Theme.radiusSmall
+                                    color: modelData.connected ? Theme.accent
+                                        : (devHover.hovered ? Theme.surface : Theme.bgLight)
+                                    border.width: 0
 
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: pairedDelegate.modelData.name || pairedDelegate.modelData.deviceName || pairedDelegate.modelData.address
-                                        color: pairedDelegate.modelData.connected ? Theme.bgDark : Theme.fg
-                                        elide: Text.ElideRight
-                                        font.family: Theme.fontFamilySans
-                                        font.pixelSize: 13
-                                        font.weight: Theme.fontWeight
-                                    }
+                                    Behavior on color { ColorAnimation { duration: Theme.durationFast } }
 
                                     RowLayout {
-                                        spacing: 6
-                                        Text {
-                                            text: pairedDelegate.modelData.connected ? "Connected" : (pairedDelegate.modelData.state === BluetoothDeviceState.Connecting ? "Connecting..." : "Paired")
-                                            color: pairedDelegate.modelData.connected ? Theme.bgDark : Theme.fgDim
-                                            font.family: Theme.fontFamilySans
-                                            font.pixelSize: 11
-                                        }
+                                        anchors.fill: parent
+                                        anchors.leftMargin: 12
+                                        anchors.rightMargin: 8
+                                        spacing: 10
 
                                         Text {
-                                            visible: pairedDelegate.modelData.batteryAvailable
-                                            text: "· 󰁹 " + Math.round(pairedDelegate.modelData.battery * 100) + "%"
-                                            color: pairedDelegate.modelData.connected ? Theme.bgDark : Theme.fgDim
-                                            font.family: Theme.fontFamilySans
-                                            font.pixelSize: 11
+                                            text: root.getDeviceIcon(pairedDelegate.modelData)
+                                            color: pairedDelegate.modelData.connected ? Theme.bgDark : Theme.blue
+                                            font.family: Theme.fontFamily
+                                            font.pixelSize: 22
+                                        }
+
+                                        ColumnLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 1
+
+                                            Text {
+                                                Layout.fillWidth: true
+                                                text: pairedDelegate.modelData.name || pairedDelegate.modelData.deviceName || pairedDelegate.modelData.address
+                                                color: pairedDelegate.modelData.connected ? Theme.bgDark : Theme.fg
+                                                elide: Text.ElideRight
+                                                font.family: Theme.fontFamilySans
+                                                font.pixelSize: 13
+                                                font.weight: Theme.fontWeight
+                                            }
+
+                                            RowLayout {
+                                                spacing: 6
+                                                Text {
+                                                    text: pairedDelegate.modelData.connected ? "Connected" : (pairedDelegate.modelData.state === BluetoothDeviceState.Connecting ? "Connecting..." : "Paired")
+                                                    color: pairedDelegate.modelData.connected ? Theme.bgDark : Theme.fgDim
+                                                    font.family: Theme.fontFamilySans
+                                                    font.pixelSize: 11
+                                                }
+
+                                                Text {
+                                                    visible: pairedDelegate.modelData.batteryAvailable
+                                                    text: "· 󰁹 " + Math.round(pairedDelegate.modelData.battery * 100) + "%"
+                                                    color: pairedDelegate.modelData.connected ? Theme.bgDark : Theme.fgDim
+                                                    font.family: Theme.fontFamilySans
+                                                    font.pixelSize: 11
+                                                }
+                                            }
+                                        }
+
+                                        // Send File quick action button
+                                        Rectangle {
+                                            implicitWidth: 26
+                                            implicitHeight: 26
+                                            radius: 6
+                                            color: sendFileHover.hovered 
+                                                ? (pairedDelegate.modelData.connected ? Qt.rgba(0, 0, 0, 0.25) : Theme.surfaceVariant)
+                                                : "transparent"
+
+                                            Text {
+                                                anchors.centerIn: parent
+                                                text: "󰇮"
+                                                color: pairedDelegate.modelData.connected ? Theme.bgDark : Theme.blue
+                                                font.family: Theme.fontFamily
+                                                font.pixelSize: 13
+                                            }
+
+                                            HoverHandler { id: sendFileHover }
+                                            TapHandler {
+                                                onTapped: root.sendFile(pairedDelegate.modelData)
+                                            }
+                                        }
+
+                                        // Forget / Unpair button
+                                        Rectangle {
+                                            implicitWidth: 26
+                                            implicitHeight: 26
+                                            radius: 6
+                                            color: forgetHover.hovered 
+                                                ? (pairedDelegate.modelData.connected ? Qt.rgba(0, 0, 0, 0.25) : Theme.surfaceVariant)
+                                                : "transparent"
+
+                                            Text {
+                                                anchors.centerIn: parent
+                                                text: "󰆴"
+                                                color: pairedDelegate.modelData.connected ? Theme.bgDark : Theme.fgDim
+                                                font.family: Theme.fontFamily
+                                                font.pixelSize: 13
+                                            }
+
+                                            HoverHandler { id: forgetHover }
+                                            TapHandler {
+                                                onTapped: pairedDelegate.modelData.forget()
+                                            }
+                                        }
+
+                                        // Connect / Disconnect Action Icon Button
+                                        Rectangle {
+                                            implicitWidth: 28
+                                            implicitHeight: 28
+                                            radius: 6
+                                            color: actionHover.hovered 
+                                                ? (pairedDelegate.modelData.connected ? Qt.rgba(0, 0, 0, 0.25) : Theme.surfaceVariant)
+                                                : (pairedDelegate.modelData.connected ? Qt.rgba(0, 0, 0, 0.12) : Theme.surface)
+
+                                            Text {
+                                                anchors.centerIn: parent
+                                                text: pairedDelegate.modelData.connected ? "󰅖" : "󰄬"
+                                                color: pairedDelegate.modelData.connected ? Theme.bgDark : Theme.accent
+                                                font.family: Theme.fontFamily
+                                                font.pixelSize: 14
+                                            }
+
+                                            HoverHandler { id: actionHover }
+                                            TapHandler {
+                                                onTapped: {
+                                                    if (pairedDelegate.modelData.connected) {
+                                                        pairedDelegate.modelData.disconnect()
+                                                    } else {
+                                                        pairedDelegate.modelData.connect()
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
-                                }
 
-                                // Connect / Disconnect Action Icon Button
-                                Rectangle {
-                                    implicitWidth: 28
-                                    implicitHeight: 28
-                                    radius: 6
-                                    color: actionHover.hovered 
-                                        ? (pairedDelegate.modelData.connected ? Qt.rgba(0, 0, 0, 0.25) : Theme.surfaceVariant)
-                                        : (pairedDelegate.modelData.connected ? Qt.rgba(0, 0, 0, 0.12) : Theme.surface)
-
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: pairedDelegate.modelData.connected ? "󰅖" : "󰄬"
-                                        color: pairedDelegate.modelData.connected ? Theme.bgDark : Theme.accent
-                                        font.family: Theme.fontFamily
-                                        font.pixelSize: 14
-                                    }
-
-                                    HoverHandler { id: actionHover }
+                                    HoverHandler { id: devHover }
                                     TapHandler {
                                         onTapped: {
                                             if (pairedDelegate.modelData.connected) {
@@ -454,26 +628,119 @@ Item {
                                 }
                             }
 
-                            HoverHandler { id: devHover }
-                            TapHandler {
-                                onTapped: {
-                                    if (pairedDelegate.modelData.connected) {
-                                        pairedDelegate.modelData.disconnect()
-                                    } else {
-                                        pairedDelegate.modelData.connect()
+                            // Section 2: Available / Discovered Devices Header
+                            RowLayout {
+                                visible: root.availableDevices.length > 0 || root.isDiscovering
+                                Layout.fillWidth: true
+                                Layout.topMargin: 4
+
+                                Text {
+                                    text: "AVAILABLE DEVICES"
+                                    color: Theme.fgDim
+                                    font.family: Theme.fontFamilySans
+                                    font.pixelSize: 11
+                                    font.weight: Theme.fontWeightBold
+                                    Layout.leftMargin: 2
+                                }
+
+                                Item { Layout.fillWidth: true }
+
+                                Text {
+                                    visible: root.isDiscovering
+                                    text: "Searching..."
+                                    color: Theme.accent
+                                    font.family: Theme.fontFamilySans
+                                    font.pixelSize: 10
+                                }
+                            }
+
+                            Repeater {
+                                model: root.availableDevices
+
+                                Rectangle {
+                                    id: availDelegate
+                                    required property var modelData
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 48
+                                    radius: Theme.radiusSmall
+                                    color: availHover.hovered ? Theme.surface : Theme.bgLight
+                                    border.width: 0
+
+                                    RowLayout {
+                                        anchors.fill: parent
+                                        anchors.leftMargin: 12
+                                        anchors.rightMargin: 10
+                                        spacing: 10
+
+                                        Text {
+                                            text: root.getDeviceIcon(availDelegate.modelData)
+                                            color: Theme.fgDim
+                                            font.family: Theme.fontFamily
+                                            font.pixelSize: 18
+                                        }
+
+                                        ColumnLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 0
+
+                                            Text {
+                                                Layout.fillWidth: true
+                                                text: availDelegate.modelData.name || availDelegate.modelData.deviceName || availDelegate.modelData.address
+                                                color: Theme.fg
+                                                elide: Text.ElideRight
+                                                font.family: Theme.fontFamilySans
+                                                font.pixelSize: 13
+                                                font.weight: Theme.fontWeight
+                                            }
+
+                                            Text {
+                                                text: availDelegate.modelData.pairing ? "Pairing..." : (availDelegate.modelData.address || "Ready to pair")
+                                                color: Theme.fgDim
+                                                font.family: Theme.fontFamilySans
+                                                font.pixelSize: 10
+                                            }
+                                        }
+
+                                        Rectangle {
+                                            implicitWidth: pairBtnText.implicitWidth + 18
+                                            implicitHeight: 28
+                                            radius: 6
+                                            color: pairBtnHover.hovered ? Theme.accentGlow : Theme.accent
+
+                                            Text {
+                                                id: pairBtnText
+                                                anchors.centerIn: parent
+                                                text: availDelegate.modelData.pairing ? "Pairing" : "Pair"
+                                                color: Theme.bgDark
+                                                font.family: Theme.fontFamilySans
+                                                font.pixelSize: 11
+                                                font.weight: Theme.fontWeightBold
+                                            }
+
+                                            HoverHandler { id: pairBtnHover }
+                                            TapHandler {
+                                                onTapped: availDelegate.modelData.pair()
+                                            }
+                                        }
+                                    }
+
+                                    HoverHandler { id: availHover }
+                                    TapHandler {
+                                        onTapped: availDelegate.modelData.pair()
                                     }
                                 }
                             }
-                        }
 
-                        // Empty devices state
-                        Text {
-                            visible: root.pairedDevices.length === 0
-                            anchors.centerIn: parent
-                            text: root.isDiscovering ? "Searching for nearby devices..." : "No paired devices found"
-                            color: Theme.fgDim
-                            font.family: Theme.fontFamilySans
-                            font.pixelSize: 13
+                            // Empty devices state when discovering but none found yet
+                            Text {
+                                visible: root.isDiscovering && root.availableDevices.length === 0
+                                Layout.alignment: Qt.AlignHCenter
+                                Layout.topMargin: 12
+                                text: "Searching for nearby devices..."
+                                color: Theme.fgDim
+                                font.family: Theme.fontFamilySans
+                                font.pixelSize: 12
+                            }
                         }
                     }
                 }

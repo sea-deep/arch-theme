@@ -18,22 +18,11 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
     color: "transparent"
-    property bool showing: UiState.emojiVisible
-    property real reveal: showing ? 1 : 0
-
-    Behavior on reveal {
-        NumberAnimation {
-            duration: root.showing ? 160 : 100
-            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
-            easing.overshoot: 1.08
-        }
-    }
-
-    visible: reveal > 0
+    visible: UiState.emojiVisible
 
     Shortcut {
         sequence: "Escape"
-        enabled: root.showing
+        enabled: UiState.emojiVisible
         onActivated: UiState.emojiVisible = false
     }
 
@@ -121,13 +110,15 @@ PanelWindow {
         root.emojiCount = root.allEmojis.length
     }
 
-    onShowingChanged: {
-        if (showing) {
-            posProc.running = true
+    onVisibleChanged: {
+        if (visible) {
+            cursorX = -1
+            cursorY = -1
             searchQuery = ""
             searchInput.text = ""
             root.displayEmojis = root.allEmojis
             root.emojiCount = root.allEmojis.length
+            posProc.running = true
             Qt.callLater(function() { searchInput.forceActiveFocus() })
         }
     }
@@ -136,14 +127,9 @@ PanelWindow {
     MouseArea {
         anchors.fill: parent
         onClicked: UiState.emojiVisible = false
-
-        Rectangle {
-            anchors.fill: parent
-            color: Qt.rgba(0, 0, 0, root.reveal * 0.35)
-        }
     }
 
-    // Fallback cursor position fetcher if opened without pre-supplied coordinates
+    // Get cursor position
     Process {
         id: posProc
         command: ["hyprctl", "cursorpos"]
@@ -167,14 +153,6 @@ PanelWindow {
         x: root.cursorX < 0 ? (root.width - width) / 2 : root.cursorX
         y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
         visible: root.cursorX >= 0 || !posProc.running
-
-        transform: Scale {
-            origin.x: popup.width / 2
-            origin.y: popup.height / 2
-            xScale: 0.94 + (0.06 * root.reveal)
-            yScale: xScale
-        }
-        opacity: Math.min(1.0, root.reveal * 1.2)
 
         color: Theme.bg
         radius: 12

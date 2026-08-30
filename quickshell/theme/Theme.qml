@@ -44,7 +44,7 @@ QtObject {
     readonly property int    borderWidth:        2
     readonly property int    outerGap:           0
     readonly property int    moduleSpacing:      6
-    readonly property int    compactPillSize:    barHeight
+    readonly property int    compactPillSize:    34
     readonly property int    pillPaddingHoriz:   14
     readonly property int    compactPaddingLeft: 4
     readonly property int    compactPaddingRight: 8

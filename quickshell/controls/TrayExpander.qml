@@ -17,8 +17,7 @@ Item {
     property bool submenuLoading: false
     property bool rootMenuRetained: false
     property bool rootMenuLoading: false
-    property int rootMenuLoadAttempts: 0
-    readonly property real collapsedWidth: trayItems.length <= 1 ? Theme.compactPillSize : Math.max(Theme.compactPillSize, trayItems.length * 28 + Theme.pillPaddingHoriz * 2)
+    readonly property real collapsedWidth: trayItems.length <= 1 ? Theme.compactPillSize : Math.max(Theme.compactPillSize, trayItems.length * 30 + 12)
     readonly property real topWidth: collapsedWidth
     readonly property var trayItems: SystemTray.items.values.filter(item => {
         // The NetworkManager applet is replaced by NetworkExpander, which uses

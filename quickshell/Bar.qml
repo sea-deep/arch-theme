@@ -101,6 +101,37 @@ PanelWindow {
             z: 0
         }
 
+        // Top-Left concave corner fillet connecting status bar to left screen edge
+        Components.InvertedCorner {
+            id: leftCornerCurve
+            z: 0
+            anchors.top: solidBarBg.bottom
+            anchors.left: parent.left
+            cornerRadius: 10
+            opacity: root.hasTiledWindows ? 1.0 : 0.0
+            visible: opacity > 0
+
+            Behavior on opacity {
+                NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
+            }
+        }
+
+        // Top-Right concave corner fillet connecting status bar to right screen edge
+        Components.InvertedCorner {
+            id: rightCornerCurve
+            z: 0
+            anchors.top: solidBarBg.bottom
+            anchors.right: parent.right
+            cornerRadius: 10
+            flipHorizontal: true
+            opacity: root.hasTiledWindows ? 1.0 : 0.0
+            visible: opacity > 0
+
+            Behavior on opacity {
+                NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
+            }
+        }
+
         MouseArea {
             id: bgMouseArea
             anchors.fill: parent

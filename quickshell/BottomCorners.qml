@@ -18,53 +18,23 @@ PanelWindow {
         return ws.toplevels.values.length > 0
     }
 
-    anchors.top: true
     anchors.bottom: true
     anchors.left: true
     anchors.right: true
 
+    implicitHeight: 10
     color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.exclusiveZone: 0
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
-    margins.top: 0
     margins.bottom: 0
     margins.left: 0
     margins.right: 0
 
     mask: Region {
-        Region { item: topLeftCorner }
-        Region { item: topRightCorner }
         Region { item: leftCorner }
         Region { item: rightCorner }
-    }
-
-    Components.InvertedCorner {
-        id: topLeftCorner
-        anchors.top: parent.top
-        anchors.left: parent.left
-        cornerRadius: 10
-        opacity: root.hasTiledWindows ? 1.0 : 0.0
-        visible: opacity > 0
-
-        Behavior on opacity {
-            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
-        }
-    }
-
-    Components.InvertedCorner {
-        id: topRightCorner
-        anchors.top: parent.top
-        anchors.right: parent.right
-        cornerRadius: 10
-        flipHorizontal: true
-        opacity: root.hasTiledWindows ? 1.0 : 0.0
-        visible: opacity > 0
-
-        Behavior on opacity {
-            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
-        }
     }
 
     Components.InvertedCorner {

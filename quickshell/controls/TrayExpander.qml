@@ -260,8 +260,9 @@ Item {
                         acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
                         cursorShape: Qt.PointingHandCursor
                         onClicked: mouse => {
+                            const hasValidMenu = parent.modelData.hasMenu && parent.modelData.menu !== null;
                             if (mouse.button === Qt.LeftButton) {
-                                if (parent.modelData.hasMenu)
+                                if (hasValidMenu)
                                     root.toggleMenu(parent.modelData)
                                 else {
                                     root.close()
@@ -269,8 +270,11 @@ Item {
                                 }
                             } else if (mouse.button === Qt.MiddleButton) {
                                 parent.modelData.secondaryActivate()
-                            } else {
-                                root.toggleMenu(parent.modelData)
+                            } else if (mouse.button === Qt.RightButton) {
+                                if (hasValidMenu)
+                                    root.toggleMenu(parent.modelData)
+                                else
+                                    parent.modelData.activate()
                             }
                         }
                         onWheel: wheel => parent.modelData.scroll(wheel.angleDelta.y, false)

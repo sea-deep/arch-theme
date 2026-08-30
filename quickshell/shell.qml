@@ -49,10 +49,15 @@ ShellRoot {
         }
     }
 
-    // ── Per-screen bar and native expanders ──────────────────
+    // ── Per-screen bar, bottom corners, and native expanders ──
     Variants {
         model: Quickshell.screens
         Bar {}
+    }
+
+    Variants {
+        model: Quickshell.screens
+        BottomCorners {}
     }
 
     Emoji.EmojiPicker {}

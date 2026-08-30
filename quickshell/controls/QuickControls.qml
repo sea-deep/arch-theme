@@ -380,7 +380,7 @@ Components.Pill {
                     Layout.fillWidth: true
                     value: root.maxBrightness > 0 ? (root.currentBrightness / root.maxBrightness) : 0
                     onMoved: Quickshell.execDetached([
-                        "brightnessctl", "set", Math.max(1, Math.round(value * 100)) + "%"
+                        Quickshell.shellPath("scripts/brightness.sh"), "set", Math.max(1, Math.round(value * 100)) + "%"
                     ])
                 }
                 Text {

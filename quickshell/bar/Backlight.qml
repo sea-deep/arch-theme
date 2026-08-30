@@ -84,9 +84,9 @@ Item {
         }
         onWheel: (wheel) => {
             if (wheel.angleDelta.y > 0) {
-                Quickshell.execDetached(["brightnessctl", "set", "1%+"])
+                Quickshell.execDetached([Quickshell.shellPath("scripts/brightness.sh"), "step_up", "1%"])
             } else {
-                Quickshell.execDetached(["brightnessctl", "set", "1%-"])
+                Quickshell.execDetached([Quickshell.shellPath("scripts/brightness.sh"), "step_down", "1%"])
             }
         }
     }

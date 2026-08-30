@@ -55,6 +55,7 @@ Item {
         anchors.fill: parent
         hasLeftShoulder: true
         hasRightShoulder: false
+        hasBottomRightInverted: true
         visible: root.reveal > 0
     }
 

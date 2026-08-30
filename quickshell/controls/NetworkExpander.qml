@@ -154,7 +154,8 @@ Item {
     Components.ConnectedDropdownSurface {
         anchors.fill: parent
         hasLeftShoulder: true
-        hasRightShoulder: true
+        hasRightShoulder: false
+        hasBottomRightInverted: true
         visible: root.reveal > 0
     }
 

@@ -11,6 +11,8 @@ Shape {
     property real bodyTop: Theme.barHeight
     property bool hasLeftShoulder: true
     property bool hasRightShoulder: true
+    property bool hasBottomRightInverted: false
+    property bool hasBottomLeftInverted: false
 
     // Compatibility properties
     property real tabWidth: Theme.compactPillSize
@@ -19,6 +21,7 @@ Shape {
 
     readonly property real leftExt: hasLeftShoulder ? shoulderRadius : 0
     readonly property real rightExt: hasRightShoulder ? shoulderRadius : 0
+    readonly property real botRightExt: hasBottomRightInverted ? shoulderRadius : 0
 
     preferredRendererType: Shape.CurveRenderer
 
@@ -28,7 +31,7 @@ Shape {
         fillColor: root.fillColor
         joinStyle: ShapePath.RoundJoin
 
-        // 1. Start at the left shoulder along the bar bottom line
+        // 1. Start at top-left shoulder along the bar bottom line
         startX: -root.leftExt
         startY: root.bodyTop
 
@@ -40,7 +43,7 @@ Shape {
             y: root.bodyTop + root.leftExt
         }
 
-        // 3. Left vertical wall down to bottom corner
+        // 3. Left vertical wall down to bottom-left corner
         PathLine {
             x: 0
             y: Math.max(root.bodyTop + root.leftExt, root.height - root.cornerRadius)
@@ -56,19 +59,23 @@ Shape {
 
         // 5. Bottom horizontal edge
         PathLine {
-            x: Math.max(root.cornerRadius, root.width - root.cornerRadius)
+            x: root.hasBottomRightInverted
+                ? Math.max(root.cornerRadius, root.width - root.botRightExt)
+                : Math.max(root.cornerRadius, root.width - root.cornerRadius)
             y: root.height
         }
 
-        // 6. Bottom-Right rounded corner (convex)
+        // 6. Bottom-Right corner (concave inverted fillet if enabled, else convex rounded)
         PathQuad {
             controlX: root.width
             controlY: root.height
             x: root.width
-            y: Math.max(root.bodyTop + root.rightExt, root.height - root.cornerRadius)
+            y: root.hasBottomRightInverted
+                ? (root.height + root.botRightExt)
+                : Math.max(root.bodyTop + root.rightExt, root.height - root.cornerRadius)
         }
 
-        // 7. Right vertical wall up to right shoulder
+        // 7. Right vertical wall up to top-right shoulder
         PathLine {
             x: root.width
             y: root.bodyTop + root.rightExt

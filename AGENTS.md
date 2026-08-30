@@ -1,8 +1,12 @@
 # AGENTS.md — Quickshell & Arch Theme Architecture & Guide
 
-> **CRITICAL OPERATIONAL RULE FOR ALL AGENTS:**
-> **DO NOT HOT-RELOAD OR KILL QUICKSHELL (`killall qs`, `hot_reload.sh`, `systemctl restart quickshell`, etc.)**
-> The user will **ALWAYS** manually reload Quickshell themselves. Any unauthorized restarts disrupt their active desktop environment.
+> **CRITICAL OPERATIONAL RULES FOR ALL AGENTS:**
+> 1. **DO NOT HOT-RELOAD OR KILL QUICKSHELL (`killall qs`, `hot_reload.sh`, `systemctl restart quickshell`, etc.)**
+>    The user will **ALWAYS** manually reload Quickshell themselves. Any unauthorized restarts disrupt their active desktop environment.
+> 2. **DO NOT DISMISS USER NOTIFICATIONS (`hyprctl dismissnotify`, `swaync-client -C`, etc.)**
+>    All notifications and toasts belong strictly to the user. Never clear or dismiss notifications automatically.
+> 3. **DO NOT SWITCH BRANCHES LOCALLY ON THE LIVE WORKING TREE (`git checkout main`, etc.)**
+>    Live file watchers in Hyprland detect split-second unlinking during local branch switching and latch error banners. Push directly to remote branches (`git push origin HEAD:main`).
 
 ---
 
@@ -147,6 +151,40 @@ arch-theme/
 
 ---
 
+### G. Window Headerbar Controls & Tiling Freezing Invariant
+
+1. **The Minimization Suspension Bug:**
+   - Tiling compositors like Hyprland do not maintain a traditional dock minimization queue.
+   - When Electron, Chromium, or GTK windows receive `xdg_toplevel.set_minimized`, their rendering pipelines pause `BeginFrame` and freeze the entire window.
+2. **Enforced `:close` Decoration Standard:**
+   - **GSettings & Hyprland:** `gsettings set org.gnome.desktop.wm.preferences button-layout ':close'` in `hyprland.lua`.
+   - **GTK Configs:** `gtk-decoration-layout=:close` in `gtk-3.0/settings.ini` and `gtk-4.0/settings.ini`.
+   - **XSettings Daemon:** `Gtk/DecorationLayout ":close"` in `xsettingsd.conf`.
+   - **Electron / VS Code:** `"window.customTitleBarVisibility": "never"` and `"window.titleBarStyle": "custom"` in `settings.json`.
+
+---
+
+### H. Display Fractional Scaling & 1080p Divisor Constraints
+
+1. **DRM Fractional Divisors on 1080p:**
+   - Scales like `1.10` or `1.15` produce non-integer pixel framebuffers on 1920x1080, triggering Hyprland `Invalid scale passed to monitor` warnings and blurry subpixel tearing.
+   - Valid integer-divisible scale steps:
+     `1.00` -> `1.20` (Recommended) -> `1.25` -> `1.50`
+2. **Dynamic Scale Cycling:**
+   - Bound exclusively to <kbd>Super + =</kbd> in `hyprland.lua` using `hl.monitor` and `hl.notification.create`.
+
+---
+
+### I. Pure Bash Scripting & Brightness Persistence Architecture
+
+1. **100% Pure Bash Standard:**
+   - All shell scripts in `quickshell/scripts/` and `hypr/scripts/` must be written in pure POSIX/Bash with zero Python runtime dependencies for sub-millisecond invocation.
+2. **Non-Poisoning Brightness Persistence:**
+   - User brightness is persisted to `~/.config/quickshell/state/brightness.txt` via `quickshell/scripts/brightness.sh`.
+   - `hypridle.conf` (`after_sleep_cmd` and `on-resume`) calls `brightness.sh restore` to prevent temporary 10% idle dims from poisoning the persistent brightness state on resume or reboot.
+
+---
+
 ## 3. Verification & Testing Checklist for Agents
 
 Before concluding any change:
@@ -155,6 +193,9 @@ Before concluding any change:
 - [ ] Ensure all DND `MouseArea` delegates use `preventStealing: true` and `drag.target: proxy`.
 - [ ] Confirm no global `QT_STYLE_OVERRIDE=kvantum` is added back to environment files.
 - [ ] Verify `UiState.qml` aliases all persisted properties (`caffeineEnabled`, `comfortValue`, `grayscaleValue`, `vividValue`).
+- [ ] Ensure all helper scripts pass `bash -n` syntax verification.
+- [ ] **NEVER** run `hyprctl dismissnotify` or dismiss user notifications.
+- [ ] Push directly to remote branches (`git push origin HEAD:main`) without local branch hopping.
 - [ ] Commit with concise, descriptive commit messages and push to `origin/feat/hyprland-quickshell`.
 - [ ] **DO NOT reload quickshell.** Notify the user that changes are pushed and ready for manual testing.
 

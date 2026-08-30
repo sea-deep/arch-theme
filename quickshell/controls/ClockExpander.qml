@@ -153,15 +153,8 @@ Components.Pill {
         }
     }
 
-    Rectangle {
-        anchors.top: parent.top
-        anchors.topMargin: Theme.barHeight - 1
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.leftMargin: Theme.borderWidth
-        anchors.rightMargin: Theme.borderWidth
-        height: 1
-        color: Theme.surface
+    Components.ConnectedDropdownSurface {
+        anchors.fill: parent
         visible: root.reveal > 0
     }
 

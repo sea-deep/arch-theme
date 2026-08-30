@@ -223,7 +223,7 @@ Item {
         anchors.left: parent.left
         width: root.collapsedWidth
         height: Theme.barHeight
-        visible: root.reveal <= 0
+        active: root.expanded || root.reveal > 0
     }
 
     Item {

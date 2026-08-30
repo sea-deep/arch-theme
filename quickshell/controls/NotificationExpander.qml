@@ -73,7 +73,7 @@ Item {
         anchors.left: parent.left
         width: Theme.compactPillSize
         height: Theme.barHeight
-        visible: root.reveal <= 0
+        active: root.showing || root.reveal > 0
         
         Text {
             anchors.centerIn: parent

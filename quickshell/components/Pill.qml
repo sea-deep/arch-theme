@@ -15,16 +15,12 @@ Rectangle {
     Layout.preferredHeight: Theme.barHeight
     visible: !collapseWhenEmpty || !isEmpty
 
-    color: active ? Theme.surface : (hovered ? Theme.bgLight : Theme.bgDark)
+    color: (active || hovered) ? Theme.bgLight : "transparent"
     radius: Theme.radius
-    border.width: Theme.borderWidth
-    border.color: (hovered || active) ? Theme.accentGlow : Theme.bgDark
+    border.width: 0
+    border.color: "transparent"
 
     Behavior on color {
-        ColorAnimation { duration: 120 }
-    }
-
-    Behavior on border.color {
         ColorAnimation { duration: 120 }
     }
 

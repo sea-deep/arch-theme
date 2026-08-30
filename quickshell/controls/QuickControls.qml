@@ -237,6 +237,11 @@ Components.Pill {
         }
     }
 
+    Components.ConnectedDropdownSurface {
+        anchors.fill: parent
+        visible: root.reveal > 0
+    }
+
     RowLayout {
         id: metricRow
         anchors.top: parent.top
@@ -247,18 +252,6 @@ Components.Pill {
         BarModules.Audio { onPrimaryClicked: root.toggle("audio") }
         BarModules.Backlight { onPrimaryClicked: root.toggle("brightness") }
         BarModules.Battery { onPrimaryClicked: root.toggle("battery") }
-    }
-
-    Rectangle {
-        anchors.top: parent.top
-        anchors.topMargin: Theme.barHeight - 1
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.leftMargin: Theme.borderWidth
-        anchors.rightMargin: Theme.borderWidth
-        height: 1
-        color: Theme.surfaceVariant
-        visible: root.reveal > 0
     }
 
     Item {

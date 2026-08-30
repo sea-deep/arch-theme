@@ -22,6 +22,8 @@ Item {
     implicitHeight: reveal > 0
         ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
         : Theme.barHeight
+    width: implicitWidth
+    height: implicitHeight
     focus: showing
 
     Behavior on reveal {

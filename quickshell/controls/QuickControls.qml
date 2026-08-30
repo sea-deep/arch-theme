@@ -35,6 +35,8 @@ Components.Pill {
 
     implicitWidth: metricRow.implicitWidth + 12
     implicitHeight: Theme.barHeight + bodyHeight * reveal
+    width: implicitWidth
+    height: implicitHeight
     clip: false
     focus: expanded
 

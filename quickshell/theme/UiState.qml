@@ -115,6 +115,7 @@ Singleton {
     property string trayMenuTitle: ""
     property string trayMenuIcon: ""
     property string trayMenuScreen: ""
+    property real trayMenuRightOffset: 0
     property bool networkVisible: false
     property string networkScreen: ""
     property bool bluetoothVisible: false

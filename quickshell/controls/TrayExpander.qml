@@ -41,6 +41,8 @@ Item {
     implicitHeight: isEmpty ? 0 : (reveal > 0
         ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
         : Theme.barHeight)
+    width: implicitWidth
+    height: implicitHeight
     visible: !isEmpty
     focus: expanded
 
@@ -237,22 +239,23 @@ Item {
         width: root.collapsedWidth
         height: Theme.barHeight
 
-        RowLayout {
+        Row {
             id: trayRow
             anchors.centerIn: parent
-            spacing: 10
+            spacing: 8
 
             Repeater {
                 model: root.trayItems
 
                 Item {
+                    id: trayItemDelegate
                     required property var modelData
                     width: 18
                     height: 18
 
                     IconImage {
                         anchors.fill: parent
-                        source: parent.modelData.icon
+                        source: trayItemDelegate.modelData.icon
                     }
 
                     MouseArea {
@@ -260,24 +263,28 @@ Item {
                         acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
                         cursorShape: Qt.PointingHandCursor
                         onClicked: mouse => {
-                            const hasValidMenu = parent.modelData.hasMenu && parent.modelData.menu !== null;
+                            const item = trayItemDelegate.modelData
+                            const hasValidMenu = item && item.hasMenu && item.menu !== null
                             if (mouse.button === Qt.LeftButton) {
-                                if (hasValidMenu)
-                                    root.toggleMenu(parent.modelData)
-                                else {
-                                    root.close()
-                                    parent.modelData.activate()
+                                if (item.onlyMenu && hasValidMenu) {
+                                    root.toggleMenu(item)
+                                } else {
+                                    item.activate()
                                 }
                             } else if (mouse.button === Qt.MiddleButton) {
-                                parent.modelData.secondaryActivate()
+                                item.secondaryActivate()
                             } else if (mouse.button === Qt.RightButton) {
-                                if (hasValidMenu)
-                                    root.toggleMenu(parent.modelData)
-                                else
-                                    parent.modelData.activate()
+                                if (hasValidMenu) {
+                                    root.toggleMenu(item)
+                                } else {
+                                    item.secondaryActivate()
+                                }
                             }
                         }
-                        onWheel: wheel => parent.modelData.scroll(wheel.angleDelta.y, false)
+                        onWheel: wheel => {
+                            if (trayItemDelegate.modelData)
+                                trayItemDelegate.modelData.scroll(wheel.angleDelta.y, false)
+                        }
                     }
                 }
             }

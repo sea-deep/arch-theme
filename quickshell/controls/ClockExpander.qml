@@ -19,6 +19,8 @@ Components.Pill {
 
     implicitWidth: topWidth
     implicitHeight: Theme.barHeight + bodyHeight * reveal
+    width: implicitWidth
+    height: implicitHeight
     clip: false
     focus: expanded
 

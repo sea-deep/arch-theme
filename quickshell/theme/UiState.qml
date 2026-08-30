@@ -219,23 +219,7 @@ Singleton {
         networkVisible = shouldOpen
     }
 
-    function updateCursor(coords) {
-        if (!coords || typeof coords !== "string") return
-        const parts = coords.trim().split(",")
-        if (parts.length === 2) {
-            const x = parseInt(parts[0].trim())
-            const y = parseInt(parts[1].trim())
-            if (!isNaN(x) && !isNaN(y)) {
-                cursorX = x
-                cursorY = y
-            }
-        }
-    }
-
-    function toggleClipboard(coordsOrScreen) {
-        if (coordsOrScreen && typeof coordsOrScreen === "string" && coordsOrScreen.includes(",")) {
-            updateCursor(coordsOrScreen)
-        }
+    function toggleClipboard(screenName) {
         const shouldOpen = !clipboardVisible
         closeOverlays()
         clipboardVisible = shouldOpen
@@ -275,8 +259,7 @@ Singleton {
         networkVisible = false
     }
 
-    function toggleEmoji(coords) {
-        if (coords) updateCursor(coords)
+    function toggleEmoji() {
         const shouldOpen = !emojiVisible
         closeOverlays()
         emojiVisible = shouldOpen

@@ -133,11 +133,7 @@ PanelWindow {
 
     onShowingChanged: {
         if (showing) {
-            if (UiState.cursorX >= 0 && UiState.cursorY >= 0) {
-                updateCoordinates(UiState.cursorX, UiState.cursorY)
-            } else {
-                posProc.running = true
-            }
+            posProc.running = true
             searchQuery = ""
             searchInput.text = ""
             clipboardFile.reload()

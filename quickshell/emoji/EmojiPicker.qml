@@ -18,11 +18,22 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
     color: "transparent"
-    visible: UiState.emojiVisible
+    property bool showing: UiState.emojiVisible
+    property real reveal: showing ? 1 : 0
+
+    Behavior on reveal {
+        NumberAnimation {
+            duration: root.showing ? 160 : 100
+            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
+            easing.overshoot: 1.08
+        }
+    }
+
+    visible: reveal > 0
 
     Shortcut {
         sequence: "Escape"
-        enabled: UiState.emojiVisible
+        enabled: root.showing
         onActivated: UiState.emojiVisible = false
     }
 
@@ -71,11 +82,16 @@ PanelWindow {
     }
 
     function filterEmojis(query) {
+        if (query === "") {
+            root.displayEmojis = root.allEmojis
+            root.emojiCount = root.allEmojis.length
+            return
+        }
         var src = root.allEmojis
         var result = []
         for (var i = 0; i < src.length; i++) {
             var e = src[i]
-            if (query === "" || e.name.toLowerCase().indexOf(query) !== -1) {
+            if (e.name.toLowerCase().indexOf(query) !== -1) {
                 result.push(e)
             }
         }
@@ -88,19 +104,34 @@ PanelWindow {
         Quickshell.execDetached(["bash", Quickshell.shellPath("scripts/type-emoji.sh"), emoji])
     }
 
-    Component.onCompleted: {
-        buildEmojiList()
-        filterEmojis("")
+    function updateCoordinates(cx, cy) {
+        var popupW = 340
+        var popupH = 440
+        if (cx + popupW > root.width) cx = root.width - popupW - 10
+        if (cy + popupH > root.height) cy = root.height - popupH - 10
+        if (cx < 10) cx = 10
+        if (cy < 10) cy = 10
+        root.cursorX = cx
+        root.cursorY = cy
     }
 
-    onVisibleChanged: {
-        if (visible) {
-            cursorX = -1
-            cursorY = -1
+    Component.onCompleted: {
+        buildEmojiList()
+        root.displayEmojis = root.allEmojis
+        root.emojiCount = root.allEmojis.length
+    }
+
+    onShowingChanged: {
+        if (showing) {
+            if (UiState.cursorX >= 0 && UiState.cursorY >= 0) {
+                updateCoordinates(UiState.cursorX, UiState.cursorY)
+            } else {
+                posProc.running = true
+            }
             searchQuery = ""
             searchInput.text = ""
-            filterEmojis("")
-            posProc.running = true
+            root.displayEmojis = root.allEmojis
+            root.emojiCount = root.allEmojis.length
             Qt.callLater(function() { searchInput.forceActiveFocus() })
         }
     }
@@ -109,9 +140,14 @@ PanelWindow {
     MouseArea {
         anchors.fill: parent
         onClicked: UiState.emojiVisible = false
+
+        Rectangle {
+            anchors.fill: parent
+            color: Qt.rgba(0, 0, 0, root.reveal * 0.35)
+        }
     }
 
-    // Get cursor position
+    // Fallback cursor position fetcher if opened without pre-supplied coordinates
     Process {
         id: posProc
         command: ["hyprctl", "cursorpos"]
@@ -121,16 +157,7 @@ PanelWindow {
                 if (parts.length === 2) {
                     var cx = parseInt(parts[0].trim())
                     var cy = parseInt(parts[1].trim())
-                    var popupW = 340
-                    var popupH = 440
-
-                    if (cx + popupW > root.width) cx = root.width - popupW - 10
-                    if (cy + popupH > root.height) cy = root.height - popupH - 10
-                    if (cx < 10) cx = 10
-                    if (cy < 10) cy = 10
-
-                    root.cursorX = cx
-                    root.cursorY = cy
+                    root.updateCoordinates(cx, cy)
                 }
             }
         }
@@ -145,17 +172,21 @@ PanelWindow {
         y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
         visible: root.cursorX >= 0 || !posProc.running
 
+        transform: Scale {
+            origin.x: popup.width / 2
+            origin.y: popup.height / 2
+            xScale: 0.94 + (0.06 * root.reveal)
+            yScale: xScale
+        }
+        opacity: Math.min(1.0, root.reveal * 1.2)
+
         color: Theme.bg
         radius: 12
         border.color: Theme.surface
         border.width: 1
 
         // Consume clicks so they don't hit the backdrop MouseArea
-        MouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.AllButtons
-            onClicked: {}
-        }
+        TapHandler {}
 
         ColumnLayout {
             anchors.fill: parent

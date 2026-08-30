@@ -81,15 +81,15 @@ ShellRoot {
 
     IpcHandler {
         target: "emoji"
-        function toggle() {
-            UiState.toggleEmoji()
+        function toggle(coords) {
+            UiState.toggleEmoji(coords)
         }
     }
 
     IpcHandler {
         target: "clipboard"
-        function toggle() {
-            UiState.toggleClipboard("")
+        function toggle(coords) {
+            UiState.toggleClipboard(coords)
         }
     }
 
@@ -99,12 +99,12 @@ ShellRoot {
             UiState.toggleLauncher()
         }
 
-        function emoji() {
-            UiState.toggleEmoji()
+        function emoji(coords) {
+            UiState.toggleEmoji(coords)
         }
 
-        function clipboard() {
-            UiState.toggleClipboard("")
+        function clipboard(coords) {
+            UiState.toggleClipboard(coords)
         }
     }
 

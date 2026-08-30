@@ -123,6 +123,8 @@ Singleton {
     property bool clipboardVisible: false
     property string clipboardScreen: ""
     property bool isDragging: false
+    property int cursorX: -1
+    property int cursorY: -1
 
     function toggleLauncher() {
         const shouldOpen = !launcherVisible
@@ -217,11 +219,25 @@ Singleton {
         networkVisible = shouldOpen
     }
 
-    function toggleClipboard(screenName) {
-        const targetScreen = screenName || ""
-        const shouldOpen = !clipboardVisible || clipboardScreen !== targetScreen
+    function updateCursor(coords) {
+        if (!coords || typeof coords !== "string") return
+        const parts = coords.trim().split(",")
+        if (parts.length === 2) {
+            const x = parseInt(parts[0].trim())
+            const y = parseInt(parts[1].trim())
+            if (!isNaN(x) && !isNaN(y)) {
+                cursorX = x
+                cursorY = y
+            }
+        }
+    }
+
+    function toggleClipboard(coordsOrScreen) {
+        if (coordsOrScreen && typeof coordsOrScreen === "string" && coordsOrScreen.includes(",")) {
+            updateCursor(coordsOrScreen)
+        }
+        const shouldOpen = !clipboardVisible
         closeOverlays()
-        clipboardScreen = targetScreen
         clipboardVisible = shouldOpen
     }
 
@@ -259,8 +275,8 @@ Singleton {
         networkVisible = false
     }
 
-
-    function toggleEmoji() {
+    function toggleEmoji(coords) {
+        if (coords) updateCursor(coords)
         const shouldOpen = !emojiVisible
         closeOverlays()
         emojiVisible = shouldOpen

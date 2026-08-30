@@ -17,11 +17,22 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
     color: "transparent"
-    visible: UiState.clipboardVisible
+    property bool showing: UiState.clipboardVisible
+    property real reveal: showing ? 1 : 0
+
+    Behavior on reveal {
+        NumberAnimation {
+            duration: root.showing ? 160 : 100
+            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
+            easing.overshoot: 1.08
+        }
+    }
+
+    visible: reveal > 0
 
     Shortcut {
         sequence: "Escape"
-        enabled: UiState.clipboardVisible
+        enabled: root.showing
         onActivated: UiState.clipboardVisible = false
     }
 
@@ -35,7 +46,7 @@ PanelWindow {
             x: 0
             y: 0
             width: root.width
-            height: root.isDragging ? 0 : root.height
+            height: (root.showing && !root.isDragging) ? root.height : 0
         }
         Region { item: popup }
     }
@@ -68,7 +79,7 @@ PanelWindow {
 
         if (diffSec < 60) return "just now"
         if (diffSec < 3600) return Math.floor(diffSec / 60) + "m ago"
-        if (diffSec < 86400) return Math.floor(diffSec / 3600) + "h ago"
+        if (diffSec < 86400) return Math.floor(diffSec / 3600) + "d ago"
         return Math.floor(diffSec / 86400) + "d ago"
     }
 
@@ -109,15 +120,28 @@ PanelWindow {
         ])
     }
 
-    onVisibleChanged: {
-        if (visible) {
-            cursorX = -1
-            cursorY = -1
+    function updateCoordinates(cx, cy) {
+        var popupW = 340
+        var popupH = 440
+        if (cx + popupW > root.width) cx = root.width - popupW - 10
+        if (cy + popupH > root.height) cy = root.height - popupH - 10
+        if (cx < 10) cx = 10
+        if (cy < 10) cy = 10
+        root.cursorX = cx
+        root.cursorY = cy
+    }
+
+    onShowingChanged: {
+        if (showing) {
+            if (UiState.cursorX >= 0 && UiState.cursorY >= 0) {
+                updateCoordinates(UiState.cursorX, UiState.cursorY)
+            } else {
+                posProc.running = true
+            }
             searchQuery = ""
             searchInput.text = ""
             clipboardFile.reload()
             listView.currentIndex = 0
-            posProc.running = true
             Qt.callLater(function() { searchInput.forceActiveFocus() })
         }
     }
@@ -125,11 +149,16 @@ PanelWindow {
     // Click outside to close (backdrop)
     MouseArea {
         anchors.fill: parent
-        enabled: !root.isDragging
+        enabled: !root.isDragging && root.showing
         onClicked: UiState.clipboardVisible = false
+
+        Rectangle {
+            anchors.fill: parent
+            color: Qt.rgba(0, 0, 0, root.reveal * 0.35)
+        }
     }
 
-    // Get cursor position
+    // Fallback cursor position fetcher if opened without pre-supplied coordinates
     Process {
         id: posProc
         command: ["hyprctl", "cursorpos"]
@@ -139,16 +168,7 @@ PanelWindow {
                 if (parts.length === 2) {
                     var cx = parseInt(parts[0].trim())
                     var cy = parseInt(parts[1].trim())
-                    var popupW = 340
-                    var popupH = 440
-
-                    if (cx + popupW > root.width) cx = root.width - popupW - 10
-                    if (cy + popupH > root.height) cy = root.height - popupH - 10
-                    if (cx < 10) cx = 10
-                    if (cy < 10) cy = 10
-
-                    root.cursorX = cx
-                    root.cursorY = cy
+                    root.updateCoordinates(cx, cy)
                 }
             }
         }
@@ -162,6 +182,14 @@ PanelWindow {
         x: root.cursorX < 0 ? (root.width - width) / 2 : root.cursorX
         y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
         visible: root.cursorX >= 0 || !posProc.running
+
+        transform: Scale {
+            origin.x: popup.width / 2
+            origin.y: popup.height / 2
+            xScale: 0.94 + (0.06 * root.reveal)
+            yScale: xScale
+        }
+        opacity: Math.min(1.0, root.reveal * 1.2)
 
         color: Theme.bg
         radius: 12

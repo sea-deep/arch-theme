@@ -22,7 +22,7 @@ PanelWindow {
     anchors.left: true
     anchors.right: true
 
-    implicitHeight: 14
+    implicitHeight: 10
     color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Top
@@ -41,7 +41,7 @@ PanelWindow {
         id: leftCorner
         anchors.bottom: parent.bottom
         anchors.left: parent.left
-        cornerRadius: 14
+        cornerRadius: 10
         flipVertical: true
         opacity: root.hasTiledWindows ? 1.0 : 0.0
         visible: opacity > 0
@@ -55,7 +55,7 @@ PanelWindow {
         id: rightCorner
         anchors.bottom: parent.bottom
         anchors.right: parent.right
-        cornerRadius: 14
+        cornerRadius: 10
         flipHorizontal: true
         flipVertical: true
         opacity: root.hasTiledWindows ? 1.0 : 0.0

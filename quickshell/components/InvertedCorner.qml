@@ -6,7 +6,7 @@ Shape {
     id: root
 
     property color fillColor: Theme.bg
-    property real cornerRadius: 14
+    property real cornerRadius: 10
     property bool flipHorizontal: false
     property bool flipVertical: false
 
@@ -27,22 +27,23 @@ Shape {
         fillColor: root.fillColor
         joinStyle: ShapePath.RoundJoin
 
-        // Top-left corner (0, 0)
+        // Start at corner (0, 0)
         startX: 0
         startY: 0
 
-        // Line along the top horizontal edge (meets bar bottom)
+        // Line along the horizontal edge
         PathLine { x: root.width; y: 0 }
 
-        // Concave arc curving towards bottom-left (meets vertical screen edge)
-        PathQuad {
-            controlX: 0
-            controlY: 0
+        // Exact circular arc matching window outer rounding
+        PathArc {
             x: 0
             y: root.height
+            radiusX: root.cornerRadius
+            radiusY: root.cornerRadius
+            direction: PathArc.Counterclockwise
         }
 
-        // Line along the vertical edge back to start
+        // Line along the vertical edge back to (0, 0)
         PathLine { x: 0; y: 0 }
     }
 }

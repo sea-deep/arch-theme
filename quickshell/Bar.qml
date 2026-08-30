@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import "theme"
+import "components" as Components
 import "bar" as BarModules
 import "controls" as Controls
 
@@ -13,6 +14,12 @@ PanelWindow {
     required property var modelData
     screen: modelData
     readonly property bool overlayExpanded: hardwarePill.expanded || trayExpander.expanded || networkExpander.expanded || notificationExpander.expanded || powerExpander.expanded || clockExpander.expanded
+    readonly property bool hasTiledWindows: {
+        const ws = Hyprland.focusedWorkspace
+        if (!ws || !ws.toplevels || !ws.toplevels.values)
+            return false
+        return ws.toplevels.values.length > 0
+    }
 
     anchors.top: true
     anchors.left: true
@@ -45,6 +52,8 @@ PanelWindow {
             width: root.width
             height: root.overlayExpanded ? root.height : Theme.barHeight
         }
+        Region { item: leftCornerCurve }
+        Region { item: rightCornerCurve }
         // Retain each pill's animated geometry while it closes.
         Region { item: hardwarePill }
         Region { item: trayExpander }
@@ -97,6 +106,36 @@ PanelWindow {
                 anchors.right: parent.right
                 height: 1
                 color: Theme.bgDark
+            }
+        }
+
+        // Concave corner curves connecting bar to screen edges when windows are tiled
+        Components.InvertedCorner {
+            id: leftCornerCurve
+            z: 0
+            anchors.top: solidBarBg.bottom
+            anchors.left: parent.left
+            cornerRadius: 14
+            opacity: root.hasTiledWindows ? 1.0 : 0.0
+            visible: opacity > 0
+
+            Behavior on opacity {
+                NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
+            }
+        }
+
+        Components.InvertedCorner {
+            id: rightCornerCurve
+            z: 0
+            anchors.top: solidBarBg.bottom
+            anchors.right: parent.right
+            cornerRadius: 14
+            flipHorizontal: true
+            opacity: root.hasTiledWindows ? 1.0 : 0.0
+            visible: opacity > 0
+
+            Behavior on opacity {
+                NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
             }
         }
 

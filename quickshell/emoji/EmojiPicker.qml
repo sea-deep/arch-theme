@@ -18,7 +18,17 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
     color: "transparent"
-    visible: UiState.emojiVisible
+    property bool showing: UiState.emojiVisible
+    property real reveal: showing ? 1 : 0
+
+    Behavior on reveal {
+        NumberAnimation {
+            duration: 60
+            easing.type: Easing.OutQuad
+        }
+    }
+
+    visible: reveal > 0
 
     Shortcut {
         sequence: "Escape"
@@ -112,39 +122,25 @@ PanelWindow {
         root.emojiCount = root.allEmojis.length
     }
 
-    onVisibleChanged: {
-        if (visible) {
-            cursorX = -1
-            cursorY = -1
+    onShowingChanged: {
+        if (showing) {
+            cursorX = UiState.cursorX
+            cursorY = UiState.cursorY
+            if (cursorX >= 0 && cursorY >= 0) {
+                updateCoordinates(cursorX, cursorY)
+            }
             searchQuery = ""
             searchInput.text = ""
             root.displayEmojis = root.allEmojis
             root.emojiCount = root.allEmojis.length
-            posProc.running = true
-            Qt.callLater(function() { searchInput.forceActiveFocus() })
+            searchInput.forceActiveFocus()
         }
     }
 
-    // Click outside to close (backdrop)
+    // Click outside to close (backdrop) - transparent, NO dimming
     MouseArea {
         anchors.fill: parent
         onClicked: UiState.emojiVisible = false
-    }
-
-    // Get cursor position
-    Process {
-        id: posProc
-        command: ["hyprctl", "cursorpos"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var parts = text.trim().split(",")
-                if (parts.length === 2) {
-                    var cx = parseInt(parts[0].trim())
-                    var cy = parseInt(parts[1].trim())
-                    root.updateCoordinates(cx, cy)
-                }
-            }
-        }
     }
 
     // Popup
@@ -154,7 +150,15 @@ PanelWindow {
         height: 440
         x: root.cursorX < 0 ? (root.width - width) / 2 : root.cursorX
         y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
-        visible: root.cursorX >= 0 || !posProc.running
+        visible: true
+
+        transform: Scale {
+            origin.x: popup.width / 2
+            origin.y: popup.height / 2
+            xScale: 0.96 + (0.04 * root.reveal)
+            yScale: xScale
+        }
+        opacity: root.reveal
 
         color: Theme.bg
         radius: 12

@@ -147,17 +147,11 @@ PanelWindow {
         }
     }
 
-    // Click outside to close (backdrop)
+    // Click outside to close (backdrop) - transparent, NO dimming
     MouseArea {
         anchors.fill: parent
         enabled: !root.isDragging && root.showing
         onClicked: UiState.clipboardVisible = false
-
-        Rectangle {
-            anchors.fill: parent
-            color: "#000000"
-            opacity: root.reveal * 0.35
-        }
     }
 
     // Popup

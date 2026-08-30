@@ -173,11 +173,7 @@ PanelWindow {
         border.width: 1
 
         // Consume clicks so they don't hit the backdrop MouseArea
-        MouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.AllButtons
-            onClicked: {}
-        }
+        TapHandler {}
 
         ColumnLayout {
             anchors.fill: parent
@@ -264,7 +260,7 @@ PanelWindow {
                             width: 18
                             height: 18
                             radius: 9
-                            color: clearTextHover.containsMouse ? Theme.surface : "transparent"
+                            color: clearTextTap.pressed ? Theme.surface : (clearTextHover.hovered ? Theme.surface : "transparent")
 
                             Text {
                                 anchors.centerIn: parent
@@ -274,12 +270,14 @@ PanelWindow {
                                 font.pixelSize: 10
                             }
 
-                            MouseArea {
+                            HoverHandler {
                                 id: clearTextHover
-                                anchors.fill: parent
-                                hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
-                                onClicked: {
+                            }
+
+                            TapHandler {
+                                id: clearTextTap
+                                onTapped: {
                                     searchInput.text = ""
                                     searchInput.forceActiveFocus()
                                 }
@@ -293,7 +291,7 @@ PanelWindow {
                     implicitWidth: clearLabel.implicitWidth + 14
                     Layout.preferredHeight: 36
                     radius: 8
-                    color: clearHover.containsMouse ? Theme.surface : Theme.bgLight
+                    color: clearTap.pressed ? Theme.surface : (clearHover.hovered ? Theme.surface : Theme.bgLight)
                     border.color: Theme.surface
                     border.width: 1
 
@@ -307,14 +305,19 @@ PanelWindow {
                         font.weight: Theme.fontWeight
                     }
 
-                    MouseArea {
+                    HoverHandler {
                         id: clearHover
-                        anchors.fill: parent
-                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: {
+                    }
+
+                    TapHandler {
+                        id: clearTap
+                        onTapped: {
                             Quickshell.execDetached(["clipse", "-clear"])
+                            Quickshell.execDetached(["wl-copy", "--clear"])
+                            Quickshell.clipboardText = ""
                             root.clipboardEntries = []
+                            searchInput.text = ""
                         }
                     }
                 }

@@ -266,20 +266,7 @@ Item {
 
                         Layout.fillWidth: true
                         implicitHeight: toastCard.implicitHeight
-                        height: implicitHeight
-
-                        opacity: 0
-                        y: -10
-
-                        Component.onCompleted: {
-                            enterAnim.start()
-                        }
-
-                        ParallelAnimation {
-                            id: enterAnim
-                            NumberAnimation { target: toastDelegate; property: "opacity"; to: 1.0; duration: 180; easing.type: Easing.OutCubic }
-                            NumberAnimation { target: toastDelegate; property: "y"; to: 0; duration: 180; easing.type: Easing.OutCubic }
-                        }
+                        implicitWidth: previewLayout.width
 
                         Timer {
                             id: toastTimer
@@ -294,8 +281,8 @@ Item {
 
                         ParallelAnimation {
                             id: exitAnim
-                            NumberAnimation { target: toastDelegate; property: "opacity"; to: 0; duration: 160; easing.type: Easing.InQuad }
-                            NumberAnimation { target: toastDelegate; property: "scale"; to: 0.95; duration: 160; easing.type: Easing.InQuad }
+                            NumberAnimation { target: toastCard; property: "opacity"; to: 0; duration: 160; easing.type: Easing.InQuad }
+                            NumberAnimation { target: toastCard; property: "scale"; to: 0.95; duration: 160; easing.type: Easing.InQuad }
                             onFinished: {
                                 Notifications.NotificationServer.removeToast(toastDelegate.modelData)
                             }
@@ -307,6 +294,19 @@ Item {
                             notification: toastDelegate.modelData
                             onDismissed: {
                                 Notifications.NotificationServer.removeToast(toastDelegate.modelData)
+                            }
+
+                            opacity: 0
+                            scale: 0.96
+
+                            Component.onCompleted: {
+                                enterAnim.start()
+                            }
+
+                            ParallelAnimation {
+                                id: enterAnim
+                                NumberAnimation { target: toastCard; property: "opacity"; to: 1.0; duration: 180; easing.type: Easing.OutCubic }
+                                NumberAnimation { target: toastCard; property: "scale"; to: 1.0; duration: 180; easing.type: Easing.OutCubic }
                             }
                         }
 

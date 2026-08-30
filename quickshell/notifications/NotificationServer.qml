@@ -40,12 +40,6 @@ Singleton {
         dndEnabled = !dndEnabled
     }
 
-    Process {
-        id: soundProcess
-        command: ["bash", "-c", "paplay /usr/share/sounds/freedesktop/stereo/message.oga &"]
-        running: false
-    }
-
     QSNotifications.NotificationServer {
         id: server
         actionsSupported: true
@@ -62,8 +56,7 @@ Singleton {
                 root.unreadCount++
 
             if (!root.dndEnabled && !notification.lastGeneration) {
-                soundProcess.running = false
-                soundProcess.running = true
+                Quickshell.execDetached(["paplay", "/usr/share/sounds/freedesktop/stereo/message.oga"])
                 root.notificationReceived(notification)
             }
         }

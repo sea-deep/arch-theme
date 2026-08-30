@@ -29,6 +29,8 @@ Item {
     implicitHeight: reveal > 0
         ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
         : Theme.barHeight
+    width: implicitWidth
+    height: implicitHeight
     
     Behavior on reveal { NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingDecelerate } }
     Behavior on implicitWidth { NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingDecelerate } }

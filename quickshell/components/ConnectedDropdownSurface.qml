@@ -21,6 +21,7 @@ Shape {
 
     readonly property real leftExt: hasLeftShoulder ? shoulderRadius : 0
     readonly property real rightExt: hasRightShoulder ? shoulderRadius : 0
+    readonly property real botLeftExt: hasBottomLeftInverted ? shoulderRadius : 0
     readonly property real botRightExt: hasBottomRightInverted ? shoulderRadius : 0
 
     preferredRendererType: Shape.CurveRenderer
@@ -46,14 +47,16 @@ Shape {
         // 3. Left vertical wall down to bottom-left corner
         PathLine {
             x: 0
-            y: Math.max(root.bodyTop + root.leftExt, root.height - root.cornerRadius)
+            y: root.hasBottomLeftInverted
+                ? (root.height + root.botLeftExt)
+                : Math.max(root.bodyTop + root.leftExt, root.height - root.cornerRadius)
         }
 
-        // 4. Bottom-Left rounded corner (convex)
+        // 4. Bottom-Left corner (concave inverted fillet if enabled, else convex rounded)
         PathQuad {
             controlX: 0
             controlY: root.height
-            x: Math.min(root.cornerRadius, root.width / 2)
+            x: root.hasBottomLeftInverted ? root.botLeftExt : Math.min(root.cornerRadius, root.width / 2)
             y: root.height
         }
 

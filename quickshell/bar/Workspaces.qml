@@ -133,6 +133,7 @@ Item {
         anchors.fill: parent
         hasLeftShoulder: false
         hasRightShoulder: true
+        hasBottomLeftInverted: true
         visible: root.reveal > 0
     }
 

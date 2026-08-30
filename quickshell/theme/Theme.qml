@@ -29,22 +29,22 @@ QtObject {
     // Typography
     readonly property string fontFamily:     "FiraCode Nerd Font"
     readonly property string fontFamilySans: "IBM Plex Sans"
-    readonly property int    fontSizeSmall:  11
-    readonly property int    fontSize:       14
-    readonly property int    fontSizeLarge:  16
+    readonly property int    fontSizeSmall:  13
+    readonly property int    fontSize:       17
+    readonly property int    fontSizeLarge:  20
     readonly property int    fontWeight:     Font.DemiBold
     readonly property int    fontWeightBold: Font.Bold
 
     // Geometry
     readonly property bool   showClipboardOnBar: false
-    readonly property int    barHeight:          32
-    readonly property int    radius:             12
-    readonly property int    radiusSmall:        6
+    readonly property int    barHeight:          46
+    readonly property int    radius:             14
+    readonly property int    radiusSmall:        8
     readonly property int    borderWidth:        2
     readonly property int    outerGap:           0
-    readonly property int    moduleSpacing:      4
+    readonly property int    moduleSpacing:      6
     readonly property int    compactPillSize:    barHeight
-    readonly property int    pillPaddingHoriz:   14
+    readonly property int    pillPaddingHoriz:   16
     readonly property int    compactPaddingLeft: 4
     readonly property int    compactPaddingRight: 8
     readonly property real   pillAlpha:          1.0

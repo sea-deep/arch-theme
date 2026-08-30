@@ -205,9 +205,9 @@ Item {
                         readonly property int maxVisibleGroups: 3
                         readonly property int overflowCount: Math.max(0, groupedApps.length - maxVisibleGroups)
                         
-                        implicitHeight: wsItem.isSpecial ? 0 : 26
-                        implicitWidth: wsItem.isSpecial ? 0 : rowContent.implicitWidth + 8
-                        radius: 6
+                        implicitHeight: wsItem.isSpecial ? 0 : 32
+                        implicitWidth: wsItem.isSpecial ? 0 : rowContent.implicitWidth + 10
+                        radius: 8
                         
                         Behavior on implicitWidth {
                             NumberAnimation { duration: 140; easing.type: Easing.OutCubic }

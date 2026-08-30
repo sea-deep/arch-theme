@@ -63,9 +63,9 @@ arch-theme/
    - **MIME Payload format:**
      - Text: `text/plain`, `text/plain;charset=utf-8`, `UTF8_STRING`, `STRING`, and `TEXT`.
      - Files / Images: RFC-2483 CRLF-delimited `text/uri-list` (`file:///path\r\n`) and `x-special/gnome-copied-files` (`copy\nfile:///path\r\n`).
-4. **Delegate Drag State Isolation:**
+4. **Delegate Drag State & Lifecycle Isolation:**
    - Never use global `Binding { target: UiState; property: "isDragging"; value: itemMouse.drag.active }` inside list delegates (competing rows will continuously overwrite it with `false`).
-   - Use explicit `onPressed: root.isDragging = true` and `onReleased: root.isDragging = false` handlers on the delegate's `MouseArea`.
+   - Use explicit `onPressed`, `onReleased`, `onCanceled`, `Drag.onDragStarted`, and `Drag.onDragFinished` handlers on the delegate's `MouseArea` and `expDragProxy`.
 
 ---
 
@@ -95,7 +95,18 @@ arch-theme/
 
 ---
 
-### C. Hyprland Screen Shaders & State Persistence
+### C. QuickControls Sliders & Mouse Wheel Interaction
+
+1. **WheelHandler Integration:**
+   - All sliders in `QuickControls.qml` derive from `CleanSlider: QQC2.Slider`.
+   - `WheelHandler` is integrated into `CleanSlider` with `orientation: Qt.Vertical` to allow effortless hover-scrolling with mouse wheel or touchpad in ±5% increments:
+     - Output / Master Audio & Application streams
+     - Brightness backlight
+     - Screen Shaders: Comfort (Night light), Grayscale, and Vivid
+
+---
+
+### D. Hyprland Screen Shaders & State Persistence
 
 1. **Path Alternation Caching Fix (`update_shader.sh`):**
    - Hyprland caches shader paths. Writing to the same filename does not recompile the shader.
@@ -109,13 +120,18 @@ arch-theme/
 
 ---
 
-### D. PolicyKit Authentication & Qt Theming
+### E. Unified Typography & Theming Architecture
 
-1. **The `QT_STYLE_OVERRIDE` Trap:**
+1. **Semibold (DemiBold) Standard:**
+   - **Quickshell (`Theme.qml`):** `fontWeight: Font.DemiBold` (600) used across all bar modules, buttons, and popups.
+   - **Qt5 & Qt6 (`qt5ct.conf` / `qt6ct.conf`):** Weight `63` (SemiBold) for `IBM Plex Sans` and `FiraCode Nerd Font`.
+   - **KDE / Polkit (`kdeglobals`):** Weight `63` (SemiBold) across all font roles.
+   - **GTK & Hyprland (`hyprland.lua` / `gsettings`):** `IBM Plex Sans SmBld 10` for interface/document, and `FiraCode Nerd Font SemBd 10` for monospace.
+   - **Hyprlock (`hyprlock.conf`):** `IBM Plex Sans SmBld`.
+2. **The `QT_STYLE_OVERRIDE` Trap:**
    - **NEVER** export `QT_STYLE_OVERRIDE=kvantum` globally.
    - Kvantum is a QWidget style only and lacks a Qt Quick Controls 2 QML module. Setting it causes Qt Quick QML apps (e.g. `polkit-kde-authentication-agent-1` / `QuickAuthDialog.qml`) to crash with `module "kvantum" is not installed` (`SEGV`).
-2. **Unified Theming Stack:**
-   - **Qt5 & Qt6 Platform Themes:** `qt5ct` / `qt6ct` with `style=kvantum`, `TokyoNight-SE` icons, and `IBM Plex Sans` font.
+3. **Unified Theming Stack:**
    - **Kvantum Config:** `Kvantum/kvantum.kvconfig` -> `theme=Kvantum-Tokyo-Night`.
    - **KDE / Polkit Config:** `~/.config/kdeglobals` -> Tokyo Night palette (`#1a1b26` bg, `#24283b` surface, `#39c5bb` accent).
    - **Polkit Agent Unit:** `plasma-polkit-agent.service` with drop-in override unsetting `QT_STYLE_OVERRIDE`.
@@ -126,7 +142,7 @@ arch-theme/
 
 Before concluding any change:
 - [ ] Run `git diff` to verify syntax and ensure no stray brackets or duplicate property declarations exist.
-- [ ] Ensure `Bar.qml` input mask remains discrete (never fullscreen).
+- [ ] Ensure `Bar.qml` dynamic input mask logic is preserved.
 - [ ] Ensure all DND `MouseArea` delegates use `preventStealing: true` and `drag.target: proxy`.
 - [ ] Confirm no global `QT_STYLE_OVERRIDE=kvantum` is added back to environment files.
 - [ ] Verify `UiState.qml` aliases all persisted properties (`caffeineEnabled`, `comfortValue`, `grayscaleValue`, `vividValue`).

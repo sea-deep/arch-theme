@@ -11,8 +11,6 @@ PanelWindow {
     required property var modelData
     screen: modelData
 
-    readonly property bool hasTiledWindows: Hyprland.activeToplevel !== null
-
     anchors.bottom: true
     anchors.left: true
     anchors.right: true
@@ -38,12 +36,6 @@ PanelWindow {
         anchors.left: parent.left
         cornerRadius: 13
         flipVertical: true
-        opacity: root.hasTiledWindows ? 1.0 : 0.0
-        visible: opacity > 0
-
-        Behavior on opacity {
-            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
-        }
     }
 
     Components.InvertedCorner {
@@ -53,11 +45,5 @@ PanelWindow {
         cornerRadius: 13
         flipHorizontal: true
         flipVertical: true
-        opacity: root.hasTiledWindows ? 1.0 : 0.0
-        visible: opacity > 0
-
-        Behavior on opacity {
-            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
-        }
     }
 }

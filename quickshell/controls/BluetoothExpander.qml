@@ -192,7 +192,7 @@ Item {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 9
+                anchors.margins: 12
                 spacing: 7
 
                 // Header
@@ -249,7 +249,7 @@ Item {
                             text: root.isPowered ? "On" : "Off"
                             color: root.isPowered ? Theme.accent : Theme.fgDim
                             font.family: Theme.fontFamily
-                            font.pixelSize: 10
+                            font.pixelSize: 12
                             font.weight: Theme.fontWeight
                         }
                         Rectangle {
@@ -295,7 +295,7 @@ Item {
                     visible: !root.adapter || !root.isPowered
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    radius: 8
+                    radius: Theme.radiusSmall
                     color: Theme.bgLight
 
                     ColumnLayout {
@@ -324,7 +324,7 @@ Item {
                             Layout.alignment: Qt.AlignHCenter
                             implicitWidth: turnOnText.implicitWidth + 20
                             implicitHeight: 28
-                            radius: 8
+                            radius: Theme.radiusSmall
                             color: turnOnHover.hovered ? Theme.accentGlow : Theme.accent
 
                             Text {
@@ -333,7 +333,7 @@ Item {
                                 text: "Turn On"
                                 color: Theme.bgDark
                                 font.family: Theme.fontFamilySans
-                                font.pixelSize: 11
+                                font.pixelSize: 13
                                 font.weight: Theme.fontWeightBold
                             }
 
@@ -367,7 +367,7 @@ Item {
 
                         width: ListView.view.width
                         height: 48
-                        radius: 8
+                        radius: Theme.radiusSmall
                         color: dev.connected ? Theme.accent
                             : (devHover.hovered ? Theme.surface : Theme.bgLight)
 
@@ -375,8 +375,8 @@ Item {
 
                         RowLayout {
                             anchors.fill: parent
-                            anchors.leftMargin: 9
-                            anchors.rightMargin: 9
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
                             spacing: 8
 
                             Text {
@@ -412,7 +412,7 @@ Item {
                                     }
                                     color: devDelegate.dev.connected ? Theme.bgDark : Theme.fgDim
                                     font.family: Theme.fontFamily
-                                    font.pixelSize: 9
+                                    font.pixelSize: 13
                                 }
                             }
 
@@ -429,7 +429,7 @@ Item {
                                 visible: !devDelegate.isPaired
                                 implicitWidth: pairLabel.implicitWidth + 14
                                 implicitHeight: 24
-                                radius: 8
+                                radius: Theme.radiusSmall
                                 color: pairHov.hovered ? Theme.accentGlow : Theme.accent
 
                                 Text {
@@ -438,7 +438,7 @@ Item {
                                     text: devDelegate.dev.pairing ? "Pairing" : "Pair"
                                     color: Theme.bgDark
                                     font.family: Theme.fontFamily
-                                    font.pixelSize: 10
+                                    font.pixelSize: 12
                                     font.weight: Theme.fontWeightBold
                                 }
 
@@ -468,7 +468,7 @@ Item {
                         text: root.isDiscovering ? "Searching for devices…" : "No devices found"
                         color: Theme.fgDim
                         font.family: Theme.fontFamily
-                        font.pixelSize: 11
+                        font.pixelSize: 13
                     }
                 }
 
@@ -491,7 +491,7 @@ Item {
                             text: "Send Files"
                             color: sendHov.hovered ? Theme.accent : Theme.fgDim
                             font.family: Theme.fontFamily
-                            font.pixelSize: 10
+                            font.pixelSize: 12
                             font.weight: Theme.fontWeight
                         }
                         HoverHandler { id: sendHov }
@@ -514,7 +514,7 @@ Item {
                             text: "Settings"
                             color: settingsHov.hovered ? Theme.accent : Theme.fgDim
                             font.family: Theme.fontFamily
-                            font.pixelSize: 10
+                            font.pixelSize: 12
                             font.weight: Theme.fontWeight
                         }
                         HoverHandler { id: settingsHov }

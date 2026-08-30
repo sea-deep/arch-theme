@@ -165,7 +165,7 @@ Components.Pill {
             y: slider.topPadding + slider.availableHeight / 2 - height / 2
             implicitWidth: 15
             implicitHeight: 15
-            radius: 8
+            radius: Theme.radiusSmall
             color: Theme.fg
             border.color: Theme.bgDark
             border.width: Theme.borderWidth
@@ -196,7 +196,7 @@ Components.Pill {
                     text: audioRow.label
                     color: Theme.fgDim
                     font.family: Theme.fontFamily
-                    font.pixelSize: 10
+                    font.pixelSize: 12
                     elide: Text.ElideRight
                     Layout.fillWidth: true
                 }
@@ -204,7 +204,7 @@ Components.Pill {
                     text: audioRow.available ? Math.round(audioRow.node.audio.volume * 100) + "%" : "--%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
-                    font.pixelSize: 10
+                    font.pixelSize: 12
                 }
             }
             CleanSlider {
@@ -219,7 +219,7 @@ Components.Pill {
         Rectangle {
             implicitWidth: 28
             implicitHeight: 28
-            radius: 8
+            radius: Theme.radiusSmall
             color: audioRow.available && audioRow.node.audio.muted ? Theme.red : Theme.bgLight
             Text {
                 anchors.centerIn: parent
@@ -271,7 +271,7 @@ Components.Pill {
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 10
+            anchors.margins: 12
             spacing: 6
             visible: UiState.quickControlMode === "audio"
 
@@ -291,7 +291,7 @@ Components.Pill {
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 10
+            anchors.margins: 12
             spacing: 7
             visible: UiState.quickControlMode === "brightness"
 
@@ -308,7 +308,7 @@ Components.Pill {
                     text: Math.round(comfortSlider.value * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
-                    font.pixelSize: 11
+                    font.pixelSize: 13
                     Layout.preferredWidth: 32
                     horizontalAlignment: Text.AlignRight
                 }
@@ -326,7 +326,7 @@ Components.Pill {
                     text: Math.round(grayscaleSlider.value * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
-                    font.pixelSize: 11
+                    font.pixelSize: 13
                     Layout.preferredWidth: 32
                     horizontalAlignment: Text.AlignRight
                 }
@@ -344,7 +344,7 @@ Components.Pill {
                     text: Math.round(vividSlider.value * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
-                    font.pixelSize: 11
+                    font.pixelSize: 13
                     Layout.preferredWidth: 32
                     horizontalAlignment: Text.AlignRight
                 }
@@ -365,7 +365,7 @@ Components.Pill {
                     text: Math.round(brightnessSlider.value * 100) + "%"
                     color: Theme.fg
                     font.family: Theme.fontFamily
-                    font.pixelSize: 11
+                    font.pixelSize: 13
                     Layout.preferredWidth: 32
                     horizontalAlignment: Text.AlignRight
                 }
@@ -373,7 +373,7 @@ Components.Pill {
             Rectangle {
                 Layout.fillWidth: true
                 implicitHeight: 28
-                radius: 8
+                radius: Theme.radiusSmall
                 color: UiState.caffeineEnabled ? Theme.yellow : Theme.bgLight
                 Text {
                     anchors.centerIn: parent
@@ -389,7 +389,7 @@ Components.Pill {
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 10
+            anchors.margins: 12
             spacing: 6
             visible: UiState.quickControlMode === "battery"
 
@@ -403,7 +403,7 @@ Components.Pill {
                         required property var modelData
                         Layout.fillWidth: true
                         implicitHeight: 36
-                        radius: 8
+                        radius: Theme.radiusSmall
                         color: Theme.bgLight
                         RowLayout {
                             anchors.fill: parent
@@ -422,7 +422,7 @@ Components.Pill {
                                 text: batteryCard.modelData.nativePath
                                 color: Theme.fg
                                 font.family: Theme.fontFamily
-                                font.pixelSize: 11
+                                font.pixelSize: 13
                                 font.weight: Theme.fontWeight
                             }
                             Text {
@@ -450,7 +450,7 @@ Components.Pill {
                     required property var modelData
                     Layout.fillWidth: true
                     implicitHeight: 28
-                    radius: 8
+                    radius: Theme.radiusSmall
                     color: root.tlpProfile === modelData.profile
                         ? Theme.accent : (profileHover.hovered ? Theme.surface : Theme.bgLight)
                     RowLayout {

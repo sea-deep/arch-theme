@@ -218,7 +218,7 @@ Item {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 9
+                anchors.margins: 12
                 spacing: 7
 
                 RowLayout {
@@ -265,7 +265,7 @@ Item {
                             text: "Wi-Fi"
                             color: Theme.fgDim
                             font.family: Theme.fontFamily
-                            font.pixelSize: 10
+                            font.pixelSize: 12
                             font.weight: Theme.fontWeight
                         }
                         Rectangle {
@@ -319,14 +319,14 @@ Item {
                         required property var modelData
                         width: ListView.view.width
                         height: 48
-                        radius: 8
+                        radius: Theme.radiusSmall
                         color: modelData.connected ? Theme.accent
                             : (networkHover.hovered ? Theme.surface : Theme.bgLight)
 
                         RowLayout {
                             anchors.fill: parent
-                            anchors.leftMargin: 9
-                            anchors.rightMargin: 9
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
                             spacing: 8
 
                             Text {
@@ -355,7 +355,7 @@ Item {
                                     color: networkDelegate.modelData.connected ? Theme.bgDark : Theme.fgDim
                                     elide: Text.ElideRight
                                     font.family: Theme.fontFamily
-                                    font.pixelSize: 9
+                                    font.pixelSize: 13
                                 }
                             }
                             Text {
@@ -390,7 +390,7 @@ Item {
                         text: Networking.wifiEnabled ? "Scanning for networks…" : "Wi-Fi is off"
                         color: Theme.fgDim
                         font.family: Theme.fontFamily
-                        font.pixelSize: 11
+                        font.pixelSize: 13
                     }
                 }
 
@@ -398,12 +398,12 @@ Item {
                     visible: root.pendingNetwork !== null
                     Layout.fillWidth: true
                     Layout.preferredHeight: visible ? 66 : 0
-                    radius: 8
+                    radius: Theme.radiusSmall
                     color: Theme.bgLight
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.margins: 7
+                        anchors.margins: 10
                         spacing: 7
                         ColumnLayout {
                             Layout.fillWidth: true
@@ -414,7 +414,7 @@ Item {
                                 color: Theme.fg
                                 elide: Text.ElideRight
                                 font.family: Theme.fontFamily
-                                font.pixelSize: 10
+                                font.pixelSize: 12
                             }
                             TextInput {
                                 id: passwordInput
@@ -424,7 +424,7 @@ Item {
                                 selectedTextColor: Theme.bgDark
                                 echoMode: TextInput.Password
                                 font.family: Theme.fontFamily
-                                font.pixelSize: 11
+                                font.pixelSize: 13
                                 clip: true
                                 text: root.password
                                 onTextChanged: root.password = text
@@ -441,14 +441,14 @@ Item {
                         Rectangle {
                             Layout.preferredWidth: 54
                             Layout.preferredHeight: 28
-                            radius: 8
+                            radius: Theme.radiusSmall
                             color: connectHover.hovered ? Theme.accentGlow : Theme.accent
                             Text {
                                 anchors.centerIn: parent
                                 text: "Connect"
                                 color: Theme.bgDark
                                 font.family: Theme.fontFamily
-                                font.pixelSize: 10
+                                font.pixelSize: 12
                                 font.weight: Theme.fontWeight
                             }
                             HoverHandler { id: connectHover }
@@ -477,7 +477,7 @@ Item {
                             text: "Settings"
                             color: wifiSettingsHov.hovered ? Theme.accent : Theme.fgDim
                             font.family: Theme.fontFamily
-                            font.pixelSize: 10
+                            font.pixelSize: 12
                             font.weight: Theme.fontWeight
                         }
                         HoverHandler { id: wifiSettingsHov }

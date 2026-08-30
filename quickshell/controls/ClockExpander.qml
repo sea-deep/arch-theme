@@ -173,7 +173,7 @@ Components.Pill {
 
         Item {
             anchors.fill: parent
-            anchors.margins: 14
+            anchors.margins: 12
 
             Item {
                 anchors.fill: parent
@@ -192,7 +192,7 @@ Components.Pill {
                             anchors.verticalCenter: parent.verticalCenter
                             width: 26
                             height: 26
-                            radius: 6
+                            radius: Theme.radiusSmall
                             color: previousHover.hovered ? Theme.accent : Theme.bgLight
                             Text {
                                 anchors.centerIn: parent
@@ -219,7 +219,7 @@ Components.Pill {
                             anchors.verticalCenter: parent.verticalCenter
                             width: 26
                             height: 26
-                            radius: 6
+                            radius: Theme.radiusSmall
                             color: nextHover.hovered ? Theme.accent : Theme.bgLight
                             Text {
                                 anchors.centerIn: parent
@@ -249,7 +249,7 @@ Components.Pill {
                                     text: modelData
                                     color: Theme.fgDim
                                     font.family: Theme.fontFamily
-                                    font.pixelSize: 11
+                                    font.pixelSize: 13
                                     font.weight: Theme.fontWeight
                                 }
                             }
@@ -281,7 +281,7 @@ Components.Pill {
                                     anchors.centerIn: parent
                                     width: 24
                                     height: 24
-                                    radius: 6
+                                    radius: Theme.radiusSmall
                                     color: isToday ? Theme.accent : (dayHover.hovered ? Theme.surface : "transparent")
 
                                     Text {
@@ -290,7 +290,7 @@ Components.Pill {
                                         color: dayCell.isToday ? Theme.bgDark : (dayCell.inMonth ? Theme.fg : Theme.fgMuted)
                                         opacity: dayCell.inMonth || dayCell.isToday ? 1 : 0.3
                                         font.family: Theme.fontFamily
-                                        font.pixelSize: 11
+                                        font.pixelSize: 13
                                         font.weight: dayCell.isToday ? Font.Bold : Font.Medium
                                     }
 
@@ -340,7 +340,7 @@ Components.Pill {
                         text: Qt.formatDateTime(clock.date, "t")
                         color: Theme.purple
                         font.family: Theme.fontFamily
-                        font.pixelSize: 11
+                        font.pixelSize: 13
                     }
                     
                     Item { Layout.preferredHeight: 6 }
@@ -349,7 +349,7 @@ Components.Pill {
                         Layout.alignment: Qt.AlignHCenter
                         Layout.preferredWidth: 140
                         Layout.preferredHeight: 26
-                        radius: 6
+                        radius: Theme.radiusSmall
                         color: timeFormatHover.hovered ? Theme.accent : Theme.bgLight
 
                         Text {
@@ -357,7 +357,7 @@ Components.Pill {
                             text: root.twentyFourHour ? "Use 12-hour clock" : "Use 24-hour clock"
                             color: timeFormatHover.hovered ? Theme.bgDark : Theme.fg
                             font.family: Theme.fontFamilySans
-                            font.pixelSize: 11
+                            font.pixelSize: 13
                             font.weight: Theme.fontWeight
                         }
                         HoverHandler { id: timeFormatHover }

@@ -311,7 +311,7 @@ Item {
                     visible: root.menuStack.length > 0
                     Layout.preferredWidth: visible ? 28 : 0
                     Layout.preferredHeight: 28
-                    radius: 8
+                    radius: Theme.radiusSmall
                     color: backHover.hovered ? Theme.surface : Theme.bgLight
                     Text {
                         anchors.centerIn: parent
@@ -433,7 +433,7 @@ Item {
                     Rectangle {
                         anchors.fill: parent
                         visible: !delegateRoot.modelData.isSeparator
-                        radius: 8
+                        radius: Theme.radiusSmall
                         color: delegateRoot.modelData.enabled
                                 && (delegateRoot.ListView.isCurrentItem || entryHover.hovered)
                             ? Theme.accent : "transparent"
@@ -498,7 +498,7 @@ Item {
                         ? "Loading…" : "No menu actions"
                     color: Theme.fgDim
                     font.family: Theme.fontFamily
-                    font.pixelSize: 11
+                    font.pixelSize: 13
                 }
             }
         }

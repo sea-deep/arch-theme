@@ -122,7 +122,7 @@ Item {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 10
+                anchors.margins: 12
                 spacing: 8
 
                 RowLayout {
@@ -215,7 +215,7 @@ Item {
                                         text: actionButton.modelData.key
                                         color: btnMouseArea.containsMouse ? Theme.bgDark : Theme.fgDim
                                         font.family: Theme.fontFamilySans
-                                        font.pixelSize: 11
+                                        font.pixelSize: 13
                                         font.weight: Theme.fontWeightBold
                                     }
                                 }

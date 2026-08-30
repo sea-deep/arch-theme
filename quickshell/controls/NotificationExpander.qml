@@ -138,7 +138,7 @@ Item {
             visible: UiState.notificationCenterVisible
             anchors.fill: parent
             
-            anchors.margins: 14
+            anchors.margins: 12
             spacing: 12
 
             RowLayout {
@@ -158,7 +158,7 @@ Item {
                 Rectangle {
                     implicitWidth: dndLabel.implicitWidth + 16
                     implicitHeight: 28
-                    radius: 9
+                    radius: Theme.radiusSmall
                     color: Notifications.NotificationServer.dndEnabled ? Theme.purple : Theme.bgLight
 
                     Text {
@@ -167,7 +167,7 @@ Item {
                         text: Notifications.NotificationServer.dndEnabled ? "󱏧 DND" : "󰂚 DND"
                         color: Notifications.NotificationServer.dndEnabled ? Theme.bgDark : Theme.fgDim
                         font.family: Theme.fontFamily
-                        font.pixelSize: 11
+                        font.pixelSize: 13
                         font.weight: Theme.fontWeight
                     }
 
@@ -177,7 +177,7 @@ Item {
                 Rectangle {
                     implicitWidth: clearLabel.implicitWidth + 16
                     implicitHeight: 28
-                    radius: 9
+                    radius: Theme.radiusSmall
                     color: clearHover.hovered ? Theme.surface : Theme.bgLight
 
                     Text {
@@ -186,7 +186,7 @@ Item {
                         text: "Clear"
                         color: Theme.accent
                         font.family: Theme.fontFamilySans
-                        font.pixelSize: 11
+                        font.pixelSize: 13
                     }
 
                     HoverHandler { id: clearHover }

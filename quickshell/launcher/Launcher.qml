@@ -148,6 +148,34 @@ PanelWindow {
         }
     }
 
+    function nextCategory() {
+        var idx = 0
+        for (var i = 0; i < root.categoryList.length; i++) {
+            if (root.categoryList[i].id === root.activeCategory) {
+                idx = i
+                break
+            }
+        }
+        var nextIdx = (idx + 1) % root.categoryList.length
+        root.activeCategory = root.categoryList[nextIdx].id
+        root.filterApps()
+        grid.currentIndex = 0
+    }
+
+    function prevCategory() {
+        var idx = 0
+        for (var i = 0; i < root.categoryList.length; i++) {
+            if (root.categoryList[i].id === root.activeCategory) {
+                idx = i
+                break
+            }
+        }
+        var prevIdx = (idx - 1 + root.categoryList.length) % root.categoryList.length
+        root.activeCategory = root.categoryList[prevIdx].id
+        root.filterApps()
+        grid.currentIndex = 0
+    }
+
     function close() {
         contextMenu.visible = false
         UiState.launcherVisible = false
@@ -257,17 +285,17 @@ PanelWindow {
             anchors.leftMargin: 24
             anchors.rightMargin: 24
             anchors.topMargin: 24
-            spacing: 16
+            spacing: 14
 
             // Top Header: Search bar + app count badge
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 12
+                spacing: 10
 
-                // Search Bar
+                // Search Bar (Exact Theme.barHeight = 38px profile)
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 44
+                    Layout.preferredHeight: Theme.barHeight
                     radius: Theme.radius
                     color: Theme.bgDark
                     border.color: searchInput.activeFocus ? Theme.accent : Theme.surfaceVariant
@@ -279,15 +307,15 @@ PanelWindow {
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: 16
-                        anchors.rightMargin: 12
-                        spacing: 12
+                        anchors.leftMargin: 14
+                        anchors.rightMargin: 10
+                        spacing: 10
 
                         Text {
                             text: ""
                             color: searchInput.activeFocus ? Theme.accent : Theme.fgDim
                             font.family: Theme.fontFamily
-                            font.pixelSize: 16
+                            font.pixelSize: 15
                             Behavior on color {
                                 ColorAnimation { duration: Theme.durationFast }
                             }
@@ -303,7 +331,8 @@ PanelWindow {
                                 text: "Search applications..."
                                 color: Theme.fgMuted
                                 font.family: Theme.fontFamilySans
-                                font.pixelSize: 15
+                                font.pixelSize: 14
+                                font.weight: Theme.fontWeight
                                 visible: searchInput.text.length === 0
                             }
 
@@ -312,7 +341,8 @@ PanelWindow {
                                 anchors.fill: parent
                                 color: Theme.fg
                                 font.family: Theme.fontFamilySans
-                                font.pixelSize: 15
+                                font.pixelSize: 14
+                                font.weight: Theme.fontWeight
                                 verticalAlignment: TextInput.AlignVCenter
                                 selectionColor: Theme.accent
                                 selectedTextColor: Theme.bgDark
@@ -325,6 +355,14 @@ PanelWindow {
                                 }
 
                                 Keys.onEscapePressed: root.close()
+                                Keys.onTabPressed: (event) => {
+                                    root.nextCategory()
+                                    event.accepted = true
+                                }
+                                Keys.onBacktabPressed: (event) => {
+                                    root.prevCategory()
+                                    event.accepted = true
+                                }
                                 Keys.onDownPressed: {
                                     if (grid.count > 0) {
                                         grid.currentIndex = Math.min(grid.count - 1, grid.currentIndex + grid.columns)
@@ -367,9 +405,9 @@ PanelWindow {
                         // Clear search button
                         Rectangle {
                             visible: searchInput.text.length > 0
-                            width: 24
-                            height: 24
-                            radius: 12
+                            width: 22
+                            height: 22
+                            radius: 11
                             color: clearHover.containsMouse ? Theme.surface : "transparent"
                             Behavior on color { ColorAnimation { duration: 100 } }
 
@@ -378,7 +416,7 @@ PanelWindow {
                                 text: ""
                                 color: Theme.fgDim
                                 font.family: Theme.fontFamily
-                                font.pixelSize: 12
+                                font.pixelSize: 11
                             }
 
                             MouseArea {
@@ -395,10 +433,10 @@ PanelWindow {
                     }
                 }
 
-                // App count badge
+                // App count badge (Exact Theme.barHeight = 38px profile)
                 Rectangle {
-                    Layout.preferredHeight: 44
-                    implicitWidth: countText.implicitWidth + 24
+                    Layout.preferredHeight: Theme.barHeight
+                    implicitWidth: countText.implicitWidth + 20
                     radius: Theme.radius
                     color: Theme.bgDark
                     border.color: Theme.surfaceVariant
@@ -416,15 +454,15 @@ PanelWindow {
                 }
             }
 
-            // Category filter chips row
+            // Category filter chips row (Styled like Top Bar Workspace Pills)
             ScrollView {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 34
+                Layout.preferredHeight: 32
                 ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
                 ScrollBar.vertical.policy: ScrollBar.AlwaysOff
 
                 RowLayout {
-                    spacing: 8
+                    spacing: 6
 
                     Repeater {
                         model: root.categoryList
@@ -434,12 +472,12 @@ PanelWindow {
                             required property var modelData
                             readonly property bool isActive: root.activeCategory === modelData.id
 
-                            implicitWidth: chipRow.implicitWidth + 24
-                            implicitHeight: 32
-                            radius: 16
-                            color: isActive ? Theme.accent : (chipHover.containsMouse ? Theme.bgLight : Theme.bgDark)
+                            implicitWidth: chipRow.implicitWidth + 18
+                            implicitHeight: 30
+                            radius: Theme.radiusSmall
+                            color: isActive ? Theme.surface : (chipHover.containsMouse ? Theme.bgLight : Theme.bgDark)
                             border.color: isActive ? Theme.accent : (chipHover.containsMouse ? Theme.accentGlow : Theme.surfaceVariant)
-                            border.width: 1
+                            border.width: isActive ? 1.5 : 1
 
                             Behavior on color { ColorAnimation { duration: Theme.durationFast } }
                             Behavior on border.color { ColorAnimation { duration: Theme.durationFast } }
@@ -451,7 +489,7 @@ PanelWindow {
 
                                 Text {
                                     text: catChip.modelData.icon
-                                    color: catChip.isActive ? Theme.bgDark : (chipHover.containsMouse ? Theme.accent : Theme.fgDim)
+                                    color: catChip.isActive ? Theme.accent : (chipHover.containsMouse ? Theme.accent : Theme.fgDim)
                                     font.family: Theme.fontFamily
                                     font.pixelSize: 13
                                     Behavior on color { ColorAnimation { duration: Theme.durationFast } }
@@ -459,9 +497,9 @@ PanelWindow {
 
                                 Text {
                                     text: catChip.modelData.label
-                                    color: catChip.isActive ? Theme.bgDark : (chipHover.containsMouse ? Theme.fg : Theme.fgDim)
+                                    color: catChip.isActive ? Theme.accent : (chipHover.containsMouse ? Theme.fg : Theme.fgDim)
                                     font.family: Theme.fontFamilySans
-                                    font.pixelSize: 13
+                                    font.pixelSize: 12
                                     font.weight: catChip.isActive ? Font.Bold : Theme.fontWeight
                                     Behavior on color { ColorAnimation { duration: Theme.durationFast } }
                                 }
@@ -524,6 +562,15 @@ PanelWindow {
                     if (currentIndex >= 0 && currentIndex < root.filteredApps.length) {
                         root.launch(root.filteredApps[currentIndex])
                     }
+                }
+
+                Keys.onTabPressed: (event) => {
+                    root.nextCategory()
+                    event.accepted = true
+                }
+                Keys.onBacktabPressed: (event) => {
+                    root.prevCategory()
+                    event.accepted = true
                 }
 
                 Keys.onPressed: event => {

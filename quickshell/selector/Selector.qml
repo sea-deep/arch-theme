@@ -316,19 +316,35 @@ PanelWindow {
 
                         Keys.onEscapePressed: UiState.selectorVisible = false
                         Keys.onDownPressed: {
-                            if (root.mode === "emoji")
+                            if (root.mode === "emoji") {
                                 emojiGrid.currentIndex = Math.min(emojiGrid.count - 1, emojiGrid.currentIndex + emojiGrid.columns)
-                            else
+                                emojiGrid.positionViewAtIndex(emojiGrid.currentIndex, GridView.Contain)
+                            } else {
                                 resultList.currentIndex = Math.min(resultList.count - 1, resultList.currentIndex + 1)
+                                resultList.positionViewAtIndex(resultList.currentIndex, ListView.Contain)
+                            }
                         }
                         Keys.onUpPressed: {
-                            if (root.mode === "emoji")
+                            if (root.mode === "emoji") {
                                 emojiGrid.currentIndex = Math.max(0, emojiGrid.currentIndex - emojiGrid.columns)
-                            else
+                                emojiGrid.positionViewAtIndex(emojiGrid.currentIndex, GridView.Contain)
+                            } else {
                                 resultList.currentIndex = Math.max(0, resultList.currentIndex - 1)
+                                resultList.positionViewAtIndex(resultList.currentIndex, ListView.Contain)
+                            }
                         }
-                        Keys.onLeftPressed: if (root.mode === "emoji") emojiGrid.currentIndex = Math.max(0, emojiGrid.currentIndex - 1)
-                        Keys.onRightPressed: if (root.mode === "emoji") emojiGrid.currentIndex = Math.min(emojiGrid.count - 1, emojiGrid.currentIndex + 1)
+                        Keys.onLeftPressed: {
+                            if (root.mode === "emoji") {
+                                emojiGrid.currentIndex = Math.max(0, emojiGrid.currentIndex - 1)
+                                emojiGrid.positionViewAtIndex(emojiGrid.currentIndex, GridView.Contain)
+                            }
+                        }
+                        Keys.onRightPressed: {
+                            if (root.mode === "emoji") {
+                                emojiGrid.currentIndex = Math.min(emojiGrid.count - 1, emojiGrid.currentIndex + 1)
+                                emojiGrid.positionViewAtIndex(emojiGrid.currentIndex, GridView.Contain)
+                            }
+                        }
                         Keys.onReturnPressed: root.activate(root.activeEntry())
                         Keys.onEnterPressed: root.activate(root.activeEntry())
                     }

@@ -194,6 +194,7 @@ PanelWindow {
                             root.searchQuery = text.toLowerCase()
                             root.filterEmojis(root.searchQuery)
                             grid.currentIndex = 0
+                            grid.positionViewAtBeginning()
                         }
                         onAccepted: {
                             if (root.displayEmojis.length > 0) {
@@ -204,8 +205,28 @@ PanelWindow {
                         Keys.onEscapePressed: UiState.emojiVisible = false
                         Keys.onPressed: event => {
                             if (event.key === Qt.Key_Down) {
-                                grid.forceActiveFocus()
-                                grid.currentIndex = 0
+                                if (grid.count > 0) {
+                                    grid.currentIndex = Math.min(grid.count - 1, grid.currentIndex + 8)
+                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
+                                }
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_Up) {
+                                if (grid.count > 0) {
+                                    grid.currentIndex = Math.max(0, grid.currentIndex - 8)
+                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
+                                }
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_Right) {
+                                if (grid.count > 0) {
+                                    grid.currentIndex = Math.min(grid.count - 1, grid.currentIndex + 1)
+                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
+                                }
+                                event.accepted = true
+                            } else if (event.key === Qt.Key_Left) {
+                                if (grid.count > 0) {
+                                    grid.currentIndex = Math.max(0, grid.currentIndex - 1)
+                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
+                                }
                                 event.accepted = true
                             } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                                 if (root.displayEmojis.length > 0) {
@@ -263,7 +284,7 @@ PanelWindow {
                     required property int index
 
                     property var emoji: index < root.displayEmojis.length ? root.displayEmojis[index] : null
-                    property bool isCurrent: (grid.activeFocus && grid.currentIndex === index)
+                    property bool isCurrent: (grid.currentIndex === index)
 
                     width: grid.cellWidth
                     height: grid.cellHeight

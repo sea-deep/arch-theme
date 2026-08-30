@@ -54,7 +54,7 @@ Item {
         return list
     }
 
-    readonly property int bodyHeight: 360
+    readonly property int bodyHeight: !isPowered ? 160 : 352
     property real reveal: expanded ? 1 : 0
 
     property real expandedWidth: 350
@@ -204,14 +204,14 @@ Item {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 10
-                spacing: 8
+                anchors.margins: 9
+                spacing: 7
 
-                // Header Row
+                // Header Row (Click to trigger Scan / Refresh)
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 28
-                    spacing: 8
+                    spacing: 7
 
                     RowLayout {
                         Layout.fillWidth: true
@@ -219,9 +219,9 @@ Item {
                         
                         Text {
                             text: root.isDiscovering ? "󰑐" : "󰂯"
-                            color: root.isDiscovering ? Theme.accent : Theme.blue
+                            color: root.isDiscovering ? Theme.accent : (scanHover.hovered ? Theme.accent : Theme.blue)
                             font.family: Theme.fontFamily
-                            font.pixelSize: 18
+                            font.pixelSize: 16
                             
                             RotationAnimation on rotation {
                                 running: root.isDiscovering
@@ -236,8 +236,8 @@ Item {
                             text: root.isDiscovering ? "Scanning for devices..." : "Bluetooth"
                             color: scanHover.hovered ? Theme.accent : Theme.fg
                             font.family: Theme.fontFamilySans
-                            font.pixelSize: 15
-                            font.weight: Theme.fontWeightBold
+                            font.pixelSize: 14
+                            font.weight: Theme.fontWeight
                             elide: Text.ElideRight
                         }
 
@@ -254,29 +254,29 @@ Item {
 
                     // Power Switch
                     RowLayout {
-                        Layout.preferredWidth: 60
+                        Layout.preferredWidth: 62
                         Layout.preferredHeight: 26
                         spacing: 6
 
                         Text {
                             text: root.isPowered ? "On" : "Off"
-                            color: root.isPowered ? Theme.accent : Theme.fgDim
+                            color: Theme.fgDim
                             font.family: Theme.fontFamilySans
-                            font.pixelSize: 12
+                            font.pixelSize: 10
                             font.weight: Theme.fontWeight
                         }
 
                         Rectangle {
                             id: powerSwitch
-                            Layout.preferredWidth: 32
+                            Layout.preferredWidth: 30
                             Layout.preferredHeight: 18
-                            radius: 9
+                            radius: height / 2
                             color: root.isPowered ? Theme.accent : Theme.surface
 
                             Rectangle {
                                 width: 14
                                 height: 14
-                                radius: 7
+                                radius: width / 2
                                 anchors.verticalCenter: parent.verticalCenter
                                 x: root.isPowered ? parent.width - width - 2 : 2
                                 color: root.isPowered ? Theme.bgDark : Theme.fgDim
@@ -310,7 +310,7 @@ Item {
                     visible: !root.adapter || !root.isPowered
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    radius: Theme.radiusSmall
+                    radius: 8
                     color: Theme.bgLight
 
                     ColumnLayout {
@@ -362,345 +362,271 @@ Item {
                     }
                 }
 
-                // Device List when powered on
-                Item {
+                // Main Device List
+                ListView {
+                    id: devList
                     visible: root.adapter !== null && root.isPowered
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    Layout.minimumHeight: 80
+                    model: root.combinedList
+                    clip: true
+                    spacing: 3
+                    boundsBehavior: Flickable.StopAtBounds
 
-                    ListView {
-                        id: devListView
-                        anchors.fill: parent
-                        clip: true
-                        spacing: 4
-                        boundsBehavior: Flickable.StopAtBounds
-                        model: root.combinedList
+                    header: Item {
+                        width: devList.width
+                        height: root.pairedDevices.length > 0 ? 20 : 0
+                        visible: root.pairedDevices.length > 0
 
-                        header: Item {
-                            width: devListView.width
-                            height: root.pairedDevices.length > 0 ? 22 : 0
-                            visible: root.pairedDevices.length > 0
+                        Text {
+                            anchors.left: parent.left
+                            anchors.leftMargin: 2
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: "PAIRED DEVICES"
+                            color: Theme.fgDim
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 10
+                            font.weight: Theme.fontWeightBold
+                        }
+                    }
+
+                    delegate: Rectangle {
+                        id: devDelegate
+                        required property var modelData
+                        readonly property var dev: modelData.device
+                        readonly property bool isPaired: modelData.isPaired
+
+                        width: ListView.view.width
+                        height: 48
+                        radius: 8
+                        color: dev.connected ? Theme.accent
+                            : (devHover.hovered ? Theme.surface : Theme.bgLight)
+                        border.width: 0
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 10
+                            anchors.rightMargin: 10
+                            spacing: 8
 
                             Text {
-                                anchors.left: parent.left
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: "PAIRED DEVICES"
-                                color: Theme.fgDim
-                                font.family: Theme.fontFamilySans
-                                font.pixelSize: 11
-                                font.weight: Theme.fontWeightBold
+                                text: root.getDeviceIcon(devDelegate.dev)
+                                color: devDelegate.dev.connected ? Theme.bgDark : Theme.blue
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 18
                             }
-                        }
 
-                        delegate: Rectangle {
-                            id: devItem
-                            required property var modelData
-                            readonly property var dev: modelData.device
-                            readonly property bool isPaired: modelData.isPaired
-
-                            width: devListView.width
-                            height: 50
-                            radius: Theme.radiusSmall
-                            color: dev.connected ? Theme.accent
-                                : (itemHover.hovered ? Theme.surface : Theme.bgLight)
-                            border.width: 0
-
-                            Behavior on color { ColorAnimation { duration: Theme.durationFast } }
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 12
-                                anchors.rightMargin: 10
-                                spacing: 10
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 0
 
                                 Text {
-                                    text: root.getDeviceIcon(devItem.dev)
-                                    color: devItem.dev.connected ? Theme.bgDark : Theme.blue
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: 20
+                                    Layout.fillWidth: true
+                                    text: devDelegate.dev.name || devDelegate.dev.deviceName || devDelegate.dev.address
+                                    color: devDelegate.dev.connected ? Theme.bgDark : Theme.fg
+                                    elide: Text.ElideRight
+                                    font.family: Theme.fontFamilySans
+                                    font.pixelSize: 12
+                                    font.weight: Theme.fontWeight
                                 }
 
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 1
+                                RowLayout {
+                                    spacing: 6
+                                    Text {
+                                        text: devDelegate.dev.connected ? "Connected" 
+                                            : (devDelegate.dev.state === BluetoothDeviceState.Connecting ? "Connecting..." 
+                                            : (devDelegate.isPaired ? "Paired" : (devDelegate.dev.pairing ? "Pairing..." : "Ready to pair")))
+                                        color: devDelegate.dev.connected ? Theme.bgDark : Theme.fgDim
+                                        font.family: Theme.fontFamilySans
+                                        font.pixelSize: 9
+                                    }
 
                                     Text {
-                                        Layout.fillWidth: true
-                                        text: devItem.dev.name || devItem.dev.deviceName || devItem.dev.address
-                                        color: devItem.dev.connected ? Theme.bgDark : Theme.fg
-                                        elide: Text.ElideRight
+                                        visible: devDelegate.dev.batteryAvailable
+                                        text: "· 󰁹 " + Math.round(devDelegate.dev.battery * 100) + "%"
+                                        color: devDelegate.dev.connected ? Theme.bgDark : Theme.fgDim
                                         font.family: Theme.fontFamilySans
-                                        font.pixelSize: 13
-                                        font.weight: Theme.fontWeight
+                                        font.pixelSize: 9
+                                    }
+                                }
+                            }
+
+                            // Paired quick action icons
+                            RowLayout {
+                                visible: devDelegate.isPaired
+                                spacing: 4
+
+                                // Send File
+                                Rectangle {
+                                    width: 24
+                                    height: 24
+                                    radius: 5
+                                    color: sfHov.hovered 
+                                        ? (devDelegate.dev.connected ? Qt.rgba(0, 0, 0, 0.2) : Theme.bgLight)
+                                        : "transparent"
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "󰇮"
+                                        color: devDelegate.dev.connected ? Theme.bgDark : Theme.blue
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: 12
                                     }
 
-                                    RowLayout {
-                                        spacing: 6
-                                        Text {
-                                            text: devItem.dev.connected ? "Connected" 
-                                                : (devItem.dev.state === BluetoothDeviceState.Connecting ? "Connecting..." 
-                                                : (devItem.isPaired ? "Paired" : (devItem.dev.pairing ? "Pairing..." : "Ready to pair")))
-                                            color: devItem.dev.connected ? Theme.bgDark : Theme.fgDim
-                                            font.family: Theme.fontFamilySans
-                                            font.pixelSize: 11
-                                        }
-
-                                        Text {
-                                            visible: devItem.dev.batteryAvailable
-                                            text: "· 󰁹 " + Math.round(devItem.dev.battery * 100) + "%"
-                                            color: devItem.dev.connected ? Theme.bgDark : Theme.fgDim
-                                            font.family: Theme.fontFamilySans
-                                            font.pixelSize: 11
-                                        }
+                                    HoverHandler { id: sfHov }
+                                    TapHandler {
+                                        onTapped: root.sendFile(devDelegate.dev)
                                     }
                                 }
 
-                                // Paired Actions (Send File / Forget / Connect-Disconnect)
-                                RowLayout {
-                                    visible: devItem.isPaired
-                                    spacing: 4
+                                // Forget
+                                Rectangle {
+                                    width: 24
+                                    height: 24
+                                    radius: 5
+                                    color: fgHov.hovered 
+                                        ? (devDelegate.dev.connected ? Qt.rgba(0, 0, 0, 0.2) : Theme.bgLight)
+                                        : "transparent"
 
-                                    // Send file icon button
-                                    Rectangle {
-                                        width: 26
-                                        height: 26
-                                        radius: 6
-                                        color: sfHover.hovered 
-                                            ? (devItem.dev.connected ? Qt.rgba(0, 0, 0, 0.25) : Theme.surfaceVariant)
-                                            : "transparent"
-
-                                        Text {
-                                            anchors.centerIn: parent
-                                            text: "󰇮"
-                                            color: devItem.dev.connected ? Theme.bgDark : Theme.blue
-                                            font.family: Theme.fontFamily
-                                            font.pixelSize: 13
-                                        }
-
-                                        HoverHandler { id: sfHover }
-                                        TapHandler {
-                                            onTapped: root.sendFile(devItem.dev)
-                                        }
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "󰆴"
+                                        color: devDelegate.dev.connected ? Theme.bgDark : Theme.fgDim
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: 12
                                     }
 
-                                    // Forget icon button
-                                    Rectangle {
-                                        width: 26
-                                        height: 26
-                                        radius: 6
-                                        color: fgHover.hovered 
-                                            ? (devItem.dev.connected ? Qt.rgba(0, 0, 0, 0.25) : Theme.surfaceVariant)
-                                            : "transparent"
+                                    HoverHandler { id: fgHov }
+                                    TapHandler {
+                                        onTapped: devDelegate.dev.forget()
+                                    }
+                                }
 
-                                        Text {
-                                            anchors.centerIn: parent
-                                            text: "󰆴"
-                                            color: devItem.dev.connected ? Theme.bgDark : Theme.fgDim
-                                            font.family: Theme.fontFamily
-                                            font.pixelSize: 13
-                                        }
+                                // Connect / Disconnect
+                                Rectangle {
+                                    width: 24
+                                    height: 24
+                                    radius: 5
+                                    color: connHov.hovered 
+                                        ? (devDelegate.dev.connected ? Qt.rgba(0, 0, 0, 0.2) : Theme.bgLight)
+                                        : "transparent"
 
-                                        HoverHandler { id: fgHover }
-                                        TapHandler {
-                                            onTapped: devItem.dev.forget()
-                                        }
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: devDelegate.dev.connected ? "󰅖" : "󰄬"
+                                        color: devDelegate.dev.connected ? Theme.bgDark : Theme.accent
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: 12
                                     }
 
-                                    // Connect / Disconnect button
-                                    Rectangle {
-                                        width: 26
-                                        height: 26
-                                        radius: 6
-                                        color: connHover.hovered 
-                                            ? (devItem.dev.connected ? Qt.rgba(0, 0, 0, 0.25) : Theme.surfaceVariant)
-                                            : (devItem.dev.connected ? Qt.rgba(0, 0, 0, 0.12) : Theme.surface)
-
-                                        Text {
-                                            anchors.centerIn: parent
-                                            text: devItem.dev.connected ? "󰅖" : "󰄬"
-                                            color: devItem.dev.connected ? Theme.bgDark : Theme.accent
-                                            font.family: Theme.fontFamily
-                                            font.pixelSize: 13
-                                        }
-
-                                        HoverHandler { id: connHover }
-                                        TapHandler {
-                                            onTapped: {
-                                                if (devItem.dev.connected) {
-                                                    devItem.dev.disconnect()
-                                                } else {
-                                                    devItem.dev.connect()
-                                                }
+                                    HoverHandler { id: connHov }
+                                    TapHandler {
+                                        onTapped: {
+                                            if (devDelegate.dev.connected) {
+                                                devDelegate.dev.disconnect()
+                                            } else {
+                                                devDelegate.dev.connect()
                                             }
                                         }
                                     }
                                 }
-
-                                // Unpaired Action (Pair button)
-                                Rectangle {
-                                    visible: !devItem.isPaired
-                                    implicitWidth: pairText.implicitWidth + 16
-                                    implicitHeight: 26
-                                    radius: 6
-                                    color: pairBtnHover.hovered ? Theme.accentGlow : Theme.accent
-
-                                    Text {
-                                        id: pairText
-                                        anchors.centerIn: parent
-                                        text: devItem.dev.pairing ? "Pairing" : "Pair"
-                                        color: Theme.bgDark
-                                        font.family: Theme.fontFamilySans
-                                        font.pixelSize: 11
-                                        font.weight: Theme.fontWeightBold
-                                    }
-
-                                    HoverHandler { id: pairBtnHover }
-                                    TapHandler {
-                                        onTapped: devItem.dev.pair()
-                                    }
-                                }
                             }
 
-                            HoverHandler { id: itemHover }
-                            TapHandler {
-                                onTapped: {
-                                    if (devItem.isPaired) {
-                                        if (devItem.dev.connected) {
-                                            devItem.dev.disconnect()
-                                        } else {
-                                            devItem.dev.connect()
-                                        }
+                            // Unpaired Pair button
+                            Rectangle {
+                                visible: !devDelegate.isPaired
+                                implicitWidth: pairBtnLabel.implicitWidth + 14
+                                implicitHeight: 24
+                                radius: 5
+                                color: pairHov.hovered ? Theme.accentGlow : Theme.accent
+
+                                Text {
+                                    id: pairBtnLabel
+                                    anchors.centerIn: parent
+                                    text: devDelegate.dev.pairing ? "Pairing" : "Pair"
+                                    color: Theme.bgDark
+                                    font.family: Theme.fontFamilySans
+                                    font.pixelSize: 10
+                                    font.weight: Theme.fontWeightBold
+                                }
+
+                                HoverHandler { id: pairHov }
+                                TapHandler {
+                                    onTapped: devDelegate.dev.pair()
+                                }
+                            }
+                        }
+
+                        HoverHandler { id: devHover }
+                        TapHandler {
+                            onTapped: {
+                                if (devDelegate.isPaired) {
+                                    if (devDelegate.dev.connected) {
+                                        devDelegate.dev.disconnect()
                                     } else {
-                                        devItem.dev.pair()
+                                        devDelegate.dev.connect()
                                     }
+                                } else {
+                                    devDelegate.dev.pair()
                                 }
                             }
                         }
+                    }
 
-                        // Empty State
-                        Text {
-                            visible: root.combinedList.length === 0
-                            anchors.centerIn: parent
-                            text: root.isDiscovering ? "Searching for nearby devices..." : "No devices found"
-                            color: Theme.fgDim
-                            font.family: Theme.fontFamilySans
-                            font.pixelSize: 13
-                        }
+                    Text {
+                        visible: root.combinedList.length === 0
+                        anchors.centerIn: parent
+                        text: root.isDiscovering ? "Searching for nearby devices..." : "No devices found"
+                        color: Theme.fgDim
+                        font.family: Theme.fontFamilySans
+                        font.pixelSize: 12
                     }
                 }
 
-                // Bottom Footer Toolbar
+                // Subtle Bottom Toolbar Links (Matching Theme)
                 RowLayout {
                     visible: root.adapter !== null && root.isPowered
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 30
-                    spacing: 6
+                    Layout.preferredHeight: 22
+                    spacing: 8
 
-                    // Scan / Discovery Toggle Pill
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        radius: Theme.radiusSmall
-                        color: root.isDiscovering 
-                            ? Theme.accent 
-                            : (scanPillHover.hovered ? Theme.surface : Theme.bgLight)
-
-                        Behavior on color { ColorAnimation { duration: Theme.durationFast } }
-
-                        RowLayout {
-                            anchors.centerIn: parent
-                            spacing: 6
-
-                            Text {
-                                text: "󰑐"
-                                color: root.isDiscovering ? Theme.bgDark : Theme.accent
-                                font.family: Theme.fontFamily
-                                font.pixelSize: 13
-
-                                RotationAnimation on rotation {
-                                    running: root.isDiscovering
-                                    from: 0; to: 360
-                                    duration: 1000
-                                    loops: Animation.Infinite
-                                }
-                            }
-
-                            Text {
-                                text: root.isDiscovering ? "Stop Scanning" : "Scan for Devices"
-                                color: root.isDiscovering ? Theme.bgDark : Theme.fg
-                                font.family: Theme.fontFamilySans
-                                font.pixelSize: 11
-                                font.weight: Theme.fontWeight
-                            }
-                        }
-
-                        HoverHandler { id: scanPillHover }
-                        TapHandler {
-                            onTapped: {
-                                if (root.adapter) {
-                                    root.adapter.discovering = !root.adapter.discovering
-                                }
-                            }
-                        }
-                    }
-
-                    // Send Files Button
-                    Rectangle {
-                        Layout.preferredWidth: sendRow.implicitWidth + 16
-                        Layout.fillHeight: true
-                        radius: Theme.radiusSmall
-                        color: sendPillHover.hovered ? Theme.surface : Theme.bgLight
-
-                        Behavior on color { ColorAnimation { duration: Theme.durationFast } }
-
-                        RowLayout {
-                            id: sendRow
-                            anchors.centerIn: parent
-                            spacing: 5
-
-                            Text {
-                                text: "󰇮"
-                                color: Theme.blue
-                                font.family: Theme.fontFamily
-                                font.pixelSize: 13
-                            }
-
-                            Text {
-                                text: "Send Files"
-                                color: Theme.fg
-                                font.family: Theme.fontFamilySans
-                                font.pixelSize: 11
-                                font.weight: Theme.fontWeight
-                            }
-                        }
-
-                        HoverHandler { id: sendPillHover }
-                        TapHandler {
-                            onTapped: root.sendFile(root.connectedDevice)
-                        }
-                    }
-
-                    // Settings / Manager Button
-                    Rectangle {
-                        Layout.preferredWidth: 30
-                        Layout.fillHeight: true
-                        radius: Theme.radiusSmall
-                        color: setPillHover.hovered ? Theme.surface : Theme.bgLight
-
-                        Behavior on color { ColorAnimation { duration: Theme.durationFast } }
-
+                    RowLayout {
+                        spacing: 4
                         Text {
-                            anchors.centerIn: parent
-                            text: "󰒓"
-                            color: Theme.fgDim
+                            text: "󰇮"
+                            color: sendLnkHov.hovered ? Theme.accent : Theme.blue
                             font.family: Theme.fontFamily
-                            font.pixelSize: 13
+                            font.pixelSize: 12
                         }
+                        Text {
+                            text: "Send Files"
+                            color: sendLnkHov.hovered ? Theme.accent : Theme.fgDim
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 11
+                        }
+                        HoverHandler { id: sendLnkHov }
+                        TapHandler { onTapped: root.sendFile(root.connectedDevice) }
+                    }
 
-                        HoverHandler { id: setPillHover }
-                        TapHandler {
-                            onTapped: root.openManager()
+                    Item { Layout.fillWidth: true }
+
+                    RowLayout {
+                        spacing: 4
+                        Text {
+                            text: "󰒓"
+                            color: mgrLnkHov.hovered ? Theme.accent : Theme.fgDim
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 12
                         }
+                        Text {
+                            text: "Settings"
+                            color: mgrLnkHov.hovered ? Theme.accent : Theme.fgDim
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 11
+                        }
+                        HoverHandler { id: mgrLnkHov }
+                        TapHandler { onTapped: root.openManager() }
                     }
                 }
             }

@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
 import "../theme"
+import "../components" as Components
 import "EmojiData.js" as EmojiData
 
 PanelWindow {
@@ -23,8 +24,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: 60
-            easing.type: Easing.OutQuad
+            duration: root.showing ? 160 : 120
+            easing.type: root.showing ? Easing.OutCubic : Easing.InQuad
         }
     }
 
@@ -106,8 +107,8 @@ PanelWindow {
     function updateCoordinates(cx, cy) {
         var screenW = (root.screen && root.screen.width > 0) ? root.screen.width : (root.width > 0 ? root.width : 1920)
         var screenH = (root.screen && root.screen.height > 0) ? root.screen.height : (root.height > 0 ? root.height : 1080)
-        var popupW = 340
-        var popupH = 440
+        var popupW = 480
+        var popupH = 380
         if (cx + popupW > screenW) cx = screenW - popupW - 10
         if (cy + popupH > screenH) cy = screenH - popupH - 10
         if (cx < 10) cx = 10
@@ -124,11 +125,6 @@ PanelWindow {
 
     onShowingChanged: {
         if (showing) {
-            cursorX = UiState.cursorX
-            cursorY = UiState.cursorY
-            if (cursorX >= 0 && cursorY >= 0) {
-                updateCoordinates(cursorX, cursorY)
-            }
             searchQuery = ""
             searchInput.text = ""
             root.displayEmojis = root.allEmojis
@@ -143,27 +139,18 @@ PanelWindow {
         onClicked: UiState.emojiVisible = false
     }
 
-    // Popup
-    Rectangle {
+    // Bottom drawer container
+    Components.BottomDrawerSurface {
         id: popup
-        width: 340
-        height: 440
-        x: root.cursorX < 0 ? (root.width - width) / 2 : root.cursorX
-        y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
-        visible: true
+        width: 480
+        height: 380
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 0
 
-        transform: Scale {
-            origin.x: popup.width / 2
-            origin.y: popup.height / 2
-            xScale: 0.96 + (0.04 * root.reveal)
-            yScale: xScale
+        transform: Translate {
+            y: (1 - root.reveal) * (popup.height + 32)
         }
-        opacity: root.reveal
-
-        color: Theme.bg
-        radius: 12
-        border.color: Theme.surface
-        border.width: 1
 
         // Consume clicks so they don't hit the backdrop MouseArea
         TapHandler {}
@@ -217,13 +204,13 @@ PanelWindow {
                         Keys.onPressed: event => {
                             if (event.key === Qt.Key_Down) {
                                 if (grid.count > 0) {
-                                    grid.currentIndex = Math.min(grid.count - 1, grid.currentIndex + 8)
+                                    grid.currentIndex = Math.min(grid.count - 1, grid.currentIndex + 10)
                                     grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
                                 }
                                 event.accepted = true
                             } else if (event.key === Qt.Key_Up) {
                                 if (grid.count > 0) {
-                                    grid.currentIndex = Math.max(0, grid.currentIndex - 8)
+                                    grid.currentIndex = Math.max(0, grid.currentIndex - 10)
                                     grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
                                 }
                                 event.accepted = true
@@ -257,8 +244,8 @@ PanelWindow {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 Layout.minimumHeight: 100
-                cellWidth: 39.5
-                cellHeight: 39.5
+                cellWidth: 45.6
+                cellHeight: 44
                 clip: true
                 model: root.emojiCount
                 activeFocusOnTab: true

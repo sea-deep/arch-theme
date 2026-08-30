@@ -28,7 +28,7 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.exclusiveZone: 0
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
-    margins.top: Theme.barHeight
+    margins.top: 0
     margins.bottom: 0
     margins.left: 0
     margins.right: 0
@@ -51,12 +51,6 @@ PanelWindow {
         anchors.left: parent.left
         width: 2
         color: Theme.bg
-        opacity: root.hasTiledWindows ? 1.0 : 0.0
-        visible: opacity > 0
-
-        Behavior on opacity {
-            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
-        }
     }
 
     // Thin right vertical bar connecting top-right corner to bottom-right corner
@@ -67,12 +61,6 @@ PanelWindow {
         anchors.right: parent.right
         width: 2
         color: Theme.bg
-        opacity: root.hasTiledWindows ? 1.0 : 0.0
-        visible: opacity > 0
-
-        Behavior on opacity {
-            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
-        }
     }
 
     // Thin bottom horizontal bar connecting bottom-left corner to bottom-right corner
@@ -83,12 +71,6 @@ PanelWindow {
         anchors.right: parent.right
         height: 2
         color: Theme.bg
-        opacity: root.hasTiledWindows ? 1.0 : 0.0
-        visible: opacity > 0
-
-        Behavior on opacity {
-            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
-        }
     }
 
     Components.InvertedCorner {
@@ -96,12 +78,6 @@ PanelWindow {
         anchors.top: parent.top
         anchors.left: parent.left
         cornerRadius: 10
-        opacity: root.hasTiledWindows ? 1.0 : 0.0
-        visible: opacity > 0
-
-        Behavior on opacity {
-            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
-        }
     }
 
     Components.InvertedCorner {
@@ -110,12 +86,6 @@ PanelWindow {
         anchors.right: parent.right
         cornerRadius: 10
         flipHorizontal: true
-        opacity: root.hasTiledWindows ? 1.0 : 0.0
-        visible: opacity > 0
-
-        Behavior on opacity {
-            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
-        }
     }
 
     Components.InvertedCorner {
@@ -124,12 +94,6 @@ PanelWindow {
         anchors.left: parent.left
         cornerRadius: 10
         flipVertical: true
-        opacity: root.hasTiledWindows ? 1.0 : 0.0
-        visible: opacity > 0
-
-        Behavior on opacity {
-            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
-        }
     }
 
     Components.InvertedCorner {
@@ -139,11 +103,5 @@ PanelWindow {
         cornerRadius: 10
         flipHorizontal: true
         flipVertical: true
-        opacity: root.hasTiledWindows ? 1.0 : 0.0
-        visible: opacity > 0
-
-        Behavior on opacity {
-            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
-        }
     }
 }

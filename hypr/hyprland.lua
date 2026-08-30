@@ -181,10 +181,10 @@ end
 hl.bind(mainMod .. " + SHIFT + minus", hl.dsp.window.move({ workspace = "special:scratchpad" }))
 hl.bind(mainMod .. " + minus", hl.dsp.workspace.toggle_special("scratchpad"))
 
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("qs ipc call screenshot toggle"))
-hl.bind("Print", hl.dsp.exec_cmd("qs ipc call screenshot toggle"))
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.global("quickshell:screenshot"))
+hl.bind("Print", hl.dsp.global("quickshell:screenshot"))
 hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd("sh -c '$HOME/.config/hypr/screenshot.sh full'"))
-hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("qs ipc call recorder toggle"))
+hl.bind(mainMod .. " + SHIFT + R", hl.dsp.global("quickshell:recorder"))
 
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { locked = true })
 hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), { locked = true })
@@ -215,7 +215,7 @@ hl.on("keybinds.submap", function(map)
 end)
 
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("sh -c '$HOME/.config/hypr/scripts/hot_reload.sh'"))
-hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd("qs ipc call power toggle"))
+hl.bind(mainMod .. " + SHIFT + E", hl.dsp.global("quickshell:power"))
 
 hl.window_rule({ name = "swappy-float", match = { class = "^(swappy)$" }, float = true })
 hl.window_rule({ name = "pavucontrol-float", match = { class = "^(org.pulseaudio.pavucontrol)$" }, float = true, size = "450 265", move = "875 0" })

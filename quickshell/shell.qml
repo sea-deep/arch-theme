@@ -106,6 +106,27 @@ ShellRoot {
         }
     }
 
+    GlobalShortcut {
+        name: "power"
+        onPressed: UiState.togglePower()
+    }
+
+    GlobalShortcut {
+        name: "screenshot"
+        onPressed: UiState.screenshotVisible = !UiState.screenshotVisible
+    }
+
+    GlobalShortcut {
+        name: "recorder"
+        onPressed: {
+            if (UiState.recorderActive) {
+                Quickshell.execDetached(["pkill", "-INT", "-x", "wf-recorder"])
+            } else {
+                UiState.recorderMenuVisible = !UiState.recorderMenuVisible
+            }
+        }
+    }
+
     // ── IPC handlers (fallback / CLI) ─────
     IpcHandler {
         target: "launcher"

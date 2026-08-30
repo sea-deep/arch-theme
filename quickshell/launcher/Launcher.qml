@@ -627,8 +627,6 @@ PanelWindow {
                             anchors.horizontalCenter: parent.horizontalCenter
                             width: 44
                             height: 44
-                            sourceSize: Qt.size(48, 48)
-                            asynchronous: true
                             source: delegateRoot.modelData ? (delegateRoot.modelData.iconSource || "") : ""
                         }
 

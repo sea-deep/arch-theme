@@ -3,7 +3,7 @@ local terminal = "kitty"
 local fileManager = "thunar"
 local browser = "zen-browser"
 
-hl.monitor({ output = "eDP-1", mode = "1920x1080@60.050", position = "0x0", scale = "1.25" })
+hl.monitor({ output = "eDP-1", mode = "1920x1080@60.050", position = "0x0", scale = "1" })
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "1" })
 
 hl.config({

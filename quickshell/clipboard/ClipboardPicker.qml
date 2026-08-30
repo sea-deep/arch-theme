@@ -45,13 +45,10 @@ PanelWindow {
         path: Quickshell.env("HOME") + "/.config/clipse/clipboard_history.json"
         watchChanges: true
         printErrors: false
-        onFileChanged: {
-            clipboardFile.reload()
-            root.clipboardEntries = parseClipboard(clipboardFile.text())
-        }
+        onFileChanged: reload()
     }
 
-    property var clipboardEntries: parseClipboard(clipboardFile.text())
+    readonly property var clipboardEntries: parseClipboard(clipboardFile.text)
 
     readonly property var filteredEntries: {
         const query = searchQuery.trim().toLowerCase()
@@ -119,7 +116,6 @@ PanelWindow {
             searchQuery = ""
             searchInput.text = ""
             clipboardFile.reload()
-            root.clipboardEntries = parseClipboard(clipboardFile.text())
             listView.currentIndex = 0
             posProc.running = true
             Qt.callLater(function() { searchInput.forceActiveFocus() })
@@ -313,10 +309,8 @@ PanelWindow {
                     TapHandler {
                         id: clearTap
                         onTapped: {
-                            Quickshell.execDetached(["clipse", "-clear"])
-                            Quickshell.execDetached(["wl-copy", "--clear"])
+                            Quickshell.execDetached(["bash", Quickshell.shellPath("scripts/clear-clipboard.sh")])
                             Quickshell.clipboardText = ""
-                            root.clipboardEntries = []
                             searchInput.text = ""
                         }
                     }

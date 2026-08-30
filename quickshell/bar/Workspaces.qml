@@ -128,6 +128,61 @@ Item {
         return list;
     }
 
+    function formatAddress(addr) {
+        if (!addr) return "";
+        if (typeof addr === "number") {
+            return "0x" + addr.toString(16);
+        }
+        var s = String(addr).trim();
+        if (s.startsWith("0x")) return s;
+        if (/^\d+$/.test(s)) {
+            return "0x" + parseInt(s, 10).toString(16);
+        }
+        return "0x" + s;
+    }
+
+    function killWindow(top) {
+        if (!top) return;
+        
+        var rawAddr = (top.address) || (top.lastIpcObject && top.lastIpcObject.address) || "";
+        var addr = root.formatAddress(rawAddr);
+        if (addr !== "" && addr !== "0x0" && addr !== "0x") {
+            Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "address:" + addr]);
+            return;
+        }
+
+        var pid = top.pid || (top.lastIpcObject && top.lastIpcObject.pid) || 0;
+        if (pid > 0) {
+            Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "pid:" + pid]);
+            return;
+        }
+
+        var cls = (top.lastIpcObject && top.lastIpcObject.class) || "";
+        if (cls !== "") {
+            Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "class:" + cls]);
+            return;
+        }
+
+        if (top.kill) top.kill();
+    }
+
+    function focusWindow(top) {
+        if (root.activeWs) {
+            root.activeWs.activate();
+        }
+        if (!top) return;
+        if (top.activate) {
+            top.activate();
+        }
+        var rawAddr = (top.address) || (top.lastIpcObject && top.lastIpcObject.address) || "";
+        var addr = root.formatAddress(rawAddr);
+        if (addr !== "" && addr !== "0x0" && addr !== "0x") {
+            Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "address:" + addr]);
+        }
+        root.isHovered = false;
+        root.hoveredWorkspace = null;
+    }
+
     // Organic Connected Dropdown Surface when expanded
     Components.ConnectedDropdownSurface {
         anchors.fill: parent
@@ -454,24 +509,7 @@ Item {
                             MouseArea {
                                 anchors.fill: parent
                                 cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    if (root.activeWs) {
-                                        root.activeWs.activate()
-                                    }
-                                    if (rowItem.modelData) {
-                                        if (rowItem.modelData.activate) {
-                                            rowItem.modelData.activate()
-                                        }
-                                        var addr = (rowItem.modelData.address)
-                                            || (rowItem.modelData.lastIpcObject && rowItem.modelData.lastIpcObject.address)
-                                            || "";
-                                        if (addr !== "") {
-                                            Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "address:" + addr])
-                                        }
-                                    }
-                                    root.isHovered = false
-                                    root.hoveredWorkspace = null
-                                }
+                                onClicked: root.focusWindow(rowItem.modelData)
                             }
 
                             RowLayout {
@@ -533,18 +571,10 @@ Item {
                             MouseArea {
                                 anchors.fill: parent
                                 cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    var top = rowItem.modelData;
-                                    if (top) {
-                                        var addr = (top.address)
-                                            || (top.lastIpcObject && top.lastIpcObject.address)
-                                            || "";
-                                        if (addr !== "") {
-                                            Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "address:" + addr]);
-                                        } else if (top.kill) {
-                                            top.kill();
-                                        }
-                                    }
+                                preventStealing: true
+                                onClicked: (mouse) => {
+                                    mouse.accepted = true;
+                                    root.killWindow(rowItem.modelData);
                                 }
                             }
                         }

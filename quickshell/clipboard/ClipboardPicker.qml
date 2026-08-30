@@ -48,7 +48,7 @@ PanelWindow {
         onFileChanged: reload()
     }
 
-    readonly property var clipboardEntries: parseClipboard(clipboardFile.text)
+    readonly property var clipboardEntries: parseClipboard(clipboardFile.text())
 
     readonly property var filteredEntries: {
         const query = searchQuery.trim().toLowerCase()

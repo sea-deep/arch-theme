@@ -102,7 +102,7 @@ PanelWindow {
             z: 0
             anchors.top: solidBarBg.bottom
             anchors.left: parent.left
-            cornerRadius: 12
+            cornerRadius: 13
             opacity: root.hasTiledWindows ? 1.0 : 0.0
             visible: opacity > 0
 
@@ -117,7 +117,7 @@ PanelWindow {
             z: 0
             anchors.top: solidBarBg.bottom
             anchors.right: parent.right
-            cornerRadius: 12
+            cornerRadius: 13
             flipHorizontal: true
             opacity: root.hasTiledWindows ? 1.0 : 0.0
             visible: opacity > 0

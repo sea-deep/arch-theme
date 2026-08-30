@@ -198,8 +198,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: 60
-            easing.type: Easing.OutQuad
+            duration: root.showing ? 160 : 120
+            easing.type: root.showing ? Easing.OutCubic : Easing.InQuad
         }
     }
 
@@ -246,9 +246,8 @@ PanelWindow {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 0
 
-        opacity: root.reveal
         transform: Translate {
-            y: (1 - root.reveal) * 12
+            y: (1 - root.reveal) * (launcherCard.height + 32)
         }
 
         // Consume clicks on card so backdrop doesn't close launcher

@@ -187,9 +187,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? 180 : 110
-            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
-            easing.overshoot: 1.08
+            duration: root.showing ? 130 : 80
+            easing.type: root.showing ? Easing.OutCubic : Easing.InCubic
         }
     }
 
@@ -233,9 +232,6 @@ PanelWindow {
         width: 888
         // Increase height to compensate for the hidden bottom border
         height: layout.implicitHeight + layout.anchors.topMargin + 24
-        
-        layer.enabled: root.reveal > 0 && root.reveal < 1
-        layer.smooth: true
 
         // Mathematically anchor perfectly flush to bottom edge, hiding the bottom border
         anchors.horizontalCenter: parent.horizontalCenter

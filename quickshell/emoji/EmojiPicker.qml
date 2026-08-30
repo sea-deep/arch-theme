@@ -23,9 +23,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? 160 : 100
-            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
-            easing.overshoot: 1.08
+            duration: root.showing ? 90 : 70
+            easing.type: root.showing ? Easing.OutCubic : Easing.InCubic
         }
     }
 
@@ -158,9 +157,6 @@ PanelWindow {
         x: root.cursorX < 0 ? (root.width - width) / 2 : root.cursorX
         y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
         visible: root.cursorX >= 0 || !posProc.running
-
-        layer.enabled: root.reveal > 0 && root.reveal < 1
-        layer.smooth: true
 
         scale: 0.94 + 0.06 * root.reveal
         opacity: Math.min(1.0, root.reveal * 1.2)

@@ -312,6 +312,10 @@ Components.Pill {
                     id: comfortSlider
                     Layout.fillWidth: true
                     value: UiState.comfortValue / 100.0
+                    Binding on value {
+                        value: UiState.comfortValue / 100.0
+                        when: !comfortSlider.pressed
+                    }
                     onMoved: UiState.setShader("comfort", value * 100)
                 }
                 Text {
@@ -330,6 +334,10 @@ Components.Pill {
                     id: grayscaleSlider
                     Layout.fillWidth: true
                     value: UiState.grayscaleValue / 100.0
+                    Binding on value {
+                        value: UiState.grayscaleValue / 100.0
+                        when: !grayscaleSlider.pressed
+                    }
                     onMoved: UiState.setShader("grayscale", value * 100)
                 }
                 Text {
@@ -348,6 +356,10 @@ Components.Pill {
                     id: vividSlider
                     Layout.fillWidth: true
                     value: UiState.vividValue / 100.0
+                    Binding on value {
+                        value: UiState.vividValue / 100.0
+                        when: !vividSlider.pressed
+                    }
                     onMoved: UiState.setShader("vivid", value * 100)
                 }
                 Text {

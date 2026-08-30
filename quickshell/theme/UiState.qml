@@ -28,9 +28,7 @@ Singleton {
         path: Quickshell.env("HOME") + "/.config/quickshell/state/shaders.json"
         printErrors: false
         onTextChanged: {
-            if (!root.isShaderInitialized) {
-                root.loadShaderState()
-            }
+            root.loadShaderState()
         }
     }
 

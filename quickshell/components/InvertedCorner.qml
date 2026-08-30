@@ -34,13 +34,12 @@ Shape {
         // Line along the horizontal edge
         PathLine { x: root.width; y: 0 }
 
-        // Exact circular arc matching window outer rounding
-        PathArc {
+        // Pure concave quadratic fillet curving towards (0, 0)
+        PathQuad {
+            controlX: 0
+            controlY: 0
             x: 0
             y: root.height
-            radiusX: root.cornerRadius
-            radiusY: root.cornerRadius
-            direction: PathArc.Counterclockwise
         }
 
         // Line along the vertical edge back to (0, 0)

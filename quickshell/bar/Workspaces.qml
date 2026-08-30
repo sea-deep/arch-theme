@@ -138,13 +138,21 @@ Item {
     }
 
     // Default Pill Surface when collapsed
-    Components.Pill {
+    Rectangle {
         anchors.top: parent.top
         anchors.left: parent.left
         width: root.collapsedWidth
         height: Theme.barHeight
         visible: root.reveal <= 0
-        hovered: root.isHovered
+        color: (root.isHovered && !UiState.hasActiveOverlay) ? Theme.bgLight : "transparent"
+        topRightRadius: Theme.radius
+        bottomRightRadius: Theme.radius
+        topLeftRadius: 0
+        bottomLeftRadius: 0
+
+        Behavior on color {
+            ColorAnimation { duration: 120 }
+        }
     }
 
     // TOP BAR SECTION (Workspaces numbers + App icons)

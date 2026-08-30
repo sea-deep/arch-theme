@@ -59,12 +59,23 @@ Item {
         visible: root.reveal > 0
     }
 
-    Components.Pill {
+    Rectangle {
         anchors.top: parent.top
         anchors.right: parent.right
         width: Theme.compactPillSize
         height: Theme.barHeight
         visible: root.reveal <= 0
+        color: (powerHover.hovered && !UiState.hasActiveOverlay) ? Theme.bgLight : "transparent"
+        topLeftRadius: Theme.radius
+        bottomLeftRadius: Theme.radius
+        topRightRadius: 0
+        bottomRightRadius: 0
+
+        Behavior on color {
+            ColorAnimation { duration: 120 }
+        }
+
+        HoverHandler { id: powerHover }
     }
 
     Item {

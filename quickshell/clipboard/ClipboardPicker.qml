@@ -18,13 +18,12 @@ PanelWindow {
 
     color: "transparent"
     property bool showing: UiState.clipboardVisible
-    property bool ready: false
-    property real reveal: (showing && ready) ? 1 : 0
+    property real reveal: showing ? 1 : 0
 
     Behavior on reveal {
         NumberAnimation {
-            duration: (root.showing && root.ready) ? 90 : 70
-            easing.type: (root.showing && root.ready) ? Easing.OutCubic : Easing.InCubic
+            duration: root.showing ? 90 : 70
+            easing.type: root.showing ? Easing.OutCubic : Easing.InCubic
         }
     }
 
@@ -127,8 +126,7 @@ PanelWindow {
             clipboardFile.reload()
             listView.currentIndex = 0
             posProc.running = true
-        } else {
-            root.ready = false
+            Qt.callLater(function() { searchInput.forceActiveFocus() })
         }
     }
 
@@ -164,8 +162,6 @@ PanelWindow {
 
                     root.cursorX = cx
                     root.cursorY = cy
-                    root.ready = true
-                    Qt.callLater(function() { searchInput.forceActiveFocus() })
                 }
             }
         }
@@ -178,7 +174,7 @@ PanelWindow {
         height: 440
         x: root.cursorX < 0 ? (root.width - width) / 2 : root.cursorX
         y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
-        visible: root.ready
+        visible: root.cursorX >= 0 || !posProc.running
 
         scale: 0.94 + 0.06 * root.reveal
         opacity: Math.min(1.0, root.reveal * 1.2)

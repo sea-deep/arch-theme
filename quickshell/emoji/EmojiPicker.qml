@@ -19,13 +19,12 @@ PanelWindow {
 
     color: "transparent"
     property bool showing: UiState.emojiVisible
-    property bool ready: false
-    property real reveal: (showing && ready) ? 1 : 0
+    property real reveal: showing ? 1 : 0
 
     Behavior on reveal {
         NumberAnimation {
-            duration: (root.showing && root.ready) ? 90 : 70
-            easing.type: (root.showing && root.ready) ? Easing.OutCubic : Easing.InCubic
+            duration: root.showing ? 90 : 70
+            easing.type: root.showing ? Easing.OutCubic : Easing.InCubic
         }
     }
 
@@ -82,16 +81,11 @@ PanelWindow {
     }
 
     function filterEmojis(query) {
-        if (query === "") {
-            root.displayEmojis = root.allEmojis
-            root.emojiCount = root.allEmojis.length
-            return
-        }
         var src = root.allEmojis
         var result = []
         for (var i = 0; i < src.length; i++) {
             var e = src[i]
-            if (e.name.toLowerCase().indexOf(query) !== -1) {
+            if (query === "" || e.name.toLowerCase().indexOf(query) !== -1) {
                 result.push(e)
             }
         }
@@ -106,19 +100,16 @@ PanelWindow {
 
     Component.onCompleted: {
         buildEmojiList()
-        root.displayEmojis = root.allEmojis
-        root.emojiCount = root.allEmojis.length
+        filterEmojis("")
     }
 
     onShowingChanged: {
         if (showing) {
             searchQuery = ""
             searchInput.text = ""
-            root.displayEmojis = root.allEmojis
-            root.emojiCount = root.allEmojis.length
+            filterEmojis("")
             posProc.running = true
-        } else {
-            root.ready = false
+            Qt.callLater(function() { searchInput.forceActiveFocus() })
         }
     }
 
@@ -153,8 +144,6 @@ PanelWindow {
 
                     root.cursorX = cx
                     root.cursorY = cy
-                    root.ready = true
-                    Qt.callLater(function() { searchInput.forceActiveFocus() })
                 }
             }
         }
@@ -167,7 +156,7 @@ PanelWindow {
         height: 440
         x: root.cursorX < 0 ? (root.width - width) / 2 : root.cursorX
         y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
-        visible: root.ready
+        visible: root.cursorX >= 0 || !posProc.running
 
         scale: 0.94 + 0.06 * root.reveal
         opacity: Math.min(1.0, root.reveal * 1.2)
@@ -311,16 +300,15 @@ PanelWindow {
 
                     width: grid.cellWidth
                     height: grid.cellHeight
-                    color: isCurrent ? Theme.accent : (hoverHandler.hovered ? Theme.bgLight : "transparent")
+                    color: isCurrent ? Theme.accent : (emojiMouseArea.containsMouse ? Theme.bgLight : "transparent")
                     radius: 8
 
-                    HoverHandler {
-                        id: hoverHandler
+                    MouseArea {
+                        id: emojiMouseArea
+                        anchors.fill: parent
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                    }
-
-                    TapHandler {
-                        onTapped: {
+                        onClicked: {
                             grid.currentIndex = index
                             if (delegateRoot.emoji)
                                 root.selectEmoji(delegateRoot.emoji.char)

@@ -53,6 +53,9 @@ PanelWindow {
                 var key = app.name.toLowerCase() + "::" + cleanExec.toLowerCase()
                 if (seen[key]) continue
                 seen[key] = true
+                if (app.icon) {
+                    app.iconPath = Quickshell.iconPath(app.icon, "application-x-executable")
+                }
                 valid.push(app)
             }
         }
@@ -231,6 +234,9 @@ PanelWindow {
         // Increase height to compensate for the hidden bottom border
         height: layout.implicitHeight + layout.anchors.topMargin + 24
         
+        layer.enabled: root.reveal > 0 && root.reveal < 1
+        layer.smooth: true
+
         // Mathematically anchor perfectly flush to bottom edge, hiding the bottom border
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
@@ -565,9 +571,12 @@ PanelWindow {
 
                                 IconImage {
                                     anchors.fill: parent
-                                    source: delegateRoot.modelData && delegateRoot.modelData.icon
-                                        ? Quickshell.iconPath(delegateRoot.modelData.icon, "application-x-executable")
-                                        : ""
+                                    asynchronous: true
+                                    source: (delegateRoot.modelData && delegateRoot.modelData.iconPath)
+                                        ? delegateRoot.modelData.iconPath
+                                        : (delegateRoot.modelData && delegateRoot.modelData.icon
+                                            ? Quickshell.iconPath(delegateRoot.modelData.icon, "application-x-executable")
+                                            : "")
                                 }
                             }
 

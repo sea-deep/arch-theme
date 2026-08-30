@@ -14,7 +14,6 @@ PanelWindow {
     required property var modelData
     screen: modelData
     readonly property bool overlayExpanded: hardwarePill.expanded || trayExpander.expanded || bluetoothExpander.expanded || networkExpander.expanded || notificationExpander.expanded || powerExpander.expanded || clockExpander.expanded
-    readonly property bool hasTiledWindows: Hyprland.activeToplevel !== null
 
     anchors.top: true
     anchors.left: true
@@ -104,12 +103,6 @@ PanelWindow {
             anchors.top: solidBarBg.bottom
             anchors.left: parent.left
             cornerRadius: 13
-            opacity: root.hasTiledWindows ? 1.0 : 0.0
-            visible: opacity > 0
-
-            Behavior on opacity {
-                NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
-            }
         }
 
         // Top-Right concave corner fillet connecting status bar to right screen edge
@@ -120,12 +113,6 @@ PanelWindow {
             anchors.right: parent.right
             cornerRadius: 13
             flipHorizontal: true
-            opacity: root.hasTiledWindows ? 1.0 : 0.0
-            visible: opacity > 0
-
-            Behavior on opacity {
-                NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
-            }
         }
 
         MouseArea {

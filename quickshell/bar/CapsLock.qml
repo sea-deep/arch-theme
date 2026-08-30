@@ -11,7 +11,7 @@ Components.Pill {
 
     Process {
         id: capsProc
-        command: [Quickshell.env("HOME") + "/.config/quickshell/scripts/caps_listener.py"]
+        command: [Quickshell.shellPath("scripts/caps_listener.sh")]
         running: true
         stdout: SplitParser {
             onRead: data => {

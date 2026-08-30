@@ -106,8 +106,6 @@ Singleton {
     property string clockScreen: ""
     property string clockTab: "calendar"
     property bool recorderActive: false
-    property bool micActive: false
-    property bool cameraActive: false
     property bool settingsVisible: false
     property bool quickControlVisible: false
     property string quickControlMode: "audio"

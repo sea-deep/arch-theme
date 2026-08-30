@@ -53,19 +53,27 @@ PanelWindow {
                 var key = app.name.toLowerCase() + "::" + cleanExec.toLowerCase()
                 if (seen[key]) continue
                 seen[key] = true
-                valid.push(app)
+
+                var cats = (app.categories || []).map(function(c) { return String(c).toLowerCase() })
+                var kw = (app.keywords || []).join(" ")
+                var searchStr = ((app.name || "") + " " + (app.genericName || "") + " " + (app.comment || "") + " " + kw).toLowerCase()
+                var iconSrc = app.icon ? Quickshell.iconPath(app.icon, "application-x-executable") : ""
+
+                valid.push({
+                    app: app,
+                    name: app.name || "",
+                    icon: app.icon || "",
+                    iconSource: iconSrc,
+                    categories: cats,
+                    searchTerms: searchStr
+                })
             }
         }
-        // Sort alphabetically by name once
         valid.sort(function(a, b) {
-            return (a.name || "").localeCompare(b.name || "")
+            return a.name.localeCompare(b.name)
         })
         allApps = valid
-        if (root.searchQuery === "" && root.activeCategory === "All") {
-            filteredApps = allApps
-        } else {
-            filterApps()
-        }
+        filterApps()
     }
 
     function cycleCategory(forward) {
@@ -96,50 +104,35 @@ PanelWindow {
 
     function filterApps() {
         var query = root.searchQuery.trim().toLowerCase()
-        var cat = root.activeCategory
+        var cat = root.activeCategory.toLowerCase()
 
-        if (query === "" && cat === "All") {
+        if (query === "" && cat === "all") {
             root.filteredApps = allApps
             return
         }
 
         var result = []
         for (var i = 0; i < allApps.length; i++) {
-            var app = allApps[i]
+            var item = allApps[i]
 
-            // Category check
-            if (cat !== "All") {
-                var cats = app.categories || []
-                var matchCat = false
-                for (var c = 0; c < cats.length; c++) {
-                    if (cats[c].toLowerCase().indexOf(cat.toLowerCase()) !== -1) {
-                        matchCat = true
+            // Fast category check
+            if (cat !== "all") {
+                var matched = false
+                for (var c = 0; c < item.categories.length; c++) {
+                    if (item.categories[c].indexOf(cat) !== -1) {
+                        matched = true
                         break
                     }
                 }
-                if (!matchCat) continue
+                if (!matched) continue
             }
 
-            // Search query check
-            if (query !== "") {
-                var nameMatch = (app.name || "").toLowerCase().indexOf(query) !== -1
-                var commentMatch = (app.comment || "").toLowerCase().indexOf(query) !== -1
-                var genMatch = (app.genericName || "").toLowerCase().indexOf(query) !== -1
-                var keyMatch = false
-                var keywords = app.keywords || []
-                for (var k = 0; k < keywords.length; k++) {
-                    if (keywords[k].toLowerCase().indexOf(query) !== -1) {
-                        keyMatch = true
-                        break
-                    }
-                }
-
-                if (!nameMatch && !commentMatch && !genMatch && !keyMatch) {
-                    continue
-                }
+            // Fast search query check
+            if (query !== "" && item.searchTerms.indexOf(query) === -1) {
+                continue
             }
 
-            result.push(app)
+            result.push(item)
         }
 
         root.filteredApps = result
@@ -148,8 +141,9 @@ PanelWindow {
         }
     }
 
-    function launch(app) {
-        if (!app) return
+    function launch(item) {
+        if (!item) return
+        var app = (item && item.app) ? item.app : item
         close()
 
         if (app.runInTerminal) {
@@ -172,7 +166,8 @@ PanelWindow {
         UiState.launcherVisible = false
     }
 
-    function openContextMenu(app, targetItem) {
+    function openContextMenu(item, targetItem) {
+        var app = (item && item.app) ? item.app : item
         contextMenu.app = app
         var pos = targetItem.mapToItem(launcherCard, 0, 0)
         var menuX = pos.x + targetItem.width + 8
@@ -641,9 +636,7 @@ PanelWindow {
 
                                 IconImage {
                                     anchors.fill: parent
-                                    source: delegateRoot.modelData && delegateRoot.modelData.icon
-                                        ? Quickshell.iconPath(delegateRoot.modelData.icon, "application-x-executable")
-                                        : ""
+                                    source: delegateRoot.modelData ? (delegateRoot.modelData.iconSource || "") : ""
                                 }
                             }
 

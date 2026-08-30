@@ -198,8 +198,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? Theme.durationMedium : Theme.durationFast
-            easing.type: Theme.easingDecelerate
+            duration: 110
+            easing.type: Easing.OutCubic
         }
     }
 
@@ -217,9 +217,7 @@ PanelWindow {
                 filteredApps = allApps
                 grid.currentIndex = 0
             }
-            Qt.callLater(function() {
-                searchInput.forceActiveFocus()
-            })
+            searchInput.forceActiveFocus()
         } else {
             contextMenu.visible = false
         }
@@ -247,8 +245,9 @@ PanelWindow {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 0
 
+        opacity: root.reveal
         transform: Translate {
-            y: (1 - root.reveal) * (launcherCard.height + 24)
+            y: (1 - root.reveal) * 32
         }
 
         // Consume clicks on card so backdrop doesn't close launcher
@@ -621,39 +620,32 @@ PanelWindow {
                             : (cardMouse.containsMouse ? Theme.bgLight : Theme.bgDark)
                         border.width: 0
 
-                        Behavior on color { ColorAnimation { duration: Theme.durationFast } }
-                        Behavior on scale { NumberAnimation { duration: Theme.durationFast; easing.type: Easing.OutQuad } }
+                        IconImage {
+                            id: appIcon
+                            anchors.top: parent.top
+                            anchors.topMargin: 10
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            width: 44
+                            height: 44
+                            source: delegateRoot.modelData ? (delegateRoot.modelData.iconSource || "") : ""
+                        }
 
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 8
-                            spacing: 6
-
-                            Item {
-                                Layout.alignment: Qt.AlignHCenter
-                                Layout.preferredWidth: 44
-                                Layout.preferredHeight: 44
-
-                                IconImage {
-                                    anchors.fill: parent
-                                    source: delegateRoot.modelData ? (delegateRoot.modelData.iconSource || "") : ""
-                                }
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignHCenter
-                                text: delegateRoot.modelData ? (delegateRoot.modelData.name || "") : ""
-                                color: delegateCard.isSelected ? Theme.accent : Theme.fg
-                                font.family: Theme.fontFamilySans
-                                font.pixelSize: 12
-                                font.weight: Theme.fontWeight
-                                horizontalAlignment: Text.AlignHCenter
-                                elide: Text.ElideRight
-                                maximumLineCount: 2
-                                wrapMode: Text.Wrap
-                                Behavior on color { ColorAnimation { duration: Theme.durationFast } }
-                            }
+                        Text {
+                            anchors.top: appIcon.bottom
+                            anchors.topMargin: 6
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.leftMargin: 6
+                            anchors.rightMargin: 6
+                            text: delegateRoot.modelData ? (delegateRoot.modelData.name || "") : ""
+                            color: delegateCard.isSelected ? Theme.accent : Theme.fg
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 12
+                            font.weight: Theme.fontWeight
+                            horizontalAlignment: Text.AlignHCenter
+                            elide: Text.ElideRight
+                            maximumLineCount: 2
+                            wrapMode: Text.Wrap
                         }
 
                         MouseArea {

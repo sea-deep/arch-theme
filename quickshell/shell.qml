@@ -76,7 +76,37 @@ ShellRoot {
         component: Component { Settings.SettingsPanel {} }
     }
 
-    // ── IPC handlers (triggered by hyprland keybindings) ─────
+    // ── Native Wayland Global Shortcuts (0ms latency, zero process fork) ──
+    GlobalShortcut {
+        name: "apps"
+        onPressed: UiState.toggleLauncher()
+    }
+
+    GlobalShortcut {
+        name: "emoji"
+        onPressed: UiState.toggleEmoji()
+    }
+
+    GlobalShortcut {
+        name: "clipboard"
+        onPressed: UiState.toggleClipboard("")
+    }
+
+    GlobalShortcut {
+        name: "notifications"
+        onPressed: UiState.toggleNotifications()
+    }
+
+    GlobalShortcut {
+        name: "dismissAll"
+        onPressed: {
+            Notifications.NotificationServer.clearAll()
+            UiState.notificationCenterVisible = false
+            UiState.notificationPreviewVisible = false
+        }
+    }
+
+    // ── IPC handlers (fallback / CLI) ─────
     IpcHandler {
         target: "launcher"
         function toggle() {

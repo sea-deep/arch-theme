@@ -198,8 +198,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: 110
-            easing.type: Easing.OutCubic
+            duration: 60
+            easing.type: Easing.OutQuad
         }
     }
 
@@ -248,7 +248,7 @@ PanelWindow {
 
         opacity: root.reveal
         transform: Translate {
-            y: (1 - root.reveal) * 32
+            y: (1 - root.reveal) * 12
         }
 
         // Consume clicks on card so backdrop doesn't close launcher
@@ -543,7 +543,7 @@ PanelWindow {
                 Layout.alignment: Qt.AlignHCenter
                 cellWidth: 120
                 cellHeight: 110
-                clip: false
+                clip: true
                 cacheBuffer: 110
                 reuseItems: true
                 model: root.filteredApps

@@ -434,7 +434,7 @@ Item {
                     Layout.fillWidth: true
                     implicitHeight: 34
                     radius: 6
-                    color: rowHover.containsMouse
+                    color: (rowHover.hovered && !closeHover.hovered)
                         ? Theme.surface
                         : (rowItem.modelData.activated ? Theme.bgLight : "transparent")
 
@@ -444,59 +444,94 @@ Item {
                         anchors.rightMargin: 6
                         spacing: 8
 
-                        IconImage {
-                            width: 20
-                            height: 20
-                            Layout.alignment: Qt.AlignVCenter
-                            source: root.getAppIcon(rowItem.modelData)
-                        }
-
-                        Text {
+                        // Clickable area to focus window
+                        Item {
                             Layout.fillWidth: true
-                            text: rowItem.modelData.title || (rowItem.modelData.lastIpcObject && rowItem.modelData.lastIpcObject.class) || "(Window)"
-                            color: rowItem.modelData.activated ? Theme.accent : Theme.fg
-                            font.family: Theme.fontFamilySans
-                            font.pixelSize: 12
-                            font.weight: rowItem.modelData.activated ? Font.Bold : Theme.fontWeight
-                            elide: Text.ElideRight
-                        }
+                            Layout.fillHeight: true
 
-                        Rectangle {
-                            width: 6
-                            height: 6
-                            radius: 3
-                            color: Theme.accent
-                            visible: rowItem.modelData.activated
-                            Layout.alignment: Qt.AlignVCenter
+                            HoverHandler { id: rowHover }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    if (root.activeWs) {
+                                        root.activeWs.activate()
+                                    }
+                                    if (rowItem.modelData) {
+                                        if (rowItem.modelData.activate) {
+                                            rowItem.modelData.activate()
+                                        }
+                                        var addr = (rowItem.modelData.address)
+                                            || (rowItem.modelData.lastIpcObject && rowItem.modelData.lastIpcObject.address)
+                                            || "";
+                                        if (addr !== "") {
+                                            Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "address:" + addr])
+                                        }
+                                    }
+                                    root.isHovered = false
+                                    root.hoveredWorkspace = null
+                                }
+                            }
+
+                            RowLayout {
+                                anchors.fill: parent
+                                spacing: 8
+
+                                IconImage {
+                                    width: 20
+                                    height: 20
+                                    Layout.alignment: Qt.AlignVCenter
+                                    source: root.getAppIcon(rowItem.modelData)
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: rowItem.modelData.title || (rowItem.modelData.lastIpcObject && rowItem.modelData.lastIpcObject.class) || "(Window)"
+                                    color: rowItem.modelData.activated ? Theme.accent : Theme.fg
+                                    font.family: Theme.fontFamilySans
+                                    font.pixelSize: 12
+                                    font.weight: rowItem.modelData.activated ? Font.Bold : Theme.fontWeight
+                                    elide: Text.ElideRight
+                                }
+
+                                Rectangle {
+                                    width: 6
+                                    height: 6
+                                    radius: 3
+                                    color: Theme.accent
+                                    visible: rowItem.modelData.activated
+                                    Layout.alignment: Qt.AlignVCenter
+                                }
+                            }
                         }
 
                         // Close / Kill Window Cross Button
                         Rectangle {
                             id: closeBtn
-                            Layout.preferredWidth: 24
-                            Layout.preferredHeight: 24
-                            radius: 12
-                            color: closeMouse.containsMouse ? Qt.rgba(0.968, 0.463, 0.557, 0.2) : "transparent"
+                            Layout.preferredWidth: 26
+                            Layout.preferredHeight: 26
+                            radius: 13
+                            color: closeHover.hovered ? Qt.rgba(0.968, 0.463, 0.557, 0.25) : "transparent"
                             Layout.alignment: Qt.AlignVCenter
-                            z: 2
 
                             Behavior on color {
                                 ColorAnimation { duration: 100 }
                             }
 
+                            HoverHandler { id: closeHover }
+
                             Text {
                                 anchors.centerIn: parent
                                 text: "󰅖"
-                                color: closeMouse.containsMouse ? Theme.red : Theme.fgDim
+                                color: closeHover.hovered ? Theme.red : Theme.fgDim
                                 font.family: Theme.fontFamily
-                                font.pixelSize: 13
+                                font.pixelSize: 14
                                 font.weight: Font.Bold
                             }
 
                             MouseArea {
-                                id: closeMouse
                                 anchors.fill: parent
-                                hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: {
                                     var top = rowItem.modelData;
@@ -505,39 +540,13 @@ Item {
                                             || (top.lastIpcObject && top.lastIpcObject.address)
                                             || "";
                                         if (addr !== "") {
-                                            Hyprland.dispatch("closewindow address:" + addr);
+                                            Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "address:" + addr]);
                                         } else if (top.kill) {
                                             top.kill();
                                         }
                                     }
                                 }
                             }
-                        }
-                    }
-
-                    MouseArea {
-                        id: rowHover
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            if (closeMouse.containsMouse) return;
-                            if (root.activeWs) {
-                                root.activeWs.activate()
-                            }
-                            if (rowItem.modelData) {
-                                if (rowItem.modelData.activate) {
-                                    rowItem.modelData.activate()
-                                }
-                                var addr = (rowItem.modelData.address)
-                                    || (rowItem.modelData.lastIpcObject && rowItem.modelData.lastIpcObject.address)
-                                    || "";
-                                if (addr !== "") {
-                                    Hyprland.dispatch("focuswindow address:" + addr)
-                                }
-                            }
-                            root.isHovered = false
-                            root.hoveredWorkspace = null
                         }
                     }
                 }

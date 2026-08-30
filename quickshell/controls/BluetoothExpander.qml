@@ -486,7 +486,7 @@ Item {
                                             color: devDelegate.dev.connected ? Theme.bgDark : Theme.fg
                                             elide: Text.ElideRight
                                             font.family: Theme.fontFamilySans
-                                            font.pixelSize: 13.5
+                                            font.pixelSize: 14
                                             font.weight: Theme.fontWeight
                                         }
 
@@ -498,7 +498,7 @@ Item {
                                                     : (devDelegate.isPaired ? "Paired" : (devDelegate.dev.pairing ? "Pairing..." : "Ready to pair")))
                                                 color: devDelegate.dev.connected ? Theme.bgDark : Theme.fgDim
                                                 font.family: Theme.fontFamilySans
-                                                font.pixelSize: 10.5
+                                                font.pixelSize: 10
                                             }
 
                                             Text {
@@ -506,7 +506,7 @@ Item {
                                                 text: "· 󰁹 " + Math.round(devDelegate.dev.battery * 100) + "%"
                                                 color: devDelegate.dev.connected ? Theme.bgDark : Theme.fgDim
                                                 font.family: Theme.fontFamilySans
-                                                font.pixelSize: 10.5
+                                                font.pixelSize: 10
                                             }
                                         }
                                     }
@@ -634,7 +634,7 @@ Item {
                                     text: "Send Files"
                                     color: sendLnkHov.hovered ? Theme.accent : Theme.fgDim
                                     font.family: Theme.fontFamilySans
-                                    font.pixelSize: 11.5
+                                    font.pixelSize: 12
                                     font.weight: Theme.fontWeight
                                 }
                                 HoverHandler { id: sendLnkHov }
@@ -655,7 +655,7 @@ Item {
                                     text: "Settings"
                                     color: mgrLnkHov.hovered ? Theme.accent : Theme.fgDim
                                     font.family: Theme.fontFamilySans
-                                    font.pixelSize: 11.5
+                                    font.pixelSize: 12
                                     font.weight: Theme.fontWeight
                                 }
                                 HoverHandler { id: mgrLnkHov }
@@ -1015,7 +1015,7 @@ Item {
                                         text: root.adapter ? (root.adapter.name || "Bluetooth Controller") : "Bluetooth Adapter"
                                         color: Theme.fg
                                         font.family: Theme.fontFamilySans
-                                        font.pixelSize: 13.5
+                                        font.pixelSize: 14
                                         font.weight: Theme.fontWeightBold
                                     }
 
@@ -1054,7 +1054,7 @@ Item {
                                             text: "Discoverable"
                                             color: Theme.fg
                                             font.family: Theme.fontFamilySans
-                                            font.pixelSize: 12.5
+                                            font.pixelSize: 12
                                             font.weight: Theme.fontWeight
                                         }
 
@@ -1062,7 +1062,7 @@ Item {
                                             text: "Visible to nearby devices for pairing"
                                             color: Theme.fgDim
                                             font.family: Theme.fontFamilySans
-                                            font.pixelSize: 10.5
+                                            font.pixelSize: 10
                                         }
                                     }
 
@@ -1105,7 +1105,7 @@ Item {
                                             text: "Pairable Mode"
                                             color: Theme.fg
                                             font.family: Theme.fontFamilySans
-                                            font.pixelSize: 12.5
+                                            font.pixelSize: 12
                                             font.weight: Theme.fontWeight
                                         }
 
@@ -1113,7 +1113,7 @@ Item {
                                             text: "Accept incoming pairing connections"
                                             color: Theme.fgDim
                                             font.family: Theme.fontFamilySans
-                                            font.pixelSize: 10.5
+                                            font.pixelSize: 10
                                         }
                                     }
 

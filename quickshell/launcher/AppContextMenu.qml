@@ -13,9 +13,9 @@ Rectangle {
 
     width: 220
     implicitHeight: layout.implicitHeight + 16
-    radius: 10
+    radius: Theme.radius
     color: Theme.bg
-    border.color: Theme.surface
+    border.color: Theme.surfaceVariant
     border.width: 1
     clip: true
 

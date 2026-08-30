@@ -5,14 +5,14 @@ import "../theme"
 Shape {
     id: root
 
-    property color strokeColor: Theme.accentGlow
-    readonly property real inset: Theme.borderWidth / 2
-    readonly property real corner: Theme.radius
+    property color strokeColor: Theme.surfaceVariant
+    readonly property real inset: 1
+    readonly property real corner: Theme.radiusLarge
 
     preferredRendererType: Shape.CurveRenderer
 
     ShapePath {
-        strokeWidth: Theme.borderWidth
+        strokeWidth: 1.5
         strokeColor: root.strokeColor
         fillColor: Theme.bg
         joinStyle: ShapePath.RoundJoin

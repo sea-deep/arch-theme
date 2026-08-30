@@ -184,9 +184,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? 180 : 110
-            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
-            easing.overshoot: 1.08
+            duration: Theme.durationSlow
+            easing.type: Theme.easingDecelerate
         }
     }
 
@@ -219,7 +218,7 @@ PanelWindow {
 
         Rectangle {
             anchors.fill: parent
-            color: Qt.rgba(0, 0, 0, root.reveal * 0.45)
+            color: Qt.rgba(0, 0, 0, root.reveal * 0.5)
         }
     }
 
@@ -228,20 +227,18 @@ PanelWindow {
         id: launcherCard
         // Exact width for 7 columns (7 * 120 = 840) + margins (24 * 2 = 48) = 888
         width: 888
-        // Increase height to compensate for the hidden bottom border
         height: layout.implicitHeight + layout.anchors.topMargin + 24
         
-        // Mathematically anchor perfectly flush to bottom edge, hiding the bottom border
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 3
+        anchors.bottomMargin: 0
 
-        // Solid macOS bottom expansion with authentic spring overshoot physics
+        opacity: root.reveal
         transform: Translate {
-            y: (1 - root.reveal) * launcherCard.height
+            y: (1 - root.reveal) * 60
         }
 
-        strokeColor: Theme.accentGlow
+        strokeColor: Theme.surfaceVariant
 
         // Consume clicks on card so backdrop doesn't close launcher
         MouseArea {
@@ -272,12 +269,12 @@ PanelWindow {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 44
                     radius: Theme.radius
-                    color: Theme.bgLight
-                    border.color: searchInput.activeFocus ? Theme.accent : Theme.surface
-                    border.width: 1
+                    color: Theme.bgDark
+                    border.color: searchInput.activeFocus ? Theme.accent : Theme.surfaceVariant
+                    border.width: 1.5
 
                     Behavior on border.color {
-                        ColorAnimation { duration: 150 }
+                        ColorAnimation { duration: Theme.durationFast }
                     }
 
                     RowLayout {
@@ -292,62 +289,77 @@ PanelWindow {
                             font.family: Theme.fontFamily
                             font.pixelSize: 16
                             Behavior on color {
-                                ColorAnimation { duration: 150 }
+                                ColorAnimation { duration: Theme.durationFast }
                             }
                         }
 
-                        TextInput {
-                            id: searchInput
+                        Item {
                             Layout.fillWidth: true
-                            color: Theme.fg
-                            font.family: Theme.fontFamilySans
-                            font.pixelSize: 15
-                            verticalAlignment: TextInput.AlignVCenter
-                            selectionColor: Theme.accent
-                            selectedTextColor: Theme.bgDark
+                            Layout.fillHeight: true
 
-                            onTextChanged: {
-                                root.searchQuery = text
-                                root.filterApps()
-                                grid.currentIndex = 0
-                                grid.positionViewAtBeginning()
+                            Text {
+                                anchors.left: parent.left
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: "Search applications..."
+                                color: Theme.fgMuted
+                                font.family: Theme.fontFamilySans
+                                font.pixelSize: 15
+                                visible: searchInput.text.length === 0
                             }
 
-                            Keys.onEscapePressed: root.close()
-                            Keys.onDownPressed: {
-                                if (grid.count > 0) {
-                                    grid.currentIndex = Math.min(grid.count - 1, grid.currentIndex + grid.columns)
-                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
+                            TextInput {
+                                id: searchInput
+                                anchors.fill: parent
+                                color: Theme.fg
+                                font.family: Theme.fontFamilySans
+                                font.pixelSize: 15
+                                verticalAlignment: TextInput.AlignVCenter
+                                selectionColor: Theme.accent
+                                selectedTextColor: Theme.bgDark
+
+                                onTextChanged: {
+                                    root.searchQuery = text
+                                    root.filterApps()
+                                    grid.currentIndex = 0
+                                    grid.positionViewAtBeginning()
                                 }
-                            }
-                            Keys.onUpPressed: {
-                                if (grid.count > 0) {
-                                    grid.currentIndex = Math.max(0, grid.currentIndex - grid.columns)
-                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
+
+                                Keys.onEscapePressed: root.close()
+                                Keys.onDownPressed: {
+                                    if (grid.count > 0) {
+                                        grid.currentIndex = Math.min(grid.count - 1, grid.currentIndex + grid.columns)
+                                        grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
+                                    }
                                 }
-                            }
-                            Keys.onRightPressed: {
-                                if (grid.count > 0) {
-                                    grid.currentIndex = Math.min(grid.count - 1, grid.currentIndex + 1)
-                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
+                                Keys.onUpPressed: {
+                                    if (grid.count > 0) {
+                                        grid.currentIndex = Math.max(0, grid.currentIndex - grid.columns)
+                                        grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
+                                    }
                                 }
-                            }
-                            Keys.onLeftPressed: {
-                                if (grid.count > 0) {
-                                    grid.currentIndex = Math.max(0, grid.currentIndex - 1)
-                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
+                                Keys.onRightPressed: {
+                                    if (grid.count > 0) {
+                                        grid.currentIndex = Math.min(grid.count - 1, grid.currentIndex + 1)
+                                        grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
+                                    }
                                 }
-                            }
-                            Keys.onReturnPressed: {
-                                if (root.filteredApps.length > 0) {
-                                    var idx = (grid.currentIndex >= 0 && grid.currentIndex < root.filteredApps.length) ? grid.currentIndex : 0
-                                    root.launch(root.filteredApps[idx])
+                                Keys.onLeftPressed: {
+                                    if (grid.count > 0) {
+                                        grid.currentIndex = Math.max(0, grid.currentIndex - 1)
+                                        grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
+                                    }
                                 }
-                            }
-                            Keys.onEnterPressed: {
-                                if (root.filteredApps.length > 0) {
-                                    var idx = (grid.currentIndex >= 0 && grid.currentIndex < root.filteredApps.length) ? grid.currentIndex : 0
-                                    root.launch(root.filteredApps[idx])
+                                Keys.onReturnPressed: {
+                                    if (root.filteredApps.length > 0) {
+                                        var idx = (grid.currentIndex >= 0 && grid.currentIndex < root.filteredApps.length) ? grid.currentIndex : 0
+                                        root.launch(root.filteredApps[idx])
+                                    }
+                                }
+                                Keys.onEnterPressed: {
+                                    if (root.filteredApps.length > 0) {
+                                        var idx = (grid.currentIndex >= 0 && grid.currentIndex < root.filteredApps.length) ? grid.currentIndex : 0
+                                        root.launch(root.filteredApps[idx])
+                                    }
                                 }
                             }
                         }
@@ -388,8 +400,8 @@ PanelWindow {
                     Layout.preferredHeight: 44
                     implicitWidth: countText.implicitWidth + 24
                     radius: Theme.radius
-                    color: Theme.bgLight
-                    border.color: Theme.surface
+                    color: Theme.bgDark
+                    border.color: Theme.surfaceVariant
                     border.width: 1
 
                     Text {
@@ -425,12 +437,12 @@ PanelWindow {
                             implicitWidth: chipRow.implicitWidth + 24
                             implicitHeight: 32
                             radius: 16
-                            color: isActive ? Theme.accent : (chipHover.containsMouse ? Theme.bgLight : "transparent")
-                            border.color: isActive ? Theme.accent : (chipHover.containsMouse ? Theme.surface : "transparent")
+                            color: isActive ? Theme.accent : (chipHover.containsMouse ? Theme.bgLight : Theme.bgDark)
+                            border.color: isActive ? Theme.accent : (chipHover.containsMouse ? Theme.accentGlow : Theme.surfaceVariant)
                             border.width: 1
 
                             Behavior on color { ColorAnimation { duration: Theme.durationFast } }
-                            Behavior on border.color { ColorAnimation { duration: 150 } }
+                            Behavior on border.color { ColorAnimation { duration: Theme.durationFast } }
 
                             RowLayout {
                                 id: chipRow
@@ -447,10 +459,10 @@ PanelWindow {
 
                                 Text {
                                     text: catChip.modelData.label
-                                    color: catChip.isActive ? Theme.bgDark : Theme.fg
+                                    color: catChip.isActive ? Theme.bgDark : (chipHover.containsMouse ? Theme.fg : Theme.fgDim)
                                     font.family: Theme.fontFamilySans
                                     font.pixelSize: 13
-                                    font.weight: catChip.isActive ? Font.Bold : Font.Medium
+                                    font.weight: catChip.isActive ? Font.Bold : Theme.fontWeight
                                     Behavior on color { ColorAnimation { duration: Theme.durationFast } }
                                 }
                             }
@@ -474,7 +486,7 @@ PanelWindow {
             Rectangle {
                 Layout.fillWidth: true
                 height: 1
-                color: Theme.surface
+                color: Theme.surfaceVariant
             }
 
             // Apps Grid
@@ -548,15 +560,23 @@ PanelWindow {
                         height: grid.cellHeight - 10
                         radius: Theme.radius
 
-                        scale: isSelected ? 1.02 : (cardMouse.containsMouse ? 1.02 : 1.0)
-                        color: isSelected ? Theme.accent : (cardMouse.containsMouse ? Theme.bgLight : "transparent")
-                        border.color: isSelected ? Theme.accent : (cardMouse.containsMouse ? Theme.surface : "transparent")
-                        border.width: 1
+                        scale: isSelected ? 1.03 : (cardMouse.containsMouse ? 1.03 : 1.0)
+                        color: isSelected 
+                            ? Theme.surface 
+                            : (cardMouse.containsMouse ? Theme.bgLight : "transparent")
+                        border.color: isSelected 
+                            ? Theme.accent 
+                            : (cardMouse.containsMouse ? Theme.surfaceVariant : "transparent")
+                        border.width: isSelected ? 1.5 : 1
+
+                        Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+                        Behavior on border.color { ColorAnimation { duration: Theme.durationFast } }
+                        Behavior on scale { NumberAnimation { duration: Theme.durationFast; easing.type: Easing.OutQuad } }
 
                         ColumnLayout {
                             anchors.fill: parent
-                            anchors.margins: 10
-                            spacing: 8
+                            anchors.margins: 8
+                            spacing: 6
 
                             Item {
                                 Layout.alignment: Qt.AlignHCenter
@@ -575,7 +595,7 @@ PanelWindow {
                                 Layout.fillWidth: true
                                 Layout.alignment: Qt.AlignHCenter
                                 text: delegateRoot.modelData ? (delegateRoot.modelData.name || "") : ""
-                                color: delegateCard.isSelected ? Theme.bgDark : Theme.fg
+                                color: delegateCard.isSelected ? Theme.accent : Theme.fg
                                 font.family: Theme.fontFamilySans
                                 font.pixelSize: 12
                                 font.weight: Theme.fontWeight

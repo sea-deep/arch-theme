@@ -411,14 +411,6 @@ PanelWindow {
                         anchors.margins: 8
                         spacing: 8
 
-                        Text {
-                            Layout.alignment: Qt.AlignVCenter
-                            text: modelData.pinned ? "󰐃" : (modelData.isImage ? "󰋩" : "󰅍")
-                            color: modelData.pinned ? Theme.yellow : (modelData.isImage ? Theme.purple : Theme.accent)
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 16
-                        }
-
                         Image {
                             visible: modelData.isImage
                             asynchronous: true
@@ -441,18 +433,30 @@ PanelWindow {
                             Layout.fillHeight: true
                             spacing: 2
 
-                            Text {
+                            RowLayout {
                                 Layout.fillWidth: true
-                                Layout.fillHeight: true
-                                text: modelData.label || "(Empty)"
-                                color: expRow.isCurrent ? Theme.fg : Theme.fgDim
-                                font.family: Theme.fontFamilySans
-                                font.pixelSize: 12
-                                font.weight: Theme.fontWeight
-                                wrapMode: Text.Wrap
-                                elide: Text.ElideRight
-                                maximumLineCount: modelData.isImage ? 2 : 1
-                                verticalAlignment: Qt.AlignVCenter
+                                spacing: 4
+
+                                Text {
+                                    visible: modelData.pinned
+                                    text: "󰐃"
+                                    color: Theme.yellow
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 12
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData.label || "(Empty)"
+                                    color: expRow.isCurrent ? Theme.fg : Theme.fgDim
+                                    font.family: Theme.fontFamilySans
+                                    font.pixelSize: 12
+                                    font.weight: Theme.fontWeight
+                                    wrapMode: Text.Wrap
+                                    elide: Text.ElideRight
+                                    maximumLineCount: modelData.isImage ? 2 : 1
+                                    verticalAlignment: Qt.AlignVCenter
+                                }
                             }
 
                             Text {

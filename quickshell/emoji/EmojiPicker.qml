@@ -18,11 +18,22 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
     color: "transparent"
-    visible: UiState.emojiVisible
+    property bool showing: UiState.emojiVisible
+    property real reveal: showing ? 1 : 0
+
+    Behavior on reveal {
+        NumberAnimation {
+            duration: root.showing ? 160 : 100
+            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
+            easing.overshoot: 1.08
+        }
+    }
+
+    visible: reveal > 0
 
     Shortcut {
         sequence: "Escape"
-        enabled: UiState.emojiVisible
+        enabled: root.showing
         onActivated: UiState.emojiVisible = false
     }
 
@@ -93,8 +104,8 @@ PanelWindow {
         filterEmojis("")
     }
 
-    onVisibleChanged: {
-        if (visible) {
+    onShowingChanged: {
+        if (showing) {
             cursorX = -1
             cursorY = -1
             searchQuery = ""
@@ -109,6 +120,11 @@ PanelWindow {
     MouseArea {
         anchors.fill: parent
         onClicked: UiState.emojiVisible = false
+
+        Rectangle {
+            anchors.fill: parent
+            color: Qt.rgba(0, 0, 0, root.reveal * 0.35)
+        }
     }
 
     // Get cursor position
@@ -145,17 +161,16 @@ PanelWindow {
         y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
         visible: root.cursorX >= 0 || !posProc.running
 
+        scale: 0.94 + 0.06 * root.reveal
+        opacity: Math.min(1.0, root.reveal * 1.2)
+
         color: Theme.bg
         radius: 12
         border.color: Theme.surface
         border.width: 1
 
         // Consume clicks so they don't hit the backdrop MouseArea
-        MouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.AllButtons
-            onClicked: {}
-        }
+        TapHandler {}
 
         ColumnLayout {
             anchors.fill: parent

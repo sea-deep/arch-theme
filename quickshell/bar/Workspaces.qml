@@ -237,6 +237,29 @@ Item {
         height: Theme.barHeight
         z: 3
 
+        property Item activePill: null
+
+        Rectangle {
+            id: activeIndicator
+            z: 4
+            y: 0
+            height: 2
+            color: Theme.accent
+            
+            property real targetX: topSection.activePill ? (4 + topSection.activePill.parent.x + topSection.activePill.x) : 4
+            property real targetWidth: topSection.activePill ? topSection.activePill.width : 0
+            
+            x: targetX
+            width: targetWidth
+            
+            Behavior on x {
+                NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+            }
+            Behavior on width {
+                NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+            }
+        }
+
         RowLayout {
             id: topLayout
             anchors.left: parent.left
@@ -274,6 +297,13 @@ Item {
                         property var toplevelsList: wsItem.modelData.toplevels ? wsItem.modelData.toplevels.values : []
                         property var groupedApps: root.getGroupedApps(toplevelsList)
                         property int windowCount: toplevelsList.length
+
+                        onIsActiveChanged: {
+                            if (isActive) topSection.activePill = wsPill
+                        }
+                        Component.onCompleted: {
+                            if (isActive) topSection.activePill = wsPill
+                        }
                         
                         readonly property int maxVisibleGroups: 3
                         readonly property int overflowCount: Math.max(0, groupedApps.length - maxVisibleGroups)
@@ -286,7 +316,7 @@ Item {
                             NumberAnimation { duration: 140; easing.type: Easing.OutCubic }
                         }
                         
-                        color: isActive ? Theme.accent : (wsHoverHandler.hovered && !UiState.hasActiveOverlay ? Theme.surface : "transparent")
+                        color: isActive ? Qt.rgba(0, 0, 0, 0.2) : (wsHoverHandler.hovered && !UiState.hasActiveOverlay ? Theme.surface : "transparent")
                         
                         HoverHandler {
                             id: wsHoverHandler
@@ -314,7 +344,7 @@ Item {
                             Text {
                                 id: wsNum
                                 text: wsItem.modelData.name
-                                color: wsPill.isActive ? Theme.bgDark : (wsPill.isUrgent ? Theme.red : (wsHoverHandler.hovered ? Theme.blue : (wsPill.windowCount > 0 ? Theme.fg : Theme.fgDim)))
+                                color: wsPill.isActive ? Theme.accent : (wsPill.isUrgent ? Theme.red : (wsHoverHandler.hovered ? Theme.blue : (wsPill.windowCount > 0 ? Theme.fg : Theme.fgDim)))
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSize
                                 font.weight: wsPill.isActive ? Font.Bold : Theme.fontWeight
@@ -337,7 +367,7 @@ Item {
                                             width: 24
                                             height: 24
                                             radius: 5
-                                            color: iconHoverHandler.hovered ? (wsPill.isActive ? Qt.rgba(0, 0, 0, 0.25) : Theme.bgLight) : "transparent"
+                                            color: iconHoverHandler.hovered ? Theme.surfaceVariant : "transparent"
 
                                             IconImage {
                                                 anchors.centerIn: parent
@@ -382,7 +412,7 @@ Item {
                                         Text {
                                             visible: iconGroup.modelData.count > 1
                                             text: root.getSuperscript(iconGroup.modelData.count)
-                                            color: wsPill.isActive ? Theme.bgDark : Theme.accent
+                                            color: Theme.accent
                                             font.family: Theme.fontFamilySans
                                             font.pixelSize: 18
                                             font.weight: Font.Black
@@ -398,13 +428,13 @@ Item {
                                     height: 18
                                     implicitWidth: overflowText.implicitWidth + 8
                                     radius: 4
-                                    color: wsPill.isActive ? Qt.rgba(0, 0, 0, 0.2) : Theme.surface
+                                    color: wsPill.isActive ? Qt.rgba(0, 0, 0, 0.4) : Theme.surface
 
                                     Text {
                                         id: overflowText
                                         anchors.centerIn: parent
                                         text: "+" + wsPill.overflowCount
-                                        color: wsPill.isActive ? Theme.bgDark : Theme.fgDim
+                                        color: wsPill.isActive ? Theme.accent : Theme.fgDim
                                         font.family: Theme.fontFamilySans
                                         font.pixelSize: 11
                                         font.weight: Font.Bold

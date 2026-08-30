@@ -310,13 +310,32 @@ PanelWindow {
                                 root.searchQuery = text
                                 root.filterApps()
                                 grid.currentIndex = 0
+                                grid.positionViewAtBeginning()
                             }
 
                             Keys.onEscapePressed: root.close()
                             Keys.onDownPressed: {
                                 if (grid.count > 0) {
-                                    grid.forceActiveFocus()
-                                    grid.currentIndex = 0
+                                    grid.currentIndex = Math.min(grid.count - 1, grid.currentIndex + grid.columns)
+                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
+                                }
+                            }
+                            Keys.onUpPressed: {
+                                if (grid.count > 0) {
+                                    grid.currentIndex = Math.max(0, grid.currentIndex - grid.columns)
+                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
+                                }
+                            }
+                            Keys.onRightPressed: {
+                                if (grid.count > 0) {
+                                    grid.currentIndex = Math.min(grid.count - 1, grid.currentIndex + 1)
+                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
+                                }
+                            }
+                            Keys.onLeftPressed: {
+                                if (grid.count > 0) {
+                                    grid.currentIndex = Math.max(0, grid.currentIndex - 1)
+                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
                                 }
                             }
                             Keys.onReturnPressed: {
@@ -522,7 +541,7 @@ PanelWindow {
 
                     Rectangle {
                         id: delegateCard
-                        readonly property bool isSelected: grid.activeFocus && grid.currentIndex === delegateRoot.index
+                        readonly property bool isSelected: grid.currentIndex === delegateRoot.index
 
                         anchors.centerIn: parent
                         width: grid.cellWidth - 10

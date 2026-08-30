@@ -18,12 +18,12 @@ Item {
         : []
     
     property bool isHovered: false
-    readonly property bool isExpanded: root.isHovered && windowList.length > 0
+    readonly property bool isExpanded: root.isHovered
     property real reveal: isExpanded ? 1 : 0
     
     readonly property real collapsedWidth: topLayout.implicitWidth + 8
     readonly property real expandedWidth: Math.max(380, collapsedWidth + 52)
-    readonly property int bodyHeight: windowList.length > 0 ? Math.min(360, 36 + windowList.length * 36 + 14) : 0
+    readonly property int bodyHeight: windowList.length > 0 ? Math.min(360, 36 + windowList.length * 36 + 14) : 84
     
     implicitWidth: reveal > 0 ? expandedWidth : collapsedWidth
     implicitHeight: reveal > 0
@@ -398,6 +398,33 @@ Item {
                 Layout.bottomMargin: 2
             }
 
+            // Empty Workspace placeholder
+            Item {
+                visible: root.windowList.length === 0
+                Layout.fillWidth: true
+                Layout.preferredHeight: 38
+
+                RowLayout {
+                    anchors.centerIn: parent
+                    spacing: 8
+
+                    Text {
+                        text: "󰇄"
+                        color: Theme.fgDim
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 14
+                    }
+
+                    Text {
+                        text: "No active windows"
+                        color: Theme.fgDim
+                        font.family: Theme.fontFamilySans
+                        font.pixelSize: 12
+                        font.weight: Theme.fontWeight
+                    }
+                }
+            }
+
             Repeater {
                 model: root.windowList
 
@@ -405,7 +432,7 @@ Item {
                     id: rowItem
                     required property var modelData
                     Layout.fillWidth: true
-                    implicitHeight: 32
+                    implicitHeight: 34
                     radius: 6
                     color: rowHover.containsMouse
                         ? Theme.surface
@@ -414,8 +441,8 @@ Item {
                     RowLayout {
                         anchors.fill: parent
                         anchors.leftMargin: 8
-                        anchors.rightMargin: 8
-                        spacing: 10
+                        anchors.rightMargin: 6
+                        spacing: 8
 
                         IconImage {
                             width: 20
@@ -442,6 +469,50 @@ Item {
                             visible: rowItem.modelData.activated
                             Layout.alignment: Qt.AlignVCenter
                         }
+
+                        // Close / Kill Window Cross Button
+                        Rectangle {
+                            id: closeBtn
+                            Layout.preferredWidth: 24
+                            Layout.preferredHeight: 24
+                            radius: 12
+                            color: closeMouse.containsMouse ? Qt.rgba(0.968, 0.463, 0.557, 0.2) : "transparent"
+                            Layout.alignment: Qt.AlignVCenter
+                            z: 2
+
+                            Behavior on color {
+                                ColorAnimation { duration: 100 }
+                            }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "󰅖"
+                                color: closeMouse.containsMouse ? Theme.red : Theme.fgDim
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 13
+                                font.weight: Font.Bold
+                            }
+
+                            MouseArea {
+                                id: closeMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    var top = rowItem.modelData;
+                                    if (top) {
+                                        var addr = (top.address)
+                                            || (top.lastIpcObject && top.lastIpcObject.address)
+                                            || "";
+                                        if (addr !== "") {
+                                            Hyprland.dispatch("closewindow address:" + addr);
+                                        } else if (top.kill) {
+                                            top.kill();
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     MouseArea {
@@ -450,6 +521,7 @@ Item {
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
+                            if (closeMouse.containsMouse) return;
                             if (root.activeWs) {
                                 root.activeWs.activate()
                             }

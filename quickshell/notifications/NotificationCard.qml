@@ -9,6 +9,8 @@ Rectangle {
     property var notification: null
     width: parent ? parent.width : 300
     height: content.height + 20
+    implicitHeight: content.implicitHeight + 20
+    implicitWidth: 300
     color: Theme.bgLight
     radius: Theme.radius - 2
     border.color: hover.hovered ? Theme.accentGlow : Theme.bgDark

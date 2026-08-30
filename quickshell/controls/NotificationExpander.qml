@@ -12,8 +12,8 @@ Item {
     readonly property bool expanded: UiState.notificationCenterVisible
     readonly property bool showing: UiState.notificationCenterVisible || UiState.notificationPreviewVisible
     readonly property int fullBodyHeight: 500
-    readonly property int previewBodyHeight: previewLoader.item ? previewLoader.item.implicitHeight : 100
-    readonly property int bodyHeight: UiState.notificationCenterVisible ? fullBodyHeight : previewBodyHeight
+    readonly property int previewBodyHeight: Math.min(500, previewLayout.implicitHeight + 24)
+    readonly property int bodyHeight: UiState.notificationCenterVisible ? fullBodyHeight : Math.max(0, previewBodyHeight)
     property real expandedWidth: 380
     property real maximumBodyHeight: 500
     property real reveal: showing ? 1 : 0
@@ -30,20 +30,11 @@ Item {
         NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingDecelerate }
     }
 
-    Timer {
-        id: previewTimer
-        interval: Notifications.NotificationServer.latestNotification && Notifications.NotificationServer.latestNotification.expireTimeout > 0
-            ? Math.max(1500, Notifications.NotificationServer.latestNotification.expireTimeout * 1000)
-            : 5000
-        onTriggered: UiState.notificationPreviewVisible = false
-    }
-
     Connections {
         target: Notifications.NotificationServer
         function onNotificationReceived() {
             if (!UiState.notificationCenterVisible) {
                 UiState.showNotificationPreview(targetScreenName)
-                previewTimer.restart()
             }
         }
     }
@@ -53,8 +44,6 @@ Item {
             if (UiState.notificationCenterVisible)
                 Notifications.NotificationServer.markRead()
             Qt.callLater(() => root.forceActiveFocus())
-        } else {
-            previewTimer.stop()
         }
     }
 
@@ -220,28 +209,53 @@ Item {
             }
         }
 
+        // ── Stacked Toast Notifier Popups ──
         Item {
             visible: !UiState.notificationCenterVisible && UiState.notificationPreviewVisible
             anchors.fill: parent
-            
 
-            Loader {
-                id: previewLoader
-                width: parent.width
-                active: Notifications.NotificationServer.latestNotification !== null
-                
-                sourceComponent: Notifications.NotificationCard {
-                    width: previewLoader.width
-                    notification: Notifications.NotificationServer.latestNotification
-                    implicitHeight: height
-                    color: "transparent"
-                    border.width: 0
+            ColumnLayout {
+                id: previewLayout
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: 12
+                spacing: 8
+
+                Repeater {
+                    model: Notifications.NotificationServer.activeToasts
+                    delegate: Item {
+                        id: toastDelegate
+                        required property var modelData
+                        required property int index
+
+                        Layout.fillWidth: true
+                        implicitHeight: toastCard.implicitHeight
+                        height: implicitHeight
+
+                        Timer {
+                            id: toastTimer
+                            interval: toastDelegate.modelData && toastDelegate.modelData.expireTimeout > 0
+                                ? Math.max(2000, toastDelegate.modelData.expireTimeout * 1000)
+                                : 5000
+                            running: !toastHover.hovered
+                            onTriggered: {
+                                Notifications.NotificationServer.removeToast(toastDelegate.modelData)
+                            }
+                        }
+
+                        Notifications.NotificationCard {
+                            id: toastCard
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            notification: toastDelegate.modelData
+                        }
+
+                        HoverHandler {
+                            id: toastHover
+                        }
+                    }
                 }
-            }
-            
-            // Allow clicking the preview to close it or interact with it
-            TapHandler {
-                onTapped: UiState.notificationPreviewVisible = false
             }
         }
     }

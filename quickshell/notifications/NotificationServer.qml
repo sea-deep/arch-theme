@@ -9,10 +9,29 @@ Singleton {
 
     readonly property alias notificationList: server.trackedNotifications
     property var latestNotification: null
+    property var activeToasts: []
     property int unreadCount: 0
     property bool dndEnabled: false
 
     signal notificationReceived(var notification)
+
+    function addToast(notification) {
+        if (!notification) return
+        var current = (activeToasts || []).slice()
+        current = current.filter(n => n && n !== notification && (!n.id || n.id !== notification.id))
+        current.unshift(notification)
+        if (current.length > 4)
+            current = current.slice(0, 4)
+        activeToasts = current
+    }
+
+    function removeToast(notification) {
+        if (!notification) return
+        activeToasts = (activeToasts || []).filter(n => n && n !== notification && (!n.id || n.id !== notification.id))
+        if (activeToasts.length === 0) {
+            UiState.notificationPreviewVisible = false
+        }
+    }
 
     function clearAll() {
         const notifications = server.trackedNotifications.values.slice()
@@ -21,11 +40,15 @@ Singleton {
 
         unreadCount = 0
         latestNotification = null
+        activeToasts = []
+        UiState.notificationPreviewVisible = false
     }
 
     function dismiss(notification) {
-        if (notification)
+        if (notification) {
             notification.dismiss()
+            removeToast(notification)
+        }
 
         unreadCount = Math.max(0, unreadCount - 1)
         if (latestNotification === notification)
@@ -51,6 +74,7 @@ Singleton {
         onNotification: (notification) => {
             notification.tracked = true
             root.latestNotification = notification
+            root.addToast(notification)
 
             if (!notification.lastGeneration)
                 root.unreadCount++

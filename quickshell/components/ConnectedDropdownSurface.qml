@@ -20,7 +20,7 @@ Shape {
     property bool tabCentered: false
 
     readonly property real bodyHeight: Math.max(0, root.height - root.bodyTop)
-    readonly property real geomScale: Math.min(1.0, bodyHeight / Math.max(1, (root.shoulderRadius + root.cornerRadius)))
+    readonly property real geomScale: bodyHeight <= 4 ? 0 : Math.min(1.0, (bodyHeight - 4) / Math.max(1, (root.shoulderRadius + root.cornerRadius)))
     readonly property real effShoulder: root.shoulderRadius * geomScale
     readonly property real effCorner: Math.min(root.cornerRadius * geomScale, root.width / 2)
 

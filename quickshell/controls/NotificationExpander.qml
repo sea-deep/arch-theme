@@ -19,8 +19,8 @@ Item {
     property real maximumBodyHeight: 500
     property real reveal: showing ? 1 : 0
 
-    implicitWidth: (showing || reveal > 0) && (bodyHeight > 0 || UiState.notificationCenterVisible) ? expandedWidth : Theme.compactPillSize
-    implicitHeight: reveal > 0 && bodyHeight > 0
+    implicitWidth: (showing || reveal > 0.05) && bodyHeight > 10 ? expandedWidth : Theme.compactPillSize
+    implicitHeight: reveal > 0.05 && bodyHeight > 10
         ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
         : Theme.barHeight
     width: implicitWidth
@@ -82,7 +82,7 @@ Item {
         hasLeftShoulder: true
         hasRightShoulder: false
         hasBottomRightInverted: true
-        visible: root.reveal > 0 && (root.bodyHeight > 0 || UiState.notificationCenterVisible)
+        visible: root.reveal > 0.05 && root.bodyHeight > 10
     }
 
     Components.Pill {
@@ -91,7 +91,7 @@ Item {
         anchors.left: parent.left
         width: Theme.compactPillSize
         height: Theme.barHeight
-        visible: !connectedSurface.visible
+        visible: !connectedSurface.visible || root.reveal <= 0.05
         
         Text {
             anchors.centerIn: parent

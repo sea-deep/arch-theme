@@ -54,10 +54,10 @@ Item {
         return list
     }
 
-    readonly property int bodyHeight: !isPowered ? 160 : 352
+    readonly property int bodyHeight: !isPowered ? 160 : 380
     property real reveal: expanded ? 1 : 0
 
-    property real expandedWidth: 350
+    property real expandedWidth: 360
     implicitWidth: expanded || reveal > 0 ? expandedWidth : Theme.compactPillSize
     implicitHeight: reveal > 0
         ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
@@ -106,6 +106,8 @@ Item {
         const icon = (device.icon || "").toLowerCase()
         const name = (device.name || device.deviceName || "").toLowerCase()
         
+        if (name.indexOf("tv") !== -1 || icon.indexOf("tv") !== -1)
+            return "󰟴"
         if (icon.indexOf("headset") !== -1 || icon.indexOf("headphones") !== -1 || name.indexOf("headphone") !== -1 || name.indexOf("wh-1000") !== -1 || name.indexOf("airpods") !== -1 || name.indexOf("buds") !== -1 || name.indexOf("earphone") !== -1 || name.indexOf("m71") !== -1)
             return "󰋋"
         if (icon.indexOf("audio") !== -1 || icon.indexOf("speaker") !== -1 || name.indexOf("speaker") !== -1 || name.indexOf("soundbar") !== -1)
@@ -204,14 +206,14 @@ Item {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 9
-                spacing: 7
+                anchors.margins: 10
+                spacing: 8
 
-                // Header Row (Click to trigger Scan / Refresh)
+                // Header Row (Click title / scan icon to trigger Discovery)
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 28
-                    spacing: 7
+                    spacing: 8
 
                     RowLayout {
                         Layout.fillWidth: true
@@ -221,7 +223,7 @@ Item {
                             text: root.isDiscovering ? "󰑐" : "󰂯"
                             color: root.isDiscovering ? Theme.accent : (scanHover.hovered ? Theme.accent : Theme.blue)
                             font.family: Theme.fontFamily
-                            font.pixelSize: 16
+                            font.pixelSize: 18
                             
                             RotationAnimation on rotation {
                                 running: root.isDiscovering
@@ -236,8 +238,8 @@ Item {
                             text: root.isDiscovering ? "Scanning for devices..." : "Bluetooth"
                             color: scanHover.hovered ? Theme.accent : Theme.fg
                             font.family: Theme.fontFamilySans
-                            font.pixelSize: 14
-                            font.weight: Theme.fontWeight
+                            font.pixelSize: 15
+                            font.weight: Theme.fontWeightBold
                             elide: Text.ElideRight
                         }
 
@@ -254,21 +256,21 @@ Item {
 
                     // Power Switch
                     RowLayout {
-                        Layout.preferredWidth: 62
+                        Layout.preferredWidth: 64
                         Layout.preferredHeight: 26
                         spacing: 6
 
                         Text {
                             text: root.isPowered ? "On" : "Off"
-                            color: Theme.fgDim
+                            color: root.isPowered ? Theme.accent : Theme.fgDim
                             font.family: Theme.fontFamilySans
-                            font.pixelSize: 10
+                            font.pixelSize: 11
                             font.weight: Theme.fontWeight
                         }
 
                         Rectangle {
                             id: powerSwitch
-                            Layout.preferredWidth: 30
+                            Layout.preferredWidth: 32
                             Layout.preferredHeight: 18
                             radius: height / 2
                             color: root.isPowered ? Theme.accent : Theme.surface
@@ -310,7 +312,7 @@ Item {
                     visible: !root.adapter || !root.isPowered
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    radius: 8
+                    radius: Theme.radiusSmall
                     color: Theme.bgLight
 
                     ColumnLayout {
@@ -371,12 +373,12 @@ Item {
                     Layout.minimumHeight: 80
                     model: root.combinedList
                     clip: true
-                    spacing: 3
+                    spacing: 4
                     boundsBehavior: Flickable.StopAtBounds
 
                     header: Item {
                         width: devList.width
-                        height: root.pairedDevices.length > 0 ? 20 : 0
+                        height: root.pairedDevices.length > 0 ? 22 : 0
                         visible: root.pairedDevices.length > 0
 
                         Text {
@@ -386,7 +388,7 @@ Item {
                             text: "PAIRED DEVICES"
                             color: Theme.fgDim
                             font.family: Theme.fontFamilySans
-                            font.pixelSize: 10
+                            font.pixelSize: 11
                             font.weight: Theme.fontWeightBold
                         }
                     }
@@ -398,28 +400,30 @@ Item {
                         readonly property bool isPaired: modelData.isPaired
 
                         width: ListView.view.width
-                        height: 48
-                        radius: 8
+                        height: 52
+                        radius: Theme.radiusSmall
                         color: dev.connected ? Theme.accent
                             : (devHover.hovered ? Theme.surface : Theme.bgLight)
                         border.width: 0
 
+                        Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+
                         RowLayout {
                             anchors.fill: parent
-                            anchors.leftMargin: 10
+                            anchors.leftMargin: 12
                             anchors.rightMargin: 10
-                            spacing: 8
+                            spacing: 10
 
                             Text {
                                 text: root.getDeviceIcon(devDelegate.dev)
                                 color: devDelegate.dev.connected ? Theme.bgDark : Theme.blue
                                 font.family: Theme.fontFamily
-                                font.pixelSize: 18
+                                font.pixelSize: 22
                             }
 
                             ColumnLayout {
                                 Layout.fillWidth: true
-                                spacing: 0
+                                spacing: 1
 
                                 Text {
                                     Layout.fillWidth: true
@@ -427,7 +431,7 @@ Item {
                                     color: devDelegate.dev.connected ? Theme.bgDark : Theme.fg
                                     elide: Text.ElideRight
                                     font.family: Theme.fontFamilySans
-                                    font.pixelSize: 12
+                                    font.pixelSize: 13.5
                                     font.weight: Theme.fontWeight
                                 }
 
@@ -439,7 +443,7 @@ Item {
                                             : (devDelegate.isPaired ? "Paired" : (devDelegate.dev.pairing ? "Pairing..." : "Ready to pair")))
                                         color: devDelegate.dev.connected ? Theme.bgDark : Theme.fgDim
                                         font.family: Theme.fontFamilySans
-                                        font.pixelSize: 9
+                                        font.pixelSize: 10.5
                                     }
 
                                     Text {
@@ -447,23 +451,23 @@ Item {
                                         text: "· 󰁹 " + Math.round(devDelegate.dev.battery * 100) + "%"
                                         color: devDelegate.dev.connected ? Theme.bgDark : Theme.fgDim
                                         font.family: Theme.fontFamilySans
-                                        font.pixelSize: 9
+                                        font.pixelSize: 10.5
                                     }
                                 }
                             }
 
-                            // Paired quick action icons
+                            // Paired quick action icon buttons
                             RowLayout {
                                 visible: devDelegate.isPaired
                                 spacing: 4
 
                                 // Send File
                                 Rectangle {
-                                    width: 24
-                                    height: 24
-                                    radius: 5
+                                    width: 26
+                                    height: 26
+                                    radius: 6
                                     color: sfHov.hovered 
-                                        ? (devDelegate.dev.connected ? Qt.rgba(0, 0, 0, 0.2) : Theme.bgLight)
+                                        ? (devDelegate.dev.connected ? Qt.rgba(0, 0, 0, 0.25) : Theme.surfaceVariant)
                                         : "transparent"
 
                                     Text {
@@ -471,7 +475,7 @@ Item {
                                         text: "󰇮"
                                         color: devDelegate.dev.connected ? Theme.bgDark : Theme.blue
                                         font.family: Theme.fontFamily
-                                        font.pixelSize: 12
+                                        font.pixelSize: 13
                                     }
 
                                     HoverHandler { id: sfHov }
@@ -480,13 +484,13 @@ Item {
                                     }
                                 }
 
-                                // Forget
+                                // Forget / Unpair
                                 Rectangle {
-                                    width: 24
-                                    height: 24
-                                    radius: 5
+                                    width: 26
+                                    height: 26
+                                    radius: 6
                                     color: fgHov.hovered 
-                                        ? (devDelegate.dev.connected ? Qt.rgba(0, 0, 0, 0.2) : Theme.bgLight)
+                                        ? (devDelegate.dev.connected ? Qt.rgba(0, 0, 0, 0.25) : Theme.surfaceVariant)
                                         : "transparent"
 
                                     Text {
@@ -494,7 +498,7 @@ Item {
                                         text: "󰆴"
                                         color: devDelegate.dev.connected ? Theme.bgDark : Theme.fgDim
                                         font.family: Theme.fontFamily
-                                        font.pixelSize: 12
+                                        font.pixelSize: 13
                                     }
 
                                     HoverHandler { id: fgHov }
@@ -503,21 +507,21 @@ Item {
                                     }
                                 }
 
-                                // Connect / Disconnect
+                                // Connect / Disconnect Action Icon
                                 Rectangle {
-                                    width: 24
-                                    height: 24
-                                    radius: 5
+                                    width: 26
+                                    height: 26
+                                    radius: 6
                                     color: connHov.hovered 
-                                        ? (devDelegate.dev.connected ? Qt.rgba(0, 0, 0, 0.2) : Theme.bgLight)
-                                        : "transparent"
+                                        ? (devDelegate.dev.connected ? Qt.rgba(0, 0, 0, 0.25) : Theme.surfaceVariant)
+                                        : (devDelegate.dev.connected ? Qt.rgba(0, 0, 0, 0.12) : Theme.surface)
 
                                     Text {
                                         anchors.centerIn: parent
                                         text: devDelegate.dev.connected ? "󰅖" : "󰄬"
                                         color: devDelegate.dev.connected ? Theme.bgDark : Theme.accent
                                         font.family: Theme.fontFamily
-                                        font.pixelSize: 12
+                                        font.pixelSize: 13
                                     }
 
                                     HoverHandler { id: connHov }
@@ -536,9 +540,9 @@ Item {
                             // Unpaired Pair button
                             Rectangle {
                                 visible: !devDelegate.isPaired
-                                implicitWidth: pairBtnLabel.implicitWidth + 14
-                                implicitHeight: 24
-                                radius: 5
+                                implicitWidth: pairBtnLabel.implicitWidth + 18
+                                implicitHeight: 28
+                                radius: 6
                                 color: pairHov.hovered ? Theme.accentGlow : Theme.accent
 
                                 Text {
@@ -547,7 +551,7 @@ Item {
                                     text: devDelegate.dev.pairing ? "Pairing" : "Pair"
                                     color: Theme.bgDark
                                     font.family: Theme.fontFamilySans
-                                    font.pixelSize: 10
+                                    font.pixelSize: 11
                                     font.weight: Theme.fontWeightBold
                                 }
 
@@ -580,7 +584,7 @@ Item {
                         text: root.isDiscovering ? "Searching for nearby devices..." : "No devices found"
                         color: Theme.fgDim
                         font.family: Theme.fontFamilySans
-                        font.pixelSize: 12
+                        font.pixelSize: 13
                     }
                 }
 
@@ -588,22 +592,23 @@ Item {
                 RowLayout {
                     visible: root.adapter !== null && root.isPowered
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 22
+                    Layout.preferredHeight: 24
                     spacing: 8
 
                     RowLayout {
-                        spacing: 4
+                        spacing: 5
                         Text {
                             text: "󰇮"
                             color: sendLnkHov.hovered ? Theme.accent : Theme.blue
                             font.family: Theme.fontFamily
-                            font.pixelSize: 12
+                            font.pixelSize: 13
                         }
                         Text {
                             text: "Send Files"
                             color: sendLnkHov.hovered ? Theme.accent : Theme.fgDim
                             font.family: Theme.fontFamilySans
-                            font.pixelSize: 11
+                            font.pixelSize: 11.5
+                            font.weight: Theme.fontWeight
                         }
                         HoverHandler { id: sendLnkHov }
                         TapHandler { onTapped: root.sendFile(root.connectedDevice) }
@@ -612,18 +617,19 @@ Item {
                     Item { Layout.fillWidth: true }
 
                     RowLayout {
-                        spacing: 4
+                        spacing: 5
                         Text {
                             text: "󰒓"
                             color: mgrLnkHov.hovered ? Theme.accent : Theme.fgDim
                             font.family: Theme.fontFamily
-                            font.pixelSize: 12
+                            font.pixelSize: 13
                         }
                         Text {
                             text: "Settings"
                             color: mgrLnkHov.hovered ? Theme.accent : Theme.fgDim
                             font.family: Theme.fontFamilySans
-                            font.pixelSize: 11
+                            font.pixelSize: 11.5
+                            font.weight: Theme.fontWeight
                         }
                         HoverHandler { id: mgrLnkHov }
                         TapHandler { onTapped: root.openManager() }

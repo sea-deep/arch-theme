@@ -13,7 +13,7 @@ PanelWindow {
     id: root
     required property var modelData
     screen: modelData
-    readonly property bool overlayExpanded: hardwarePill.expanded || trayExpander.expanded || networkExpander.expanded || notificationExpander.expanded || powerExpander.expanded || clockExpander.expanded
+    readonly property bool overlayExpanded: hardwarePill.expanded || trayExpander.expanded || bluetoothExpander.expanded || networkExpander.expanded || notificationExpander.expanded || powerExpander.expanded || clockExpander.expanded
     readonly property bool hasTiledWindows: Hyprland.activeToplevel !== null
 
     anchors.top: true

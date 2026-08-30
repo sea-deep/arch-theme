@@ -10,16 +10,17 @@ Item {
 
     property string targetScreenName: ""
     readonly property bool expanded: UiState.notificationCenterVisible
-    readonly property bool showing: UiState.notificationCenterVisible || UiState.notificationPreviewVisible
+    readonly property int toastCount: (Notifications.NotificationServer.activeToasts || []).length
+    readonly property bool showing: UiState.notificationCenterVisible || (UiState.notificationPreviewVisible && toastCount > 0)
     readonly property int fullBodyHeight: 500
-    readonly property int previewBodyHeight: Math.min(500, previewLayout.implicitHeight + 24)
-    property real bodyHeight: UiState.notificationCenterVisible ? fullBodyHeight : Math.max(0, previewBodyHeight)
+    readonly property int previewBodyHeight: toastCount > 0 ? Math.min(500, previewLayout.implicitHeight + 24) : 0
+    property real bodyHeight: UiState.notificationCenterVisible ? fullBodyHeight : previewBodyHeight
     property real expandedWidth: 380
     property real maximumBodyHeight: 500
     property real reveal: showing ? 1 : 0
 
-    implicitWidth: showing || reveal > 0 ? expandedWidth : Theme.compactPillSize
-    implicitHeight: reveal > 0
+    implicitWidth: (showing || reveal > 0) && (bodyHeight > 0 || UiState.notificationCenterVisible) ? expandedWidth : Theme.compactPillSize
+    implicitHeight: reveal > 0 && bodyHeight > 0
         ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
         : Theme.barHeight
     width: implicitWidth
@@ -56,12 +57,13 @@ Item {
     }
 
     Components.ConnectedDropdownSurface {
+        id: connectedSurface
         z: 1
         anchors.fill: parent
         hasLeftShoulder: true
         hasRightShoulder: false
         hasBottomRightInverted: true
-        visible: root.reveal > 0
+        visible: root.reveal > 0 && (root.bodyHeight > 0 || UiState.notificationCenterVisible)
     }
 
     Components.Pill {
@@ -70,7 +72,7 @@ Item {
         anchors.left: parent.left
         width: Theme.compactPillSize
         height: Theme.barHeight
-        visible: root.reveal <= 0
+        visible: !connectedSurface.visible
         
         Text {
             anchors.centerIn: parent

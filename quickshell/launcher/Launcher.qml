@@ -252,9 +252,8 @@ PanelWindow {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 0
 
-        opacity: root.reveal
         transform: Translate {
-            y: (1 - root.reveal) * 60
+            y: (1 - root.reveal) * launcherCard.height
         }
 
         strokeColor: Theme.surfaceVariant

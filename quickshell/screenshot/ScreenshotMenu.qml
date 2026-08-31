@@ -10,7 +10,7 @@ PanelWindow {
     id: root
     WlrLayershell.namespace: "screenshot-overlay"
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.exclusiveZone: 0
+    WlrLayershell.exclusiveZone: -1
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 
     anchors.top: true

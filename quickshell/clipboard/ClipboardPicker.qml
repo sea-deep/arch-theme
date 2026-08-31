@@ -193,15 +193,21 @@ PanelWindow {
         TapHandler {}
 
         Item {
-            anchors.top: parent.top
-            anchors.left: parent.left
-            width: parent.width
-            height: popup.fullHeight
+            anchors.fill: parent
+            anchors.margins: Theme.borderWidth
+            clip: true
+            opacity: Math.min(1.0, Math.max(0.0, (root.reveal - 0.08) / 0.92))
 
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 12
-                spacing: 10
+            Item {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                width: parent.width
+                height: popup.fullHeight - (Theme.borderWidth * 2)
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 12
+                    spacing: 10
 
             // Header: Title + search bar + Clear button
             RowLayout {
@@ -536,5 +542,6 @@ PanelWindow {
             }
         }
     }
+}
 }
 }

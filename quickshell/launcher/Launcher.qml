@@ -125,9 +125,12 @@ PanelWindow {
 
     function recordRecentApp(name) {
         if (!name) return
+        var cleanName = name.trim()
+        if (!cleanName) return
+
         var recents = (root.activeRecentAppNames || []).slice()
-        recents = recents.filter(function(n) { return n !== name })
-        recents.unshift(name)
+        recents = recents.filter(function(n) { return n && n.toLowerCase().trim() !== cleanName.toLowerCase() })
+        recents.unshift(cleanName)
         if (recents.length > 8) recents = recents.slice(0, 8)
         root.activeRecentAppNames = recents
         filterApps()
@@ -243,11 +246,16 @@ PanelWindow {
             var recentNames = getRecentAppNames()
             if (recentNames.length > 0) {
                 var recentMap = {}
-                for (var r = 0; r < recentNames.length; r++) recentMap[recentNames[r]] = r
+                for (var r = 0; r < recentNames.length; r++) {
+                    if (recentNames[r]) {
+                        recentMap[recentNames[r].toLowerCase().trim()] = r
+                    }
+                }
                 var recentApps = []
                 for (var i = 0; i < allApps.length; i++) {
-                    if (recentMap[allApps[i].name] !== undefined) {
-                        recentApps.push({ appItem: allApps[i], order: recentMap[allApps[i].name] })
+                    var nKey = (allApps[i].name || "").toLowerCase().trim()
+                    if (recentMap[nKey] !== undefined) {
+                        recentApps.push({ appItem: allApps[i], order: recentMap[nKey] })
                     }
                 }
                 recentApps.sort(function(a, b) { return a.order - b.order })
@@ -369,6 +377,8 @@ PanelWindow {
 
     onShowingChanged: {
         if (showing) {
+            syncPinnedFromDisk()
+            syncRecentsFromDisk()
             searchQuery = ""
             searchInput.text = ""
             activeCategory = "All"
@@ -416,20 +426,25 @@ PanelWindow {
         }
 
         Item {
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-            height: launcherCard.fullHeight
+            anchors.fill: parent
+            clip: true
+            opacity: Math.min(1.0, Math.max(0.0, (root.reveal - 0.08) / 0.92))
 
-            ColumnLayout {
-                id: layout
+            Item {
+                anchors.bottom: parent.bottom
                 anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.leftMargin: 24
-                anchors.rightMargin: 24
-                anchors.topMargin: 24
-                spacing: 16
+                height: launcherCard.fullHeight
+
+                ColumnLayout {
+                    id: layout
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.leftMargin: 24
+                    anchors.rightMargin: 24
+                    anchors.topMargin: 24
+                    spacing: 16
 
             // Top Header: Search bar + app count badge
             RowLayout {
@@ -815,10 +830,14 @@ PanelWindow {
             visible: false
             z: 10
             onActionTriggered: root.close()
+            onLaunchRequested: function(app, name) {
+                root.launch({ app: app, name: name })
+            }
             onPinToggled: function(name) {
                 root.togglePinApp(name)
             }
         }
     }
+}
 }
 }

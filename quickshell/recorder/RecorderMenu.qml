@@ -80,13 +80,19 @@ PanelWindow {
         }
 
         Item {
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-            height: menuItem.fullHeight
+            anchors.fill: parent
+            anchors.margins: Theme.borderWidth
+            clip: true
+            opacity: Math.min(1.0, Math.max(0.0, (root.reveal - 0.08) / 0.92))
 
-            ColumnLayout {
-                id: layout
+            Item {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: menuItem.fullHeight - (Theme.borderWidth * 2)
+
+                ColumnLayout {
+                    id: layout
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
@@ -229,5 +235,6 @@ PanelWindow {
             }
         }
     }
+}
 }
 }

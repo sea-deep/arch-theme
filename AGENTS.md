@@ -202,8 +202,21 @@ arch-theme/
        ```
    - This prevents layout recalculation jitter, guarantees sub-pixel sharpness without scale distortion, and provides the signature Tokyo Night fluid gliding motion.
 
-2. **Synchronous In-Memory Reactivity for Immediate UI Feedback:**
-   - All interactive toggles (such as pinning/unpinning apps in the launcher or setting quick controls) must update local reactive properties (`root.activePinnedAppNames = pinned; filterApps()`) **synchronously** before invoking asynchronous disk persistence scripts, ensuring 0ms perceptible delay.
+2. **Rounded Border Containment & Zero Pixel Overflow Guarantee:**
+   - In QtQuick, `clip: true` on `Rectangle` only clips to the rectangular bounding box, NOT the curved corner radii.
+   - To prevent square child pixels from bleeding through outer rounded borders when the container height is small during unroll:
+     - Wrap inner content in an `Item` with `anchors.fill: parent`, `anchors.margins: Theme.borderWidth`, `clip: true`, and an opacity gate:
+       ```qml
+       opacity: Math.min(1.0, Math.max(0.0, (root.reveal - 0.08) / 0.92))
+       ```
+     - This guarantees child elements are 100% invisible during the initial corner unroll ($0 \rightarrow 8\%$) and transition smoothly with zero border overflow or visual artifacting.
+
+3. **Synchronous In-Memory Reactivity & Recently Opened Invariants:**
+   - **Zero-Latency In-Memory State:** All interactive toggles (such as pinning/unpinning apps in the launcher or setting quick controls) must update local reactive properties (`root.activePinnedAppNames = pinned; filterApps()`) **synchronously** before invoking asynchronous disk persistence scripts, ensuring 0ms perceptible delay.
+   - **Recently Opened Real-Time Tracking:**
+     - Must normalize and clean strings with `name.toLowerCase().trim()` for case-insensitive matching.
+     - Must re-sync on `onShowingChanged` via `syncPinnedFromDisk()` and `syncRecentsFromDisk()`.
+     - Every application execution path (direct click, Enter key, right-click context menu "Launch" / "Launch with GPU") must route through `launch(item)` and invoke `recordRecentApp(name)`.
 
 ---
 

@@ -89,6 +89,17 @@ Item {
         UiState.toggleBluetooth(targetScreenName)
     }
 
+    function togglePower() {
+        if (!root.adapter) return
+        var next = !root.isPowered
+        root.adapter.enabled = next
+        Quickshell.execDetached([
+            Quickshell.shellPath("scripts/bluetooth.sh"),
+            "set",
+            next ? "on" : "off"
+        ])
+    }
+
     function getDeviceIcon(device) {
         if (!device) return "󰂯"
         const icon = (device.icon || "").toLowerCase()
@@ -166,7 +177,7 @@ Item {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onClicked: mouse => {
                 if (mouse.button === Qt.RightButton) {
-                    if (root.adapter) root.adapter.enabled = !root.adapter.enabled
+                    root.togglePower()
                 } else {
                     root.toggle()
                 }
@@ -278,7 +289,7 @@ Item {
                             HoverHandler { id: powerToggleHover }
                             TapHandler {
                                 onTapped: {
-                                    if (root.adapter) root.adapter.enabled = !root.adapter.enabled
+                                    root.togglePower()
                                 }
                             }
                         }

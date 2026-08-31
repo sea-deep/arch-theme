@@ -127,6 +127,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("gsettings set org.gnome.desktop.interface monospace-font-name 'FiraCode Nerd Font SemBd 10'")
     hl.exec_cmd("sh -c '$HOME/code/arch-theme/quickshell/scripts/brightness.sh restore 2>/dev/null || true'")
     hl.exec_cmd("sh -c '$HOME/code/arch-theme/quickshell/scripts/power_profile.sh restore 2>/dev/null || true'")
+    hl.exec_cmd("sh -c '$HOME/code/arch-theme/quickshell/scripts/bluetooth.sh restore 2>/dev/null || true'")
 end)
 
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal))

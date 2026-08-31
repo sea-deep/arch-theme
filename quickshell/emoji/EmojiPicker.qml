@@ -298,8 +298,8 @@ PanelWindow {
         visible: height > 0
 
         color: Theme.bg
-        radius: 12
-        border.color: Theme.surface
+        radius: Theme.radiusLarge
+        border.color: Theme.surfaceVariant
         border.width: 1
 
         // Consume clicks so they don't hit the backdrop MouseArea
@@ -484,8 +484,8 @@ PanelWindow {
 
                             Layout.fillWidth: true
                             Layout.preferredHeight: 26
-                            radius: 6
-                            color: isActive ? Theme.accentGlow : (catMouseArea.containsMouse ? Theme.bgLight : "transparent")
+                            radius: Theme.radiusSmall
+                            color: isActive ? Theme.accent : (catMouseArea.containsMouse ? Theme.bgLight : "transparent")
                             border.color: isActive ? Theme.accent : "transparent"
                             border.width: 1
 

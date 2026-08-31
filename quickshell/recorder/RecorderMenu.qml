@@ -58,7 +58,7 @@ PanelWindow {
         implicitHeight: layout.implicitHeight + 24
         anchors.centerIn: parent
         color: Theme.bg
-        radius: Theme.radius
+        radius: Theme.radiusLarge
         border.color: Theme.accentGlow
         border.width: Theme.borderWidth
 
@@ -118,15 +118,17 @@ PanelWindow {
                     delegate: Rectangle {
                         Layout.fillWidth: true
                         height: 32
-                        radius: 6
+                        radius: Theme.radiusSmall
                         color: root.selectedQuality === modelData ? Theme.accent : Theme.surface
+                        Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+
                         Text {
                             anchors.centerIn: parent
                             text: modelData.charAt(0).toUpperCase() + modelData.slice(1)
-                            color: root.selectedQuality === modelData ? Theme.bg : Theme.fg
+                            color: root.selectedQuality === modelData ? Theme.bgDark : Theme.fg
                             font.family: Theme.fontFamilySans
                             font.pixelSize: 12
-                            font.weight: root.selectedQuality === modelData ? Font.Bold : Font.Normal
+                            font.weight: root.selectedQuality === modelData ? Font.Bold : Theme.fontWeight
                         }
                         MouseArea {
                             anchors.fill: parent
@@ -154,15 +156,17 @@ PanelWindow {
                     delegate: Rectangle {
                         Layout.fillWidth: true
                         height: 32
-                        radius: 6
+                        radius: Theme.radiusSmall
                         color: root.selectedFormat === modelData ? Theme.accent : Theme.surface
+                        Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+
                         Text {
                             anchors.centerIn: parent
                             text: modelData.toUpperCase()
-                            color: root.selectedFormat === modelData ? Theme.bg : Theme.fg
+                            color: root.selectedFormat === modelData ? Theme.bgDark : Theme.fg
                             font.family: Theme.fontFamilySans
                             font.pixelSize: 12
-                            font.weight: root.selectedFormat === modelData ? Font.Bold : Font.Normal
+                            font.weight: root.selectedFormat === modelData ? Font.Bold : Theme.fontWeight
                         }
                         MouseArea {
                             anchors.fill: parent

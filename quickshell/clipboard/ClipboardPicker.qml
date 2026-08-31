@@ -184,8 +184,8 @@ PanelWindow {
         visible: height > 0
 
         color: Theme.bg
-        radius: 12
-        border.color: Theme.surface
+        radius: Theme.radiusLarge
+        border.color: Theme.surfaceVariant
         border.width: 1
 
         // Consume clicks so they don't hit the backdrop MouseArea

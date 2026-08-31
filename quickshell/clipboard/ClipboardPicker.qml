@@ -22,9 +22,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? 160 : 100
-            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
-            easing.overshoot: 1.05
+            duration: Theme.durationMedium
+            easing.type: Theme.easingDecelerate
         }
     }
 
@@ -99,12 +98,12 @@ PanelWindow {
                     label: isImage ? compact : compact.slice(0, 180),
                     recorded: entry.recorded || "",
                     filePath: isImage ? entry.filePath : "",
-                    pinned: entry.pinned === true,
-                    isImage: isImage
+                    isImage: isImage,
+                    pinned: !!entry.pinned
                 })
             }
             return result
-        } catch (e) {
+        } catch(e) {
             return []
         }
     }
@@ -115,8 +114,9 @@ PanelWindow {
         Quickshell.execDetached([
             "bash",
             Quickshell.shellPath("scripts/paste-clipboard.sh"),
-            entry.isImage ? "image" : "text",
-            entry.isImage ? entry.filePath : entry.value
+            entry.value,
+            entry.filePath || "",
+            entry.isImage ? "image" : "text"
         ])
     }
 
@@ -178,14 +178,11 @@ PanelWindow {
         id: popup
         readonly property int fullHeight: 440
         width: 340
-        height: fullHeight
-        opacity: root.reveal
-        scale: 0.95 + (0.05 * root.reveal)
-        transformOrigin: Item.Center
+        height: fullHeight * root.reveal
         clip: true
         x: root.cursorX >= 0 ? root.cursorX : (root.width - width) / 2
         y: root.cursorY >= 0 ? root.cursorY : (root.height - fullHeight) / 2
-        visible: root.reveal > 0
+        visible: height > 0
 
         color: Theme.bg
         radius: Theme.radiusLarge

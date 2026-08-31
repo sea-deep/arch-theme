@@ -25,9 +25,8 @@ PanelWindow {
     Behavior on reveal {
         NumberAnimation {
             id: revealAnim
-            duration: root.showing ? 160 : 100
-            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
-            easing.overshoot: 1.05
+            duration: Theme.durationMedium
+            easing.type: Theme.easingDecelerate
             onFinished: {
                 if (root.showing && !root.fullyLoaded) {
                     lazyTimer.restart()
@@ -292,14 +291,11 @@ PanelWindow {
         id: popup
         readonly property int fullHeight: 440
         width: 340
-        height: fullHeight
-        opacity: root.reveal
-        scale: 0.95 + (0.05 * root.reveal)
-        transformOrigin: Item.Center
+        height: fullHeight * root.reveal
         clip: true
         x: root.cursorX >= 0 ? root.cursorX : (root.width - width) / 2
         y: root.cursorY >= 0 ? root.cursorY : (root.height - fullHeight) / 2
-        visible: root.reveal > 0
+        visible: height > 0
 
         color: Theme.bg
         radius: Theme.radiusLarge

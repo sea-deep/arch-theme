@@ -184,6 +184,29 @@ arch-theme/
 
 ---
 
+### J. Smooth Gliding Reveal Unroll Animation Standard
+
+1. **The Gliding Unroll Invariant for All Custom Popups & Modals:**
+   - **NEVER** use scale pop-ins or simple opacity-only fades for standalone desktop popups (`ClipboardPicker.qml`, `EmojiPicker.qml`, `RecorderMenu.qml`, `Launcher.qml`).
+   - Use the **solid fluid clipping reveal unroll** architecture:
+     - Outer container: `height: fullHeight * root.reveal`, `clip: true`, and `visible: height > 0`.
+     - Inner content container: `Item` frozen in absolute coordinate space with static `height: popup.fullHeight` anchored to `top: parent.top` (or `bottom: parent.bottom` for drawer).
+     - Standardized reveal transition:
+       ```qml
+       Behavior on reveal {
+           NumberAnimation {
+               duration: Theme.durationMedium  // 160ms
+               easing.type: Theme.easingDecelerate  // Easing.OutCubic
+           }
+       }
+       ```
+   - This prevents layout recalculation jitter, guarantees sub-pixel sharpness without scale distortion, and provides the signature Tokyo Night fluid gliding motion.
+
+2. **Synchronous In-Memory Reactivity for Immediate UI Feedback:**
+   - All interactive toggles (such as pinning/unpinning apps in the launcher or setting quick controls) must update local reactive properties (`root.activePinnedAppNames = pinned; filterApps()`) **synchronously** before invoking asynchronous disk persistence scripts, ensuring 0ms perceptible delay.
+
+---
+
 ## 3. Verification & Testing Checklist for Agents
 
 Before concluding any change:

@@ -23,9 +23,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.showing ? 160 : 100
-            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
-            easing.overshoot: 1.08
+            duration: Theme.durationMedium
+            easing.type: Theme.easingDecelerate
         }
     }
     
@@ -53,21 +52,16 @@ PanelWindow {
 
     Rectangle {
         id: menuItem
-        opacity: root.reveal
         width: 360
-        implicitHeight: layout.implicitHeight + 24
+        readonly property real fullHeight: layout.implicitHeight + 32
+        height: fullHeight * root.reveal
+        clip: true
         anchors.centerIn: parent
         color: Theme.bg
         radius: Theme.radiusLarge
         border.color: Theme.accentGlow
         border.width: Theme.borderWidth
-
-        transform: Scale {
-            origin.x: menuItem.width / 2
-            origin.y: menuItem.height / 2
-            xScale: 0.9 + (0.1 * root.reveal)
-            yScale: xScale
-        }
+        visible: height > 0
 
         MouseArea { anchors.fill: parent }
 
@@ -85,13 +79,19 @@ PanelWindow {
             Quickshell.execDetached(["bash", script, mode, root.selectedQuality, root.selectedFormat]);
         }
 
-        ColumnLayout {
-            id: layout
+        Item {
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.margins: 16
-            spacing: 16
+            height: menuItem.fullHeight
+
+            ColumnLayout {
+                id: layout
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.margins: 16
+                spacing: 16
 
             Text {
                 text: "Screen Recording"
@@ -229,4 +229,5 @@ PanelWindow {
             }
         }
     }
+}
 }

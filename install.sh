@@ -234,8 +234,18 @@ if prompt_yn "Restore TLP Power Management Configuration?"; then
     if [ -f "$DOTFILES_DIR/etc/tlp.conf" ]; then
         sudo cp "$DOTFILES_DIR/etc/tlp.conf" "/etc/tlp.conf"
         sudo chmod 644 "/etc/tlp.conf"
-        log_success "TLP restored!"
     fi
+    if [ -f "$DOTFILES_DIR/etc/polkit-1/rules.d/50-tlp.rules" ]; then
+        sudo mkdir -p "/etc/polkit-1/rules.d"
+        sudo cp "$DOTFILES_DIR/etc/polkit-1/rules.d/50-tlp.rules" "/etc/polkit-1/rules.d/50-tlp.rules"
+        sudo chmod 644 "/etc/polkit-1/rules.d/50-tlp.rules"
+    fi
+    if [ -f "$DOTFILES_DIR/etc/sudoers.d/tlp" ]; then
+        sudo mkdir -p "/etc/sudoers.d"
+        sudo cp "$DOTFILES_DIR/etc/sudoers.d/tlp" "/etc/sudoers.d/tlp"
+        sudo chmod 440 "/etc/sudoers.d/tlp"
+    fi
+    log_success "TLP configuration and passwordless execution rules restored!"
 fi
 
 if prompt_yn "Setup Fingerprint Authentication?"; then

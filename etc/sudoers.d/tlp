@@ -1,0 +1,2 @@
+# Allow members of the wheel group to run /usr/bin/tlp without password authentication
+%wheel ALL=(ALL) NOPASSWD: /usr/bin/tlp

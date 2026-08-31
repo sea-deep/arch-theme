@@ -13,26 +13,45 @@ notify() {
     notify-send -a "Power Management" -i "$icon" "$summary" "$body" > /dev/null 2>&1 || true
 }
 
+run_tlp() {
+    local cmd="$1"
+    # Try non-interactive sudo first (if NOPASSWD in sudoers)
+    if sudo -n tlp "$cmd" > /dev/null 2>&1; then
+        return 0
+    fi
+    # Fallback to pkexec (handles Polkit rules or graphical auth dialog)
+    if command -v pkexec > /dev/null 2>&1; then
+        pkexec tlp "$cmd" > /dev/null 2>&1 || true
+    fi
+}
+
 apply_profile() {
     local mode="$1"
+    local silent="${2:-false}"
     case "$mode" in
         performance)
             echo "performance" > "$STATE_FILE"
             hyprctl repl "hl.config({ animations = { enabled = true }, decoration = { dim_inactive = false } })" > /dev/null 2>&1 || true
-            sudo -n tlp ac > /dev/null 2>&1 || tlp ac > /dev/null 2>&1 || true
-            notify "Performance Mode" "Maximum CPU frequency and fluid animations enabled." "battery-charging"
+            run_tlp ac
+            if [ "$silent" != "true" ]; then
+                notify "Performance Mode" "Maximum CPU frequency and fluid animations enabled." "battery-charging"
+            fi
             ;;
         balanced)
             echo "balanced" > "$STATE_FILE"
             hyprctl repl "hl.config({ animations = { enabled = true }, decoration = { dim_inactive = true, dim_strength = 0.15 } })" > /dev/null 2>&1 || true
-            sudo -n tlp auto > /dev/null 2>&1 || tlp auto > /dev/null 2>&1 || true
-            notify "Balanced Mode" "Dynamic CPU scaling and standard fluid animations." "battery-good"
+            run_tlp auto
+            if [ "$silent" != "true" ]; then
+                notify "Balanced Mode" "Dynamic CPU scaling and standard fluid animations." "battery-good"
+            fi
             ;;
         powersave)
             echo "powersave" > "$STATE_FILE"
             hyprctl repl "hl.config({ animations = { enabled = false }, decoration = { dim_inactive = true, dim_strength = 0.25 } })" > /dev/null 2>&1 || true
-            sudo -n tlp bat > /dev/null 2>&1 || tlp bat > /dev/null 2>&1 || true
-            notify "Power Saver Mode" "Energy conservation active and animations disabled." "battery-caution"
+            run_tlp bat
+            if [ "$silent" != "true" ]; then
+                notify "Power Saver Mode" "Energy conservation active and animations disabled." "battery-caution"
+            fi
             ;;
         *)
             echo "Usage: $0 {set [performance|balanced|powersave]|cycle|get|restore}"
@@ -72,7 +91,7 @@ case "$1" in
         ;;
     restore)
         current=$(get_profile)
-        apply_profile "$current"
+        apply_profile "$current" "true"
         ;;
     *)
         echo "Usage: $0 {set [performance|balanced|powersave]|cycle|get|restore}"

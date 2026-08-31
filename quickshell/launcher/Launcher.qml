@@ -34,8 +34,6 @@ PanelWindow {
 
     readonly property var categoryList: [
         { id: "All", label: "All", icon: "󰀻" },
-        { id: "Pinned", label: "Pinned", icon: "󰤉" },
-        { id: "Recent", label: "Recent", icon: "󰄉" },
         { id: "Development", label: "Development", icon: "" },
         { id: "Network", label: "Internet", icon: "󰖟" },
         { id: "AudioVideo", label: "Multimedia", icon: "󰎈" },
@@ -160,8 +158,7 @@ PanelWindow {
         }
         activeCategory = categoryList[idx].id
         filterApps()
-        grid.currentIndex = 0
-        grid.positionViewAtBeginning()
+        appListView.positionViewAtBeginning()
     }
 
     Connections {
@@ -171,78 +168,83 @@ PanelWindow {
         }
     }
 
+    property var launcherSections: []
+    property int totalFilteredCount: 0
+
     function filterApps() {
         var query = root.searchQuery.trim().toLowerCase()
         var cat = root.activeCategory.toLowerCase()
+        var sections = []
+        var totalCount = 0
 
-        if (cat === "pinned") {
-            var pinned = getPinnedAppNames()
-            var pinnedSet = {}
-            for (var p = 0; p < pinned.length; p++) pinnedSet[pinned[p]] = true
-            var result = []
+        if (query !== "") {
+            var searchResults = []
             for (var i = 0; i < allApps.length; i++) {
                 var item = allApps[i]
-                if (pinnedSet[item.name]) {
-                    if (query === "" || item.searchTerms.indexOf(query) !== -1) {
-                        result.push(item)
-                    }
+                if (item.searchTerms.indexOf(query) !== -1) {
+                    searchResults.push(item)
                 }
             }
-            root.filteredApps = result
-            if (grid.currentIndex >= result.length) {
-                grid.currentIndex = Math.max(0, result.length - 1)
-            }
-            return
-        }
-
-        if (cat === "recent") {
-            var recents = getRecentAppNames()
-            var recentMap = {}
-            for (var r = 0; r < recents.length; r++) recentMap[recents[r]] = r
-            var result = []
-            for (var i = 0; i < allApps.length; i++) {
-                var item = allApps[i]
-                if (recentMap[item.name] !== undefined) {
-                    if (query === "" || item.searchTerms.indexOf(query) !== -1) {
-                        result.push({ appItem: item, order: recentMap[item.name] })
-                    }
-                }
-            }
-            result.sort(function(a, b) { return a.order - b.order })
-            root.filteredApps = result.map(function(x) { return x.appItem })
-            if (grid.currentIndex >= root.filteredApps.length) {
-                grid.currentIndex = Math.max(0, root.filteredApps.length - 1)
-            }
-            return
-        }
-
-        if (query === "" && cat === "all") {
-            var pinned = getPinnedAppNames()
-            if (pinned.length > 0) {
+            sections.push({
+                title: "Search Results (" + searchResults.length + ")",
+                icon: "",
+                apps: searchResults
+            })
+            totalCount = searchResults.length
+        } else if (cat === "all") {
+            // 1. Pinned Apps section
+            var pinnedNames = getPinnedAppNames()
+            if (pinnedNames.length > 0) {
                 var pinnedSet = {}
-                for (var p = 0; p < pinned.length; p++) pinnedSet[pinned[p]] = true
-                var pinnedList = []
-                var restList = []
+                for (var p = 0; p < pinnedNames.length; p++) pinnedSet[pinnedNames[p]] = true
+                var pinnedApps = []
                 for (var i = 0; i < allApps.length; i++) {
                     if (pinnedSet[allApps[i].name]) {
-                        pinnedList.push(allApps[i])
-                    } else {
-                        restList.push(allApps[i])
+                        pinnedApps.push(allApps[i])
                     }
                 }
-                root.filteredApps = pinnedList.concat(restList)
-                return
+                if (pinnedApps.length > 0) {
+                    sections.push({
+                        title: "Pinned",
+                        icon: "󰤉",
+                        apps: pinnedApps
+                    })
+                }
             }
-            root.filteredApps = allApps
-            return
-        }
 
-        var result = []
-        for (var i = 0; i < allApps.length; i++) {
-            var item = allApps[i]
+            // 2. Recently Opened section (up to 7 apps)
+            var recentNames = getRecentAppNames()
+            if (recentNames.length > 0) {
+                var recentMap = {}
+                for (var r = 0; r < recentNames.length; r++) recentMap[recentNames[r]] = r
+                var recentApps = []
+                for (var i = 0; i < allApps.length; i++) {
+                    if (recentMap[allApps[i].name] !== undefined) {
+                        recentApps.push({ appItem: allApps[i], order: recentMap[allApps[i].name] })
+                    }
+                }
+                recentApps.sort(function(a, b) { return a.order - b.order })
+                var recentList = recentApps.slice(0, 7).map(function(x) { return x.appItem })
+                if (recentList.length > 0) {
+                    sections.push({
+                        title: "Recently Opened",
+                        icon: "󰄉",
+                        apps: recentList
+                    })
+                }
+            }
 
-            // Fast category check
-            if (cat !== "all") {
+            // 3. All Applications section (alphabetically ordered)
+            sections.push({
+                title: "All Applications",
+                icon: "󰀻",
+                apps: allApps
+            })
+            totalCount = allApps.length
+        } else {
+            var catResults = []
+            for (var i = 0; i < allApps.length; i++) {
+                var item = allApps[i]
                 var matched = false
                 for (var c = 0; c < item.categories.length; c++) {
                     if (item.categories[c].indexOf(cat) !== -1) {
@@ -250,21 +252,20 @@ PanelWindow {
                         break
                     }
                 }
-                if (!matched) continue
+                if (matched) {
+                    catResults.push(item)
+                }
             }
-
-            // Fast search query check
-            if (query !== "" && item.searchTerms.indexOf(query) === -1) {
-                continue
-            }
-
-            result.push(item)
+            sections.push({
+                title: root.activeCategory,
+                icon: "󰀻",
+                apps: catResults
+            })
+            totalCount = catResults.length
         }
 
-        root.filteredApps = result
-        if (grid.currentIndex >= result.length) {
-            grid.currentIndex = Math.max(0, result.length - 1)
-        }
+        root.launcherSections = sections
+        root.totalFilteredCount = totalCount
     }
 
     function launch(item) {
@@ -346,8 +347,8 @@ PanelWindow {
             if (allApps.length === 0) {
                 reloadApps()
             } else {
-                filteredApps = allApps
-                grid.currentIndex = 0
+                filterApps()
+                appListView.positionViewAtBeginning()
             }
             searchInput.forceActiveFocus()
         } else {
@@ -458,8 +459,7 @@ PanelWindow {
                                 onTextChanged: {
                                     root.searchQuery = text
                                     root.filterApps()
-                                    grid.currentIndex = 0
-                                    grid.positionViewAtBeginning()
+                                    appListView.positionViewAtBeginning()
                                 }
 
                                 Keys.onEscapePressed: root.close()
@@ -471,40 +471,14 @@ PanelWindow {
                                     root.cycleCategory(false)
                                     event.accepted = true
                                 }
-                                Keys.onDownPressed: {
-                                    if (grid.count > 0) {
-                                        grid.currentIndex = Math.min(grid.count - 1, grid.currentIndex + grid.columns)
-                                        grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
-                                    }
-                                }
-                                Keys.onUpPressed: {
-                                    if (grid.count > 0) {
-                                        grid.currentIndex = Math.max(0, grid.currentIndex - grid.columns)
-                                        grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
-                                    }
-                                }
-                                Keys.onRightPressed: {
-                                    if (grid.count > 0) {
-                                        grid.currentIndex = Math.min(grid.count - 1, grid.currentIndex + 1)
-                                        grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
-                                    }
-                                }
-                                Keys.onLeftPressed: {
-                                    if (grid.count > 0) {
-                                        grid.currentIndex = Math.max(0, grid.currentIndex - 1)
-                                        grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
-                                    }
-                                }
                                 Keys.onReturnPressed: {
-                                    if (root.filteredApps.length > 0) {
-                                        var idx = (grid.currentIndex >= 0 && grid.currentIndex < root.filteredApps.length) ? grid.currentIndex : 0
-                                        root.launch(root.filteredApps[idx])
+                                    if (root.launcherSections.length > 0 && root.launcherSections[0].apps.length > 0) {
+                                        root.launch(root.launcherSections[0].apps[0])
                                     }
                                 }
                                 Keys.onEnterPressed: {
-                                    if (root.filteredApps.length > 0) {
-                                        var idx = (grid.currentIndex >= 0 && grid.currentIndex < root.filteredApps.length) ? grid.currentIndex : 0
-                                        root.launch(root.filteredApps[idx])
+                                    if (root.launcherSections.length > 0 && root.launcherSections[0].apps.length > 0) {
+                                        root.launch(root.launcherSections[0].apps[0])
                                     }
                                 }
                             }
@@ -552,7 +526,7 @@ PanelWindow {
                     Text {
                         id: countText
                         anchors.centerIn: parent
-                        text: root.filteredApps.length + " apps"
+                        text: root.totalFilteredCount + " apps"
                         color: Theme.fgDim
                         font.family: Theme.fontFamilySans
                         font.pixelSize: 13
@@ -666,144 +640,128 @@ PanelWindow {
                 color: Theme.surfaceVariant
             }
 
-            // Apps Grid
-            GridView {
-                id: grid
+            // Apps Continuous Scrollable Section List
+            ListView {
+                id: appListView
                 Layout.preferredWidth: 840
                 Layout.preferredHeight: 4 * 110
                 Layout.alignment: Qt.AlignHCenter
-                cellWidth: 120
-                cellHeight: 110
                 clip: true
-                cacheBuffer: 110
-                reuseItems: true
-                model: root.filteredApps
-                activeFocusOnTab: true
-                highlightFollowsCurrentItem: true
-                keyNavigationEnabled: true
+                spacing: 14
+                boundsBehavior: Flickable.StopAtBounds
+                model: root.launcherSections
 
-                readonly property int columns: Math.floor(width / cellWidth)
-
-                Keys.onEscapePressed: {
-                    if (contextMenu.visible) {
-                        contextMenu.visible = false
-                    } else {
-                        root.close()
-                    }
-                }
-
-                Keys.onTabPressed: event => {
-                    root.cycleCategory(true)
-                    event.accepted = true
-                }
-                Keys.onBacktabPressed: event => {
-                    root.cycleCategory(false)
-                    event.accepted = true
-                }
-
-                Keys.onReturnPressed: {
-                    if (currentIndex >= 0 && currentIndex < root.filteredApps.length) {
-                        root.launch(root.filteredApps[currentIndex])
-                    }
-                }
-                Keys.onEnterPressed: {
-                    if (currentIndex >= 0 && currentIndex < root.filteredApps.length) {
-                        root.launch(root.filteredApps[currentIndex])
-                    }
-                }
-
-                Keys.onPressed: event => {
-                    if (event.key === Qt.Key_Up && currentIndex < columns) {
-                        searchInput.forceActiveFocus()
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_Backspace) {
-                        searchInput.forceActiveFocus()
-                        if (searchInput.text.length > 0) {
-                            searchInput.text = searchInput.text.slice(0, -1)
-                        }
-                        event.accepted = true
-                    } else if (event.text && event.text.length > 0 && event.text.charCodeAt(0) >= 32 && event.key !== Qt.Key_Space) {
-                        searchInput.forceActiveFocus()
-                        searchInput.text += event.text
-                        event.accepted = true
-                    }
-                }
-
-                delegate: Item {
-                    id: delegateRoot
+                delegate: ColumnLayout {
+                    id: secDelegate
                     required property var modelData
                     required property int index
 
-                    width: grid.cellWidth
-                    height: grid.cellHeight
+                    width: appListView.width
+                    spacing: 8
 
-                    Rectangle {
-                        id: delegateCard
-                        readonly property bool isSelected: grid.currentIndex === delegateRoot.index
-
-                        anchors.centerIn: parent
-                        width: grid.cellWidth - 8
-                        height: grid.cellHeight - 8
-                        radius: Theme.radius
-
-                        color: isSelected 
-                            ? Theme.surface 
-                            : (cardMouse.containsMouse ? Theme.bgLight : Theme.bgDark)
-                        border.width: 0
-
-                        IconImage {
-                            id: appIcon
-                            anchors.top: parent.top
-                            anchors.topMargin: 10
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            width: 44
-                            height: 44
-                            source: delegateRoot.modelData ? (delegateRoot.modelData.iconSource || "") : ""
-                        }
+                    // Section Header & Divider Line
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.topMargin: index === 0 ? 0 : 6
+                        spacing: 8
 
                         Text {
-                            anchors.top: parent.top
-                            anchors.right: parent.right
-                            anchors.topMargin: 4
-                            anchors.rightMargin: 6
-                            text: "󰤉"
+                            text: secDelegate.modelData.icon + "  " + secDelegate.modelData.title
                             color: Theme.accent
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 10
-                            visible: delegateRoot.modelData ? root.isAppPinned(delegateRoot.modelData.name) : false
-                        }
-
-                        Text {
-                            anchors.top: appIcon.bottom
-                            anchors.topMargin: 6
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            anchors.leftMargin: 6
-                            anchors.rightMargin: 6
-                            text: delegateRoot.modelData ? (delegateRoot.modelData.name || "") : ""
-                            color: delegateCard.isSelected ? Theme.accent : Theme.fg
                             font.family: Theme.fontFamilySans
                             font.pixelSize: 12
                             font.weight: Theme.fontWeight
-                            horizontalAlignment: Text.AlignHCenter
-                            elide: Text.ElideRight
-                            maximumLineCount: 2
-                            wrapMode: Text.Wrap
                         }
 
-                        MouseArea {
-                            id: cardMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            acceptedButtons: Qt.LeftButton | Qt.RightButton
-                            cursorShape: Qt.PointingHandCursor
+                        Rectangle {
+                            Layout.fillWidth: true
+                            height: 1
+                            color: Theme.surfaceVariant
+                        }
+                    }
 
-                            onClicked: mouse => {
-                                grid.currentIndex = delegateRoot.index
-                                if (mouse.button === Qt.LeftButton) {
-                                    root.launch(delegateRoot.modelData)
-                                } else if (mouse.button === Qt.RightButton) {
-                                    root.openContextMenu(delegateRoot.modelData, delegateCard)
+                    // 7-column Flow
+                    Flow {
+                        Layout.fillWidth: true
+                        spacing: 0
+
+                        Repeater {
+                            model: secDelegate.modelData.apps
+
+                            Item {
+                                id: delegateRoot
+                                required property var modelData
+                                required property int index
+
+                                width: 120
+                                height: 110
+
+                                Rectangle {
+                                    id: delegateCard
+                                    anchors.centerIn: parent
+                                    width: 112
+                                    height: 102
+                                    radius: Theme.radius
+                                    color: cardMouse.containsMouse ? Theme.bgLight : Theme.bgDark
+                                    border.width: 0
+
+                                    Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+
+                                    IconImage {
+                                        id: appIcon
+                                        anchors.top: parent.top
+                                        anchors.topMargin: 10
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        width: 44
+                                        height: 44
+                                        source: delegateRoot.modelData ? (delegateRoot.modelData.iconSource || "") : ""
+                                    }
+
+                                    Text {
+                                        anchors.top: parent.top
+                                        anchors.right: parent.right
+                                        anchors.topMargin: 4
+                                        anchors.rightMargin: 6
+                                        text: "󰤉"
+                                        color: Theme.accent
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: 10
+                                        visible: delegateRoot.modelData ? root.isAppPinned(delegateRoot.modelData.name) : false
+                                    }
+
+                                    Text {
+                                        anchors.top: appIcon.bottom
+                                        anchors.topMargin: 6
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.leftMargin: 6
+                                        anchors.rightMargin: 6
+                                        text: delegateRoot.modelData ? (delegateRoot.modelData.name || "") : ""
+                                        color: Theme.fg
+                                        font.family: Theme.fontFamilySans
+                                        font.pixelSize: 12
+                                        font.weight: Theme.fontWeight
+                                        horizontalAlignment: Text.AlignHCenter
+                                        elide: Text.ElideRight
+                                        maximumLineCount: 2
+                                        wrapMode: Text.Wrap
+                                    }
+
+                                    MouseArea {
+                                        id: cardMouse
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                        cursorShape: Qt.PointingHandCursor
+
+                                        onClicked: mouse => {
+                                            if (mouse.button === Qt.LeftButton) {
+                                                root.launch(delegateRoot.modelData)
+                                            } else if (mouse.button === Qt.RightButton) {
+                                                root.openContextMenu(delegateRoot.modelData, delegateCard)
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -812,7 +770,7 @@ PanelWindow {
 
                 // Empty search result placeholder
                 Text {
-                    visible: root.filteredApps.length === 0
+                    visible: root.totalFilteredCount === 0
                     anchors.centerIn: parent
                     text: "  No applications found"
                     color: Theme.fgDim

@@ -257,13 +257,18 @@ Components.Pill {
         height: root.bodyHeight * root.reveal
         clip: true
         visible: root.reveal > 0
-        opacity: Math.max(0.0, Math.min(1.0, (root.reveal - 0.15) / 0.85))
 
-        ColumnLayout {
-            anchors.fill: parent
-            anchors.margins: 12
-            spacing: 6
-            visible: UiState.quickControlMode === "audio"
+        Item {
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: root.bodyHeight
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 12
+                spacing: 6
+                visible: UiState.quickControlMode === "audio"
 
             AudioRow { Layout.fillWidth: true; node: root.sink; label: "Output"; icon: "󰕾"; maxVolume: 1.5 }
             AudioRow { Layout.fillWidth: true; node: root.source; label: "Microphone"; icon: "󰍬"; maxVolume: 1.0 }
@@ -488,4 +493,5 @@ Components.Pill {
             }
         }
     }
+}
 }

@@ -171,11 +171,16 @@ Components.Pill {
         height: root.bodyHeight * root.reveal
         clip: true
         visible: root.reveal > 0
-        opacity: Math.max(0.0, Math.min(1.0, (root.reveal - 0.15) / 0.85))
 
         Item {
-            anchors.fill: parent
-            anchors.margins: 12
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: root.bodyHeight
+
+            Item {
+                anchors.fill: parent
+                anchors.margins: 12
 
             Item {
                 anchors.fill: parent
@@ -369,5 +374,6 @@ Components.Pill {
             }
         }
     }
+}
 }
 // reload trigger

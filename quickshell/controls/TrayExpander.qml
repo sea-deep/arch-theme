@@ -313,7 +313,6 @@ Item {
         anchors.right: parent.right
         height: root.bodyHeight * root.reveal
         visible: height > 0
-        opacity: Math.max(0.0, Math.min(1.0, (root.reveal - 0.15) / 0.85))
         color: "transparent"
         border.width: 0
         clip: true

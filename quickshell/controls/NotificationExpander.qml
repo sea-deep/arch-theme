@@ -153,17 +153,21 @@ Item {
         anchors.topMargin: Theme.barHeight + Theme.outerGap
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        height: root.bodyHeight * root.reveal
         visible: root.reveal > 0
-        opacity: Math.max(0.0, Math.min(1.0, (root.reveal - 0.15) / 0.85))
         clip: true
 
-        ColumnLayout {
-            visible: UiState.notificationCenterVisible
-            anchors.fill: parent
-            
-            anchors.margins: 12
-            spacing: 12
+        Item {
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: root.bodyHeight
+
+            ColumnLayout {
+                visible: UiState.notificationCenterVisible
+                anchors.fill: parent
+                anchors.margins: 12
+                spacing: 12
 
             RowLayout {
                 Layout.fillWidth: true
@@ -327,4 +331,5 @@ Item {
             }
         }
     }
+}
 }

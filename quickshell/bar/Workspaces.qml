@@ -457,15 +457,21 @@ Item {
         anchors.topMargin: Theme.barHeight + Theme.outerGap + 8
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        height: root.bodyHeight * root.reveal
         anchors.margins: 10
         visible: root.reveal > 0
-        opacity: Math.max(0.0, Math.min(1.0, (root.reveal - 0.15) / 0.85))
+        clip: true
         z: 2
-        
-        ColumnLayout {
-            anchors.fill: parent
-            spacing: 4
+
+        Item {
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: root.bodyHeight
+
+            ColumnLayout {
+                anchors.fill: parent
+                spacing: 4
 
             // Header: Workspace Title + Window Count
             RowLayout {
@@ -633,4 +639,5 @@ Item {
             }
         }
     }
+}
 }

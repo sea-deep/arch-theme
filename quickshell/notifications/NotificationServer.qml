@@ -81,19 +81,17 @@ Singleton {
         bodyMarkupSupported: true
         imageSupported: true
         persistenceSupported: true
-        keepOnReload: true
-
         onNotification: (notification) => {
             notification.tracked = true
             root.latestNotification = notification
-            root.addToast(notification)
 
-            if (!notification.lastGeneration)
+            if (!notification.lastGeneration) {
                 root.unreadCount++
-
-            if (!root.dndEnabled && !notification.lastGeneration) {
-                Quickshell.execDetached(["paplay", "/usr/share/sounds/freedesktop/stereo/message.oga"])
-                root.notificationReceived(notification)
+                if (!root.dndEnabled) {
+                    root.addToast(notification)
+                    Quickshell.execDetached(["paplay", "/usr/share/sounds/freedesktop/stereo/message.oga"])
+                    root.notificationReceived(notification)
+                }
             }
         }
     }

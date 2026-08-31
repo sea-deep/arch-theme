@@ -44,6 +44,15 @@ Item {
     }
 
     Connections {
+        target: UiState
+        function onNotificationPreviewVisibleChanged() {
+            if (!UiState.notificationPreviewVisible && !UiState.notificationCenterVisible) {
+                Notifications.NotificationServer.activeToasts = []
+            }
+        }
+    }
+
+    Connections {
         target: Notifications.NotificationServer.notificationList
         function onValuesChanged() {
             if (UiState.notificationCenterVisible && Notifications.NotificationServer.notificationList.values.length === 0) {

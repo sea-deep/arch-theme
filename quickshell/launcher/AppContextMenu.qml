@@ -8,8 +8,11 @@ Rectangle {
     id: root
 
     property var app: null
+    property string appName: ""
+    property bool isPinned: false
     property var actionsList: []
     signal actionTriggered()
+    signal pinToggled(string name)
 
     width: 220
     implicitHeight: layout.implicitHeight + 16
@@ -67,7 +70,7 @@ Rectangle {
             spacing: 8
 
             Text {
-                text: root.app ? (root.app.name || "Application") : "Application"
+                text: root.appName || (root.app ? (root.app.name || "Application") : "Application")
                 color: Theme.fg
                 font.family: Theme.fontFamilySans
                 font.pixelSize: 12
@@ -83,12 +86,12 @@ Rectangle {
             color: Theme.surface
         }
 
-            Rectangle {
-                Layout.fillWidth: true
-                height: 28
-                radius: 6
-                color: openHover.containsMouse ? Theme.bgLight : "transparent"
-                Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+        Rectangle {
+            Layout.fillWidth: true
+            height: 28
+            radius: 6
+            color: openHover.containsMouse ? Theme.bgLight : "transparent"
+            Behavior on color { ColorAnimation { duration: Theme.durationFast } }
 
             RowLayout {
                 anchors.fill: parent
@@ -129,6 +132,47 @@ Rectangle {
                             Quickshell.execDetached(["sh", "-c", cmd])
                         }
                     }
+                    root.actionTriggered()
+                }
+            }
+        }
+
+        // Pin / Unpin from Top
+        Rectangle {
+            Layout.fillWidth: true
+            height: 28
+            radius: 6
+            color: pinHover.containsMouse ? Theme.bgLight : "transparent"
+            Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: 8
+                anchors.rightMargin: 8
+                spacing: 8
+
+                Text {
+                    text: root.isPinned ? "󰤉" : "󰤋"
+                    color: root.isPinned ? Theme.yellow : Theme.fgDim
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 12
+                }
+                Text {
+                    text: root.isPinned ? "Unpin from Top" : "Pin to Top"
+                    color: Theme.fg
+                    font.family: Theme.fontFamilySans
+                    font.pixelSize: 12
+                    Layout.fillWidth: true
+                }
+            }
+
+            MouseArea {
+                id: pinHover
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    root.pinToggled(root.appName)
                     root.actionTriggered()
                 }
             }

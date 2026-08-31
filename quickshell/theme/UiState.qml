@@ -95,10 +95,8 @@ Singleton {
             shaderUpdateTimer.restart()
         }
     }
-    property bool selectorVisible: false
     property bool screenshotVisible: false
     property bool recorderMenuVisible: false
-    property string selectorMode: "apps"
     property bool notificationCenterVisible: false
     property string notificationScreen: ""
     property bool notificationPreviewVisible: false
@@ -140,7 +138,6 @@ Singleton {
         || notificationCenterVisible
         || notificationPreviewVisible
         || launcherVisible
-        || selectorVisible
         || emojiVisible
         || clipboardVisible
         || settingsVisible
@@ -151,21 +148,6 @@ Singleton {
         const shouldOpen = !launcherVisible
         closeOverlays()
         launcherVisible = shouldOpen
-    }
-
-    function toggleSelector(mode) {
-        if (mode === "apps") {
-            toggleLauncher()
-            return
-        }
-        if (selectorVisible && selectorMode === mode) {
-            selectorVisible = false
-            return
-        }
-
-        closeOverlays()
-        selectorMode = mode
-        selectorVisible = true
     }
 
     function toggleNotifications(screenName) {
@@ -277,7 +259,6 @@ Singleton {
         launcherVisible = false
         clipboardVisible = false
         emojiVisible = false
-        selectorVisible = false
         notificationCenterVisible = false
         notificationPreviewVisible = false
         powerMenuVisible = false

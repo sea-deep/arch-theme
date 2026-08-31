@@ -5,7 +5,6 @@ import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Io
 import "theme"
-import "selector" as Selector
 import "settings" as Settings
 import "notifications" as Notifications
 import "emoji" as Emoji
@@ -65,11 +64,6 @@ ShellRoot {
     Launcher.Launcher {}
     Screenshot.ScreenshotMenu {}
     Recorder.RecorderMenu {}
-
-    LazyLoader {
-        active: UiState.selectorVisible
-        component: Component { Selector.Selector {} }
-    }
 
     LazyLoader {
         active: UiState.settingsVisible
@@ -145,21 +139,6 @@ ShellRoot {
     IpcHandler {
         target: "clipboard"
         function toggle() {
-            UiState.toggleClipboard("")
-        }
-    }
-
-    IpcHandler {
-        target: "selector"
-        function apps() {
-            UiState.toggleLauncher()
-        }
-
-        function emoji() {
-            UiState.toggleEmoji()
-        }
-
-        function clipboard() {
             UiState.toggleClipboard("")
         }
     }

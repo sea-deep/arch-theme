@@ -4,6 +4,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
+import Quickshell.Io
 import "../components" as Components
 import "../theme"
 
@@ -33,6 +34,8 @@ PanelWindow {
 
     readonly property var categoryList: [
         { id: "All", label: "All", icon: "󰀻" },
+        { id: "Pinned", label: "Pinned", icon: "󰤉" },
+        { id: "Recent", label: "Recent", icon: "󰄉" },
         { id: "Development", label: "Development", icon: "" },
         { id: "Network", label: "Internet", icon: "󰖟" },
         { id: "AudioVideo", label: "Multimedia", icon: "󰎈" },
@@ -41,6 +44,72 @@ PanelWindow {
         { id: "Settings", label: "Settings", icon: "" },
         { id: "Game", label: "Games", icon: "󰊗" }
     ]
+
+    FileView {
+        id: pinnedAppsFile
+        path: Quickshell.env("HOME") + "/.config/quickshell/state/pinned_apps.json"
+        watchChanges: true
+        printErrors: false
+        onFileChanged: filterApps()
+    }
+
+    FileView {
+        id: recentAppsFile
+        path: Quickshell.env("HOME") + "/.config/quickshell/state/recent_apps.json"
+        watchChanges: true
+        printErrors: false
+        onFileChanged: filterApps()
+    }
+
+    function getPinnedAppNames() {
+        try {
+            var raw = pinnedAppsFile.text().trim()
+            if (!raw) return []
+            var parsed = JSON.parse(raw)
+            if (Array.isArray(parsed)) return parsed
+        } catch(e) {}
+        return []
+    }
+
+    function getRecentAppNames() {
+        try {
+            var raw = recentAppsFile.text().trim()
+            if (!raw) return []
+            var parsed = JSON.parse(raw)
+            if (Array.isArray(parsed)) return parsed.slice(0, 8)
+        } catch(e) {}
+        return []
+    }
+
+    function isAppPinned(name) {
+        if (!name) return false
+        var pinned = getPinnedAppNames()
+        return pinned.indexOf(name) !== -1
+    }
+
+    function togglePinApp(name) {
+        if (!name) return
+        var pinned = getPinnedAppNames()
+        var idx = pinned.indexOf(name)
+        if (idx !== -1) {
+            pinned.splice(idx, 1)
+        } else {
+            pinned.push(name)
+        }
+        var jsonStr = JSON.stringify(pinned)
+        Quickshell.execDetached(["bash", "-c", "mkdir -p ~/.config/quickshell/state && printf '%s\\n' '" + jsonStr.replace(/'/g, "'\\''") + "' > ~/.config/quickshell/state/pinned_apps.json"])
+        filterApps()
+    }
+
+    function recordRecentApp(name) {
+        if (!name) return
+        var recents = getRecentAppNames()
+        recents = recents.filter(function(n) { return n !== name })
+        recents.unshift(name)
+        if (recents.length > 8) recents = recents.slice(0, 8)
+        var jsonStr = JSON.stringify(recents)
+        Quickshell.execDetached(["bash", "-c", "mkdir -p ~/.config/quickshell/state && printf '%s\\n' '" + jsonStr.replace(/'/g, "'\\''") + "' > ~/.config/quickshell/state/recent_apps.json"])
+    }
 
     function reloadApps() {
         var raw = DesktopEntries.applications.values || []
@@ -106,7 +175,64 @@ PanelWindow {
         var query = root.searchQuery.trim().toLowerCase()
         var cat = root.activeCategory.toLowerCase()
 
+        if (cat === "pinned") {
+            var pinned = getPinnedAppNames()
+            var pinnedSet = {}
+            for (var p = 0; p < pinned.length; p++) pinnedSet[pinned[p]] = true
+            var result = []
+            for (var i = 0; i < allApps.length; i++) {
+                var item = allApps[i]
+                if (pinnedSet[item.name]) {
+                    if (query === "" || item.searchTerms.indexOf(query) !== -1) {
+                        result.push(item)
+                    }
+                }
+            }
+            root.filteredApps = result
+            if (grid.currentIndex >= result.length) {
+                grid.currentIndex = Math.max(0, result.length - 1)
+            }
+            return
+        }
+
+        if (cat === "recent") {
+            var recents = getRecentAppNames()
+            var recentMap = {}
+            for (var r = 0; r < recents.length; r++) recentMap[recents[r]] = r
+            var result = []
+            for (var i = 0; i < allApps.length; i++) {
+                var item = allApps[i]
+                if (recentMap[item.name] !== undefined) {
+                    if (query === "" || item.searchTerms.indexOf(query) !== -1) {
+                        result.push({ appItem: item, order: recentMap[item.name] })
+                    }
+                }
+            }
+            result.sort(function(a, b) { return a.order - b.order })
+            root.filteredApps = result.map(function(x) { return x.appItem })
+            if (grid.currentIndex >= root.filteredApps.length) {
+                grid.currentIndex = Math.max(0, root.filteredApps.length - 1)
+            }
+            return
+        }
+
         if (query === "" && cat === "all") {
+            var pinned = getPinnedAppNames()
+            if (pinned.length > 0) {
+                var pinnedSet = {}
+                for (var p = 0; p < pinned.length; p++) pinnedSet[pinned[p]] = true
+                var pinnedList = []
+                var restList = []
+                for (var i = 0; i < allApps.length; i++) {
+                    if (pinnedSet[allApps[i].name]) {
+                        pinnedList.push(allApps[i])
+                    } else {
+                        restList.push(allApps[i])
+                    }
+                }
+                root.filteredApps = pinnedList.concat(restList)
+                return
+            }
             root.filteredApps = allApps
             return
         }
@@ -144,6 +270,8 @@ PanelWindow {
     function launch(item) {
         if (!item) return
         var app = (item && item.app) ? item.app : item
+        var appName = (item && item.name) ? item.name : (app ? app.name : "")
+        if (appName) recordRecentApp(appName)
         close()
 
         if (app.runInTerminal) {
@@ -168,7 +296,11 @@ PanelWindow {
 
     function openContextMenu(item, targetItem) {
         var app = (item && item.app) ? item.app : item
+        var appName = (item && item.name) ? item.name : (app ? app.name : "")
         contextMenu.app = app
+        contextMenu.appName = appName
+        contextMenu.isPinned = root.isAppPinned(appName)
+
         var pos = targetItem.mapToItem(launcherCard, 0, 0)
         var menuX = pos.x + targetItem.width + 8
         var menuY = pos.y
@@ -630,6 +762,18 @@ PanelWindow {
                         }
 
                         Text {
+                            anchors.top: parent.top
+                            anchors.right: parent.right
+                            anchors.topMargin: 4
+                            anchors.rightMargin: 6
+                            text: "󰤉"
+                            color: Theme.accent
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 10
+                            visible: delegateRoot.modelData ? root.isAppPinned(delegateRoot.modelData.name) : false
+                        }
+
+                        Text {
                             anchors.top: appIcon.bottom
                             anchors.topMargin: 6
                             anchors.left: parent.left
@@ -684,6 +828,9 @@ PanelWindow {
             visible: false
             z: 10
             onActionTriggered: root.close()
+            onPinToggled: function(name) {
+                root.togglePinApp(name)
+            }
         }
     }
 }

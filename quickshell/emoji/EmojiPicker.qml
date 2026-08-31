@@ -43,6 +43,7 @@ PanelWindow {
     property int emojiCount: 0
 
     property var categoryList: [
+        { name: "Recent", icon: "󰄉" },
         { name: "Smileys & Emotion", icon: "😀" },
         { name: "People & Body", icon: "👋" },
         { name: "Animals & Nature", icon: "🐻" },
@@ -54,18 +55,97 @@ PanelWindow {
         { name: "Flags", icon: "🚩" }
     ]
 
-    // Internal storage — never bound as a model directly
-    property var allEmojis: []
-    // Filtered list — assigned as model
+    FileView {
+        id: recentEmojisFile
+        path: Quickshell.env("HOME") + "/.config/quickshell/state/recent_emojis.json"
+        watchChanges: true
+        printErrors: false
+    }
+
+    property bool allLoaded: false
     property var displayEmojis: []
     property var categoryIndices: ({})
 
-    function buildEmojiList() {
+    function getRecentEmojis() {
+        try {
+            var raw = recentEmojisFile.text().trim()
+            if (!raw) return []
+            var parsed = JSON.parse(raw)
+            if (Array.isArray(parsed)) return parsed.slice(0, 56)
+        } catch(e) {}
+        return []
+    }
+
+    function recordRecentEmoji(emojiChar) {
+        if (!emojiChar) return
+        var recents = getRecentEmojis()
+        recents = recents.filter(function(c) { return c !== emojiChar })
+        recents.unshift(emojiChar)
+        if (recents.length > 56) recents = recents.slice(0, 56)
+        var jsonStr = JSON.stringify(recents)
+        Quickshell.execDetached(["bash", "-c", "mkdir -p ~/.config/quickshell/state && printf '%s\\n' '" + jsonStr.replace(/'/g, "'\\''") + "' > ~/.config/quickshell/state/recent_emojis.json"])
+    }
+
+    function loadInitialEmojis() {
         var list = []
         var indices = {}
         var idx = 0
-        for (var i = 0; i < categoryList.length; i++) {
-            var catName = categoryList[i].name
+
+        // 1. Recent emojis (capped to 56 = 1 full page)
+        var recents = getRecentEmojis()
+        if (recents.length > 0) {
+            indices["Recent"] = idx
+            for (var r = 0; r < recents.length; r++) {
+                list.push({
+                    char: recents[r],
+                    name: "recent",
+                    category: "Recent"
+                })
+                idx++
+            }
+        }
+
+        // 2. Initial category: Smileys & Emotion
+        indices["Smileys & Emotion"] = idx
+        var smileys = EmojiData.categories["Smileys & Emotion"] || []
+        for (var s = 0; s < smileys.length; s++) {
+            list.push({
+                char: smileys[s].char,
+                name: smileys[s].name,
+                category: "Smileys & Emotion"
+            })
+            idx++
+        }
+
+        categoryIndices = indices
+        displayEmojis = list
+        emojiCount = list.length
+        allLoaded = false
+    }
+
+    function loadAllCategories() {
+        if (allLoaded) return
+        var list = []
+        var indices = {}
+        var idx = 0
+
+        // 1. Recent emojis
+        var recents = getRecentEmojis()
+        if (recents.length > 0) {
+            indices["Recent"] = idx
+            for (var r = 0; r < recents.length; r++) {
+                list.push({
+                    char: recents[r],
+                    name: "recent",
+                    category: "Recent"
+                })
+                idx++
+            }
+        }
+
+        // 2. All 9 standard categories
+        for (var c = 1; c < categoryList.length; c++) {
+            var catName = categoryList[c].name
             indices[catName] = idx
             var ems = EmojiData.categories[catName] || []
             for (var j = 0; j < ems.length; j++) {
@@ -77,31 +157,65 @@ PanelWindow {
                 idx++
             }
         }
-        allEmojis = list
+
         categoryIndices = indices
+        displayEmojis = list
+        emojiCount = list.length
+        allLoaded = true
     }
 
     function filterEmojis(query) {
         if (query === "") {
-            root.displayEmojis = root.allEmojis
-            root.emojiCount = root.allEmojis.length
+            loadInitialEmojis()
+            bgCategoryLoader.restart()
             return
         }
-        var src = root.allEmojis
         var result = []
-        for (var i = 0; i < src.length; i++) {
-            var e = src[i]
-            if (e.name.toLowerCase().indexOf(query) !== -1) {
-                result.push(e)
+        var seen = {}
+        for (var cat in EmojiData.categories) {
+            var ems = EmojiData.categories[cat] || []
+            for (var i = 0; i < ems.length; i++) {
+                var e = ems[i]
+                if (!seen[e.char]) {
+                    var match = e.name.toLowerCase().indexOf(query) !== -1
+                    if (!match && e.tags) {
+                        for (var t = 0; t < e.tags.length; t++) {
+                            if (e.tags[t].toLowerCase().indexOf(query) !== -1) {
+                                match = true
+                                break
+                            }
+                        }
+                    }
+                    if (match) {
+                        seen[e.char] = true
+                        result.push({
+                            char: e.char,
+                            name: e.name,
+                            category: cat
+                        })
+                    }
+                }
             }
         }
-        root.displayEmojis = result
-        root.emojiCount = result.length
+        displayEmojis = result
+        emojiCount = result.length
     }
 
     function selectEmoji(emoji) {
+        recordRecentEmoji(emoji)
         UiState.emojiVisible = false
         Quickshell.execDetached(["bash", Quickshell.shellPath("scripts/type-emoji.sh"), emoji])
+    }
+
+    Timer {
+        id: bgCategoryLoader
+        interval: 180
+        repeat: false
+        onTriggered: {
+            if (root.showing && !root.allLoaded && root.searchQuery === "") {
+                root.loadAllCategories()
+            }
+        }
     }
 
     Process {
@@ -140,9 +254,7 @@ PanelWindow {
     }
 
     Component.onCompleted: {
-        buildEmojiList()
-        root.displayEmojis = root.allEmojis
-        root.emojiCount = root.allEmojis.length
+        loadInitialEmojis()
     }
 
     onShowingChanged: {
@@ -150,8 +262,8 @@ PanelWindow {
             cursorQuery.running = true
             searchQuery = ""
             searchInput.text = ""
-            root.displayEmojis = root.allEmojis
-            root.emojiCount = root.allEmojis.length
+            loadInitialEmojis()
+            bgCategoryLoader.restart()
             searchInput.forceActiveFocus()
         }
     }
@@ -372,6 +484,15 @@ PanelWindow {
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
+                                if (modelData.name === "Recent") {
+                                    grid.positionViewAtIndex(0, GridView.Beginning)
+                                    grid.currentIndex = 0
+                                    grid.forceActiveFocus()
+                                    return
+                                }
+                                if (!root.allLoaded) {
+                                    root.loadAllCategories()
+                                }
                                 var idx = root.categoryIndices[modelData.name]
                                 if (idx !== undefined) {
                                     grid.positionViewAtIndex(idx, GridView.Beginning)

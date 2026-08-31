@@ -23,7 +23,6 @@ arch-theme/
 │   ├── controls/              # Native dropdown expanders (QuickControls, Clipboard, etc.)
 │   ├── emoji/                 # Native emoji picker (EmojiPicker.qml)
 │   ├── launcher/              # Native application launcher (Launcher.qml)
-│   ├── selector/              # Universal fuzzy selector / modal (Selector.qml)
 │   ├── theme/                 # Theme tokens (Theme.qml) & state singleton (UiState.qml)
 │   └── scripts/               # Helper utilities (update_shader.sh, battery.sh, etc.)
 ├── hypr/                      # Hyprland configuration (hyprland.lua)
@@ -54,7 +53,7 @@ arch-theme/
      }
      ```
 2. **Layer Level (`WlrLayershell.layer`):**
-   - Use `WlrLayer.Top` for `Bar.qml`, `Selector.qml`, and `ClipboardPicker.qml` to allow Wayland DnD drops onto client windows.
+   - Use `WlrLayer.Top` for `Bar.qml` and `ClipboardPicker.qml` to allow Wayland DnD drops onto client windows.
 3. **QtQuick Wayland Drag Mechanics (`ClipboardPicker.qml`):**
    - `DragHandler` does not initiate `wl_data_device.start_drag` in Qt 6 Wayland QPA.
    - Use `MouseArea` with `drag.target` set to a proxy `Item` (`expDragProxy`).

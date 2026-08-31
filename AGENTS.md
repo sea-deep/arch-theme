@@ -92,6 +92,27 @@ arch-theme/
    - Always include Qt Quick `Shortcut { sequence: "Escape"; enabled: ...; onActivated: ... }` on overlay windows so <kbd>Esc</kbd> works regardless of which inner child widget has active keyboard focus.
 3. **Dynamic Keyboard Focus:**
    - In `Bar.qml`: `WlrLayershell.keyboardFocus: root.overlayExpanded ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None` routes keyboard input when open and yields focus immediately when closed.
+4. **Z-Order Sibling Invariant for Dismiss Shields:**
+   - QML's `z` property **only affects stacking between sibling items** (items sharing the same parent). A child with `z: 10` inside a parent `Item` with `z: 0` is still below a sibling `MouseArea` with `z: 9`.
+   - When adding a dismiss shield (`MouseArea { z: 9; anchors.fill: parent }`) inside a container, the overlay being protected (e.g. `AppContextMenu { z: 10 }`) **must be a direct sibling** of the shield — never nested inside another child `Item`.
+   - **Correct:**
+     ```qml
+     Container {
+         MouseArea { z: 9; anchors.fill: parent; enabled: overlay.visible; onClicked: overlay.visible = false }
+         Item { clip: true; /* content */ }
+         OverlayMenu { id: overlay; z: 10 }   // sibling of shield ✓
+     }
+     ```
+   - **Broken:**
+     ```qml
+     Container {
+         MouseArea { z: 9; anchors.fill: parent; enabled: overlay.visible; onClicked: overlay.visible = false }
+         Item { clip: true;   // z: 0 (default) — shield sits ABOVE this entire subtree
+             OverlayMenu { id: overlay; z: 10 }   // z:10 is relative to Item, not Container ✗
+         }
+     }
+     ```
+   - Before adding any dismiss shield, **always verify the brace nesting** to confirm the overlay and shield share the same parent.
 
 ---
 
@@ -181,6 +202,11 @@ arch-theme/
 2. **Non-Poisoning Brightness Persistence:**
    - User brightness is persisted to `~/.config/quickshell/state/brightness.txt` via `quickshell/scripts/brightness.sh`.
    - `hypridle.conf` (`after_sleep_cmd` and `on-resume`) calls `brightness.sh restore` to prevent temporary 10% idle dims from poisoning the persistent brightness state on resume or reboot.
+3. **Kitty Terminal Execution Flag:**
+   - When spawning interactive scripts in a kitty terminal window (e.g. uninstall wizards, confirmation prompts), **always** include the `-e` flag before the command.
+   - Without `-e`, kitty ignores all positional arguments after options and opens a blank shell.
+   - **Correct:** `["kitty", "--title", "My Task", "-e", "bash", scriptPath, arg1, arg2]`
+   - **Broken:** `["kitty", "--title", "My Task", "bash", scriptPath, arg1, arg2]`
 
 ---
 

@@ -24,7 +24,13 @@ PanelWindow {
     Shortcut {
         sequence: "Escape"
         enabled: root.showing
-        onActivated: UiState.launcherVisible = false
+        onActivated: {
+            if (contextMenu.visible) {
+                contextMenu.visible = false
+            } else {
+                UiState.launcherVisible = false
+            }
+        }
     }
 
     property string searchQuery: ""
@@ -422,11 +428,17 @@ PanelWindow {
         }
     }
 
-    // Backdrop: transparent click outside closes launcher
+    // Backdrop: transparent click outside closes launcher or dismisses context menu
     MouseArea {
         anchors.fill: parent
         enabled: root.showing
-        onClicked: UiState.launcherVisible = false
+        onClicked: {
+            if (contextMenu.visible) {
+                contextMenu.visible = false
+            } else {
+                UiState.launcherVisible = false
+            }
+        }
     }
 
     // Bottom drawer unroll card container
@@ -443,12 +455,14 @@ PanelWindow {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 0
 
-        // Consume clicks on card so backdrop doesn't close launcher
+        // Context menu outer click dismissal shield inside launcherCard
         MouseArea {
             anchors.fill: parent
+            z: 9
+            enabled: contextMenu.visible
             acceptedButtons: Qt.AllButtons
             onClicked: {
-                if (contextMenu.visible) contextMenu.visible = false
+                contextMenu.visible = false
             }
         }
 

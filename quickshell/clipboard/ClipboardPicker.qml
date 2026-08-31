@@ -162,9 +162,6 @@ PanelWindow {
             clipboardFile.reload()
             listView.currentIndex = 0
             searchInput.forceActiveFocus()
-        } else {
-            root.cursorX = -1
-            root.cursorY = -1
         }
     }
 
@@ -180,8 +177,8 @@ PanelWindow {
         id: popup
         width: 340
         height: 440
-        x: root.cursorX < 0 ? (root.width - width) / 2 : root.cursorX
-        y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
+        x: root.cursorX >= 0 ? root.cursorX : (root.width - width) / 2
+        y: root.cursorY >= 0 ? root.cursorY : (root.height - height) / 2
         visible: true
 
         transform: Scale {
@@ -190,7 +187,7 @@ PanelWindow {
             xScale: 0.96 + (0.04 * root.reveal)
             yScale: xScale
         }
-        opacity: root.reveal
+        opacity: (root.cursorX >= 0 && root.cursorY >= 0) ? root.reveal : 0
 
         color: Theme.bg
         radius: 12

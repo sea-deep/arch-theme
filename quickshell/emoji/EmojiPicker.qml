@@ -19,11 +19,21 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
     color: "transparent"
-    visible: UiState.emojiVisible
+    property bool showing: UiState.emojiVisible
+    property real reveal: showing ? 1 : 0
+
+    Behavior on reveal {
+        NumberAnimation {
+            duration: 60
+            easing.type: Easing.OutQuad
+        }
+    }
+
+    visible: reveal > 0
 
     Shortcut {
         sequence: "Escape"
-        enabled: UiState.emojiVisible
+        enabled: root.showing
         onActivated: UiState.emojiVisible = false
     }
 
@@ -135,23 +145,21 @@ PanelWindow {
         root.emojiCount = root.allEmojis.length
     }
 
-    onVisibleChanged: {
-        if (visible) {
+    onShowingChanged: {
+        if (showing) {
             cursorQuery.running = true
             searchQuery = ""
             searchInput.text = ""
             root.displayEmojis = root.allEmojis
             root.emojiCount = root.allEmojis.length
             searchInput.forceActiveFocus()
-        } else {
-            root.cursorX = -1
-            root.cursorY = -1
         }
     }
 
     // Click outside to close (backdrop) - transparent, NO dimming
     MouseArea {
         anchors.fill: parent
+        enabled: root.showing
         onClicked: UiState.emojiVisible = false
     }
 
@@ -160,8 +168,17 @@ PanelWindow {
         id: popup
         width: 340
         height: 440
-        x: root.cursorX < 0 ? (root.width - width) / 2 : root.cursorX
-        y: root.cursorY < 0 ? (root.height - height) / 2 : root.cursorY
+        x: root.cursorX >= 0 ? root.cursorX : (root.width - width) / 2
+        y: root.cursorY >= 0 ? root.cursorY : (root.height - height) / 2
+        visible: true
+
+        transform: Scale {
+            origin.x: popup.width / 2
+            origin.y: popup.height / 2
+            xScale: 0.96 + (0.04 * root.reveal)
+            yScale: xScale
+        }
+        opacity: (root.cursorX >= 0 && root.cursorY >= 0) ? root.reveal : 0
 
         color: Theme.bg
         radius: 12

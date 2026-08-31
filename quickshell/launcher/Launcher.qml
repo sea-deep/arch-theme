@@ -45,6 +45,8 @@ PanelWindow {
 
     property var activePinnedAppNames: []
     property var activeRecentAppNames: []
+    property var launcherFlatModel: []
+    property int totalFilteredCount: 0
 
     FileView {
         id: pinnedAppsFile
@@ -210,13 +212,10 @@ PanelWindow {
         }
     }
 
-    property var launcherSections: []
-    property int totalFilteredCount: 0
-
     function filterApps() {
         var query = root.searchQuery.trim().toLowerCase()
         var cat = root.activeCategory.toLowerCase()
-        var sections = []
+        var flatList = []
         var totalCount = 0
 
         if (query !== "") {
@@ -227,12 +226,13 @@ PanelWindow {
                     searchResults.push(item)
                 }
             }
-            sections.push({
-                title: "Search Results (" + searchResults.length + ")",
-                icon: "",
-                apps: searchResults
-            })
             totalCount = searchResults.length
+            if (searchResults.length > 0) {
+                flatList.push({ isHeader: true, title: "Search Results (" + searchResults.length + ")", icon: "" })
+                for (var i = 0; i < searchResults.length; i += 7) {
+                    flatList.push({ isHeader: false, rowApps: searchResults.slice(i, i + 7) })
+                }
+            }
         } else if (cat === "all") {
             // 1. Pinned Apps section
             var pinnedNames = getPinnedAppNames()
@@ -253,15 +253,14 @@ PanelWindow {
                 pinnedApps.sort(function(a, b) { return a.order - b.order })
                 var pinnedList = pinnedApps.map(function(x) { return x.appItem })
                 if (pinnedList.length > 0) {
-                    sections.push({
-                        title: "Pinned",
-                        icon: "󰤉",
-                        apps: pinnedList
-                    })
+                    flatList.push({ isHeader: true, title: "Pinned", icon: "󰤉" })
+                    for (var i = 0; i < pinnedList.length; i += 7) {
+                        flatList.push({ isHeader: false, rowApps: pinnedList.slice(i, i + 7) })
+                    }
                 }
             }
 
-            // 2. Recently Opened section (up to 7 apps)
+            // 2. Recently Opened section (up to 7 apps = 1 row)
             var recentNames = getRecentAppNames()
             if (recentNames.length > 0) {
                 var recentMap = {}
@@ -280,20 +279,18 @@ PanelWindow {
                 recentApps.sort(function(a, b) { return a.order - b.order })
                 var recentList = recentApps.slice(0, 7).map(function(x) { return x.appItem })
                 if (recentList.length > 0) {
-                    sections.push({
-                        title: "Recently Opened",
-                        icon: "󰄉",
-                        apps: recentList
-                    })
+                    flatList.push({ isHeader: true, title: "Recently Opened", icon: "󰄉" })
+                    flatList.push({ isHeader: false, rowApps: recentList })
                 }
             }
 
-            // 3. All Applications section (alphabetically ordered)
-            sections.push({
-                title: "All Applications",
-                icon: "󰀻",
-                apps: allApps
-            })
+            // 3. All Applications section
+            if (allApps.length > 0) {
+                flatList.push({ isHeader: true, title: "All Applications", icon: "󰀻" })
+                for (var i = 0; i < allApps.length; i += 7) {
+                    flatList.push({ isHeader: false, rowApps: allApps.slice(i, i + 7) })
+                }
+            }
             totalCount = allApps.length
         } else {
             var catResults = []
@@ -310,15 +307,16 @@ PanelWindow {
                     catResults.push(item)
                 }
             }
-            sections.push({
-                title: root.activeCategory,
-                icon: "󰀻",
-                apps: catResults
-            })
             totalCount = catResults.length
+            if (catResults.length > 0) {
+                flatList.push({ isHeader: true, title: root.activeCategory, icon: "󰀻" })
+                for (var i = 0; i < catResults.length; i += 7) {
+                    flatList.push({ isHeader: false, rowApps: catResults.slice(i, i + 7) })
+                }
+            }
         }
 
-        root.launcherSections = sections
+        root.launcherFlatModel = flatList
         root.totalFilteredCount = totalCount
     }
 
@@ -341,6 +339,16 @@ PanelWindow {
         } else if (app.execString) {
             var cmd = app.execString.replace(/%[a-zA-Z]/g, "").trim()
             Quickshell.execDetached(["sh", "-c", cmd])
+        }
+    }
+
+    function launchFirstApp() {
+        for (var i = 0; i < root.launcherFlatModel.length; i++) {
+            var row = root.launcherFlatModel[i]
+            if (!row.isHeader && row.rowApps && row.rowApps.length > 0) {
+                root.launch(row.rowApps[0])
+                return
+            }
         }
     }
 
@@ -452,7 +460,7 @@ PanelWindow {
             Item {
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
-                anchors.right: parent.right
+                width: parent.width
                 height: launcherCard.fullHeight
 
                 ColumnLayout {
@@ -535,14 +543,10 @@ PanelWindow {
                                     event.accepted = true
                                 }
                                 Keys.onReturnPressed: {
-                                    if (root.launcherSections.length > 0 && root.launcherSections[0].apps.length > 0) {
-                                        root.launch(root.launcherSections[0].apps[0])
-                                    }
+                                    root.launchFirstApp()
                                 }
                                 Keys.onEnterPressed: {
-                                    if (root.launcherSections.length > 0 && root.launcherSections[0].apps.length > 0) {
-                                        root.launch(root.launcherSections[0].apps[0])
-                                    }
+                                    root.launchFirstApp()
                                 }
                             }
                         }
@@ -703,33 +707,35 @@ PanelWindow {
                 color: Theme.surfaceVariant
             }
 
-            // Apps Continuous Scrollable Section List
+            // Apps Continuous Scrollable Flat Virtualized List
             ListView {
                 id: appListView
                 Layout.preferredWidth: 840
                 Layout.preferredHeight: 4 * 110
                 Layout.alignment: Qt.AlignHCenter
                 clip: true
-                spacing: 14
+                spacing: 2
                 boundsBehavior: Flickable.StopAtBounds
-                model: root.launcherSections
+                model: root.launcherFlatModel
 
-                delegate: ColumnLayout {
-                    id: secDelegate
+                delegate: Item {
+                    id: rowItem
                     required property var modelData
                     required property int index
 
                     width: appListView.width
-                    spacing: 8
+                    height: modelData.isHeader ? 32 : 110
 
-                    // Section Header & Divider Line
+                    // Section Header
                     RowLayout {
-                        Layout.fillWidth: true
-                        Layout.topMargin: index === 0 ? 0 : 6
+                        visible: rowItem.modelData.isHeader
+                        anchors.fill: parent
+                        anchors.topMargin: rowItem.index === 0 ? 0 : 8
+                        anchors.bottomMargin: 4
                         spacing: 8
 
                         Text {
-                            text: secDelegate.modelData.icon + "  " + secDelegate.modelData.title
+                            text: (rowItem.modelData.icon || "") + "  " + (rowItem.modelData.title || "")
                             color: Theme.accent
                             font.family: Theme.fontFamilySans
                             font.pixelSize: 12
@@ -743,13 +749,14 @@ PanelWindow {
                         }
                     }
 
-                    // 7-column Flow
-                    Flow {
-                        Layout.fillWidth: true
+                    // 7-column App Row
+                    Row {
+                        visible: !rowItem.modelData.isHeader
+                        anchors.fill: parent
                         spacing: 0
 
                         Repeater {
-                            model: secDelegate.modelData.apps
+                            model: rowItem.modelData.rowApps || []
 
                             Item {
                                 id: delegateRoot
@@ -842,6 +849,7 @@ PanelWindow {
                 }
             }
         }
+    }
 
         // Floating Right-Click Option Selector Context Menu
         AppContextMenu {
@@ -857,6 +865,5 @@ PanelWindow {
             }
         }
     }
-}
 }
 }

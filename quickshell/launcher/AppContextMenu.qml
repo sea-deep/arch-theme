@@ -361,7 +361,7 @@ Rectangle {
                         var execCmd = root.app.execString || root.app.id || ""
                         if (execCmd) {
                             var scriptPath = Quickshell.env("HOME") + "/.config/hypr/scripts/uninstall_app.sh"
-                            Quickshell.execDetached(["kitty", "--title", "Uninstall App", "bash", scriptPath, execCmd, root.app.id || "", root.appName || ""])
+                            Quickshell.execDetached(["kitty", "--title", "Uninstall App", "-e", "bash", scriptPath, execCmd, root.app.id || "", root.appName || ""])
                         }
                     }
                     root.actionTriggered()

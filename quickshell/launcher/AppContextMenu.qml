@@ -18,8 +18,8 @@ Rectangle {
     implicitHeight: layout.implicitHeight + 16
     radius: Theme.radius
     color: Theme.bg
-    border.color: Theme.surfaceVariant
-    border.width: 1
+    border.color: Theme.accentGlow
+    border.width: Theme.borderWidth
     clip: true
 
     opacity: visible ? 1 : 0

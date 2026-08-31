@@ -22,8 +22,9 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: Theme.durationMedium
-            easing.type: Theme.easingDecelerate
+            duration: root.showing ? 160 : 100
+            easing.type: root.showing ? Easing.OutBack : Easing.InQuad
+            easing.overshoot: 1.05
         }
     }
 
@@ -177,16 +178,19 @@ PanelWindow {
         id: popup
         readonly property int fullHeight: 440
         width: 340
-        height: fullHeight * root.reveal
+        height: fullHeight
+        opacity: root.reveal
+        scale: 0.95 + (0.05 * root.reveal)
+        transformOrigin: Item.Center
         clip: true
         x: root.cursorX >= 0 ? root.cursorX : (root.width - width) / 2
         y: root.cursorY >= 0 ? root.cursorY : (root.height - fullHeight) / 2
-        visible: height > 0
+        visible: root.reveal > 0
 
         color: Theme.bg
         radius: Theme.radiusLarge
-        border.color: Theme.surfaceVariant
-        border.width: 1
+        border.color: Theme.accentGlow
+        border.width: Theme.borderWidth
 
         // Consume clicks so they don't hit the backdrop MouseArea
         TapHandler {}

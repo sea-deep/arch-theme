@@ -43,12 +43,15 @@ PanelWindow {
         { id: "Game", label: "Games", icon: "󰊗" }
     ]
 
+    property var activePinnedAppNames: []
+    property var activeRecentAppNames: []
+
     FileView {
         id: pinnedAppsFile
         path: Quickshell.env("HOME") + "/.config/quickshell/state/pinned_apps.json"
         watchChanges: true
         printErrors: false
-        onFileChanged: filterApps()
+        onFileChanged: syncPinnedFromDisk()
     }
 
     FileView {
@@ -56,55 +59,79 @@ PanelWindow {
         path: Quickshell.env("HOME") + "/.config/quickshell/state/recent_apps.json"
         watchChanges: true
         printErrors: false
-        onFileChanged: filterApps()
+        onFileChanged: syncRecentsFromDisk()
+    }
+
+    function syncPinnedFromDisk() {
+        try {
+            var raw = pinnedAppsFile.text().trim()
+            if (raw) {
+                var parsed = JSON.parse(raw)
+                if (Array.isArray(parsed)) {
+                    root.activePinnedAppNames = parsed
+                    filterApps()
+                    return
+                }
+            }
+        } catch(e) {}
+    }
+
+    function syncRecentsFromDisk() {
+        try {
+            var raw = recentAppsFile.text().trim()
+            if (raw) {
+                var parsed = JSON.parse(raw)
+                if (Array.isArray(parsed)) {
+                    root.activeRecentAppNames = parsed.slice(0, 8)
+                    filterApps()
+                    return
+                }
+            }
+        } catch(e) {}
     }
 
     function getPinnedAppNames() {
-        try {
-            var raw = pinnedAppsFile.text().trim()
-            if (!raw) return []
-            var parsed = JSON.parse(raw)
-            if (Array.isArray(parsed)) return parsed
-        } catch(e) {}
-        return []
+        return root.activePinnedAppNames || []
     }
 
     function getRecentAppNames() {
-        try {
-            var raw = recentAppsFile.text().trim()
-            if (!raw) return []
-            var parsed = JSON.parse(raw)
-            if (Array.isArray(parsed)) return parsed.slice(0, 8)
-        } catch(e) {}
-        return []
+        return root.activeRecentAppNames || []
     }
 
     function isAppPinned(name) {
         if (!name) return false
-        var pinned = getPinnedAppNames()
+        var pinned = root.activePinnedAppNames || []
         return pinned.indexOf(name) !== -1
     }
 
     function togglePinApp(name) {
         if (!name) return
-        var pinned = getPinnedAppNames()
+        var pinned = (root.activePinnedAppNames || []).slice()
         var idx = pinned.indexOf(name)
         if (idx !== -1) {
             pinned.splice(idx, 1)
         } else {
             pinned.push(name)
         }
+        root.activePinnedAppNames = pinned
+        if (contextMenu.visible && contextMenu.appName === name) {
+            contextMenu.isPinned = (idx === -1)
+        }
+        filterApps()
+
         var jsonStr = JSON.stringify(pinned)
         Quickshell.execDetached(["bash", "-c", "mkdir -p ~/.config/quickshell/state && printf '%s\\n' '" + jsonStr.replace(/'/g, "'\\''") + "' > ~/.config/quickshell/state/pinned_apps.json"])
-        filterApps()
     }
 
     function recordRecentApp(name) {
         if (!name) return
-        var recents = getRecentAppNames()
+        var recents = (root.activeRecentAppNames || []).slice()
         recents = recents.filter(function(n) { return n !== name })
         recents.unshift(name)
         if (recents.length > 8) recents = recents.slice(0, 8)
+        root.activeRecentAppNames = recents
+        filterApps()
+
         var jsonStr = JSON.stringify(recents)
         Quickshell.execDetached(["bash", "-c", "mkdir -p ~/.config/quickshell/state && printf '%s\\n' '" + jsonStr.replace(/'/g, "'\\''") + "' > ~/.config/quickshell/state/recent_apps.json"])
     }
@@ -323,6 +350,8 @@ PanelWindow {
     }
 
     Component.onCompleted: {
+        syncPinnedFromDisk()
+        syncRecentsFromDisk()
         reloadApps()
     }
 

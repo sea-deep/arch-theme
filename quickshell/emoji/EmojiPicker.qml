@@ -307,7 +307,7 @@ PanelWindow {
 
         Item {
             anchors.top: parent.top
-            anchors.topMargin: (1.0 - root.reveal) * -16
+            anchors.left: parent.left
             width: parent.width
             height: popup.fullHeight
 

@@ -24,8 +24,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: 60
-            easing.type: Easing.OutQuad
+            duration: Theme.durationMedium
+            easing.type: Theme.easingDecelerate
         }
     }
 
@@ -166,19 +166,13 @@ PanelWindow {
     // Popup
     Rectangle {
         id: popup
+        readonly property int fullHeight: 440
         width: 340
-        height: 440
+        height: fullHeight * root.reveal
+        clip: true
         x: root.cursorX >= 0 ? root.cursorX : (root.width - width) / 2
-        y: root.cursorY >= 0 ? root.cursorY : (root.height - height) / 2
-        visible: true
-
-        transform: Scale {
-            origin.x: popup.width / 2
-            origin.y: popup.height / 2
-            xScale: 0.96 + (0.04 * root.reveal)
-            yScale: xScale
-        }
-        opacity: (root.cursorX >= 0 && root.cursorY >= 0) ? root.reveal : 0
+        y: root.cursorY >= 0 ? root.cursorY : (root.height - fullHeight) / 2
+        visible: height > 0
 
         color: Theme.bg
         radius: 12
@@ -188,10 +182,16 @@ PanelWindow {
         // Consume clicks so they don't hit the backdrop MouseArea
         TapHandler {}
 
-        ColumnLayout {
-            anchors.fill: parent
-            anchors.margins: 12
-            spacing: 10
+        Item {
+            anchors.top: parent.top
+            anchors.topMargin: (1.0 - root.reveal) * -16
+            width: parent.width
+            height: popup.fullHeight
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 12
+                spacing: 10
 
             // Search bar
             Rectangle {
@@ -391,4 +391,5 @@ PanelWindow {
             }
         }
     }
+}
 }

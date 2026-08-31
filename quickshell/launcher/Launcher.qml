@@ -49,98 +49,29 @@ PanelWindow {
         { id: "Game", label: "Games", icon: "󰊗" }
     ]
 
-    property var activePinnedAppNames: []
-    property var activeRecentAppNames: []
     property var launcherFlatModel: []
     property int totalFilteredCount: 0
 
-    FileView {
-        id: pinnedAppsFile
-        path: Quickshell.env("HOME") + "/.config/quickshell/state/pinned_apps.json"
-        printErrors: false
-    }
-
-    FileView {
-        id: recentAppsFile
-        path: Quickshell.env("HOME") + "/.config/quickshell/state/recent_apps.json"
-        printErrors: false
-    }
-
-    function syncPinnedFromDisk() {
-        try {
-            var raw = pinnedAppsFile.text().trim()
-            if (raw) {
-                var parsed = JSON.parse(raw)
-                if (Array.isArray(parsed)) {
-                    root.activePinnedAppNames = parsed
-                    filterApps()
-                    return
-                }
-            }
-        } catch(e) {}
-    }
-
-    function syncRecentsFromDisk() {
-        try {
-            var raw = recentAppsFile.text().trim()
-            if (raw) {
-                var parsed = JSON.parse(raw)
-                if (Array.isArray(parsed)) {
-                    root.activeRecentAppNames = parsed.slice(0, 8)
-                    filterApps()
-                    return
-                }
-            }
-        } catch(e) {}
-    }
-
-    function getPinnedAppNames() {
-        if (root.activePinnedAppNames && root.activePinnedAppNames.length > 0) return root.activePinnedAppNames
-        syncPinnedFromDisk()
-        return root.activePinnedAppNames || []
-    }
-
-    function getRecentAppNames() {
-        if (root.activeRecentAppNames && root.activeRecentAppNames.length > 0) return root.activeRecentAppNames
-        syncRecentsFromDisk()
-        return root.activeRecentAppNames || []
+    Connections {
+        target: UiState
+        function onPinnedAppsChanged() {
+            root.filterApps()
+        }
+        function onRecentAppsChanged() {
+            root.filterApps()
+        }
     }
 
     function isAppPinned(name) {
-        if (!name) return false
-        var clean = name.toLowerCase().trim()
-        var pinned = root.activePinnedAppNames || []
-        for (var i = 0; i < pinned.length; i++) {
-            if (pinned[i] && pinned[i].toLowerCase().trim() === clean) return true
-        }
-        return false
+        return UiState.isAppPinned(name)
     }
 
     function togglePinApp(name) {
-        if (!name) return
-        var clean = name.trim()
-        var cleanLower = clean.toLowerCase()
-        var pinned = (root.activePinnedAppNames || []).slice()
-        var idx = -1
-        for (var i = 0; i < pinned.length; i++) {
-            if (pinned[i] && pinned[i].toLowerCase().trim() === cleanLower) {
-                idx = i
-                break
-            }
+        UiState.togglePinApp(name)
+        if (contextMenu.visible && contextMenu.appName) {
+            contextMenu.isPinned = UiState.isAppPinned(contextMenu.appName)
         }
-        if (idx !== -1) {
-            pinned.splice(idx, 1)
-        } else {
-            pinned.push(clean)
-        }
-        root.activePinnedAppNames = pinned
-        if (contextMenu.visible && contextMenu.appName && contextMenu.appName.toLowerCase().trim() === cleanLower) {
-            contextMenu.isPinned = (idx === -1)
-        }
-        filterApps()
-
-        var jsonStr = JSON.stringify(pinned)
-        Quickshell.execDetached(["bash", "-c", "mkdir -p ~/.config/quickshell/state && printf '%s\\n' '" + jsonStr.replace(/'/g, "'\\''") + "' > ~/.config/quickshell/state/pinned_apps.json"])
+        root.filterApps()
     }
 
     function recordRecentApp(name) {
@@ -241,7 +172,7 @@ PanelWindow {
             }
         } else if (cat === "all") {
             // 1. Pinned Apps section
-            var pinnedNames = getPinnedAppNames()
+            var pinnedNames = UiState.pinnedApps || []
             if (pinnedNames.length > 0) {
                 var pinnedMap = {}
                 for (var p = 0; p < pinnedNames.length; p++) {
@@ -267,7 +198,7 @@ PanelWindow {
             }
 
             // 2. Recently Opened section (up to 7 apps = 1 row)
-            var recentNames = getRecentAppNames()
+            var recentNames = UiState.recentApps || []
             if (recentNames.length > 0) {
                 var recentMap = {}
                 for (var r = 0; r < recentNames.length; r++) {
@@ -330,18 +261,25 @@ PanelWindow {
         if (!item) return
         var app = (item && item.app) ? item.app : item
         var appName = (item && item.name) ? item.name : (app ? app.name : "")
-        if (appName) recordRecentApp(appName)
+        if (appName) UiState.recordRecentApp(appName)
         close()
 
         if (app.runInTerminal) {
-            var execCmd = app.execString || (app.command ? (typeof app.command.join === "function" ? app.command.join(" ") : app.command) : app.id)
-            execCmd = execCmd.replace(/%[a-zA-Z]/g, "").trim()
-            Quickshell.execDetached(["kitty", "-e", "sh", "-c", execCmd])
+            var cmdList = app.command || []
+            if (Array.isArray(cmdList) && cmdList.length > 0) {
+                Quickshell.execDetached(["kitty", "-e"].concat(cmdList))
+            } else {
+                var execCmd = app.execString || app.id || ""
+                execCmd = execCmd.replace(/%[a-zA-Z]/g, "").trim()
+                Quickshell.execDetached(["kitty", "-e", "sh", "-c", execCmd])
+            }
             return
         }
 
         if (app.execute) {
             app.execute()
+        } else if (app.command && Array.isArray(app.command) && app.command.length > 0) {
+            Quickshell.execDetached(app.command)
         } else if (app.execString) {
             var cmd = app.execString.replace(/%[a-zA-Z]/g, "").trim()
             Quickshell.execDetached(["sh", "-c", cmd])
@@ -368,7 +306,7 @@ PanelWindow {
         var appName = (item && item.name) ? item.name : (app ? app.name : "")
         contextMenu.app = app
         contextMenu.appName = appName
-        contextMenu.isPinned = root.isAppPinned(appName)
+        contextMenu.isPinned = UiState.isAppPinned(appName)
 
         var pos = targetItem.mapToItem(launcherCard, 0, 0)
         var menuX = pos.x + targetItem.width + 8
@@ -391,8 +329,6 @@ PanelWindow {
     }
 
     Component.onCompleted: {
-        syncPinnedFromDisk()
-        syncRecentsFromDisk()
         reloadApps()
     }
 
@@ -410,8 +346,6 @@ PanelWindow {
 
     onShowingChanged: {
         if (showing) {
-            if (activePinnedAppNames.length === 0) syncPinnedFromDisk()
-            if (activeRecentAppNames.length === 0) syncRecentsFromDisk()
             searchQuery = ""
             searchInput.text = ""
             activeCategory = "All"

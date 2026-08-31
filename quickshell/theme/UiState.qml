@@ -15,6 +15,8 @@ Singleton {
         property real comfortValue: 0
         property real grayscaleValue: 0
         property real vividValue: 0
+        property var pinnedApps: []
+        property var recentApps: []
     }
 
     property alias caffeineEnabled: persisted.caffeineEnabled
@@ -22,6 +24,8 @@ Singleton {
     property alias comfortValue: persisted.comfortValue
     property alias grayscaleValue: persisted.grayscaleValue
     property alias vividValue: persisted.vividValue
+    property alias pinnedApps: persisted.pinnedApps
+    property alias recentApps: persisted.recentApps
 
     property bool isShaderInitialized: false
 
@@ -32,6 +36,85 @@ Singleton {
         onTextChanged: {
             root.loadShaderState()
         }
+    }
+
+    FileView {
+        id: pinnedAppsFile
+        path: Quickshell.env("HOME") + "/.config/quickshell/state/pinned_apps.json"
+        printErrors: false
+        onTextChanged: root.loadPinnedApps()
+    }
+
+    FileView {
+        id: recentAppsFile
+        path: Quickshell.env("HOME") + "/.config/quickshell/state/recent_apps.json"
+        printErrors: false
+        onTextChanged: root.loadRecentApps()
+    }
+
+    function loadPinnedApps() {
+        if (persisted.pinnedApps && persisted.pinnedApps.length > 0) return
+        var text = pinnedAppsFile.text()
+        if (!text || text.trim() === "") return
+        try {
+            var data = JSON.parse(text)
+            if (Array.isArray(data) && data.length > 0) persisted.pinnedApps = data
+        } catch(e) {}
+    }
+
+    function loadRecentApps() {
+        if (persisted.recentApps && persisted.recentApps.length > 0) return
+        var text = recentAppsFile.text()
+        if (!text || text.trim() === "") return
+        try {
+            var data = JSON.parse(text)
+            if (Array.isArray(data) && data.length > 0) persisted.recentApps = data.slice(0, 8)
+        } catch(e) {}
+    }
+
+    function togglePinApp(name) {
+        if (!name) return
+        var clean = name.trim()
+        var cleanLower = clean.toLowerCase()
+        var list = (persisted.pinnedApps || []).slice()
+        var idx = -1
+        for (var i = 0; i < list.length; i++) {
+            if (list[i] && list[i].toLowerCase().trim() === cleanLower) {
+                idx = i
+                break
+            }
+        }
+        if (idx !== -1) {
+            list.splice(idx, 1)
+        } else {
+            list.push(clean)
+        }
+        persisted.pinnedApps = list
+        var jsonStr = JSON.stringify(list)
+        Quickshell.execDetached(["bash", "-c", "mkdir -p ~/.config/quickshell/state && printf '%s\\n' '" + jsonStr.replace(/'/g, "'\\''") + "' > ~/.config/quickshell/state/pinned_apps.json"])
+    }
+
+    function recordRecentApp(name) {
+        if (!name) return
+        var clean = name.trim()
+        if (!clean) return
+        var list = (persisted.recentApps || []).slice()
+        list = list.filter(function(n) { return n && n.toLowerCase().trim() !== clean.toLowerCase() })
+        list.unshift(clean)
+        if (list.length > 8) list = list.slice(0, 8)
+        persisted.recentApps = list
+        var jsonStr = JSON.stringify(list)
+        Quickshell.execDetached(["bash", "-c", "mkdir -p ~/.config/quickshell/state && printf '%s\\n' '" + jsonStr.replace(/'/g, "'\\''") + "' > ~/.config/quickshell/state/recent_apps.json"])
+    }
+
+    function isAppPinned(name) {
+        if (!name) return false
+        var clean = name.toLowerCase().trim()
+        var list = persisted.pinnedApps || []
+        for (var i = 0; i < list.length; i++) {
+            if (list[i] && list[i].toLowerCase().trim() === clean) return true
+        }
+        return false
     }
 
     function loadShaderState() {
@@ -90,6 +173,8 @@ Singleton {
 
     Component.onCompleted: {
         loadShaderState()
+        loadPinnedApps()
+        loadRecentApps()
         root.isShaderInitialized = true
         if (comfortValue > 0 || grayscaleValue > 0 || vividValue > 0) {
             shaderUpdateTimer.restart()

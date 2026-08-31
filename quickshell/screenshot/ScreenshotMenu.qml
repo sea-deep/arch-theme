@@ -361,7 +361,7 @@ PanelWindow {
         }
     }
 
-    // ── Top Floating HUD Control Capsule ──
+    // ── Top Floating HUD Control Capsule (Concentric Radius Math: R_outer = R_inner + Padding) ──
     Rectangle {
         id: hudCapsule
         z: 10
@@ -369,23 +369,29 @@ PanelWindow {
         anchors.topMargin: 48
         anchors.horizontalCenter: parent.horizontalCenter
         height: 42
-        width: hudRow.implicitWidth + 24
+        width: hudRow.implicitWidth + 10
         radius: 21
         color: Theme.bg
         border.color: Theme.accentGlow
         border.width: Theme.borderWidth
 
+        // Automatically hide the HUD capsule when dragging to snip a region
+        opacity: root.isDragging ? 0.0 : 1.0
+        visible: opacity > 0.0
+        Behavior on opacity { NumberAnimation { duration: 100 } }
+
         Row {
             id: hudRow
             anchors.centerIn: parent
-            spacing: 6
+            spacing: 4
 
-            // Drag Region
+            // Drag Region Button
             Rectangle {
-                height: 30
-                width: snipText.implicitWidth + 20
-                radius: 15
-                color: root.currentMode === "crop" ? Theme.accent : "transparent"
+                id: snipBtn
+                height: 32
+                width: snipText.implicitWidth + 24
+                radius: 16
+                color: root.currentMode === "crop" ? Theme.accent : (snipHover.containsMouse ? Theme.bgLight : "transparent")
                 Behavior on color { ColorAnimation { duration: Theme.durationFast } }
 
                 Text {
@@ -399,6 +405,7 @@ PanelWindow {
                 }
 
                 MouseArea {
+                    id: snipHover
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     hoverEnabled: true
@@ -406,12 +413,13 @@ PanelWindow {
                 }
             }
 
-            // Window Selection
+            // Window Selection Button
             Rectangle {
-                height: 30
-                width: winText.implicitWidth + 20
-                radius: 15
-                color: root.currentMode === "window" ? Theme.accent : "transparent"
+                id: winBtn
+                height: 32
+                width: winText.implicitWidth + 24
+                radius: 16
+                color: root.currentMode === "window" ? Theme.accent : (winHover.containsMouse ? Theme.bgLight : "transparent")
                 Behavior on color { ColorAnimation { duration: Theme.durationFast } }
 
                 Text {
@@ -425,6 +433,7 @@ PanelWindow {
                 }
 
                 MouseArea {
+                    id: winHover
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     hoverEnabled: true
@@ -435,11 +444,12 @@ PanelWindow {
                 }
             }
 
-            // Fullscreen
+            // Fullscreen Button
             Rectangle {
-                height: 30
-                width: fullText.implicitWidth + 20
-                radius: 15
+                id: fullBtn
+                height: 32
+                width: fullText.implicitWidth + 24
+                radius: 16
                 color: fullHover.containsMouse ? Theme.bgLight : "transparent"
                 Behavior on color { ColorAnimation { duration: Theme.durationFast } }
 
@@ -462,19 +472,20 @@ PanelWindow {
                 }
             }
 
-            // Separator
+            // Subtle Separator
             Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 width: 1
-                height: 18
+                height: 16
                 color: Theme.surfaceVariant
             }
 
-            // Cancel
+            // Cancel Button
             Rectangle {
-                height: 30
-                width: cancelText.implicitWidth + 18
-                radius: 15
+                id: cancelBtn
+                height: 32
+                width: cancelText.implicitWidth + 20
+                radius: 16
                 color: cancelHover.containsMouse ? Theme.bgLight : "transparent"
                 Behavior on color { ColorAnimation { duration: Theme.durationFast } }
 

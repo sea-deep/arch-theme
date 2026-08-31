@@ -119,31 +119,52 @@ PanelWindow {
         ])
     }
 
+    Process {
+        id: cursorQuery
+        command: ["hyprctl", "cursorpos", "-j"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    var data = JSON.parse(text.trim())
+                    if (data.x !== undefined && data.y !== undefined) {
+                        root.updateCoordinates(Number(data.x), Number(data.y))
+                    }
+                } catch(e) {}
+            }
+        }
+    }
+
     function updateCoordinates(cx, cy) {
         var screenW = (root.screen && root.screen.width > 0) ? root.screen.width : (root.width > 0 ? root.width : 1920)
         var screenH = (root.screen && root.screen.height > 0) ? root.screen.height : (root.height > 0 ? root.height : 1080)
         var popupW = 340
         var popupH = 440
-        if (cx + popupW > screenW) cx = screenW - popupW - 10
-        if (cy + popupH > screenH) cy = screenH - popupH - 10
-        if (cx < 10) cx = 10
-        if (cy < 10) cy = 10
-        root.cursorX = cx
-        root.cursorY = cy
+
+        var targetX = cx - (popupW / 2)
+        if (targetX + popupW > screenW - 16) targetX = screenW - popupW - 16
+        if (targetX < 16) targetX = 16
+
+        var targetY = cy + 16
+        if (targetY + popupH > screenH - 16) {
+            targetY = cy - popupH - 16
+        }
+        if (targetY < 16) targetY = 16
+
+        root.cursorX = targetX
+        root.cursorY = targetY
     }
 
     onShowingChanged: {
         if (showing) {
-            cursorX = UiState.cursorX
-            cursorY = UiState.cursorY
-            if (cursorX >= 0 && cursorY >= 0) {
-                updateCoordinates(cursorX, cursorY)
-            }
+            cursorQuery.running = true
             searchQuery = ""
             searchInput.text = ""
             clipboardFile.reload()
             listView.currentIndex = 0
             searchInput.forceActiveFocus()
+        } else {
+            root.cursorX = -1
+            root.cursorY = -1
         }
     }
 

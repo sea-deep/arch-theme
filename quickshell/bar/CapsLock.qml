@@ -7,20 +7,23 @@ import "../components" as Components
 Components.Pill {
     id: root
 
-    property bool isCapsOn: false
-
-    Process {
-        id: capsProc
-        command: [Quickshell.shellPath("scripts/caps_listener.sh")]
-        running: true
-        stdout: SplitParser {
-            onRead: data => {
-                var val = data.trim()
-                if (val === "1") root.isCapsOn = true
-                else if (val === "0") root.isCapsOn = false
-            }
-        }
+    FileView {
+        id: caps1
+        path: "/sys/class/leds/input3::capslock/brightness"
+        watchChanges: true
+        printErrors: false
+        onFileChanged: reload()
     }
+
+    FileView {
+        id: caps2
+        path: "/sys/class/leds/input5::capslock/brightness"
+        watchChanges: true
+        printErrors: false
+        onFileChanged: reload()
+    }
+
+    readonly property bool isCapsOn: (caps1.text().trim() === "1") || (caps2.text().trim() === "1")
 
     collapseWhenEmpty: true
     isEmpty: !isCapsOn

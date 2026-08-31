@@ -52,7 +52,22 @@ PanelWindow {
     Process { id: hyprctl }
 
     function setHypr(keyword, value) {
-        hyprctl.command = ["hyprctl", "keyword", keyword, value.toString()]
+        var parts = keyword.split(":")
+        var lua = "hl.config({"
+        for (var i = 0; i < parts.length - 1; i++) {
+            lua += " " + parts[i] + " = {"
+        }
+        var valStr = value.toString()
+        if (valStr === "true" || valStr === "false" || !isNaN(Number(valStr))) {
+            lua += " " + parts[parts.length - 1] + " = " + valStr
+        } else {
+            lua += " " + parts[parts.length - 1] + " = '" + valStr + "'"
+        }
+        for (var j = 0; j < parts.length - 1; j++) {
+            lua += " }"
+        }
+        lua += " })"
+        hyprctl.command = ["hyprctl", "repl", lua]
         hyprctl.running = true
     }
 
@@ -130,7 +145,9 @@ PanelWindow {
                                 from: 1
                                 to: 100
                                 value: Math.round((root.currentBrightness / root.maxBrightness) * 100)
-                                onMoved: Quickshell.execDetached(["brightnessctl", "set", Math.round(value) + "%"])
+                                onMoved: Quickshell.execDetached([
+                                    Quickshell.shellPath("scripts/brightness.sh"), "set", Math.round(value) + "%"
+                                ])
                             }
                             Text { text: Math.round((root.currentBrightness / root.maxBrightness) * 100) + "%"; color: Theme.fg; font.family: Theme.fontFamily }
                         }
@@ -150,11 +167,11 @@ PanelWindow {
                         
                         RowLayout {
                             Text { text: "Gap size (inner)"; color: Theme.fg; Layout.fillWidth: true }
-                            Slider { from: 0; to: 20; value: 2; onMoved: setHypr("general:gaps_in", Math.round(value)) }
+                            Slider { from: 0; to: 20; value: 0; onMoved: setHypr("general:gaps_in", Math.round(value)) }
                         }
                         RowLayout {
                             Text { text: "Gap size (outer)"; color: Theme.fg; Layout.fillWidth: true }
-                            Slider { from: 0; to: 20; value: 4; onMoved: setHypr("general:gaps_out", Math.round(value)) }
+                            Slider { from: 0; to: 20; value: 0; onMoved: setHypr("general:gaps_out", Math.round(value)) }
                         }
                         RowLayout {
                             Text { text: "Border size"; color: Theme.fg; Layout.fillWidth: true }
@@ -174,7 +191,7 @@ PanelWindow {
                         
                         RowLayout {
                             Text { text: "Blur toggle"; color: Theme.fg; Layout.fillWidth: true }
-                            Switch { onCheckedChanged: setHypr("decoration:blur:enabled", checked ? "true" : "false") }
+                            Switch { checked: false; onCheckedChanged: setHypr("decoration:blur:enabled", checked ? "true" : "false") }
                         }
                         RowLayout {
                             Text { text: "Blur strength"; color: Theme.fg; Layout.fillWidth: true }
@@ -182,7 +199,7 @@ PanelWindow {
                         }
                         RowLayout {
                             Text { text: "Animations"; color: Theme.fg; Layout.fillWidth: true }
-                            Switch { onCheckedChanged: setHypr("animations:enabled", checked ? "true" : "false") }
+                            Switch { checked: true; onCheckedChanged: setHypr("animations:enabled", checked ? "true" : "false") }
                         }
                     }
 

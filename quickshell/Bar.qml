@@ -46,8 +46,6 @@ PanelWindow {
             width: root.width
             height: root.overlayExpanded ? root.height : Theme.barHeight
         }
-        Region { item: leftCornerCurve }
-        Region { item: rightCornerCurve }
         // Retain each pill's animated geometry while it closes.
         Region { item: hardwarePill }
         Region { item: trayExpander }

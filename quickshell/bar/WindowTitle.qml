@@ -15,8 +15,7 @@ Components.Pill {
 
     isEmpty: activeTitle === ""
     
-    // Match max-length: 40 character approx width for monospace
-    // Also use Waybar's 14px horizontal padding (Theme.pillPaddingHoriz)
+    // Match max-length: 40 character approx width for monospace with horizontal padding
     implicitWidth: Math.min(titleText.implicitWidth + Theme.pillPaddingHoriz * 2, 400)
     
     Text {

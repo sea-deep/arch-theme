@@ -70,36 +70,20 @@ Components.Pill {
         onFileChanged: reload()
     }
 
-    Process {
-        id: tlpProfileProbe
-        command: ["/usr/bin/tlp-stat", "-s"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const match = text.match(/TLP profile\s*=\s*([^\n]+)/)
-                root.tlpProfile = match ? match[1].trim().split("/")[0].toLowerCase() : "unknown"
-            }
-        }
+    FileView {
+        id: powerProfileFile
+        path: Quickshell.env("HOME") + "/.config/quickshell/state/power_profile.txt"
+        watchChanges: true
+        printErrors: false
+        onFileChanged: reload()
     }
 
-    Process {
-        id: tlpApplyProcess
-        onExited: (exitCode, exitStatus) => {
-            // Never claim success optimistically. Read the profile TLP actually
-            // saved after pkexec succeeds, is cancelled, or fails.
-            if (!tlpProfileProbe.running)
-                tlpProfileProbe.running = true
-        }
-    }
+    readonly property string tlpProfile: powerProfileFile.text().trim() || "balanced"
 
     function applyTlpProfile(profile) {
-        if (tlpApplyProcess.running)
-            return
-
-        // The bar owns a full-screen light-dismiss region while expanded.
-        // Close it before pkexec so the Polkit agent can receive input.
-        UiState.quickControlVisible = false
-        tlpApplyProcess.command = ["/usr/bin/pkexec", "/usr/bin/tlp", profile]
-        Qt.callLater(() => tlpApplyProcess.running = true)
+        Quickshell.execDetached([
+            Quickshell.shellPath("scripts/power_profile.sh"), "set", profile
+        ])
     }
 
     function toggle(mode) {
@@ -465,7 +449,7 @@ Components.Pill {
                 model: [
                     { name: "Performance", profile: "performance", icon: "󰓅" },
                     { name: "Balanced", profile: "balanced", icon: "󰾅" },
-                    { name: "Power saver", profile: "power-saver", icon: "󰌪" }
+                    { name: "Power saver", profile: "powersave", icon: "󰌪" }
                 ]
                 Rectangle {
                     id: profileButton

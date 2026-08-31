@@ -29,9 +29,9 @@ case $chosen in
         systemctl suspend
         ;;
     Logout)
-        swaymsg exit
+        hyprctl dispatch exit
         ;;
     Lock)
-        swaylock -f -i "$HOME/Pictures/wallpapers/satisfaction_waybar_blur_lock.png"
+        hyprlock
         ;;
 esac

@@ -41,6 +41,9 @@ Singleton {
             if (data.grayscale !== undefined) root.grayscaleValue = Number(data.grayscale)
             if (data.vivid !== undefined) root.vividValue = Number(data.vivid)
             root.isShaderInitialized = true
+            if (root.comfortValue > 0 || root.grayscaleValue > 0 || root.vividValue > 0) {
+                shaderUpdateTimer.restart()
+            }
         } catch(e) {}
     }
 
@@ -74,7 +77,7 @@ Singleton {
         repeat: false
         onTriggered: {
             Quickshell.execDetached([
-                Quickshell.env("HOME") + "/.config/quickshell/scripts/update_shader.sh",
+                Quickshell.shellPath("scripts/update_shader.sh"),
                 "set_all",
                 String(Math.round(comfortValue)),
                 String(Math.round(grayscaleValue)),

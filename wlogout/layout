@@ -1,6 +1,6 @@
 {
     "label" : "lock",
-    "action" : "swaylock -f -i $HOME/Pictures/wallpapers/satisfaction_waybar_blur_lock.png",
+    "action" : "hyprlock",
     "text" : "Lock",
     "keybind" : "l"
 }
@@ -12,7 +12,7 @@
 }
 {
     "label" : "logout",
-    "action" : "swaymsg exit",
+    "action" : "hyprctl dispatch exit",
     "text" : "Logout",
     "keybind" : "e"
 }

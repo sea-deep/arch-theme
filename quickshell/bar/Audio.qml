@@ -7,7 +7,7 @@ import "../theme"
 Item {
     id: root
     signal primaryClicked()
-    implicitWidth: layout.implicitWidth + 16 // Matches Waybar's #pulseaudio { padding: 0 8px; }
+    implicitWidth: layout.implicitWidth + 16
     implicitHeight: Theme.barHeight
 
     readonly property var sink: Pipewire.defaultAudioSink

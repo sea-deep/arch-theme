@@ -16,8 +16,9 @@ case "${1:-get}" in
             if [[ -n "$val" ]]; then
                 brightnessctl set "$val" -q
             fi
-        elif comp_val="$(cat /var/lib/systemd/backlight/* 2>/dev/null | head -n 1 || true)"; [[ -n "$comp_val" ]]; then
+        elif comp_val="$(cat /sys/class/backlight/*/brightness 2>/dev/null | head -n 1 || true)"; [[ -n "$comp_val" ]]; then
             brightnessctl set "$comp_val" -q
+            echo "$comp_val" > "$STATE_FILE"
         fi
         ;;
     save)

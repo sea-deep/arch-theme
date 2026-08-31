@@ -6,7 +6,8 @@ if pgrep -x "wvkbd-mobintl" > /dev/null || pgrep -x "wvkbd-deskintl" > /dev/null
     pkill -x "wvkbd-deskintl" 2>/dev/null || true
     pkill -x "wvkbd" 2>/dev/null || true
 else
-    "$HOME/.local/bin/wvkbd-mobintl" \
+    WVKBD="$(command -v wvkbd-mobintl 2>/dev/null || echo "$HOME/.local/bin/wvkbd-mobintl")"
+    "$WVKBD" \
         -L 280 \
         -R 8 \
         --bg 1a1b26 \

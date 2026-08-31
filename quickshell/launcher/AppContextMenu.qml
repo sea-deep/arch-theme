@@ -163,7 +163,7 @@ Rectangle {
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
                     root.pinToggled(root.appName)
-                    root.actionTriggered()
+                    root.visible = false
                 }
             }
         }

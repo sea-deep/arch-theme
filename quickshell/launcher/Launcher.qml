@@ -100,21 +100,33 @@ PanelWindow {
 
     function isAppPinned(name) {
         if (!name) return false
+        var clean = name.toLowerCase().trim()
         var pinned = root.activePinnedAppNames || []
-        return pinned.indexOf(name) !== -1
+        for (var i = 0; i < pinned.length; i++) {
+            if (pinned[i] && pinned[i].toLowerCase().trim() === clean) return true
+        }
+        return false
     }
 
     function togglePinApp(name) {
         if (!name) return
+        var clean = name.trim()
+        var cleanLower = clean.toLowerCase()
         var pinned = (root.activePinnedAppNames || []).slice()
-        var idx = pinned.indexOf(name)
+        var idx = -1
+        for (var i = 0; i < pinned.length; i++) {
+            if (pinned[i] && pinned[i].toLowerCase().trim() === cleanLower) {
+                idx = i
+                break
+            }
+        }
         if (idx !== -1) {
             pinned.splice(idx, 1)
         } else {
-            pinned.push(name)
+            pinned.push(clean)
         }
         root.activePinnedAppNames = pinned
-        if (contextMenu.visible && contextMenu.appName === name) {
+        if (contextMenu.visible && contextMenu.appName && contextMenu.appName.toLowerCase().trim() === cleanLower) {
             contextMenu.isPinned = (idx === -1)
         }
         filterApps()
@@ -225,19 +237,26 @@ PanelWindow {
             // 1. Pinned Apps section
             var pinnedNames = getPinnedAppNames()
             if (pinnedNames.length > 0) {
-                var pinnedSet = {}
-                for (var p = 0; p < pinnedNames.length; p++) pinnedSet[pinnedNames[p]] = true
-                var pinnedApps = []
-                for (var i = 0; i < allApps.length; i++) {
-                    if (pinnedSet[allApps[i].name]) {
-                        pinnedApps.push(allApps[i])
+                var pinnedMap = {}
+                for (var p = 0; p < pinnedNames.length; p++) {
+                    if (pinnedNames[p]) {
+                        pinnedMap[pinnedNames[p].toLowerCase().trim()] = p
                     }
                 }
-                if (pinnedApps.length > 0) {
+                var pinnedApps = []
+                for (var i = 0; i < allApps.length; i++) {
+                    var pKey = (allApps[i].name || "").toLowerCase().trim()
+                    if (pinnedMap[pKey] !== undefined) {
+                        pinnedApps.push({ appItem: allApps[i], order: pinnedMap[pKey] })
+                    }
+                }
+                pinnedApps.sort(function(a, b) { return a.order - b.order })
+                var pinnedList = pinnedApps.map(function(x) { return x.appItem })
+                if (pinnedList.length > 0) {
                     sections.push({
                         title: "Pinned",
                         icon: "󰤉",
-                        apps: pinnedApps
+                        apps: pinnedList
                     })
                 }
             }
@@ -377,8 +396,8 @@ PanelWindow {
 
     onShowingChanged: {
         if (showing) {
-            syncPinnedFromDisk()
-            syncRecentsFromDisk()
+            if (activePinnedAppNames.length === 0) syncPinnedFromDisk()
+            if (activeRecentAppNames.length === 0) syncRecentsFromDisk()
             searchQuery = ""
             searchInput.text = ""
             activeCategory = "All"

@@ -40,10 +40,8 @@ PanelWindow {
     property int cursorX: -1
     property int cursorY: -1
     property string searchQuery: ""
-    property string activeCategory: "Recent"
 
-    property var categoryList: [
-        { name: "Recent", icon: "🕒" },
+    readonly property var standardCategories: [
         { name: "Smileys & Emotion", icon: "😀" },
         { name: "People & Body", icon: "👋" },
         { name: "Animals & Nature", icon: "🐻" },
@@ -55,20 +53,22 @@ PanelWindow {
         { name: "Flags", icon: "🚩" }
     ]
 
+    property var categorySections: []
+    property var searchSections: []
+    property int activeCategoryIndex: 0
+    property bool isClickScrolling: false
+
     FileView {
         id: recentEmojisFile
         path: Quickshell.env("HOME") + "/.config/quickshell/state/recent_emojis.json"
         watchChanges: true
         printErrors: false
         onFileChanged: {
-            if (activeCategory === "Recent" && searchQuery === "") {
-                loadCategory("Recent")
+            if (root.searchQuery === "") {
+                root.rebuildSections()
             }
         }
     }
-
-    property var displayEmojis: []
-    property int emojiCount: 0
 
     function getRecentEmojis() {
         try {
@@ -90,44 +90,33 @@ PanelWindow {
         Quickshell.execDetached(["bash", "-c", "mkdir -p ~/.config/quickshell/state && printf '%s\\n' '" + jsonStr.replace(/'/g, "'\\''") + "' > ~/.config/quickshell/state/recent_emojis.json"])
     }
 
-    function loadCategory(catName) {
-        activeCategory = catName
-        if (catName === "Recent") {
-            var recents = getRecentEmojis()
-            if (recents.length > 0) {
-                var list = []
-                for (var r = 0; r < recents.length; r++) {
-                    list.push({
-                        char: recents[r],
-                        name: "recent",
-                        category: "Recent"
-                    })
-                }
-                displayEmojis = list
-                emojiCount = list.length
-                return
-            }
-            // If Recent is empty, fallback to Smileys & Emotion
-            activeCategory = "Smileys & Emotion"
-            catName = "Smileys & Emotion"
-        }
-
-        var ems = EmojiData.categories[catName] || []
-        var list = []
-        for (var i = 0; i < ems.length; i++) {
-            list.push({
-                char: ems[i].char,
-                name: ems[i].name,
-                category: catName
+    function rebuildSections() {
+        var sections = []
+        var recents = getRecentEmojis()
+        if (recents.length > 0) {
+            sections.push({
+                name: "Recently Used",
+                icon: "🕒",
+                catId: "Recent",
+                emojis: recents.map(function(c) { return { char: c, name: "recent" } })
             })
         }
-        displayEmojis = list
-        emojiCount = list.length
+        for (var i = 0; i < standardCategories.length; i++) {
+            var cat = standardCategories[i]
+            sections.push({
+                name: cat.name,
+                icon: cat.icon,
+                catId: cat.name,
+                emojis: EmojiData.categories[cat.name] || []
+            })
+        }
+        categorySections = sections
+        activeCategoryIndex = 0
     }
 
     function filterEmojis(query) {
         if (query === "") {
-            loadCategory(activeCategory)
+            searchSections = []
             return
         }
         var result = []
@@ -150,21 +139,31 @@ PanelWindow {
                         seen[e.char] = true
                         result.push({
                             char: e.char,
-                            name: e.name,
-                            category: cat
+                            name: e.name
                         })
                     }
                 }
             }
         }
-        displayEmojis = result
-        emojiCount = result.length
+        searchSections = [{
+            name: "Search Results (" + result.length + ")",
+            icon: "󰍉",
+            catId: "search",
+            emojis: result
+        }]
     }
 
     function selectEmoji(emoji) {
         recordRecentEmoji(emoji)
         UiState.emojiVisible = false
         Quickshell.execDetached(["bash", Quickshell.shellPath("scripts/type-emoji.sh"), emoji])
+    }
+
+    Timer {
+        id: scrollResetTimer
+        interval: 220
+        repeat: false
+        onTriggered: root.isClickScrolling = false
     }
 
     Process {
@@ -203,12 +202,7 @@ PanelWindow {
     }
 
     Component.onCompleted: {
-        var recents = getRecentEmojis()
-        if (recents.length > 0) {
-            loadCategory("Recent")
-        } else {
-            loadCategory("Smileys & Emotion")
-        }
+        rebuildSections()
     }
 
     onShowingChanged: {
@@ -216,14 +210,8 @@ PanelWindow {
             cursorQuery.running = true
             searchQuery = ""
             searchInput.text = ""
-            var recents = getRecentEmojis()
-            if (recents.length > 0) {
-                loadCategory("Recent")
-            } else {
-                loadCategory("Smileys & Emotion")
-            }
-            grid.currentIndex = 0
-            grid.positionViewAtBeginning()
+            rebuildSections()
+            emojiList.positionViewAtBeginning()
             searchInput.forceActiveFocus()
         }
     }
@@ -265,202 +253,201 @@ PanelWindow {
                 anchors.margins: 12
                 spacing: 10
 
-            // Search bar
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 36
-                color: Theme.bgLight
-                radius: 8
-                border.color: searchInput.activeFocus ? Theme.accent : "transparent"
-                border.width: 1
-
-                RowLayout {
-                    anchors.fill: parent
-                    anchors.margins: 8
-                    spacing: 8
-
-                    Text {
-                        text: "󰍉"
-                        color: Theme.fgDim
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 14
-                    }
-
-                    TextInput {
-                        id: searchInput
-                        Layout.fillWidth: true
-                        color: Theme.fg
-                        font.family: Theme.fontFamilySans
-                        font.pixelSize: 13
-                        verticalAlignment: TextInput.AlignVCenter
-                        onTextChanged: {
-                            root.searchQuery = text.toLowerCase()
-                            root.filterEmojis(root.searchQuery)
-                            grid.currentIndex = 0
-                            grid.positionViewAtBeginning()
-                        }
-                        onAccepted: {
-                            if (root.displayEmojis.length > 0) {
-                                var targetIdx = (grid.currentIndex >= 0 && grid.currentIndex < root.displayEmojis.length) ? grid.currentIndex : 0
-                                root.selectEmoji(root.displayEmojis[targetIdx].char)
-                            }
-                        }
-                        Keys.onEscapePressed: UiState.emojiVisible = false
-                        Keys.onPressed: event => {
-                            if (event.key === Qt.Key_Down) {
-                                if (grid.count > 0) {
-                                    grid.currentIndex = Math.min(grid.count - 1, grid.currentIndex + 8)
-                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
-                                }
-                                event.accepted = true
-                            } else if (event.key === Qt.Key_Up) {
-                                if (grid.count > 0) {
-                                    grid.currentIndex = Math.max(0, grid.currentIndex - 8)
-                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
-                                }
-                                event.accepted = true
-                            } else if (event.key === Qt.Key_Right) {
-                                if (grid.count > 0) {
-                                    grid.currentIndex = Math.min(grid.count - 1, grid.currentIndex + 1)
-                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
-                                }
-                                event.accepted = true
-                            } else if (event.key === Qt.Key_Left) {
-                                if (grid.count > 0) {
-                                    grid.currentIndex = Math.max(0, grid.currentIndex - 1)
-                                    grid.positionViewAtIndex(grid.currentIndex, GridView.Contain)
-                                }
-                                event.accepted = true
-                            } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                if (root.displayEmojis.length > 0) {
-                                    var targetIdx = (grid.currentIndex >= 0 && grid.currentIndex < root.displayEmojis.length) ? grid.currentIndex : 0
-                                    root.selectEmoji(root.displayEmojis[targetIdx].char)
-                                }
-                                event.accepted = true
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Emoji grid
-            GridView {
-                id: grid
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.minimumHeight: 100
-                cellWidth: 39.5
-                cellHeight: 39.5
-                clip: true
-                model: root.displayEmojis
-                activeFocusOnTab: true
-                highlightFollowsCurrentItem: true
-                keyNavigationEnabled: true
-
-                Keys.onEscapePressed: UiState.emojiVisible = false
-                Keys.onPressed: event => {
-                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                        if (currentIndex >= 0 && currentIndex < root.displayEmojis.length) {
-                            root.selectEmoji(root.displayEmojis[currentIndex].char)
-                        } else if (root.displayEmojis.length > 0) {
-                            root.selectEmoji(root.displayEmojis[0].char)
-                        }
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_Up && currentIndex < 8) {
-                        searchInput.forceActiveFocus()
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_Backspace) {
-                        searchInput.forceActiveFocus()
-                        if (searchInput.text.length > 0) {
-                            searchInput.text = searchInput.text.slice(0, -1)
-                        }
-                        event.accepted = true
-                    } else if (event.text && event.text.length > 0 && event.text.charCodeAt(0) >= 32 && event.key !== Qt.Key_Space) {
-                        searchInput.forceActiveFocus()
-                        searchInput.text += event.text
-                        event.accepted = true
-                    }
-                }
-
-                delegate: Rectangle {
-                    id: delegateRoot
-                    required property var modelData
-                    required property int index
-
-                    property bool isCurrent: (grid.currentIndex === index)
-
-                    width: grid.cellWidth
-                    height: grid.cellHeight
-                    color: isCurrent ? Theme.accent : (emojiMouseArea.containsMouse ? Theme.bgLight : "transparent")
+                // Search bar
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 36
+                    color: Theme.bgLight
                     radius: 8
+                    border.color: searchInput.activeFocus ? Theme.accent : "transparent"
+                    border.width: 1
 
-                    MouseArea {
-                        id: emojiMouseArea
+                    RowLayout {
                         anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            grid.currentIndex = index
-                            if (delegateRoot.modelData)
-                                root.selectEmoji(delegateRoot.modelData.char)
-                        }
-                    }
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: delegateRoot.modelData ? delegateRoot.modelData.char : ""
-                        font.pixelSize: 22
-                    }
-                }
-            }
-
-            // Category separator
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 1
-                color: Theme.surface
-                visible: root.searchQuery === ""
-            }
-
-            // Category tabs (compact & shortened)
-            RowLayout {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 24
-                spacing: 2
-                visible: root.searchQuery === ""
-
-                Repeater {
-                    model: root.categoryList
-                    Rectangle {
-                        required property var modelData
-                        readonly property bool isActive: (root.activeCategory === modelData.name) && (root.searchQuery === "")
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        color: isActive ? Theme.accent : (catMouseArea.containsMouse ? Theme.bgLight : "transparent")
-                        radius: 4
-
-                        MouseArea {
-                            id: catMouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                root.loadCategory(modelData.name)
-                                grid.currentIndex = 0
-                                grid.positionViewAtBeginning()
-                                grid.forceActiveFocus()
-                            }
-                        }
+                        anchors.margins: 8
+                        spacing: 8
 
                         Text {
-                            anchors.centerIn: parent
-                            text: modelData.icon
+                            text: "󰍉"
+                            color: Theme.fgDim
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 14
+                        }
+
+                        TextInput {
+                            id: searchInput
+                            Layout.fillWidth: true
+                            color: Theme.fg
+                            font.family: Theme.fontFamilySans
                             font.pixelSize: 13
+                            verticalAlignment: TextInput.AlignVCenter
+                            onTextChanged: {
+                                root.searchQuery = text.toLowerCase()
+                                root.filterEmojis(root.searchQuery)
+                                emojiList.positionViewAtBeginning()
+                            }
+                            onAccepted: {
+                                if (root.searchSections.length > 0 && root.searchSections[0].emojis.length > 0) {
+                                    root.selectEmoji(root.searchSections[0].emojis[0].char)
+                                }
+                            }
+                            Keys.onEscapePressed: UiState.emojiVisible = false
+                        }
+                    }
+                }
+
+                // Continuous Scrollable Emoji List with Category Headers & Separators
+                ListView {
+                    id: emojiList
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.minimumHeight: 100
+                    clip: true
+                    spacing: 12
+                    boundsBehavior: Flickable.StopAtBounds
+                    model: root.searchQuery === "" ? root.categorySections : root.searchSections
+
+                    onContentYChanged: {
+                        if (!root.isClickScrolling && root.searchQuery === "") {
+                            var idx = emojiList.indexAt(10, emojiList.contentY + 30)
+                            if (idx >= 0 && idx < root.categorySections.length) {
+                                root.activeCategoryIndex = idx
+                            }
+                        }
+                    }
+
+                    delegate: ColumnLayout {
+                        id: secDelegate
+                        required property var modelData
+                        required property int index
+
+                        width: emojiList.width
+                        spacing: 6
+
+                        // Category Section Header & Separator Line
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.topMargin: index === 0 ? 0 : 6
+                            Layout.bottomMargin: 2
+                            spacing: 8
+
+                            Text {
+                                text: secDelegate.modelData.name
+                                color: Theme.accent
+                                font.family: Theme.fontFamilySans
+                                font.pixelSize: 11
+                                font.weight: Theme.fontWeight
+                            }
+
+                            Rectangle {
+                                Layout.fillWidth: true
+                                height: 1
+                                color: Theme.surface
+                            }
+                        }
+
+                        // Grid of Emojis for this Category
+                        Flow {
+                            Layout.fillWidth: true
+                            spacing: 0
+
+                            Repeater {
+                                model: secDelegate.modelData.emojis
+                                Rectangle {
+                                    required property var modelData
+                                    required property int index
+
+                                    width: 39.5
+                                    height: 39.5
+                                    radius: 8
+                                    color: emMouse.containsMouse ? Theme.bgLight : "transparent"
+
+                                    MouseArea {
+                                        id: emMouse
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            root.selectEmoji(modelData.char)
+                                        }
+                                    }
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: modelData.char
+                                        font.pixelSize: 22
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Empty Search Placeholder
+                    Text {
+                        visible: root.searchQuery !== "" && (root.searchSections.length === 0 || root.searchSections[0].emojis.length === 0)
+                        anchors.centerIn: parent
+                        text: "No matching emojis"
+                        color: Theme.fgDim
+                        font.family: Theme.fontFamilySans
+                        font.pixelSize: 13
+                    }
+                }
+
+                // Category separator line
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 1
+                    color: Theme.surface
+                    visible: root.searchQuery === ""
+                }
+
+                // Category tabs with highlight indicator over current category
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 28
+                    spacing: 2
+                    visible: root.searchQuery === ""
+
+                    Repeater {
+                        model: root.categorySections
+                        Rectangle {
+                            required property var modelData
+                            required property int index
+
+                            readonly property bool isActive: (root.activeCategoryIndex === index)
+
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 26
+                            radius: 6
+                            color: isActive ? Theme.accentGlow : (catMouseArea.containsMouse ? Theme.bgLight : "transparent")
+                            border.color: isActive ? Theme.accent : "transparent"
+                            border.width: 1
+
+                            Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+                            Behavior on border.color { ColorAnimation { duration: Theme.durationFast } }
+
+                            MouseArea {
+                                id: catMouseArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    root.isClickScrolling = true
+                                    root.activeCategoryIndex = index
+                                    emojiList.positionViewAtIndex(index, ListView.Beginning)
+                                    scrollResetTimer.restart()
+                                }
+                            }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: modelData.icon
+                                font.pixelSize: 13
+                            }
                         }
                     }
                 }
             }
         }
     }
-}
 }

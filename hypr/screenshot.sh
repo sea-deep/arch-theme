@@ -27,14 +27,24 @@ sleep 0.15
 LATEST_BEFORE=$(ls -t "$SAVE_DIR" 2>/dev/null | head -n 1)
 wl-paste -t image/png > /tmp/clip_before.png 2>/dev/null
 
+GEOM=$2
+
 if [ "$MODE" = "full" ]; then
     grim - | swappy -f -
 elif [ "$MODE" = "region" ]; then
-    GEOMETRY=$(slurp)
+    if [ -n "$GEOM" ]; then
+        GEOMETRY="$GEOM"
+    else
+        GEOMETRY=$(slurp)
+    fi
     if [ -z "$GEOMETRY" ]; then exit 0; fi
     grim -g "$GEOMETRY" - | swappy -f -
 elif [ "$MODE" = "window" ]; then
-    GEOMETRY=$(hyprctl clients -j | jq -r '.[] | select(.mapped == true and .workspace.id > 0) | "\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"' | slurp)
+    if [ -n "$GEOM" ]; then
+        GEOMETRY="$GEOM"
+    else
+        GEOMETRY=$(hyprctl clients -j | jq -r '.[] | select(.mapped == true and .workspace.id > 0) | "\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"' | slurp)
+    fi
     if [ -z "$GEOMETRY" ]; then
         # Fallback to standard slurp if no window was picked
         GEOMETRY=$(slurp)

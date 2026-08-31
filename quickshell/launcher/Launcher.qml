@@ -789,8 +789,11 @@ PanelWindow {
             }
         }
     }
+    }
 
         // Floating Right-Click Option Selector Context Menu
+        // MUST be a direct child of launcherCard (sibling of the z:9 dismiss shield)
+        // so that z:10 > z:9 stacking actually works for input events
         AppContextMenu {
             id: contextMenu
             visible: false
@@ -804,5 +807,4 @@ PanelWindow {
             }
         }
     }
-}
 }

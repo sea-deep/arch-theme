@@ -31,7 +31,6 @@ Components.Pill {
     readonly property int currentBrightness: parseInt(brightnessFile.text()) || 0
 
     property real reveal: expanded ? 1 : 0
-    property string tlpProfile: "unknown"
 
     implicitWidth: metricRow.implicitWidth + 12
     implicitHeight: Theme.barHeight + bodyHeight * reveal
@@ -47,8 +46,6 @@ Components.Pill {
     onExpandedChanged: {
         if (expanded) {
             Qt.callLater(() => root.forceActiveFocus())
-            if (UiState.quickControlMode === "battery" && !tlpProfileProbe.running)
-                tlpProfileProbe.running = true
         }
     }
 

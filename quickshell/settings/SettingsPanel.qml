@@ -49,6 +49,39 @@ PanelWindow {
         onFileChanged: reload()
     }
 
+    property int gapsIn: 0
+    property int gapsOut: 0
+    property int borderSize: 2
+    property int rounding: 10
+    property bool blurEnabled: false
+    property int blurSize: 7
+    property bool animationsEnabled: true
+
+    Process {
+        id: hyprQuery
+        command: ["/bin/sh", "-c", "echo '{\"gaps_in\":'$(hyprctl getoption general:gaps_in -j | jq -r '.int // .css' | awk '{print $1}')',\"gaps_out\":'$(hyprctl getoption general:gaps_out -j | jq -r '.int // .css' | awk '{print $1}')',\"border_size\":'$(hyprctl getoption general:border_size -j | jq -r '.int // 2')',\"rounding\":'$(hyprctl getoption decoration:rounding -j | jq -r '.int // 10')',\"blur\":'$(hyprctl getoption decoration:blur:enabled -j | jq -r '.bool // false')',\"blur_size\":'$(hyprctl getoption decoration:blur:size -j | jq -r '.int // 7')',\"animations\":'$(hyprctl getoption animations:enabled -j | jq -r '.bool // true')'}'"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    var data = JSON.parse(text.trim())
+                    if (data.gaps_in !== undefined) root.gapsIn = Number(data.gaps_in) || 0
+                    if (data.gaps_out !== undefined) root.gapsOut = Number(data.gaps_out) || 0
+                    if (data.border_size !== undefined) root.borderSize = Number(data.border_size) || 2
+                    if (data.rounding !== undefined) root.rounding = Number(data.rounding) || 10
+                    if (data.blur !== undefined) root.blurEnabled = Boolean(data.blur)
+                    if (data.blur_size !== undefined) root.blurSize = Number(data.blur_size) || 7
+                    if (data.animations !== undefined) root.animationsEnabled = Boolean(data.animations)
+                } catch(e) {}
+            }
+        }
+    }
+
+    onVisibleChanged: {
+        if (visible && !hyprQuery.running) {
+            hyprQuery.running = true
+        }
+    }
+
     Process { id: hyprctl }
 
     function setHypr(keyword, value) {
@@ -167,19 +200,19 @@ PanelWindow {
                         
                         RowLayout {
                             Text { text: "Gap size (inner)"; color: Theme.fg; Layout.fillWidth: true }
-                            Slider { from: 0; to: 20; value: 0; onMoved: setHypr("general:gaps_in", Math.round(value)) }
+                            Slider { from: 0; to: 20; value: root.gapsIn; onMoved: { root.gapsIn = Math.round(value); setHypr("general:gaps_in", root.gapsIn) } }
                         }
                         RowLayout {
                             Text { text: "Gap size (outer)"; color: Theme.fg; Layout.fillWidth: true }
-                            Slider { from: 0; to: 20; value: 0; onMoved: setHypr("general:gaps_out", Math.round(value)) }
+                            Slider { from: 0; to: 20; value: root.gapsOut; onMoved: { root.gapsOut = Math.round(value); setHypr("general:gaps_out", root.gapsOut) } }
                         }
                         RowLayout {
                             Text { text: "Border size"; color: Theme.fg; Layout.fillWidth: true }
-                            Slider { from: 0; to: 5; value: 2; onMoved: setHypr("general:border_size", Math.round(value)) }
+                            Slider { from: 0; to: 5; value: root.borderSize; onMoved: { root.borderSize = Math.round(value); setHypr("general:border_size", root.borderSize) } }
                         }
                         RowLayout {
                             Text { text: "Corner rounding"; color: Theme.fg; Layout.fillWidth: true }
-                            Slider { from: 0; to: 30; value: 10; onMoved: setHypr("decoration:rounding", Math.round(value)) }
+                            Slider { from: 0; to: 30; value: root.rounding; onMoved: { root.rounding = Math.round(value); setHypr("decoration:rounding", root.rounding) } }
                         }
                     }
 
@@ -191,15 +224,15 @@ PanelWindow {
                         
                         RowLayout {
                             Text { text: "Blur toggle"; color: Theme.fg; Layout.fillWidth: true }
-                            Switch { checked: false; onCheckedChanged: setHypr("decoration:blur:enabled", checked ? "true" : "false") }
+                            Switch { checked: root.blurEnabled; onToggled: { root.blurEnabled = checked; setHypr("decoration:blur:enabled", checked ? "true" : "false") } }
                         }
                         RowLayout {
                             Text { text: "Blur strength"; color: Theme.fg; Layout.fillWidth: true }
-                            Slider { from: 1; to: 10; value: 7; onMoved: setHypr("decoration:blur:size", Math.round(value)) }
+                            Slider { from: 1; to: 10; value: root.blurSize; onMoved: { root.blurSize = Math.round(value); setHypr("decoration:blur:size", root.blurSize) } }
                         }
                         RowLayout {
                             Text { text: "Animations"; color: Theme.fg; Layout.fillWidth: true }
-                            Switch { checked: true; onCheckedChanged: setHypr("animations:enabled", checked ? "true" : "false") }
+                            Switch { checked: root.animationsEnabled; onToggled: { root.animationsEnabled = checked; setHypr("animations:enabled", checked ? "true" : "false") } }
                         }
                     }
 

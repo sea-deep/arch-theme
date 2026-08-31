@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Notifications as QSNotifications
+import "../theme"
 
 Singleton {
     id: root
@@ -11,7 +12,7 @@ Singleton {
     property var latestNotification: null
     property var activeToasts: []
     property int unreadCount: 0
-    property alias dndEnabled: UiState.dndEnabled
+    readonly property bool dndEnabled: UiState.dndEnabled
 
     signal notificationReceived(var notification)
 
@@ -72,8 +73,8 @@ Singleton {
     }
 
     function toggleDnd() {
-        dndEnabled = !dndEnabled
-        if (dndEnabled) {
+        UiState.dndEnabled = !UiState.dndEnabled
+        if (UiState.dndEnabled) {
             activeToasts = []
             UiState.notificationPreviewVisible = false
         }

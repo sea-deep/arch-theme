@@ -79,9 +79,32 @@ hl.config({
         blur = { enabled = false },
         shadow = { enabled = false },
     },
+    group = {
+        ["col.border_active"] = "rgb(7aa2f7)",
+        ["col.border_inactive"] = "rgb(24283b)",
+        ["col.border_locked_active"] = "rgb(f7768e)",
+        ["col.border_locked_inactive"] = "rgb(24283b)",
+        groupbar = {
+            enabled = true,
+            font_family = "IBM Plex Sans",
+            font_size = 10,
+            gradients = false,
+            height = 22,
+            priority = 3,
+            stacked = false,
+            render_titles = true,
+            ["col.active"] = "rgb(7aa2f7)",
+            ["col.inactive"] = "rgb(24283b)",
+            ["col.locked_active"] = "rgb(f7768e)",
+            ["col.locked_inactive"] = "rgb(24283b)",
+            text_color = "rgb(26, 27, 38)",
+            ["text_color_inactive"] = "rgb(169, 177, 214)",
+        }
+    },
     misc = {
         force_default_wallpaper = 0,
         disable_hyprland_logo = true,
+        background_color = "rgb(1a1b26)",
     }
 })
 
@@ -164,6 +187,8 @@ hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen(0))
 hl.bind(mainMod .. " + SHIFT + Space", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + S", hl.dsp.group.toggle())
+hl.bind(mainMod .. " + Tab", hl.dsp.exec_cmd("hyprctl dispatch changegroupactive f"))
+hl.bind(mainMod .. " + SHIFT + Tab", hl.dsp.exec_cmd("hyprctl dispatch changegroupactive b"))
 hl.bind(mainMod .. " + W", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 

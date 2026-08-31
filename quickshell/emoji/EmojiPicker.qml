@@ -298,18 +298,18 @@ PanelWindow {
                                 color: Theme.fg
                                 font.family: Theme.fontFamilySans
                                 font.pixelSize: 13
+                                verticalAlignment: TextInput.AlignVCenter
                                 clip: true
                                 selectByMouse: true
                                 selectionColor: Theme.accent
                                 selectedTextColor: Theme.bg
 
                                 Text {
-                                    visible: !searchInput.text && !searchInput.activeFocus
-                                    text: "Search emojis..."
-                                    color: Theme.fgDim
-                                    font.family: Theme.fontFamilySans
-                                    font.pixelSize: 13
                                     anchors.verticalCenter: parent.verticalCenter
+                                    visible: parent.text.length === 0
+                                    text: "Search emojis…"
+                                    color: Theme.fgMuted
+                                    font: parent.font
                                 }
 
                                 onTextChanged: {

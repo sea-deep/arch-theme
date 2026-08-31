@@ -37,7 +37,7 @@ Item {
     Connections {
         target: Notifications.NotificationServer
         function onNotificationReceived() {
-            if (!UiState.notificationCenterVisible) {
+            if (!UiState.notificationCenterVisible && !Notifications.NotificationServer.dndEnabled) {
                 UiState.showNotificationPreview(targetScreenName)
             }
         }

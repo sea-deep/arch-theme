@@ -11,12 +11,14 @@ Singleton {
         reloadableId: "ui-state"
 
         property bool caffeineEnabled: false
+        property bool dndEnabled: false
         property real comfortValue: 0
         property real grayscaleValue: 0
         property real vividValue: 0
     }
 
     property alias caffeineEnabled: persisted.caffeineEnabled
+    property alias dndEnabled: persisted.dndEnabled
     property alias comfortValue: persisted.comfortValue
     property alias grayscaleValue: persisted.grayscaleValue
     property alias vividValue: persisted.vividValue

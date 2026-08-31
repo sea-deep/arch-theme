@@ -11,7 +11,7 @@ Singleton {
     property var latestNotification: null
     property var activeToasts: []
     property int unreadCount: 0
-    property bool dndEnabled: false
+    property alias dndEnabled: UiState.dndEnabled
 
     signal notificationReceived(var notification)
 
@@ -28,12 +28,12 @@ Singleton {
     }
 
     function addToast(notification) {
-        if (!notification) return
+        if (!notification || dndEnabled) return
         var current = (activeToasts || []).slice()
         current = current.filter(n => !areSameNotification(n, notification))
         current.unshift(notification)
-        if (current.length > 8)
-            current = current.slice(0, 8)
+        if (current.length > 4)
+            current = current.slice(0, 4)
         activeToasts = current
     }
 
@@ -73,6 +73,10 @@ Singleton {
 
     function toggleDnd() {
         dndEnabled = !dndEnabled
+        if (dndEnabled) {
+            activeToasts = []
+            UiState.notificationPreviewVisible = false
+        }
     }
 
     QSNotifications.NotificationServer {

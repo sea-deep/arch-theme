@@ -3,8 +3,25 @@ local terminal = "kitty"
 local fileManager = "thunar"
 local browser = "zen-browser"
 
-hl.monitor({ output = "eDP-1", mode = "1920x1080@60.050", position = "0x0", scale = 1.0 })
-hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1.0 })
+local state_dir = os.getenv("HOME") .. "/.config/quickshell/state"
+local scale_file = state_dir .. "/display_scale.txt"
+
+local function read_saved_scale()
+    local f = io.open(scale_file, "r")
+    if f then
+        local content = f:read("*all")
+        f:close()
+        local val = tonumber(content and content:match("[%d%.]+"))
+        if val and val >= 1.0 and val <= 2.0 then
+            return val
+        end
+    end
+    return 1.2
+end
+
+local initial_scale = read_saved_scale()
+hl.monitor({ output = "eDP-1", mode = "1920x1080@60.050", position = "0x0", scale = initial_scale })
+hl.monitor({ output = "", mode = "preferred", position = "auto", scale = initial_scale })
 
 hl.config({
     xwayland = {
@@ -128,6 +145,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("sh -c '$HOME/code/arch-theme/quickshell/scripts/brightness.sh restore 2>/dev/null || true'")
     hl.exec_cmd("sh -c '$HOME/code/arch-theme/quickshell/scripts/power_profile.sh restore 2>/dev/null || true'")
     hl.exec_cmd("sh -c '$HOME/code/arch-theme/quickshell/scripts/bluetooth.sh restore 2>/dev/null || true'")
+    hl.exec_cmd("sh -c '$HOME/code/arch-theme/quickshell/scripts/update_shader.sh restore 2>/dev/null || true'")
 end)
 
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal))
@@ -241,6 +259,13 @@ local scale_steps = { 1.0, 1.2, 1.25, 1.5 }
 local function set_display_scale(target_scale)
     hl.monitor({ output = "eDP-1", mode = "1920x1080@60.050", position = "0x0", scale = target_scale })
     hl.monitor({ output = "", mode = "preferred", position = "auto", scale = target_scale })
+    
+    local f = io.open(scale_file, "w")
+    if f then
+        f:write(string.format("%.2f\n", target_scale))
+        f:close()
+    end
+
     hl.notification.create({
         text = string.format("Display Scale: %.2fx", target_scale),
         time = 1800,

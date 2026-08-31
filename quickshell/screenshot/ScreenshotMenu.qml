@@ -76,26 +76,55 @@ PanelWindow {
             curY = 0
             hoveredWin = null
             winProc.running = true
-            forceActiveFocus()
         }
     }
 
-    focus: true
-    Keys.onPressed: event => {
-        if (event.key === Qt.Key_Escape) {
-            UiState.screenshotVisible = false
-            event.accepted = true
-        } else if (event.key === Qt.Key_F) {
-            captureFull()
-            event.accepted = true
-        } else if (event.key === Qt.Key_W) {
-            currentMode = (currentMode === "window" ? "crop" : "window")
-            if (currentMode === "window") winProc.running = true
-            event.accepted = true
-        } else if (event.key === Qt.Key_R || event.key === Qt.Key_C) {
-            currentMode = "crop"
-            event.accepted = true
+    Shortcut {
+        sequence: "Escape"
+        enabled: root.showing
+        onActivated: UiState.screenshotVisible = false
+    }
+
+    Shortcut {
+        sequence: "f"
+        enabled: root.showing
+        onActivated: root.captureFull()
+    }
+
+    Shortcut {
+        sequence: "Shift+F"
+        enabled: root.showing
+        onActivated: root.captureFull()
+    }
+
+    Shortcut {
+        sequence: "w"
+        enabled: root.showing
+        onActivated: {
+            root.currentMode = (root.currentMode === "window" ? "crop" : "window")
+            if (root.currentMode === "window") winProc.running = true
         }
+    }
+
+    Shortcut {
+        sequence: "Shift+W"
+        enabled: root.showing
+        onActivated: {
+            root.currentMode = (root.currentMode === "window" ? "crop" : "window")
+            if (root.currentMode === "window") winProc.running = true
+        }
+    }
+
+    Shortcut {
+        sequence: "r"
+        enabled: root.showing
+        onActivated: root.currentMode = "crop"
+    }
+
+    Shortcut {
+        sequence: "c"
+        enabled: root.showing
+        onActivated: root.currentMode = "crop"
     }
 
     function captureFull() {

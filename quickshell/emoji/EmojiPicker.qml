@@ -24,8 +24,14 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
+            id: revealAnim
             duration: Theme.durationMedium
             easing.type: Theme.easingDecelerate
+            onFinished: {
+                if (root.showing && !root.fullyLoaded) {
+                    lazyTimer.restart()
+                }
+            }
         }
     }
 
@@ -40,6 +46,21 @@ PanelWindow {
     property int cursorX: -1
     property int cursorY: -1
     property string searchQuery: ""
+    property bool fullyLoaded: false
+    property bool isClickScrolling: false
+
+    readonly property var categoryTabList: [
+        { name: "Recently Used", catId: "Recent", icon: "🕒" },
+        { name: "Smileys & Emotion", catId: "Smileys & Emotion", icon: "😀" },
+        { name: "People & Body", catId: "People & Body", icon: "👋" },
+        { name: "Animals & Nature", catId: "Animals & Nature", icon: "🐻" },
+        { name: "Food & Drink", catId: "Food & Drink", icon: "🍔" },
+        { name: "Travel & Places", catId: "Travel & Places", icon: "🚗" },
+        { name: "Activities", catId: "Activities", icon: "⚽" },
+        { name: "Objects", catId: "Objects", icon: "💡" },
+        { name: "Symbols", catId: "Symbols", icon: "💖" },
+        { name: "Flags", catId: "Flags", icon: "🚩" }
+    ]
 
     readonly property var standardCategories: [
         { name: "Smileys & Emotion", icon: "😀" },
@@ -55,8 +76,7 @@ PanelWindow {
 
     property var categorySections: []
     property var searchSections: []
-    property int activeCategoryIndex: 0
-    property bool isClickScrolling: false
+    property string activeCatId: "Recent"
 
     FileView {
         id: recentEmojisFile
@@ -65,7 +85,11 @@ PanelWindow {
         printErrors: false
         onFileChanged: {
             if (root.searchQuery === "") {
-                root.rebuildSections()
+                if (root.fullyLoaded) {
+                    root.loadFullSections()
+                } else {
+                    root.loadInitialPage()
+                }
             }
         }
     }
@@ -90,7 +114,35 @@ PanelWindow {
         Quickshell.execDetached(["bash", "-c", "mkdir -p ~/.config/quickshell/state && printf '%s\\n' '" + jsonStr.replace(/'/g, "'\\''") + "' > ~/.config/quickshell/state/recent_emojis.json"])
     }
 
-    function rebuildSections() {
+    // Load only 1 page (up to 56 emojis) initially for 0ms unroll reveal
+    function loadInitialPage() {
+        var sections = []
+        var recents = getRecentEmojis()
+        var needed = 56
+        if (recents.length > 0) {
+            sections.push({
+                name: "Recently Used",
+                icon: "🕒",
+                catId: "Recent",
+                emojis: recents.map(function(c) { return { char: c, name: "recent" } })
+            })
+            needed -= recents.length
+        }
+        var smileys = EmojiData.categories["Smileys & Emotion"] || []
+        var initSmileys = smileys.slice(0, Math.max(24, needed))
+        sections.push({
+            name: "Smileys & Emotion",
+            icon: "😀",
+            catId: "Smileys & Emotion",
+            emojis: initSmileys
+        })
+        categorySections = sections
+        activeCatId = recents.length > 0 ? "Recent" : "Smileys & Emotion"
+        fullyLoaded = false
+    }
+
+    // Lazy load all 9 categories after reveal animation finishes or upon scroll/click
+    function loadFullSections() {
         var sections = []
         var recents = getRecentEmojis()
         if (recents.length > 0) {
@@ -111,7 +163,7 @@ PanelWindow {
             })
         }
         categorySections = sections
-        activeCategoryIndex = 0
+        fullyLoaded = true
     }
 
     function filterEmojis(query) {
@@ -160,6 +212,17 @@ PanelWindow {
     }
 
     Timer {
+        id: lazyTimer
+        interval: 30
+        repeat: false
+        onTriggered: {
+            if (root.showing && !root.fullyLoaded) {
+                root.loadFullSections()
+            }
+        }
+    }
+
+    Timer {
         id: scrollResetTimer
         interval: 220
         repeat: false
@@ -202,7 +265,7 @@ PanelWindow {
     }
 
     Component.onCompleted: {
-        rebuildSections()
+        loadInitialPage()
     }
 
     onShowingChanged: {
@@ -210,7 +273,7 @@ PanelWindow {
             cursorQuery.running = true
             searchQuery = ""
             searchInput.text = ""
-            rebuildSections()
+            loadInitialPage()
             emojiList.positionViewAtBeginning()
             searchInput.forceActiveFocus()
         }
@@ -309,9 +372,12 @@ PanelWindow {
 
                     onContentYChanged: {
                         if (!root.isClickScrolling && root.searchQuery === "") {
+                            if (!root.fullyLoaded && contentY > 30) {
+                                root.loadFullSections()
+                            }
                             var idx = emojiList.indexAt(10, emojiList.contentY + 30)
                             if (idx >= 0 && idx < root.categorySections.length) {
-                                root.activeCategoryIndex = idx
+                                root.activeCatId = root.categorySections[idx].catId
                             }
                         }
                     }
@@ -401,7 +467,7 @@ PanelWindow {
                     visible: root.searchQuery === ""
                 }
 
-                // Category tabs with highlight indicator over current category
+                // Fixed 10 Category tabs with glowing indicator over active category
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 28
@@ -409,12 +475,12 @@ PanelWindow {
                     visible: root.searchQuery === ""
 
                     Repeater {
-                        model: root.categorySections
+                        model: root.categoryTabList
                         Rectangle {
                             required property var modelData
                             required property int index
 
-                            readonly property bool isActive: (root.activeCategoryIndex === index)
+                            readonly property bool isActive: (root.activeCatId === modelData.catId)
 
                             Layout.fillWidth: true
                             Layout.preferredHeight: 26
@@ -432,9 +498,20 @@ PanelWindow {
                                 hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: {
+                                    if (!root.fullyLoaded) {
+                                        root.loadFullSections()
+                                    }
                                     root.isClickScrolling = true
-                                    root.activeCategoryIndex = index
-                                    emojiList.positionViewAtIndex(index, ListView.Beginning)
+                                    root.activeCatId = modelData.catId
+
+                                    var targetIndex = 0
+                                    for (var s = 0; s < root.categorySections.length; s++) {
+                                        if (root.categorySections[s].catId === modelData.catId) {
+                                            targetIndex = s
+                                            break
+                                        }
+                                    }
+                                    emojiList.positionViewAtIndex(targetIndex, ListView.Beginning)
                                     scrollResetTimer.restart()
                                 }
                             }

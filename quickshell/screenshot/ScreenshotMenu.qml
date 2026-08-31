@@ -10,12 +10,17 @@ PanelWindow {
     id: root
     WlrLayershell.namespace: "screenshot-overlay"
     WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.exclusiveZone: 0
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 
     anchors.top: true
     anchors.bottom: true
     anchors.left: true
     anchors.right: true
+    margins.top: 0
+    margins.bottom: 0
+    margins.left: 0
+    margins.right: 0
     color: "transparent"
 
     property bool showing: UiState.screenshotVisible
@@ -46,7 +51,7 @@ PanelWindow {
 
     Process {
         id: winProc
-        command: ["/usr/bin/hyprctl", "clients", "-j"]
+        command: ["sh", "-c", "hyprctl clients -j | jq -c '.'"]
         stdout: SplitParser {
             onRead: data => {
                 try {
@@ -359,27 +364,30 @@ PanelWindow {
     // ── Top Floating HUD Control Capsule ──
     Rectangle {
         id: hudCapsule
+        z: 10
         anchors.top: parent.top
-        anchors.topMargin: 24
+        anchors.topMargin: 48
         anchors.horizontalCenter: parent.horizontalCenter
-        height: 38
-        implicitWidth: hudLayout.implicitWidth + 24
-        radius: 19
+        height: 42
+        width: hudRow.implicitWidth + 24
+        radius: 21
         color: Theme.bg
         border.color: Theme.accentGlow
         border.width: Theme.borderWidth
 
-        RowLayout {
-            id: hudLayout
+        Row {
+            id: hudRow
             anchors.centerIn: parent
-            spacing: 8
+            spacing: 6
 
             // Drag Region
             Rectangle {
-                height: 26
-                implicitWidth: snipText.implicitWidth + 16
-                radius: 13
+                height: 30
+                width: snipText.implicitWidth + 20
+                radius: 15
                 color: root.currentMode === "crop" ? Theme.accent : "transparent"
+                Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+
                 Text {
                     id: snipText
                     anchors.centerIn: parent
@@ -389,19 +397,23 @@ PanelWindow {
                     font.pixelSize: 12
                     font.weight: Theme.fontWeight
                 }
+
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
+                    hoverEnabled: true
                     onClicked: root.currentMode = "crop"
                 }
             }
 
             // Window Selection
             Rectangle {
-                height: 26
-                implicitWidth: winText.implicitWidth + 16
-                radius: 13
+                height: 30
+                width: winText.implicitWidth + 20
+                radius: 15
                 color: root.currentMode === "window" ? Theme.accent : "transparent"
+                Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+
                 Text {
                     id: winText
                     anchors.centerIn: parent
@@ -411,9 +423,11 @@ PanelWindow {
                     font.pixelSize: 12
                     font.weight: Theme.fontWeight
                 }
+
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
+                    hoverEnabled: true
                     onClicked: {
                         root.currentMode = "window"
                         winProc.running = true
@@ -423,10 +437,12 @@ PanelWindow {
 
             // Fullscreen
             Rectangle {
-                height: 26
-                implicitWidth: fullText.implicitWidth + 16
-                radius: 13
-                color: "transparent"
+                height: 30
+                width: fullText.implicitWidth + 20
+                radius: 15
+                color: fullHover.containsMouse ? Theme.bgLight : "transparent"
+                Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+
                 Text {
                     id: fullText
                     anchors.centerIn: parent
@@ -436,26 +452,32 @@ PanelWindow {
                     font.pixelSize: 12
                     font.weight: Theme.fontWeight
                 }
+
                 MouseArea {
+                    id: fullHover
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
+                    hoverEnabled: true
                     onClicked: root.captureFull()
                 }
             }
 
             // Separator
             Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
                 width: 1
-                height: 16
+                height: 18
                 color: Theme.surfaceVariant
             }
 
             // Cancel
             Rectangle {
-                height: 26
-                implicitWidth: cancelText.implicitWidth + 12
-                radius: 13
-                color: "transparent"
+                height: 30
+                width: cancelText.implicitWidth + 18
+                radius: 15
+                color: cancelHover.containsMouse ? Theme.bgLight : "transparent"
+                Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+
                 Text {
                     id: cancelText
                     anchors.centerIn: parent
@@ -465,9 +487,12 @@ PanelWindow {
                     font.pixelSize: 12
                     font.weight: Theme.fontWeight
                 }
+
                 MouseArea {
+                    id: cancelHover
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
+                    hoverEnabled: true
                     onClicked: UiState.screenshotVisible = false
                 }
             }

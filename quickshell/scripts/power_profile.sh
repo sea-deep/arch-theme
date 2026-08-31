@@ -7,9 +7,10 @@ STATE_FILE="$STATE_DIR/power_profile.txt"
 mkdir -p "$STATE_DIR"
 
 notify() {
-    local text="$1"
-    local color="$2"
-    hyprctl repl "hl.notification.create({ text = '$text', time = 2000, color = '$color' })" > /dev/null 2>&1 || true
+    local summary="$1"
+    local body="$2"
+    local icon="$3"
+    notify-send -a "Power Management" -i "$icon" "$summary" "$body" > /dev/null 2>&1 || true
 }
 
 apply_profile() {
@@ -19,19 +20,19 @@ apply_profile() {
             echo "performance" > "$STATE_FILE"
             hyprctl repl "hl.config({ animations = { enabled = true }, decoration = { dim_inactive = false } })" > /dev/null 2>&1 || true
             sudo -n tlp ac > /dev/null 2>&1 || tlp ac > /dev/null 2>&1 || true
-            notify "󰓅  Power Profile: Performance (Max Speed & Animations)" "rgba(122, 162, 247, 1.0)"
+            notify "Performance Mode" "Maximum CPU frequency and fluid animations enabled." "battery-charging"
             ;;
         balanced)
             echo "balanced" > "$STATE_FILE"
             hyprctl repl "hl.config({ animations = { enabled = true }, decoration = { dim_inactive = true, dim_strength = 0.15 } })" > /dev/null 2>&1 || true
             sudo -n tlp auto > /dev/null 2>&1 || tlp auto > /dev/null 2>&1 || true
-            notify "󰾆  Power Profile: Balanced (Standard Fluid Dynamic)" "rgba(57, 197, 187, 1.0)"
+            notify "Balanced Mode" "Dynamic CPU scaling and standard fluid animations." "battery-good"
             ;;
         powersave)
             echo "powersave" > "$STATE_FILE"
             hyprctl repl "hl.config({ animations = { enabled = false }, decoration = { dim_inactive = true, dim_strength = 0.25 } })" > /dev/null 2>&1 || true
             sudo -n tlp bat > /dev/null 2>&1 || tlp bat > /dev/null 2>&1 || true
-            notify "󰌪  Power Profile: Power Saver (Low Power & Animations Off)" "rgba(158, 206, 106, 1.0)"
+            notify "Power Saver Mode" "Energy conservation active and animations disabled." "battery-caution"
             ;;
         *)
             echo "Usage: $0 {set [performance|balanced|powersave]|cycle|get|restore}"

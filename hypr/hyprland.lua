@@ -263,11 +263,7 @@ local function set_display_scale(target_scale)
         f:close()
     end
 
-    hl.notification.create({
-        text = string.format("Display Scale: %.2fx", target_scale),
-        time = 1800,
-        color = "rgba(57, 197, 187, 1.0)"
-    })
+    hl.exec_cmd(string.format("notify-send -a 'Display' -i 'video-display' 'Display Scale' 'Scale factor set to %.2fx'", target_scale))
 end
 
 local function cycle_scale()

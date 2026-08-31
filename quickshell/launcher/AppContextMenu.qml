@@ -357,12 +357,19 @@ Rectangle {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
+                    console.log("[UNINSTALL] clicked! root.app:", root.app, "appName:", root.appName)
                     if (root.app) {
                         var execCmd = root.app.execString || root.app.id || ""
+                        console.log("[UNINSTALL] execCmd:", execCmd, "id:", root.app.id)
                         if (execCmd) {
                             var scriptPath = Quickshell.env("HOME") + "/.config/hypr/scripts/uninstall_app.sh"
+                            console.log("[UNINSTALL] launching:", ["kitty", "--title", "Uninstall App", "-e", "bash", scriptPath, execCmd, root.app.id || "", root.appName || ""])
                             Quickshell.execDetached(["kitty", "--title", "Uninstall App", "-e", "bash", scriptPath, execCmd, root.app.id || "", root.appName || ""])
+                        } else {
+                            console.log("[UNINSTALL] execCmd was empty, doing nothing")
                         }
+                    } else {
+                        console.log("[UNINSTALL] root.app is null/undefined!")
                     }
                     root.actionTriggered()
                 }

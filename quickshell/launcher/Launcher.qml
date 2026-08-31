@@ -75,19 +75,8 @@ PanelWindow {
     }
 
     function recordRecentApp(name) {
-        if (!name) return
-        var cleanName = name.trim()
-        if (!cleanName) return
-
-        var recents = (root.activeRecentAppNames || []).slice()
-        recents = recents.filter(function(n) { return n && n.toLowerCase().trim() !== cleanName.toLowerCase() })
-        recents.unshift(cleanName)
-        if (recents.length > 8) recents = recents.slice(0, 8)
-        root.activeRecentAppNames = recents
-        filterApps()
-
-        var jsonStr = JSON.stringify(recents)
-        Quickshell.execDetached(["bash", "-c", "mkdir -p ~/.config/quickshell/state && printf '%s\\n' '" + jsonStr.replace(/'/g, "'\\''") + "' > ~/.config/quickshell/state/recent_apps.json"])
+        UiState.recordRecentApp(name)
+        root.filterApps()
     }
 
     function reloadApps() {
@@ -346,6 +335,8 @@ PanelWindow {
 
     onShowingChanged: {
         if (showing) {
+            if (!UiState.pinnedApps || UiState.pinnedApps.length === 0) UiState.loadPinnedApps()
+            if (!UiState.recentApps || UiState.recentApps.length === 0) UiState.loadRecentApps()
             searchQuery = ""
             searchInput.text = ""
             activeCategory = "All"

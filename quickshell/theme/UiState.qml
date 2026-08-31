@@ -53,22 +53,20 @@ Singleton {
     }
 
     function loadPinnedApps() {
-        if (persisted.pinnedApps && persisted.pinnedApps.length > 0) return
         var text = pinnedAppsFile.text()
         if (!text || text.trim() === "") return
         try {
             var data = JSON.parse(text)
-            if (Array.isArray(data) && data.length > 0) persisted.pinnedApps = data
+            if (Array.isArray(data)) persisted.pinnedApps = data
         } catch(e) {}
     }
 
     function loadRecentApps() {
-        if (persisted.recentApps && persisted.recentApps.length > 0) return
         var text = recentAppsFile.text()
         if (!text || text.trim() === "") return
         try {
             var data = JSON.parse(text)
-            if (Array.isArray(data) && data.length > 0) persisted.recentApps = data.slice(0, 8)
+            if (Array.isArray(data)) persisted.recentApps = data.slice(0, 8)
         } catch(e) {}
     }
 

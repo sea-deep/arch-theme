@@ -355,32 +355,26 @@ PanelWindow {
         }
     }
 
-    // Backdrop: dim background and click outside closes launcher
+    // Backdrop: transparent click outside closes launcher
     MouseArea {
         anchors.fill: parent
+        enabled: root.showing
         onClicked: UiState.launcherVisible = false
-
-        Rectangle {
-            anchors.fill: parent
-            color: "#000000"
-            opacity: root.reveal * 0.5
-        }
     }
 
-    // Bottom slide-up card container
+    // Bottom drawer unroll card container
     Components.BottomDrawerSurface {
         id: launcherCard
         // Exact width for 7 columns (7 * 120 = 840) + margins (24 * 2 = 48) = 888
         width: 888
-        height: layout.implicitHeight + layout.anchors.topMargin + 24
+        readonly property real fullHeight: layout.implicitHeight + layout.anchors.topMargin + 24
+        height: fullHeight * root.reveal
+        clip: true
+        visible: height > 0
         
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 0
-
-        transform: Translate {
-            y: (1 - root.reveal) * (launcherCard.height + 32)
-        }
 
         // Consume clicks on card so backdrop doesn't close launcher
         MouseArea {
@@ -391,15 +385,21 @@ PanelWindow {
             }
         }
 
-        ColumnLayout {
-            id: layout
+        Item {
+            anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.leftMargin: 24
-            anchors.rightMargin: 24
-            anchors.topMargin: 24
-            spacing: 16
+            height: launcherCard.fullHeight
+
+            ColumnLayout {
+                id: layout
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.leftMargin: 24
+                anchors.rightMargin: 24
+                anchors.topMargin: 24
+                spacing: 16
 
             // Top Header: Search bar + app count badge
             RowLayout {
@@ -833,4 +833,5 @@ PanelWindow {
             }
         }
     }
+}
 }

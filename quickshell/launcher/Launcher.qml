@@ -51,17 +51,13 @@ PanelWindow {
     FileView {
         id: pinnedAppsFile
         path: Quickshell.env("HOME") + "/.config/quickshell/state/pinned_apps.json"
-        watchChanges: true
         printErrors: false
-        onFileChanged: syncPinnedFromDisk()
     }
 
     FileView {
         id: recentAppsFile
         path: Quickshell.env("HOME") + "/.config/quickshell/state/recent_apps.json"
-        watchChanges: true
         printErrors: false
-        onFileChanged: syncRecentsFromDisk()
     }
 
     function syncPinnedFromDisk() {
@@ -93,10 +89,14 @@ PanelWindow {
     }
 
     function getPinnedAppNames() {
+        if (root.activePinnedAppNames && root.activePinnedAppNames.length > 0) return root.activePinnedAppNames
+        syncPinnedFromDisk()
         return root.activePinnedAppNames || []
     }
 
     function getRecentAppNames() {
+        if (root.activeRecentAppNames && root.activeRecentAppNames.length > 0) return root.activeRecentAppNames
+        syncRecentsFromDisk()
         return root.activeRecentAppNames || []
     }
 

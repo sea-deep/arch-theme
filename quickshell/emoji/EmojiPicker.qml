@@ -71,34 +71,36 @@ PanelWindow {
     property var categoryIndexMap: ({})
     property string activeCatId: "Recent"
 
+    property var activeRecentEmojis: []
+
     FileView {
         id: recentEmojisFile
         path: Quickshell.env("HOME") + "/.config/quickshell/state/recent_emojis.json"
-        watchChanges: true
         printErrors: false
-        onFileChanged: {
-            if (root.searchQuery === "") {
-                root.refreshModel()
-            }
-        }
     }
 
     function getRecentEmojis() {
+        if (root.activeRecentEmojis.length > 0) return root.activeRecentEmojis
         try {
             var raw = recentEmojisFile.text().trim()
             if (!raw) return []
             var parsed = JSON.parse(raw)
-            if (Array.isArray(parsed)) return parsed.slice(0, 56)
+            if (Array.isArray(parsed)) {
+                root.activeRecentEmojis = parsed.slice(0, 56)
+                return root.activeRecentEmojis
+            }
         } catch(e) {}
         return []
     }
 
     function recordRecentEmoji(emojiChar) {
         if (!emojiChar) return
-        var recents = getRecentEmojis()
+        var recents = getRecentEmojis().slice()
         recents = recents.filter(function(c) { return c !== emojiChar })
         recents.unshift(emojiChar)
         if (recents.length > 56) recents = recents.slice(0, 56)
+        root.activeRecentEmojis = recents
+        refreshModel()
         var jsonStr = JSON.stringify(recents)
         Quickshell.execDetached(["bash", "-c", "mkdir -p ~/.config/quickshell/state && printf '%s\\n' '" + jsonStr.replace(/'/g, "'\\''") + "' > ~/.config/quickshell/state/recent_emojis.json"])
     }

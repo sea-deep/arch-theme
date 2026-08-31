@@ -24,14 +24,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            id: revealAnim
             duration: Theme.durationMedium
             easing.type: Theme.easingDecelerate
-            onFinished: {
-                if (root.showing && !root.fullyLoaded) {
-                    lazyTimer.restart()
-                }
-            }
         }
     }
 
@@ -46,7 +40,6 @@ PanelWindow {
     property int cursorX: -1
     property int cursorY: -1
     property string searchQuery: ""
-    property bool fullyLoaded: false
     property bool isClickScrolling: false
 
     readonly property var categoryTabList: [
@@ -74,8 +67,8 @@ PanelWindow {
         { name: "Flags", icon: "🚩" }
     ]
 
-    property var categorySections: []
-    property var searchSections: []
+    property var emojiFlatModel: []
+    property var categoryIndexMap: ({})
     property string activeCatId: "Recent"
 
     FileView {
@@ -85,11 +78,7 @@ PanelWindow {
         printErrors: false
         onFileChanged: {
             if (root.searchQuery === "") {
-                if (root.fullyLoaded) {
-                    root.loadFullSections()
-                } else {
-                    root.loadInitialPage()
-                }
+                root.refreshModel()
             }
         }
     }
@@ -114,112 +103,78 @@ PanelWindow {
         Quickshell.execDetached(["bash", "-c", "mkdir -p ~/.config/quickshell/state && printf '%s\\n' '" + jsonStr.replace(/'/g, "'\\''") + "' > ~/.config/quickshell/state/recent_emojis.json"])
     }
 
-    // Load only 1 page (up to 56 emojis) initially for 0ms unroll reveal
-    function loadInitialPage() {
-        var sections = []
+    function refreshModel() {
         var recents = getRecentEmojis()
-        var needed = 56
-        if (recents.length > 0) {
-            sections.push({
-                name: "Recently Used",
-                icon: "🕒",
-                catId: "Recent",
-                emojis: recents.map(function(c) { return { char: c, name: "recent" } })
-            })
-            needed -= recents.length
-        }
-        var smileys = EmojiData.categories["Smileys & Emotion"] || []
-        var initSmileys = smileys.slice(0, Math.max(24, needed))
-        sections.push({
-            name: "Smileys & Emotion",
-            icon: "😀",
-            catId: "Smileys & Emotion",
-            emojis: initSmileys
-        })
-        categorySections = sections
-        activeCatId = recents.length > 0 ? "Recent" : "Smileys & Emotion"
-        fullyLoaded = false
-    }
+        var flatItems = []
+        var indexMap = {}
 
-    // Lazy load all 9 categories after reveal animation finishes or upon scroll/click
-    function loadFullSections() {
-        var sections = []
-        var recents = getRecentEmojis()
-        if (recents.length > 0) {
-            sections.push({
-                name: "Recently Used",
-                icon: "🕒",
-                catId: "Recent",
-                emojis: recents.map(function(c) { return { char: c, name: "recent" } })
-            })
-        }
-        for (var i = 0; i < standardCategories.length; i++) {
-            var cat = standardCategories[i]
-            sections.push({
-                name: cat.name,
-                icon: cat.icon,
-                catId: cat.name,
-                emojis: EmojiData.categories[cat.name] || []
-            })
-        }
-        categorySections = sections
-        fullyLoaded = true
-    }
-
-    function filterEmojis(query) {
-        if (query === "") {
-            searchSections = []
-            return
-        }
-        var result = []
-        var seen = {}
-        for (var cat in EmojiData.categories) {
-            var ems = EmojiData.categories[cat] || []
-            for (var i = 0; i < ems.length; i++) {
-                var e = ems[i]
-                if (!seen[e.char]) {
-                    var match = e.name.toLowerCase().indexOf(query) !== -1
-                    if (!match && e.tags) {
-                        for (var t = 0; t < e.tags.length; t++) {
-                            if (e.tags[t].toLowerCase().indexOf(query) !== -1) {
-                                match = true
-                                break
+        if (searchQuery && searchQuery.trim() !== "") {
+            var q = searchQuery.trim().toLowerCase()
+            var matched = []
+            var seen = {}
+            for (var cat in EmojiData.categories) {
+                var list = EmojiData.categories[cat] || []
+                for (var i = 0; i < list.length; i++) {
+                    var e = list[i]
+                    if (!seen[e.char]) {
+                        var match = e.name.toLowerCase().indexOf(q) !== -1
+                        if (!match && e.tags) {
+                            for (var t = 0; t < e.tags.length; t++) {
+                                if (e.tags[t].toLowerCase().indexOf(q) !== -1) {
+                                    match = true
+                                    break
+                                }
                             }
                         }
-                    }
-                    if (match) {
-                        seen[e.char] = true
-                        result.push({
-                            char: e.char,
-                            name: e.name
-                        })
+                        if (match) {
+                            seen[e.char] = true
+                            matched.push(e)
+                        }
                     }
                 }
             }
+            if (matched.length > 0) {
+                flatItems.push({ isHeader: true, name: "Search Results (" + matched.length + ")", catId: "Search" })
+                for (var i = 0; i < matched.length; i += 8) {
+                    flatItems.push({ isHeader: false, rowEmojis: matched.slice(i, i + 8), catId: "Search" })
+                }
+            }
+            root.emojiFlatModel = flatItems
+            return
         }
-        searchSections = [{
-            name: "Search Results (" + result.length + ")",
-            icon: "󰍉",
-            catId: "search",
-            emojis: result
-        }]
+
+        if (recents && recents.length > 0) {
+            indexMap["Recent"] = flatItems.length
+            flatItems.push({ isHeader: true, name: "Recently Used", catId: "Recent" })
+            var recObjs = recents.map(function(c) { return { char: c, name: "recent" } })
+            for (var i = 0; i < recObjs.length; i += 8) {
+                flatItems.push({ isHeader: false, rowEmojis: recObjs.slice(i, i + 8), catId: "Recent" })
+            }
+        }
+
+        for (var c = 0; c < standardCategories.length; c++) {
+            var catName = standardCategories[c].name
+            var emList = EmojiData.categories[catName] || []
+            if (emList.length > 0) {
+                indexMap[catName] = flatItems.length
+                flatItems.push({ isHeader: true, name: catName, catId: catName })
+                for (var i = 0; i < emList.length; i += 8) {
+                    flatItems.push({ isHeader: false, rowEmojis: emList.slice(i, i + 8), catId: catName })
+                }
+            }
+        }
+
+        root.categoryIndexMap = indexMap
+        root.emojiFlatModel = flatItems
+        if (root.activeCatId === "Recent" && (!recents || recents.length === 0)) {
+            root.activeCatId = "Smileys & Emotion"
+        }
     }
 
     function selectEmoji(emoji) {
         recordRecentEmoji(emoji)
         UiState.emojiVisible = false
         Quickshell.execDetached(["bash", Quickshell.shellPath("scripts/type-emoji.sh"), emoji])
-    }
-
-    Timer {
-        id: lazyTimer
-        interval: 30
-        repeat: false
-        onTriggered: {
-            if (root.showing && !root.fullyLoaded) {
-                root.loadFullSections()
-            }
-        }
     }
 
     Timer {
@@ -265,7 +220,7 @@ PanelWindow {
     }
 
     Component.onCompleted: {
-        loadInitialPage()
+        refreshModel()
     }
 
     onShowingChanged: {
@@ -273,20 +228,18 @@ PanelWindow {
             cursorQuery.running = true
             searchQuery = ""
             searchInput.text = ""
-            loadInitialPage()
+            refreshModel()
             emojiList.positionViewAtBeginning()
             searchInput.forceActiveFocus()
         }
     }
 
-    // Click outside to close (backdrop) - transparent, NO dimming
     MouseArea {
         anchors.fill: parent
         enabled: root.showing
         onClicked: UiState.emojiVisible = false
     }
 
-    // Popup
     Rectangle {
         id: popup
         readonly property int fullHeight: 440
@@ -319,210 +272,232 @@ PanelWindow {
                     anchors.margins: 12
                     spacing: 10
 
-                // Search bar
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    color: Theme.bgLight
-                    radius: 8
-                    border.color: searchInput.activeFocus ? Theme.accent : "transparent"
-                    border.width: 1
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 36
+                        color: Theme.bgLight
+                        radius: Theme.radiusSmall
+                        border.color: searchInput.activeFocus ? Theme.accent : "transparent"
+                        border.width: 1
 
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: 8
-                        spacing: 8
-
-                        Text {
-                            text: "󰍉"
-                            color: Theme.fgDim
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 14
-                        }
-
-                        TextInput {
-                            id: searchInput
-                            Layout.fillWidth: true
-                            color: Theme.fg
-                            font.family: Theme.fontFamilySans
-                            font.pixelSize: 13
-                            verticalAlignment: TextInput.AlignVCenter
-                            onTextChanged: {
-                                root.searchQuery = text.toLowerCase()
-                                root.filterEmojis(root.searchQuery)
-                                emojiList.positionViewAtBeginning()
-                            }
-                            onAccepted: {
-                                if (root.searchSections.length > 0 && root.searchSections[0].emojis.length > 0) {
-                                    root.selectEmoji(root.searchSections[0].emojis[0].char)
-                                }
-                            }
-                            Keys.onEscapePressed: UiState.emojiVisible = false
-                        }
-                    }
-                }
-
-                // Continuous Scrollable Emoji List with Category Headers & Separators
-                ListView {
-                    id: emojiList
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    Layout.minimumHeight: 100
-                    clip: true
-                    spacing: 12
-                    boundsBehavior: Flickable.StopAtBounds
-                    model: root.searchQuery === "" ? root.categorySections : root.searchSections
-
-                    onContentYChanged: {
-                        if (!root.isClickScrolling && root.searchQuery === "") {
-                            if (!root.fullyLoaded && contentY > 30) {
-                                root.loadFullSections()
-                            }
-                            var idx = emojiList.indexAt(10, emojiList.contentY + 30)
-                            if (idx >= 0 && idx < root.categorySections.length) {
-                                root.activeCatId = root.categorySections[idx].catId
-                            }
-                        }
-                    }
-
-                    delegate: ColumnLayout {
-                        id: secDelegate
-                        required property var modelData
-                        required property int index
-
-                        width: emojiList.width
-                        spacing: 6
-
-                        // Category Section Header & Separator Line
                         RowLayout {
-                            Layout.fillWidth: true
-                            Layout.topMargin: index === 0 ? 0 : 6
-                            Layout.bottomMargin: 2
+                            anchors.fill: parent
+                            anchors.margins: 8
                             spacing: 8
 
                             Text {
-                                text: secDelegate.modelData.name
-                                color: Theme.accent
-                                font.family: Theme.fontFamilySans
-                                font.pixelSize: 11
-                                font.weight: Theme.fontWeight
+                                text: ""
+                                color: Theme.fgDim
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 13
                             }
 
-                            Rectangle {
+                            TextInput {
+                                id: searchInput
                                 Layout.fillWidth: true
-                                height: 1
-                                color: Theme.surface
-                            }
-                        }
+                                color: Theme.fg
+                                font.family: Theme.fontFamilySans
+                                font.pixelSize: 13
+                                clip: true
+                                selectByMouse: true
+                                selectionColor: Theme.accent
+                                selectedTextColor: Theme.bg
 
-                        // Grid of Emojis for this Category
-                        Flow {
-                            Layout.fillWidth: true
-                            spacing: 0
+                                Text {
+                                    visible: !searchInput.text && !searchInput.activeFocus
+                                    text: "Search emojis..."
+                                    color: Theme.fgDim
+                                    font.family: Theme.fontFamilySans
+                                    font.pixelSize: 13
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
 
-                            Repeater {
-                                model: secDelegate.modelData.emojis
-                                Rectangle {
-                                    required property var modelData
-                                    required property int index
+                                onTextChanged: {
+                                    root.searchQuery = text.toLowerCase()
+                                    root.refreshModel()
+                                    emojiList.positionViewAtBeginning()
+                                }
 
-                                    width: 39.5
-                                    height: 39.5
-                                    radius: 8
-                                    color: emMouse.containsMouse ? Theme.bgLight : "transparent"
-
-                                    MouseArea {
-                                        id: emMouse
-                                        anchors.fill: parent
-                                        hoverEnabled: true
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: {
-                                            root.selectEmoji(modelData.char)
+                                onAccepted: {
+                                    if (root.emojiFlatModel.length > 1 && !root.emojiFlatModel[1].isHeader) {
+                                        var firstRow = root.emojiFlatModel[1].rowEmojis
+                                        if (firstRow && firstRow.length > 0) {
+                                            root.selectEmoji(firstRow[0].char)
                                         }
                                     }
-
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: modelData.char
-                                        font.pixelSize: 22
-                                    }
                                 }
-                            }
-                        }
-                    }
 
-                    // Empty Search Placeholder
-                    Text {
-                        visible: root.searchQuery !== "" && (root.searchSections.length === 0 || root.searchSections[0].emojis.length === 0)
-                        anchors.centerIn: parent
-                        text: "No matching emojis"
-                        color: Theme.fgDim
-                        font.family: Theme.fontFamilySans
-                        font.pixelSize: 13
-                    }
-                }
-
-                // Category separator line
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 1
-                    color: Theme.surface
-                    visible: root.searchQuery === ""
-                }
-
-                // Fixed 10 Category tabs with glowing indicator over active category
-                RowLayout {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 28
-                    spacing: 2
-                    visible: root.searchQuery === ""
-
-                    Repeater {
-                        model: root.categoryTabList
-                        Rectangle {
-                            required property var modelData
-                            required property int index
-
-                            readonly property bool isActive: (root.activeCatId === modelData.catId)
-
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 26
-                            radius: Theme.radiusSmall
-                            color: isActive ? Theme.accent : (catMouseArea.containsMouse ? Theme.bgLight : "transparent")
-                            border.color: isActive ? Theme.accent : "transparent"
-                            border.width: 1
-
-                            Behavior on color { ColorAnimation { duration: Theme.durationFast } }
-                            Behavior on border.color { ColorAnimation { duration: Theme.durationFast } }
-
-                            MouseArea {
-                                id: catMouseArea
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    if (!root.fullyLoaded) {
-                                        root.loadFullSections()
-                                    }
-                                    root.isClickScrolling = true
-                                    root.activeCatId = modelData.catId
-
-                                    var targetIndex = 0
-                                    for (var s = 0; s < root.categorySections.length; s++) {
-                                        if (root.categorySections[s].catId === modelData.catId) {
-                                            targetIndex = s
-                                            break
-                                        }
-                                    }
-                                    emojiList.positionViewAtIndex(targetIndex, ListView.Beginning)
-                                    scrollResetTimer.restart()
-                                }
+                                Keys.onEscapePressed: UiState.emojiVisible = false
                             }
 
                             Text {
-                                anchors.centerIn: parent
-                                text: modelData.icon
-                                font.pixelSize: 13
+                                visible: searchInput.text !== ""
+                                text: ""
+                                color: Theme.fgDim
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 12
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        searchInput.text = ""
+                                        searchInput.forceActiveFocus()
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    ListView {
+                        id: emojiList
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        clip: true
+                        spacing: 2
+                        boundsBehavior: Flickable.StopAtBounds
+                        model: root.emojiFlatModel
+
+                        onContentYChanged: {
+                            if (!root.isClickScrolling && root.searchQuery === "" && emojiList.model && emojiList.model.length > 0) {
+                                var idx = emojiList.indexAt(10, emojiList.contentY + 24)
+                                if (idx >= 0 && idx < emojiList.model.length) {
+                                    var item = emojiList.model[idx]
+                                    if (item && item.catId && root.activeCatId !== item.catId) {
+                                        root.activeCatId = item.catId
+                                    }
+                                }
+                            }
+                        }
+
+                        delegate: Item {
+                            id: rowItem
+                            required property var modelData
+                            required property int index
+
+                            width: emojiList.width
+                            height: modelData.isHeader ? 28 : 39.5
+
+                            RowLayout {
+                                visible: rowItem.modelData.isHeader
+                                anchors.fill: parent
+                                anchors.topMargin: rowItem.index === 0 ? 0 : 6
+                                anchors.bottomMargin: 2
+                                spacing: 8
+
+                                Text {
+                                    text: rowItem.modelData.name || ""
+                                    color: Theme.accent
+                                    font.family: Theme.fontFamilySans
+                                    font.pixelSize: 11
+                                    font.weight: Theme.fontWeight
+                                }
+
+                                Rectangle {
+                                    Layout.fillWidth: true
+                                    height: 1
+                                    color: Theme.surface
+                                }
+                            }
+
+                            Row {
+                                visible: !rowItem.modelData.isHeader
+                                anchors.fill: parent
+                                spacing: 0
+
+                                Repeater {
+                                    model: rowItem.modelData.rowEmojis || []
+
+                                    Rectangle {
+                                        required property var modelData
+                                        required property int index
+
+                                        width: 39.5
+                                        height: 39.5
+                                        radius: Theme.radiusSmall
+                                        color: emMouse.containsMouse ? Theme.bgLight : "transparent"
+
+                                        Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+
+                                        MouseArea {
+                                            id: emMouse
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: root.selectEmoji(modelData.char)
+                                        }
+
+                                        Text {
+                                            anchors.centerIn: parent
+                                            text: modelData.char
+                                            font.pixelSize: 22
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Text {
+                            visible: root.searchQuery !== "" && root.emojiFlatModel.length === 0
+                            anchors.centerIn: parent
+                            text: "No matching emojis"
+                            color: Theme.fgDim
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 13
+                        }
+                    }
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 1
+                        color: Theme.surface
+                        visible: root.searchQuery === ""
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 28
+                        spacing: 2
+                        visible: root.searchQuery === ""
+
+                        Repeater {
+                            model: root.categoryTabList
+                            Rectangle {
+                                required property var modelData
+                                required property int index
+
+                                readonly property bool isActive: (root.activeCatId === modelData.catId)
+
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 26
+                                radius: Theme.radiusSmall
+                                color: isActive ? Theme.accent : (catMouseArea.containsMouse ? Theme.bgLight : "transparent")
+                                border.color: isActive ? Theme.accent : "transparent"
+                                border.width: 1
+
+                                Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+                                Behavior on border.color { ColorAnimation { duration: Theme.durationFast } }
+
+                                MouseArea {
+                                    id: catMouseArea
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        root.isClickScrolling = true
+                                        root.activeCatId = modelData.catId
+                                        var targetIdx = root.categoryIndexMap[modelData.catId]
+                                        if (targetIdx !== undefined) {
+                                            emojiList.positionViewAtIndex(targetIdx, ListView.Beginning)
+                                        }
+                                        scrollResetTimer.restart()
+                                    }
+                                }
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: modelData.icon
+                                    font.pixelSize: 13
+                                }
                             }
                         }
                     }
@@ -530,5 +505,4 @@ PanelWindow {
             }
         }
     }
-}
 }

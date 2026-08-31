@@ -34,6 +34,14 @@ hl.config({
     cursor = {
         default_monitor = "eDP-1"
     },
+})
+
+hl.device({
+    name = "synaptics-tm3276-022",
+    natural_scroll = false,
+})
+
+hl.config({
     general = {
         -- Adjacent windows already contribute two 2px borders. A further
         -- inner gap made the centre seam wider than the screen-edge inset.

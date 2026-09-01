@@ -22,8 +22,8 @@ Item {
     property real reveal: isExpanded ? 1 : 0
     
     readonly property real collapsedWidth: topLayout.implicitWidth + 8
-    readonly property real expandedWidth: Math.max(380, collapsedWidth + 52)
-    readonly property int bodyHeight: windowList.length > 0 ? (32 + windowList.length * 36 + 14) : 64
+    readonly property real expandedWidth: Math.max(340, collapsedWidth + 40)
+    readonly property int bodyHeight: contentCol.implicitHeight > 0 ? (contentCol.implicitHeight + 8) : 56
     
     implicitWidth: reveal > 0 ? expandedWidth : collapsedWidth
     implicitHeight: reveal > 0
@@ -205,6 +205,8 @@ Item {
     Components.ConnectedDropdownSurface {
         z: 1
         anchors.fill: parent
+        shoulderRadius: 10
+        cornerRadius: 10
         hasLeftShoulder: false
         hasRightShoulder: true
         hasBottomLeftInverted: true
@@ -455,12 +457,12 @@ Item {
     Item {
         id: expandableBody
         anchors.top: parent.top
-        anchors.topMargin: Theme.barHeight + 4
+        anchors.topMargin: Theme.barHeight + 2
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.leftMargin: 16
-        anchors.rightMargin: 16
-        height: (root.bodyHeight - 12) * root.reveal
+        anchors.leftMargin: 10
+        anchors.rightMargin: 10
+        height: root.bodyHeight * root.reveal
         visible: root.reveal > 0
         clip: true
         z: 2
@@ -469,10 +471,13 @@ Item {
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
-            height: root.bodyHeight - 12
+            height: root.bodyHeight
 
             ColumnLayout {
-                anchors.fill: parent
+                id: contentCol
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
                 spacing: 3
 
                 // Header: Workspace Title + Window Count
@@ -480,7 +485,9 @@ Item {
                     Layout.fillWidth: true
                     Layout.leftMargin: 4
                     Layout.rightMargin: 4
-                    spacing: 8
+                    Layout.topMargin: 2
+                    Layout.bottomMargin: 1
+                    spacing: 6
 
                     Text {
                         text: "Workspace " + (root.activeWs ? (root.activeWs.name || root.activeWs.id || "") : "")
@@ -496,7 +503,7 @@ Item {
                         text: root.windowList.length + (root.windowList.length === 1 ? " window" : " windows")
                         color: Theme.fgDim
                         font.family: Theme.fontFamilySans
-                        font.pixelSize: 11
+                        font.pixelSize: 10
                         font.weight: Theme.fontWeight
                     }
                 }
@@ -506,130 +513,132 @@ Item {
                     Layout.fillWidth: true
                     height: 1
                     color: Theme.surfaceVariant
+                    Layout.bottomMargin: 1
                 }
 
-            // Empty Workspace placeholder
-            Item {
-                visible: root.windowList.length === 0
-                Layout.fillWidth: true
-                Layout.preferredHeight: 38
-
-                RowLayout {
-                    anchors.centerIn: parent
-                    spacing: 8
-
-                    Text {
-                        text: "󰇄"
-                        color: Theme.fgDim
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 14
-                    }
-
-                    Text {
-                        text: "No active windows"
-                        color: Theme.fgDim
-                        font.family: Theme.fontFamilySans
-                        font.pixelSize: 12
-                        font.weight: Theme.fontWeight
-                    }
-                }
-            }
-
-            Repeater {
-                model: root.windowList
-
-                Rectangle {
-                    id: rowItem
-                    required property var modelData
+                // Empty Workspace placeholder
+                Item {
+                    visible: root.windowList.length === 0
                     Layout.fillWidth: true
-                    implicitHeight: 34
-                    radius: 6
-                    color: (rowHover.hovered && !closeHover.hovered)
-                        ? Theme.surface
-                        : (rowItem.modelData.activated ? Theme.bgLight : "transparent")
+                    Layout.preferredHeight: 28
 
                     RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: 8
-                        anchors.rightMargin: 6
-                        spacing: 8
+                        anchors.centerIn: parent
+                        spacing: 6
 
-                        // Clickable area to focus window
-                        Item {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-
-                            HoverHandler { id: rowHover }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: root.focusWindow(rowItem.modelData)
-                            }
-
-                            RowLayout {
-                                anchors.fill: parent
-                                spacing: 8
-
-                                IconImage {
-                                    width: 20
-                                    height: 20
-                                    Layout.alignment: Qt.AlignVCenter
-                                    source: root.getAppIcon(rowItem.modelData)
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: rowItem.modelData.title || (rowItem.modelData.lastIpcObject && rowItem.modelData.lastIpcObject.class) || "(Window)"
-                                    color: rowItem.modelData.activated ? Theme.accent : Theme.fg
-                                    font.family: Theme.fontFamilySans
-                                    font.pixelSize: 12
-                                    font.weight: rowItem.modelData.activated ? Font.Bold : Theme.fontWeight
-                                    elide: Text.ElideRight
-                                }
-
-                                Rectangle {
-                                    width: 6
-                                    height: 6
-                                    radius: 3
-                                    color: Theme.accent
-                                    visible: rowItem.modelData.activated
-                                    Layout.alignment: Qt.AlignVCenter
-                                }
-                            }
+                        Text {
+                            text: "󰇄"
+                            color: Theme.fgDim
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 12
                         }
 
-                        // Close / Kill Window Cross Button
-                        Rectangle {
-                            id: closeBtn
-                            Layout.preferredWidth: 26
-                            Layout.preferredHeight: 26
-                            radius: 13
-                            color: closeHover.hovered ? Qt.rgba(0.968, 0.463, 0.557, 0.25) : "transparent"
-                            Layout.alignment: Qt.AlignVCenter
+                        Text {
+                            text: "No active windows"
+                            color: Theme.fgDim
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 11
+                            font.weight: Theme.fontWeight
+                        }
+                    }
+                }
 
-                            Behavior on color {
-                                ColorAnimation { duration: 100 }
+                Repeater {
+                    model: root.windowList
+
+                    Rectangle {
+                        id: rowItem
+                        required property var modelData
+                        Layout.fillWidth: true
+                        implicitHeight: 28
+                        radius: 5
+                        color: (rowHover.hovered && !closeHover.hovered)
+                            ? Theme.surface
+                            : (rowItem.modelData.activated ? Theme.bgLight : "transparent")
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 6
+                            anchors.rightMargin: 4
+                            spacing: 6
+
+                            // Clickable area to focus window
+                            Item {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+
+                                HoverHandler { id: rowHover }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.focusWindow(rowItem.modelData)
+                                }
+
+                                RowLayout {
+                                    anchors.fill: parent
+                                    spacing: 6
+
+                                    IconImage {
+                                        width: 16
+                                        height: 16
+                                        Layout.alignment: Qt.AlignVCenter
+                                        source: root.getAppIcon(rowItem.modelData)
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: rowItem.modelData.title || (rowItem.modelData.lastIpcObject && rowItem.modelData.lastIpcObject.class) || "(Window)"
+                                        color: rowItem.modelData.activated ? Theme.accent : Theme.fg
+                                        font.family: Theme.fontFamilySans
+                                        font.pixelSize: 11
+                                        font.weight: rowItem.modelData.activated ? Font.Bold : Theme.fontWeight
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Rectangle {
+                                        width: 5
+                                        height: 5
+                                        radius: 2.5
+                                        color: Theme.accent
+                                        visible: rowItem.modelData.activated
+                                        Layout.alignment: Qt.AlignVCenter
+                                    }
+                                }
                             }
 
-                            HoverHandler { id: closeHover }
+                            // Close / Kill Window Cross Button
+                            Rectangle {
+                                id: closeBtn
+                                Layout.preferredWidth: 20
+                                Layout.preferredHeight: 20
+                                radius: 10
+                                color: closeHover.hovered ? Qt.rgba(0.968, 0.463, 0.557, 0.25) : "transparent"
+                                Layout.alignment: Qt.AlignVCenter
 
-                            Text {
-                                anchors.centerIn: parent
-                                text: "󰅖"
-                                color: closeHover.hovered ? Theme.red : Theme.fgDim
-                                font.family: Theme.fontFamily
-                                font.pixelSize: 14
-                                font.weight: Font.Bold
-                            }
+                                Behavior on color {
+                                    ColorAnimation { duration: 100 }
+                                }
 
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                preventStealing: true
-                                onClicked: (mouse) => {
-                                    mouse.accepted = true;
-                                    root.killWindow(rowItem.modelData);
+                                HoverHandler { id: closeHover }
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "󰅖"
+                                    color: closeHover.hovered ? Theme.red : Theme.fgDim
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 12
+                                    font.weight: Font.Bold
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    preventStealing: true
+                                    onClicked: (mouse) => {
+                                        mouse.accepted = true;
+                                        root.killWindow(rowItem.modelData);
+                                    }
                                 }
                             }
                         }
@@ -639,4 +648,4 @@ Item {
         }
     }
 }
-}
+

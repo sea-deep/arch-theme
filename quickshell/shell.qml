@@ -107,7 +107,7 @@ ShellRoot {
 
     GlobalShortcut {
         name: "screenshot"
-        onPressed: UiState.screenshotVisible = !UiState.screenshotVisible
+        onPressed: UiState.toggleScreenshot()
     }
 
     GlobalShortcut {
@@ -224,7 +224,7 @@ ShellRoot {
     IpcHandler {
         target: "screenshot"
         function toggle() {
-            UiState.screenshotVisible = !UiState.screenshotVisible
+            UiState.toggleScreenshot()
         }
     }
 

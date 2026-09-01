@@ -179,6 +179,26 @@ Singleton {
         }
     }
     property bool screenshotVisible: false
+    property real freezeTimestamp: 0
+
+    Process {
+        id: freezeProc
+        command: ["grim", "-t", "ppm", "/tmp/qs_screenshot_freeze.ppm"]
+        onExited: (code, status) => {
+            root.freezeTimestamp = Date.now()
+            root.screenshotVisible = true
+        }
+    }
+
+    function toggleScreenshot() {
+        if (screenshotVisible) {
+            screenshotVisible = false
+        } else {
+            closeOverlays()
+            freezeProc.running = true
+        }
+    }
+
     property bool recorderMenuVisible: false
     property bool notificationCenterVisible: false
     property string notificationScreen: ""
@@ -351,6 +371,8 @@ Singleton {
         trayMenuVisible = false
         networkVisible = false
         bluetoothVisible = false
+        screenshotVisible = false
+        recorderMenuVisible = false
     }
 
     function toggleEmoji() {

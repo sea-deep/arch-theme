@@ -134,20 +134,32 @@ PanelWindow {
 
     function captureFull() {
         UiState.screenshotVisible = false
-        var script = Quickshell.env("HOME") + "/code/arch-theme/hypr/screenshot.sh"
+        var script = Quickshell.env("HOME") + "/.config/hypr/screenshot.sh"
         Quickshell.execDetached(["bash", script, "full"])
     }
 
     function captureRegion(geom) {
         UiState.screenshotVisible = false
-        var script = Quickshell.env("HOME") + "/code/arch-theme/hypr/screenshot.sh"
+        var script = Quickshell.env("HOME") + "/.config/hypr/screenshot.sh"
         Quickshell.execDetached(["bash", script, "region", geom])
+    }
+
+    // ── Static Frozen Desktop Snapshot Background (KDE Spectacle Architecture) ──
+    Image {
+        id: freezeBg
+        anchors.fill: parent
+        source: root.showing ? ("file:///tmp/qs_screenshot_freeze.ppm?" + UiState.freezeTimestamp) : ""
+        fillMode: Image.Stretch
+        cache: false
+        asynchronous: false
+        z: 0
     }
 
     // ── Mouse Area for Region & Window Selection ──
     MouseArea {
         id: mainMouse
         anchors.fill: parent
+        z: 3
         hoverEnabled: true
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         cursorShape: root.currentMode === "window" ? Qt.PointingHandCursor : Qt.CrossCursor
@@ -207,6 +219,7 @@ PanelWindow {
     // ── Semi-Transparent Shroud / Cutout System ──
     Item {
         anchors.fill: parent
+        z: 1
 
         // 1. Crop Mode Shroud (Cutout around dragged rectangle)
         Item {
@@ -291,6 +304,7 @@ PanelWindow {
 
     // ── Active Crop Selection Rectangle ──
     Rectangle {
+        z: 2
         visible: root.currentMode === "crop" && root.isDragging && root.selW > 2 && root.selH > 2
         x: root.selX
         y: root.selY
@@ -326,6 +340,7 @@ PanelWindow {
 
     // ── Active Hovered Window Rectangle ──
     Rectangle {
+        z: 2
         visible: root.currentMode === "window" && root.hoveredWin !== null
         x: root.hoveredWin ? root.hoveredWin.at[0] : 0
         y: root.hoveredWin ? root.hoveredWin.at[1] : 0

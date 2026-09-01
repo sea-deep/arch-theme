@@ -23,7 +23,7 @@ Item {
     
     readonly property real collapsedWidth: topLayout.implicitWidth + 8
     readonly property real expandedWidth: Math.max(380, collapsedWidth + 52)
-    readonly property int bodyHeight: windowList.length > 0 ? Math.min(360, 44 + windowList.length * 40 + 12) : 84
+    readonly property int bodyHeight: windowList.length > 0 ? (28 + windowList.length * 36 + 8) : 58
     
     implicitWidth: reveal > 0 ? expandedWidth : collapsedWidth
     implicitHeight: reveal > 0
@@ -455,12 +455,12 @@ Item {
     Item {
         id: expandableBody
         anchors.top: parent.top
-        anchors.topMargin: Theme.barHeight + 6
+        anchors.topMargin: Theme.barHeight + 2
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.leftMargin: 12
-        anchors.rightMargin: 12
-        height: root.bodyHeight * root.reveal
+        anchors.leftMargin: 8
+        anchors.rightMargin: 8
+        height: (root.bodyHeight - 4) * root.reveal
         visible: root.reveal > 0
         clip: true
         z: 2
@@ -469,47 +469,44 @@ Item {
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
-            height: root.bodyHeight
+            height: root.bodyHeight - 4
 
             ColumnLayout {
                 anchors.fill: parent
-                spacing: 4
+                spacing: 2
 
-            // Header: Workspace Title + Window Count
-            RowLayout {
-                Layout.fillWidth: true
-                Layout.leftMargin: 6
-                Layout.rightMargin: 6
-                Layout.topMargin: 2
-                Layout.bottomMargin: 2
-                spacing: 8
+                // Header: Workspace Title + Window Count
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 4
+                    Layout.rightMargin: 4
+                    spacing: 8
 
-                Text {
-                    text: "Workspace " + (root.activeWs ? (root.activeWs.name || root.activeWs.id || "") : "")
-                    color: Theme.accent
-                    font.family: Theme.fontFamilySans
-                    font.pixelSize: 12
-                    font.weight: Font.Bold
+                    Text {
+                        text: "Workspace " + (root.activeWs ? (root.activeWs.name || root.activeWs.id || "") : "")
+                        color: Theme.accent
+                        font.family: Theme.fontFamilySans
+                        font.pixelSize: 11
+                        font.weight: Font.Bold
+                    }
+
+                    Item { Layout.fillWidth: true }
+
+                    Text {
+                        text: root.windowList.length + (root.windowList.length === 1 ? " window" : " windows")
+                        color: Theme.fgDim
+                        font.family: Theme.fontFamilySans
+                        font.pixelSize: 11
+                        font.weight: Theme.fontWeight
+                    }
                 }
 
-                Item { Layout.fillWidth: true }
-
-                Text {
-                    text: root.windowList.length + (root.windowList.length === 1 ? " window" : " windows")
-                    color: Theme.fgDim
-                    font.family: Theme.fontFamilySans
-                    font.pixelSize: 11
-                    font.weight: Theme.fontWeight
+                // Thin Separator Line (Tight, no wasted space)
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 1
+                    color: Theme.surfaceVariant
                 }
-            }
-
-            // Thin Separator Line
-            Rectangle {
-                Layout.fillWidth: true
-                height: 1
-                color: Theme.surfaceVariant
-                Layout.bottomMargin: 2
-            }
 
             // Empty Workspace placeholder
             Item {

@@ -9,14 +9,30 @@ Components.Pill {
 
     property bool isCapsOn: false
 
-    Process {
-        id: capsProc
+    FileView {
+        id: caps1
+        path: "/sys/class/leds/input3::capslock/brightness"
+        printErrors: false
+    }
+
+    FileView {
+        id: caps2
+        path: "/sys/class/leds/input5::capslock/brightness"
+        printErrors: false
+    }
+
+    // Zero-CPU in-process Qt timer (0 background scripts, 0 child processes spawned)
+    Timer {
+        interval: 200
         running: true
-        command: ["bash", Quickshell.env("HOME") + "/.config/quickshell/scripts/capslock.sh"]
-        stdout: SplitParser {
-            onRead: data => {
-                root.isCapsOn = (data.trim() === "1")
-            }
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+            caps1.reload()
+            caps2.reload()
+            var on1 = (caps1.text().trim() === "1")
+            var on2 = (caps2.text().trim() === "1")
+            root.isCapsOn = on1 || on2
         }
     }
 
@@ -37,9 +53,7 @@ Components.Pill {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: {
-            toggleProc.running = true
-        }
+        onClicked: toggleProc.running = true
     }
 
     Process {

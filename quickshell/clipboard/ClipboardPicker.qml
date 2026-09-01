@@ -111,12 +111,13 @@ PanelWindow {
     function activate(entry) {
         if (!entry) return
         UiState.clipboardVisible = false
+        var type = entry.isImage ? "image" : "text"
+        var payload = entry.isImage ? (entry.filePath || entry.value) : entry.value
         Quickshell.execDetached([
             "bash",
             Quickshell.shellPath("scripts/paste-clipboard.sh"),
-            entry.value,
-            entry.filePath || "",
-            entry.isImage ? "image" : "text"
+            type,
+            payload
         ])
     }
 

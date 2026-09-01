@@ -23,7 +23,7 @@ Item {
     
     readonly property real collapsedWidth: topLayout.implicitWidth + 8
     readonly property real expandedWidth: Math.max(380, collapsedWidth + 52)
-    readonly property int bodyHeight: windowList.length > 0 ? (28 + windowList.length * 36 + 8) : 58
+    readonly property int bodyHeight: windowList.length > 0 ? (32 + windowList.length * 36 + 14) : 64
     
     implicitWidth: reveal > 0 ? expandedWidth : collapsedWidth
     implicitHeight: reveal > 0
@@ -207,7 +207,7 @@ Item {
         anchors.fill: parent
         hasLeftShoulder: false
         hasRightShoulder: true
-        hasBottomLeftInverted: false
+        hasBottomLeftInverted: true
         hasBottomRightInverted: false
         visible: root.reveal > 0
     }
@@ -455,12 +455,12 @@ Item {
     Item {
         id: expandableBody
         anchors.top: parent.top
-        anchors.topMargin: Theme.barHeight + 2
+        anchors.topMargin: Theme.barHeight + 4
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.leftMargin: 8
-        anchors.rightMargin: 8
-        height: (root.bodyHeight - 4) * root.reveal
+        anchors.leftMargin: 16
+        anchors.rightMargin: 16
+        height: (root.bodyHeight - 12) * root.reveal
         visible: root.reveal > 0
         clip: true
         z: 2
@@ -469,11 +469,11 @@ Item {
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
-            height: root.bodyHeight - 4
+            height: root.bodyHeight - 12
 
             ColumnLayout {
                 anchors.fill: parent
-                spacing: 2
+                spacing: 3
 
                 // Header: Workspace Title + Window Count
                 RowLayout {

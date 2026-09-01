@@ -23,11 +23,11 @@ Item {
     
     readonly property real collapsedWidth: topLayout.implicitWidth + 8
     readonly property real expandedWidth: Math.max(380, collapsedWidth + 52)
-    readonly property int bodyHeight: windowList.length > 0 ? Math.min(360, 36 + windowList.length * 36 + 14) : 84
+    readonly property int bodyHeight: windowList.length > 0 ? Math.min(360, 44 + windowList.length * 40 + 12) : 84
     
     implicitWidth: reveal > 0 ? expandedWidth : collapsedWidth
     implicitHeight: reveal > 0
-        ? Theme.barHeight + Theme.outerGap + bodyHeight * reveal
+        ? Theme.barHeight + bodyHeight * reveal
         : Theme.barHeight
     width: implicitWidth
     height: implicitHeight
@@ -207,7 +207,8 @@ Item {
         anchors.fill: parent
         hasLeftShoulder: false
         hasRightShoulder: true
-        hasBottomLeftInverted: true
+        hasBottomLeftInverted: false
+        hasBottomRightInverted: false
         visible: root.reveal > 0
     }
 
@@ -454,11 +455,12 @@ Item {
     Item {
         id: expandableBody
         anchors.top: parent.top
-        anchors.topMargin: Theme.barHeight + Theme.outerGap + 8
+        anchors.topMargin: Theme.barHeight + 6
         anchors.left: parent.left
         anchors.right: parent.right
+        anchors.leftMargin: 12
+        anchors.rightMargin: 12
         height: root.bodyHeight * root.reveal
-        anchors.margins: 10
         visible: root.reveal > 0
         clip: true
         z: 2

@@ -16,11 +16,11 @@ Components.Pill {
     readonly property bool expanded: UiState.quickControlVisible
         && (UiState.quickControlScreen === "" || UiState.quickControlScreen === targetScreenName)
     active: expanded || reveal > 0
-    readonly property var audioStreams: Pipewire.nodes && Pipewire.nodes.values
-        ? Pipewire.nodes.values.filter(node => node.isStream && node.audio !== null).slice(0, 3)
+    readonly property var audioStreams: (root.expanded && UiState.quickControlMode === "audio" && Pipewire.nodes && Pipewire.nodes.values)
+        ? Pipewire.nodes.values.filter(node => node && node.isStream && node.audio !== null).slice(0, 3)
         : []
-    readonly property var batteries: UPower.devices && UPower.devices.values
-        ? UPower.devices.values.filter(device => device.isLaptopBattery && device.isPresent)
+    readonly property var batteries: (root.expanded && UiState.quickControlMode === "battery" && UPower.devices && UPower.devices.values)
+        ? UPower.devices.values.filter(device => device && device.isLaptopBattery && device.isPresent)
         : []
     readonly property int bodyHeight: UiState.quickControlMode === "audio"
         ? 128 + audioStreams.length * 52
@@ -51,7 +51,7 @@ Components.Pill {
 
     Keys.onEscapePressed: UiState.quickControlVisible = false
 
-    PwObjectTracker { objects: [root.sink, root.source].concat(root.audioStreams) }
+    PwObjectTracker { objects: root.expanded ? [root.sink, root.source].concat(root.audioStreams).filter(Boolean) : [root.sink, root.source].filter(Boolean) }
 
     FileView {
         id: maxBrightnessFile
@@ -161,7 +161,7 @@ Components.Pill {
         property string label: ""
         property string icon: ""
         property real maxVolume: 1.0
-        readonly property bool available: node !== null && node.audio !== null && node.ready
+        readonly property bool available: node !== null && node !== undefined && node.audio !== null && node.audio !== undefined && node.ready
         readonly property bool isMuted: available && node.audio.muted
         spacing: 8
 
@@ -273,12 +273,12 @@ Components.Pill {
             AudioRow { Layout.fillWidth: true; node: root.sink; label: "Output"; icon: "󰕾"; maxVolume: 1.5 }
             AudioRow { Layout.fillWidth: true; node: root.source; label: "Microphone"; icon: "󰍬"; maxVolume: 1.0 }
             Repeater {
-                model: root.audioStreams
+                model: (root.expanded && UiState.quickControlMode === "audio") ? root.audioStreams : []
                 AudioRow {
                     required property var modelData
                     Layout.fillWidth: true
                     node: modelData
-                    label: modelData.description || modelData.nickname || modelData.name || "Application"
+                    label: (modelData && (modelData.description || modelData.nickname || modelData.name)) || "Application"
                     icon: "󰎈"
                     maxVolume: 1.0
                 }
@@ -405,7 +405,7 @@ Components.Pill {
                 Layout.fillWidth: true
                 spacing: 6
                 Repeater {
-                    model: root.batteries
+                    model: (root.expanded && UiState.quickControlMode === "battery") ? root.batteries : []
                     Rectangle {
                         id: batteryCard
                         required property var modelData
@@ -421,13 +421,13 @@ Components.Pill {
                             Text {
                                 Layout.preferredWidth: 18
                                 horizontalAlignment: Text.AlignHCenter
-                                text: root.deviceBatteryIcon(batteryCard.modelData)
+                                text: batteryCard.modelData ? root.deviceBatteryIcon(batteryCard.modelData) : ""
                                 color: Theme.accent
                                 font.family: Theme.fontFamily
                                 font.pixelSize: 14
                             }
                             Text {
-                                text: batteryCard.modelData.nativePath
+                                text: (batteryCard.modelData && batteryCard.modelData.nativePath) || ""
                                 color: Theme.fg
                                 font.family: Theme.fontFamily
                                 font.pixelSize: 13
@@ -436,7 +436,7 @@ Components.Pill {
                             Text {
                                 Layout.fillWidth: true
                                 horizontalAlignment: Text.AlignRight
-                                text: root.devicePercentage(batteryCard.modelData) + "%"
+                                text: batteryCard.modelData ? (root.devicePercentage(batteryCard.modelData) + "%") : ""
                                 color: Theme.fg
                                 font.family: Theme.fontFamily
                                 font.pixelSize: 12

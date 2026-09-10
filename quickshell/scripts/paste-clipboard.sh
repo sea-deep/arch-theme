@@ -6,13 +6,13 @@ ARG1="${1:-}"
 ARG2="${2:-}"
 ARG3="${3:-}"
 
-if [[ "$ARG1" == "image" || "$ARG1" == "text" ]]; then
+if [[ "$ARG1" == "image" || "$ARG1" == "text" || "$ARG1" == "svg" ]]; then
     TYPE="$ARG1"
     shift
     PAYLOAD="$*"
-elif [[ "$ARG3" == "image" || "$ARG3" == "text" ]]; then
+elif [[ "$ARG3" == "image" || "$ARG3" == "text" || "$ARG3" == "svg" ]]; then
     TYPE="$ARG3"
-    if [[ "$TYPE" == "image" && -n "$ARG2" && -f "$ARG2" ]]; then
+    if [[ ("$TYPE" == "image" || "$TYPE" == "svg") && -n "$ARG2" && -f "$ARG2" ]]; then
         PAYLOAD="$ARG2"
     else
         PAYLOAD="$ARG1"
@@ -22,7 +22,14 @@ else
     PAYLOAD="$ARG1"
 fi
 
-if [[ "$TYPE" == "image" && -f "$PAYLOAD" ]]; then
+if [[ "$TYPE" == "svg" ]]; then
+    if [[ -f "$PAYLOAD" ]]; then
+        wl-copy --type image/svg+xml < "$PAYLOAD"
+    else
+        printf "%s" "$PAYLOAD" | wl-copy --type image/svg+xml
+    fi
+    printf "%s" "$PAYLOAD" | wl-copy --primary 2>/dev/null || true
+elif [[ "$TYPE" == "image" && -f "$PAYLOAD" ]]; then
     mime_type="$(file --brief --mime-type -- "$PAYLOAD" 2>/dev/null || echo "image/png")"
     wl-copy --type "$mime_type" < "$PAYLOAD"
 else

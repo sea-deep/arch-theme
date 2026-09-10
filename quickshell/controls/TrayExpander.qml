@@ -20,6 +20,7 @@ Item {
     readonly property real collapsedWidth: trayItems.length <= 1 ? Theme.compactPillSize : Math.max(Theme.compactPillSize, trayItems.length * 30 + 12)
     readonly property real topWidth: collapsedWidth
     readonly property var trayItems: SystemTray.items.values.filter(item => {
+        if (!item) return false
         // The NetworkManager applet is replaced by NetworkExpander, which uses
         // Quickshell's native NetworkManager integration instead of its flaky
         // mutable DBusMenu implementation.
@@ -275,7 +276,7 @@ Item {
                         width: 18
                         height: 18
                         anchors.centerIn: parent
-                        source: trayItemDelegate.modelData.icon
+                        source: (trayItemDelegate.modelData && trayItemDelegate.modelData.icon) ? trayItemDelegate.modelData.icon : ""
                     }
 
                     MouseArea {

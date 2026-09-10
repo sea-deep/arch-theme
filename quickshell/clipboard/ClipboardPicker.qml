@@ -91,14 +91,41 @@ PanelWindow {
             for (let i = 0; i < history.length; ++i) {
                 const entry = history[i]
                 const rawValue = String(entry.value || "")
-                const isImage = entry.filePath && entry.filePath !== "null"
                 const compact = rawValue.replace(/\s+/g, " ").trim()
+                const hasFile = entry.filePath && entry.filePath !== "null"
+                const fileIsSvg = hasFile && entry.filePath.toLowerCase().endsWith(".svg")
+                const rawIsSvg = !hasFile && ((compact.startsWith("<svg") || compact.startsWith("<?xml")) && compact.includes("</svg>"))
+                const isSvg = fileIsSvg || rawIsSvg
+                const isImage = hasFile || isSvg
+
+                var imageSrc = ""
+                var labelText = ""
+                var filePath = hasFile ? entry.filePath : ""
+
+                if (isSvg) {
+                    if (hasFile) {
+                        imageSrc = "file://" + filePath
+                        labelText = filePath.split("/").pop() || "Vector Graphic"
+                    } else {
+                        imageSrc = "data:image/svg+xml;utf8," + encodeURIComponent(rawValue)
+                        var titleMatch = rawValue.match(/<title[^>]*>([^<]+)<\/title>/i) || rawValue.match(/id="([^"]+)"/i)
+                        labelText = titleMatch ? titleMatch[1] : "SVG Vector Graphic"
+                    }
+                } else if (isImage) {
+                    imageSrc = "file://" + filePath
+                    labelText = compact
+                } else {
+                    labelText = compact.slice(0, 180)
+                }
+
                 result.push({
                     value: rawValue,
-                    label: isImage ? compact : compact.slice(0, 180),
+                    label: labelText,
                     recorded: entry.recorded || "",
-                    filePath: isImage ? entry.filePath : "",
+                    filePath: filePath,
+                    imageSource: imageSrc,
                     isImage: isImage,
+                    isSvg: isSvg,
                     pinned: !!entry.pinned
                 })
             }
@@ -111,8 +138,8 @@ PanelWindow {
     function activate(entry) {
         if (!entry) return
         UiState.clipboardVisible = false
-        var type = entry.isImage ? "image" : "text"
-        var payload = entry.isImage ? (entry.filePath || entry.value) : entry.value
+        var type = entry.isSvg ? "svg" : (entry.isImage ? "image" : "text")
+        var payload = entry.isSvg ? (entry.filePath || entry.value) : (entry.isImage ? entry.filePath : entry.value)
         Quickshell.execDetached([
             "bash",
             Quickshell.shellPath("scripts/paste-clipboard.sh"),
@@ -403,10 +430,20 @@ PanelWindow {
                         }
                         Drag.hotSpot.x: 24
                         Drag.hotSpot.y: 24
-                        Drag.imageSource: modelData.isImage ? ("file://" + modelData.filePath) : ""
+                        Drag.imageSource: modelData.isImage ? (modelData.imageSource || ("file://" + modelData.filePath)) : ""
                         Drag.mimeData: {
                             var data = {};
-                            if (modelData.isImage) {
+                            if (modelData.isSvg) {
+                                if (modelData.filePath) {
+                                    var uri = "file://" + modelData.filePath;
+                                    data["text/uri-list"] = uri + "\r\n";
+                                    data["x-special/gnome-copied-files"] = "copy\n" + uri + "\r\n";
+                                }
+                                data["image/svg+xml"] = modelData.value;
+                                data["text/plain"] = modelData.value;
+                                data["text/plain;charset=utf-8"] = modelData.value;
+                                data["UTF8_STRING"] = modelData.value;
+                            } else if (modelData.isImage) {
                                 var uri = "file://" + modelData.filePath;
                                 data["text/uri-list"] = uri + "\r\n";
                                 data["x-special/gnome-copied-files"] = "copy\n" + uri + "\r\n";
@@ -435,8 +472,8 @@ PanelWindow {
                             Layout.alignment: Qt.AlignVCenter
                             Layout.preferredWidth: 64
                             Layout.fillHeight: true
-                            source: modelData.isImage ? "file://" + modelData.filePath : ""
-                            fillMode: Image.PreserveAspectCrop
+                            source: modelData.imageSource || (modelData.isImage ? "file://" + modelData.filePath : "")
+                            fillMode: modelData.isSvg ? Image.PreserveAspectFit : Image.PreserveAspectCrop
 
                             Rectangle {
                                 anchors.fill: parent
@@ -518,27 +555,31 @@ PanelWindow {
             }
 
             // Empty state overlay
-            ColumnLayout {
-                anchors.centerIn: parent
-                anchors.verticalCenterOffset: 24
+            Item {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
                 visible: listView.count === 0
-                spacing: 8
 
-                Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: "󰅍"
-                    color: Theme.fgMuted
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 28
-                }
+                ColumnLayout {
+                    anchors.centerIn: parent
+                    spacing: 8
 
-                Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: root.searchQuery.length > 0 ? "No matching items" : "Clipboard empty"
-                    color: Theme.fgDim
-                    font.family: Theme.fontFamilySans
-                    font.pixelSize: 13
-                    font.weight: Theme.fontWeight
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: "󰅍"
+                        color: Theme.fgMuted
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 28
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: root.searchQuery.length > 0 ? "No matching items" : "Clipboard empty"
+                        color: Theme.fgDim
+                        font.family: Theme.fontFamilySans
+                        font.pixelSize: 13
+                        font.weight: Theme.fontWeight
+                    }
                 }
             }
         }

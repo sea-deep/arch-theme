@@ -13,9 +13,7 @@ Item {
     
     readonly property var activeWs: (hoveredWorkspace !== null ? hoveredWorkspace : Hyprland.focusedWorkspace)
     
-    readonly property var windowList: activeWs && activeWs.toplevels
-        ? activeWs.toplevels.values
-        : []
+    readonly property var windowList: root.isExpanded ? root.getWindowList(activeWs) : []
     
     property bool isHovered: false
     readonly property bool isExpanded: root.isHovered
@@ -65,39 +63,42 @@ Item {
 
     function getAppIcon(toplevel) {
         if (!toplevel) return Quickshell.iconPath("application-x-executable")
-        
-        var cls = (toplevel.lastIpcObject && toplevel.lastIpcObject.class)
-            || (toplevel.wayland && toplevel.wayland.appId)
-            || "";
-        var initCls = (toplevel.lastIpcObject && toplevel.lastIpcObject.initialClass) || "";
+        try {
+            var cls = (toplevel.lastIpcObject && toplevel.lastIpcObject.class)
+                || (toplevel.wayland && toplevel.wayland.appId)
+                || "";
+            var initCls = (toplevel.lastIpcObject && toplevel.lastIpcObject.initialClass) || "";
 
-        var entry = (cls ? DesktopEntries.heuristicLookup(cls) : null)
-            || (initCls ? DesktopEntries.heuristicLookup(initCls) : null);
-        
-        if (entry && entry.icon) {
-            var direct = Quickshell.iconPath(entry.icon);
-            if (direct && direct !== "") return direct;
-        }
-
-        var candidates = [];
-        if (entry && entry.icon) candidates.push(entry.icon);
-        if (cls) {
-            candidates.push(cls);
-            candidates.push(cls.toLowerCase());
-            var parts = cls.split(".");
-            if (parts.length > 1) {
-                var last = parts[parts.length - 1];
-                candidates.push(last);
-                candidates.push(last.toLowerCase());
+            var entry = (cls ? DesktopEntries.heuristicLookup(cls) : null)
+                || (initCls ? DesktopEntries.heuristicLookup(initCls) : null);
+            
+            if (entry && entry.icon) {
+                var direct = Quickshell.iconPath(entry.icon);
+                if (direct && direct !== "") return direct;
             }
-        }
-        if (initCls && initCls !== cls) {
-            candidates.push(initCls);
-            candidates.push(initCls.toLowerCase());
-        }
-        candidates.push("application-x-executable");
 
-        return Quickshell.iconPath.apply(Quickshell, candidates);
+            var candidates = [];
+            if (entry && entry.icon) candidates.push(entry.icon);
+            if (cls) {
+                candidates.push(cls);
+                candidates.push(cls.toLowerCase());
+                var parts = cls.split(".");
+                if (parts.length > 1) {
+                    var last = parts[parts.length - 1];
+                    candidates.push(last);
+                    candidates.push(last.toLowerCase());
+                }
+            }
+            if (initCls && initCls !== cls) {
+                candidates.push(initCls);
+                candidates.push(initCls.toLowerCase());
+            }
+            candidates.push("application-x-executable");
+
+            return Quickshell.iconPath.apply(Quickshell, candidates);
+        } catch(e) {
+            return Quickshell.iconPath("application-x-executable");
+        }
     }
 
     function getSuperscript(count) {
@@ -115,17 +116,51 @@ Item {
         var list = [];
         for (var i = 0; i < toplevelsList.length; i++) {
             var top = toplevelsList[i];
-            var icon = root.getAppIcon(top);
-            if (!groups[icon]) {
-                groups[icon] = {
+            if (!top) continue;
+            try {
+                var icon = root.getAppIcon(top);
+                if (!groups[icon]) {
+                    groups[icon] = {
+                        icon: icon,
+                        count: 0,
+                        addresses: [],
+                        toplevels: []
+                    };
+                    list.push(groups[icon]);
+                }
+                groups[icon].count++;
+                var addr = top.address || (top.lastIpcObject ? top.lastIpcObject.address : "");
+                if (addr) groups[icon].addresses.push(addr);
+                groups[icon].toplevels.push(top);
+            } catch(e) {}
+        }
+        return list;
+    }
+
+    function getWindowList(ws) {
+        if (!ws || !ws.toplevels || !ws.toplevels.values) return [];
+        var raw = ws.toplevels.values;
+        var list = [];
+        for (var i = 0; i < raw.length; i++) {
+            var top = raw[i];
+            if (!top) continue;
+            try {
+                var title = top.title || (top.wayland ? top.wayland.appId : "") || (top.lastIpcObject ? top.lastIpcObject.class : "") || "Window";
+                var icon = root.getAppIcon(top);
+                var activated = !!top.activated;
+                var addr = top.address || (top.lastIpcObject ? top.lastIpcObject.address : "");
+                var pid = top.pid || (top.lastIpcObject ? top.lastIpcObject.pid : 0);
+                var cls = (top.lastIpcObject ? top.lastIpcObject.class : "");
+                list.push({
+                    toplevel: top,
+                    title: title,
                     icon: icon,
-                    count: 0,
-                    toplevels: []
-                };
-                list.push(groups[icon]);
-            }
-            groups[icon].count++;
-            groups[icon].toplevels.push(top);
+                    activated: activated,
+                    address: addr,
+                    pid: pid,
+                    className: cls
+                });
+            } catch(e) {}
         }
         return list;
     }
@@ -143,18 +178,19 @@ Item {
         return "0x" + s;
     }
 
-    function killWindow(top) {
-        if (!top) return;
+    function killWindow(item) {
+        if (!item) return;
+        var top = item.toplevel || item;
 
         // 1. Quickshell native Wayland handle close
-        if (top.wayland && typeof top.wayland.close === "function") {
-            try {
+        try {
+            if (top && top.wayland && typeof top.wayland.close === "function") {
                 top.wayland.close();
-            } catch(e) {}
-        }
+            }
+        } catch(e) {}
 
         // 2. Format address and dispatch via hyprctl
-        var rawAddr = (top.address) || (top.lastIpcObject && top.lastIpcObject.address) || "";
+        var rawAddr = item.address || (top && top.address) || (top && top.lastIpcObject && top.lastIpcObject.address) || "";
         var addr = root.formatAddress(rawAddr);
         if (addr !== "" && addr !== "0x0" && addr !== "0x") {
             var hexOnly = addr.startsWith("0x") ? addr.slice(2) : addr;
@@ -163,35 +199,34 @@ Item {
         }
 
         // 3. Fallback to PID
-        var pid = top.pid || (top.lastIpcObject && top.lastIpcObject.pid) || 0;
+        var pid = item.pid || (top && top.pid) || (top && top.lastIpcObject && top.lastIpcObject.pid) || 0;
         if (pid > 0) {
             Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "pid:" + pid]);
         }
 
         // 4. Fallback to Class
-        var cls = (top.lastIpcObject && top.lastIpcObject.class) || "";
+        var cls = item.className || (top && top.lastIpcObject && top.lastIpcObject.class) || "";
         if (cls !== "") {
             Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "class:" + cls]);
         }
     }
 
-    function focusWindow(top) {
+    function focusWindow(item) {
         if (root.activeWs) {
-            root.activeWs.activate();
+            try { root.activeWs.activate(); } catch(e) {}
         }
-        if (!top) return;
+        if (!item) return;
+        var top = item.toplevel || item;
 
-        if (top.wayland && typeof top.wayland.activate === "function") {
-            try {
+        try {
+            if (top && top.wayland && typeof top.wayland.activate === "function") {
                 top.wayland.activate();
-            } catch(e) {}
-        } else if (typeof top.activate === "function") {
-            try {
+            } else if (top && typeof top.activate === "function") {
                 top.activate();
-            } catch(e) {}
-        }
+            }
+        } catch(e) {}
 
-        var rawAddr = (top.address) || (top.lastIpcObject && top.lastIpcObject.address) || "";
+        var rawAddr = item.address || (top && top.address) || (top && top.lastIpcObject && top.lastIpcObject.address) || "";
         var addr = root.formatAddress(rawAddr);
         if (addr !== "" && addr !== "0x0" && addr !== "0x") {
             var hexOnly = addr.startsWith("0x") ? addr.slice(2) : addr;
@@ -583,16 +618,16 @@ Item {
                                         width: 16
                                         height: 16
                                         Layout.alignment: Qt.AlignVCenter
-                                        source: root.getAppIcon(rowItem.modelData)
+                                        source: (rowItem.modelData && rowItem.modelData.icon) || Quickshell.iconPath("application-x-executable")
                                     }
 
                                     Text {
                                         Layout.fillWidth: true
-                                        text: rowItem.modelData.title || (rowItem.modelData.lastIpcObject && rowItem.modelData.lastIpcObject.class) || "(Window)"
-                                        color: rowItem.modelData.activated ? Theme.accent : Theme.fg
+                                        text: (rowItem.modelData && rowItem.modelData.title) || "(Window)"
+                                        color: (rowItem.modelData && rowItem.modelData.activated) ? Theme.accent : Theme.fg
                                         font.family: Theme.fontFamilySans
                                         font.pixelSize: 11
-                                        font.weight: rowItem.modelData.activated ? Font.Bold : Theme.fontWeight
+                                        font.weight: (rowItem.modelData && rowItem.modelData.activated) ? Font.Bold : Theme.fontWeight
                                         elide: Text.ElideRight
                                     }
 

@@ -23,7 +23,7 @@ Components.Pill {
 
     // Zero-CPU in-process Qt timer (0 background scripts, 0 child processes spawned)
     Timer {
-        interval: 200
+        interval: 500
         running: true
         repeat: true
         triggeredOnStart: true

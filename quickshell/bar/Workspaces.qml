@@ -119,19 +119,16 @@ Item {
             if (!top) continue;
             try {
                 var icon = root.getAppIcon(top);
+                var addr = top.address || (top.lastIpcObject ? top.lastIpcObject.address : "");
                 if (!groups[icon]) {
                     groups[icon] = {
                         icon: icon,
                         count: 0,
-                        addresses: [],
-                        toplevels: []
+                        address: addr
                     };
                     list.push(groups[icon]);
                 }
                 groups[icon].count++;
-                var addr = top.address || (top.lastIpcObject ? top.lastIpcObject.address : "");
-                if (addr) groups[icon].addresses.push(addr);
-                groups[icon].toplevels.push(top);
             } catch(e) {}
         }
         return list;
@@ -152,7 +149,6 @@ Item {
                 var pid = top.pid || (top.lastIpcObject ? top.lastIpcObject.pid : 0);
                 var cls = (top.lastIpcObject ? top.lastIpcObject.class : "");
                 list.push({
-                    toplevel: top,
                     title: title,
                     icon: icon,
                     activated: activated,
@@ -180,32 +176,18 @@ Item {
 
     function killWindow(item) {
         if (!item) return;
-        var top = item.toplevel || item;
-
-        // 1. Quickshell native Wayland handle close
-        try {
-            if (top && top.wayland && typeof top.wayland.close === "function") {
-                top.wayland.close();
-            }
-        } catch(e) {}
-
-        // 2. Format address and dispatch via hyprctl
-        var rawAddr = item.address || (top && top.address) || (top && top.lastIpcObject && top.lastIpcObject.address) || "";
+        var rawAddr = item.address || "";
         var addr = root.formatAddress(rawAddr);
         if (addr !== "" && addr !== "0x0" && addr !== "0x") {
             var hexOnly = addr.startsWith("0x") ? addr.slice(2) : addr;
             Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "address:0x" + hexOnly]);
             Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "address:" + hexOnly]);
         }
-
-        // 3. Fallback to PID
-        var pid = item.pid || (top && top.pid) || (top && top.lastIpcObject && top.lastIpcObject.pid) || 0;
+        var pid = item.pid || 0;
         if (pid > 0) {
             Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "pid:" + pid]);
         }
-
-        // 4. Fallback to Class
-        var cls = item.className || (top && top.lastIpcObject && top.lastIpcObject.class) || "";
+        var cls = item.className || "";
         if (cls !== "") {
             Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "class:" + cls]);
         }
@@ -216,17 +198,7 @@ Item {
             try { root.activeWs.activate(); } catch(e) {}
         }
         if (!item) return;
-        var top = item.toplevel || item;
-
-        try {
-            if (top && top.wayland && typeof top.wayland.activate === "function") {
-                top.wayland.activate();
-            } else if (top && typeof top.activate === "function") {
-                top.activate();
-            }
-        } catch(e) {}
-
-        var rawAddr = item.address || (top && top.address) || (top && top.lastIpcObject && top.lastIpcObject.address) || "";
+        var rawAddr = item.address || "";
         var addr = root.formatAddress(rawAddr);
         if (addr !== "" && addr !== "0x0" && addr !== "0x") {
             var hexOnly = addr.startsWith("0x") ? addr.slice(2) : addr;
@@ -432,14 +404,11 @@ Item {
                                                 cursorShape: Qt.PointingHandCursor
                                                 onClicked: {
                                                     wsItem.modelData.activate();
-                                                    if (iconGroup.modelData.toplevels && iconGroup.modelData.toplevels.length > 0) {
-                                                        var top = iconGroup.modelData.toplevels[0];
-                                                        if (top.activate) top.activate();
-                                                        var addr = (top.address)
-                                                            || (top.lastIpcObject && top.lastIpcObject.address)
-                                                            || "";
-                                                        if (addr !== "") {
-                                                            Hyprland.dispatch("focuswindow address:" + addr);
+                                                    if (iconGroup.modelData && iconGroup.modelData.address) {
+                                                        var addr = root.formatAddress(iconGroup.modelData.address);
+                                                        if (addr !== "" && addr !== "0x0" && addr !== "0x") {
+                                                            var hexOnly = addr.startsWith("0x") ? addr.slice(2) : addr;
+                                                            Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "address:0x" + hexOnly]);
                                                         }
                                                     }
                                                     root.isHovered = false;

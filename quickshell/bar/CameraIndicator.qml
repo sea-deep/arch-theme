@@ -29,10 +29,6 @@ Components.Pill {
 
     implicitWidth: Theme.compactPillSize
 
-    PwObjectTracker {
-        objects: root.allNodes
-    }
-
     Text {
         anchors.centerIn: parent
         text: "󰄀"

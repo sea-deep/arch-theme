@@ -24,10 +24,6 @@ Components.Pill {
 
     implicitWidth: Theme.compactPillSize
 
-    PwObjectTracker {
-        objects: root.source ? [root.source].concat(root.recordingStreams) : root.recordingStreams
-    }
-
     Text {
         anchors.centerIn: parent
         text: root.isMuted ? "󰍭" : "󰍬"

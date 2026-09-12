@@ -1,6 +1,8 @@
 # Beautified Teal & Charcoal Powerline
 
 add_newline = false
+scan_timeout = 120
+command_timeout = 1000
 
 # The Layout: Pill start -> User/Host -> Directory -> Languages/Git -> Time -> Prompt
 format = """

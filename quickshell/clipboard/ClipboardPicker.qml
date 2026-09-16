@@ -394,6 +394,8 @@ PanelWindow {
                 clip: true
                 spacing: 6
                 boundsBehavior: Flickable.StopAtBounds
+                reuseItems: true
+                cacheBuffer: 160
 
                 onCountChanged: {
                     if (currentIndex >= count)
@@ -402,7 +404,14 @@ PanelWindow {
 
                 delegate: Rectangle {
                     id: expRow
+                    required property var modelData
+                    required property int index
                     property bool nativeDragStarted: false
+
+                    ListView.onReused: {
+                        nativeDragStarted = false
+                    }
+
                     width: listView.width
                     height: modelData.isImage ? 80 : 52
                     radius: 8

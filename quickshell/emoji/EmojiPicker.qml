@@ -357,6 +357,8 @@ PanelWindow {
                         clip: true
                         spacing: 2
                         boundsBehavior: Flickable.StopAtBounds
+                        reuseItems: true
+                        cacheBuffer: 160
                         model: root.emojiFlatModel
 
                         onContentYChanged: {

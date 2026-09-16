@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
-WALLPAPER="${1:-/home/dipak/code/arch-theme/wallpapers/satisfaction_hires.png}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+DEFAULT_WALLPAPER="$REPO_DIR/wallpapers/satisfaction_hires.png"
+if [ ! -f "$DEFAULT_WALLPAPER" ]; then
+    DEFAULT_WALLPAPER="${XDG_PICTURES_DIR:-$HOME/Pictures}/wallpapers/satisfaction_hires.png"
+fi
+WALLPAPER="${1:-$DEFAULT_WALLPAPER}"
 if [ ! -f "$WALLPAPER" ]; then
     echo "Error: wallpaper file not found: $WALLPAPER" >&2
     exit 1

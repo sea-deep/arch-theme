@@ -41,7 +41,7 @@
 	<name>Copy Path</name>
 	<submenu></submenu>
 	<unique-id>1766393036319643-4</unique-id>
-	<command>/home/dipak/code/arch-theme/hypr/scripts/copy_path.sh %F</command>
+	<command>sh -c '&quot;$HOME/.config/hypr/scripts/copy_path.sh&quot; &quot;$@&quot;' _ %F</command>
 	<description>Copy file or folder path to clipboard</description>
 	<range></range>
 	<patterns>*</patterns>
@@ -57,7 +57,7 @@
 	<name>Set as Wallpaper</name>
 	<submenu></submenu>
 	<unique-id>1766393036319644-5</unique-id>
-	<command>/home/dipak/code/arch-theme/hypr/scripts/set_wallpaper.sh "%f"</command>
+	<command>sh -c '&quot;$HOME/.config/hypr/scripts/set_wallpaper.sh&quot; &quot;$@&quot;' _ %f</command>
 	<description>Set selected image as desktop wallpaper</description>
 	<range></range>
 	<patterns>*.png;*.jpg;*.jpeg;*.webp;*.bmp;*.gif</patterns>

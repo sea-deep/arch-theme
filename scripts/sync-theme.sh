@@ -130,8 +130,8 @@ EOF
     mv "$target.tmp" "$target"
 }
 
-write_qt_conf "$REPO_DIR/qt5ct/qt5ct.conf" "$HOME/.local/share/qt5ct/colors/TokyoNight.conf"
-write_qt_conf "$REPO_DIR/qt6ct/qt6ct.conf" "$HOME/.local/share/qt6ct/colors/TokyoNight.conf"
+write_qt_conf "$HOME/.config/qt5ct/qt5ct.conf" "$HOME/.local/share/qt5ct/colors/TokyoNight.conf"
+write_qt_conf "$HOME/.config/qt6ct/qt6ct.conf" "$HOME/.local/share/qt6ct/colors/TokyoNight.conf"
 
 # ------------------------------------------------------------------------------
 # 3. Generate GTK colors.css (GTK3 and GTK4)

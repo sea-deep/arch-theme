@@ -133,7 +133,6 @@ bhej() {
 eval "$(starship init zsh)"
 eval "$(zoxide init --cmd cd zsh)"
 eval "$(fzf --zsh)"
-export PATH="/home/dipak/bin:$PATH"
 
 # Wokwi CLI Token
 export WOKWI_CLI_TOKEN="wok_xKFSa56mcHI6rcU1KHbZ2YHQxvDi4eux4db0b62b"

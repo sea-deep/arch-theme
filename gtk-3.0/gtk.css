@@ -59,10 +59,8 @@
 
 @define-color borders #2f3549;
 
-/* ── Global Foreground ── */
-* {
-    color: @theme_fg_color;
-}
+/* Global foreground intentionally omitted — apps set their own
+   text colors; a universal * rule breaks alpha(currentColor, x) patterns. */
 
 /* ── Window Chrome ── */
 window {
@@ -254,17 +252,5 @@ toolbar button:disabled:hover image {
     color: alpha(@theme_fg_color, 0.35);
 }
 
-/* ═══════════════════════════════════════════════════════
-   ICONS — Global symbolic rendering
-   ═══════════════════════════════════════════════════════ */
-image {
-    -gtk-icon-style: symbolic;
-    color: @accent_color;
-}
-
-*:selected image,
-*:hover > image,
-button:hover image,
-row:hover image {
-    color: @theme_selected_fg_color;
-}
+/* Icon color intentionally omitted — forcing all images to accent_color
+   overrides app-specific icon theming. Icons inherit from their parent. */

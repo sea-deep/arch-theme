@@ -62,7 +62,7 @@ Item {
     }
 
     function getAppIcon(toplevel) {
-        if (!toplevel) return Quickshell.iconPath("application-x-executable")
+        if (!toplevel) return Quickshell.iconPath("preferences-system-windows");
         try {
             var cls = (toplevel.lastIpcObject && toplevel.lastIpcObject.class)
                 || (toplevel.wayland && toplevel.wayland.appId)
@@ -73,7 +73,7 @@ Item {
                 || (initCls ? DesktopEntries.heuristicLookup(initCls) : null);
             
             if (entry && entry.icon) {
-                var direct = Quickshell.iconPath(entry.icon);
+                var direct = Quickshell.iconPath(entry.icon, true);
                 if (direct && direct !== "") return direct;
             }
 
@@ -92,12 +92,29 @@ Item {
             if (initCls && initCls !== cls) {
                 candidates.push(initCls);
                 candidates.push(initCls.toLowerCase());
+                var initParts = initCls.split(".");
+                if (initParts.length > 1) {
+                    var initLast = initParts[initParts.length - 1];
+                    candidates.push(initLast);
+                    candidates.push(initLast.toLowerCase());
+                }
             }
+            candidates.push("preferences-system-windows");
+            candidates.push("application-default-icon");
+            candidates.push("application-default");
             candidates.push("application-x-executable");
+            candidates.push("system-run");
 
-            return Quickshell.iconPath.apply(Quickshell, candidates);
+            for (var i = 0; i < candidates.length; i++) {
+                var c = candidates[i];
+                if (!c) continue;
+                var resolved = Quickshell.iconPath(c, true);
+                if (resolved && resolved !== "") return resolved;
+            }
+
+            return Quickshell.iconPath("preferences-system-windows");
         } catch(e) {
-            return Quickshell.iconPath("application-x-executable");
+            return Quickshell.iconPath("preferences-system-windows");
         }
     }
 
@@ -385,7 +402,7 @@ Item {
                                                 anchors.centerIn: parent
                                                 width: 20
                                                 height: 20
-                                                source: iconGroup.modelData.icon
+                                                source: (iconGroup.modelData && iconGroup.modelData.icon) || Quickshell.iconPath("preferences-system-windows")
                                             }
 
                                             HoverHandler {
@@ -587,7 +604,7 @@ Item {
                                         width: 16
                                         height: 16
                                         Layout.alignment: Qt.AlignVCenter
-                                        source: (rowItem.modelData && rowItem.modelData.icon) || Quickshell.iconPath("application-x-executable")
+                                        source: (rowItem.modelData && rowItem.modelData.icon) || Quickshell.iconPath("preferences-system-windows")
                                     }
 
                                     Text {

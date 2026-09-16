@@ -36,7 +36,7 @@ Rectangle {
             
             IconImage {
                 anchors.fill: parent
-                source: modelData && modelData.icon ? Quickshell.iconPath(modelData.icon, "application-x-executable") : ""
+                source: modelData && modelData.icon ? Quickshell.iconPath(modelData.icon, "preferences-system-windows") : ""
             }
         }
         

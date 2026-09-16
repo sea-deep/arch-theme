@@ -340,7 +340,7 @@ Rectangle {
                 IconImage {
                     Layout.preferredWidth: 14
                     Layout.preferredHeight: 14
-                    source: Quickshell.iconPath("user-trash", "application-x-executable")
+                    source: Quickshell.iconPath("user-trash", "preferences-system-windows")
                 }
                 Text {
                     text: "Uninstall App"

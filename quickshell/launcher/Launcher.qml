@@ -94,7 +94,7 @@ PanelWindow {
                 var cats = (app.categories || []).map(function(c) { return String(c).toLowerCase() })
                 var kw = (app.keywords || []).join(" ")
                 var searchStr = ((app.name || "") + " " + (app.genericName || "") + " " + (app.comment || "") + " " + kw).toLowerCase()
-                var iconSrc = app.icon ? Quickshell.iconPath(app.icon, "application-x-executable") : ""
+                var iconSrc = app.icon ? Quickshell.iconPath(app.icon, "preferences-system-windows") : ""
 
                 valid.push({
                     app: app,

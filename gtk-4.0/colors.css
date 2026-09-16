@@ -4,19 +4,19 @@
 @define-color theme_base_color #16161e;
 @define-color theme_text_color #c0caf5;
 @define-color theme_selected_bg_color #39c5bb;
-@define-color theme_selected_fg_color #16161e;
+@define-color theme_selected_fg_color #ffffff;
 
 @define-color accent_color #39c5bb;
 @define-color accent_bg_color #39c5bb;
-@define-color accent_fg_color #16161e;
+@define-color accent_fg_color #ffffff;
 
 @define-color destructive_color #f7768e;
 @define-color destructive_bg_color #f7768e;
-@define-color destructive_fg_color #16161e;
+@define-color destructive_fg_color #ffffff;
 
 @define-color success_color #73daca;
 @define-color success_bg_color #73daca;
-@define-color success_fg_color #16161e;
+@define-color success_fg_color #ffffff;
 
 @define-color warning_color #e0af68;
 @define-color warning_bg_color #e0af68;
@@ -24,7 +24,7 @@
 
 @define-color error_color #f7768e;
 @define-color error_bg_color #f7768e;
-@define-color error_fg_color #16161e;
+@define-color error_fg_color #ffffff;
 
 @define-color window_bg_color #1a1b26;
 @define-color window_fg_color #c0caf5;

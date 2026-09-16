@@ -38,10 +38,10 @@ QtObject {
     // Geometry
     readonly property bool   showClipboardOnBar: false
     readonly property int    barHeight:          38
-    readonly property int    radius:             11
-    readonly property int    radiusSmall:        7
+    readonly property int    radius:             10
+    readonly property int    radiusSmall:        6
     readonly property int    radiusLarge:        14
-    readonly property int    borderWidth:        2
+    readonly property int    borderWidth:        1
     readonly property int    outerGap:           0
     readonly property int    moduleSpacing:      6
     readonly property int    compactPillSize:    34

@@ -30,15 +30,11 @@ Item {
     property int percentage: Math.round((currB / maxB) * 100) || 0
 
     Rectangle {
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 3
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: Math.max(0, parent.width - 12)
-        height: 2
-        radius: 1
-        color: Theme.yellow
-        opacity: brightnessHover.hovered ? 1 : 0
-        Behavior on opacity { NumberAnimation { duration: Theme.durationFast; easing.type: Theme.easingDecelerate } }
+        anchors.fill: parent
+        anchors.margins: 4
+        radius: Theme.radiusSmall
+        color: brightnessHover.hovered ? Theme.bgLight : "transparent"
+        Behavior on color { ColorAnimation { duration: Theme.durationFast } }
     }
 
     function getIcon() {
@@ -50,15 +46,15 @@ Item {
     RowLayout {
         id: layout
         anchors.centerIn: parent
-        spacing: 4
+        spacing: 5
         
         Text {
-            Layout.preferredWidth: 20
+            Layout.preferredWidth: 18
             horizontalAlignment: Text.AlignHCenter
             text: root.getIcon()
             color: Theme.yellow
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSize
+            font.pixelSize: Theme.fontSizeSmall
             font.weight: Theme.fontWeight
         }
         
@@ -66,7 +62,7 @@ Item {
             text: root.percentage + "%"
             color: Theme.fg
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSize
+            font.pixelSize: Theme.fontSizeSmall
             font.weight: Theme.fontWeight
         }
     }

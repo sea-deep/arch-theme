@@ -241,10 +241,22 @@ Components.Pill {
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
         height: Theme.barHeight
-        spacing: 0
+        spacing: 2
 
         BarModules.Audio { onPrimaryClicked: root.toggle("audio") }
+        Rectangle {
+            implicitWidth: 1
+            implicitHeight: 14
+            color: Theme.surfaceVariant
+            opacity: 0.4
+        }
         BarModules.Backlight { onPrimaryClicked: root.toggle("brightness") }
+        Rectangle {
+            implicitWidth: 1
+            implicitHeight: 14
+            color: Theme.surfaceVariant
+            opacity: 0.4
+        }
         BarModules.Battery { onPrimaryClicked: root.toggle("battery") }
     }
 

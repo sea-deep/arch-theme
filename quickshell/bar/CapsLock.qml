@@ -8,31 +8,55 @@ Components.Pill {
     id: root
 
     property bool isCapsOn: false
+    property var ledPaths: [
+        "/sys/class/leds/input3::capslock/brightness",
+        "/sys/class/leds/input72::capslock/brightness"
+    ]
 
-    FileView {
-        id: caps1
-        path: "/sys/class/leds/input3::capslock/brightness"
-        printErrors: false
+    // One-shot path scanner on startup to discover all keyboards (built-in and external USB)
+    Process {
+        id: scanProc
+        command: ["sh", "-c", "ls -1 /sys/class/leds/*capslock/brightness 2>/dev/null"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                if (text && text.trim().length > 0) {
+                    root.ledPaths = text.trim().split("\n").filter(Boolean)
+                }
+            }
+        }
     }
 
-    FileView {
-        id: caps2
-        path: "/sys/class/leds/input5::capslock/brightness"
-        printErrors: false
+    Component.onCompleted: scanProc.running = true
+
+    Instantiator {
+        id: ledViews
+        model: root.ledPaths
+        delegate: FileView {
+            required property string modelData
+            path: modelData
+            printErrors: false
+        }
     }
 
     // Zero-CPU in-process Qt timer (0 background scripts, 0 child processes spawned)
     Timer {
-        interval: 500
+        interval: 400
         running: true
         repeat: true
         triggeredOnStart: true
         onTriggered: {
-            caps1.reload()
-            caps2.reload()
-            var on1 = (caps1.text().trim() === "1")
-            var on2 = (caps2.text().trim() === "1")
-            root.isCapsOn = on1 || on2
+            let active = false
+            for (let i = 0; i < ledViews.count; i++) {
+                const fv = ledViews.objectAt(i)
+                if (fv) {
+                    fv.reload()
+                    if (fv.text().trim() === "1") {
+                        active = true
+                        break
+                    }
+                }
+            }
+            root.isCapsOn = active
         }
     }
 

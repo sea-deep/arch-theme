@@ -28,36 +28,32 @@ Item {
     }
 
     Rectangle {
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 3
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: Math.max(0, parent.width - 12)
-        height: 2
-        radius: 1
-        color: Theme.accent
-        opacity: batteryHover.hovered ? 1 : 0
-        Behavior on opacity { NumberAnimation { duration: Theme.durationFast; easing.type: Theme.easingDecelerate } }
+        anchors.fill: parent
+        anchors.margins: 4
+        radius: Theme.radiusSmall
+        color: batteryHover.hovered ? Theme.bgLight : "transparent"
+        Behavior on color { ColorAnimation { duration: Theme.durationFast } }
     }
 
     RowLayout {
         id: layout
         anchors.centerIn: parent
-        spacing: 4
+        spacing: 5
 
         Text {
-            Layout.preferredWidth: 20
+            Layout.preferredWidth: 18
             horizontalAlignment: Text.AlignHCenter
             text: root.batteryIcon()
             color: root.isCritical ? (blinkTimer.blinkState ? Theme.red : Theme.bgDark) : Theme.accent
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSize
+            font.pixelSize: Theme.fontSizeSmall
             font.weight: Theme.fontWeight
         }
         Text {
             text: root.available ? root.percentage + "%" : "--%"
             color: root.isCritical ? (blinkTimer.blinkState ? Theme.red : Theme.bgDark) : Theme.fg
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSize
+            font.pixelSize: Theme.fontSizeSmall
             font.weight: Theme.fontWeight
         }
     }

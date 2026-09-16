@@ -14,14 +14,21 @@ Rectangle {
     Layout.preferredWidth: (collapseWhenEmpty && isEmpty) ? 0 : implicitWidth
     Layout.preferredHeight: Theme.barHeight
     visible: !collapseWhenEmpty || !isEmpty
+    clip: false
 
     color: (hovered && !active && !UiState.hasActiveOverlay) ? Theme.bgLight : "transparent"
     radius: Theme.radius
-    border.width: 0
-    border.color: "transparent"
+    border.width: (hovered && !active && !UiState.hasActiveOverlay) ? Theme.borderWidth : 0
+    border.color: (hovered && !active && !UiState.hasActiveOverlay) ? Theme.surfaceVariant : "transparent"
 
     Behavior on color {
-        ColorAnimation { duration: 120 }
+        ColorAnimation { duration: Theme.durationFast }
+    }
+    Behavior on border.color {
+        ColorAnimation { duration: Theme.durationFast }
+    }
+    Behavior on Layout.preferredWidth {
+        NumberAnimation { duration: Theme.durationFast; easing.type: Theme.easingDecelerate }
     }
 
     HoverHandler { id: pillHover }

@@ -16,19 +16,15 @@ Item {
     readonly property bool isMuted: !available || sink.audio.muted
 
     Rectangle {
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 3
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: Math.max(0, parent.width - 12)
-        height: 2
-        radius: 1
-        color: Theme.blue
-        opacity: audioHover.hovered ? 1 : 0
-        Behavior on opacity { NumberAnimation { duration: Theme.durationFast; easing.type: Theme.easingDecelerate } }
+        anchors.fill: parent
+        anchors.margins: 4
+        radius: Theme.radiusSmall
+        color: audioHover.hovered ? Theme.bgLight : "transparent"
+        Behavior on color { ColorAnimation { duration: Theme.durationFast } }
     }
 
     PwObjectTracker {
-        objects: [root.sink]
+        objects: [root.sink].filter(Boolean)
     }
     
     function getIcon() {
@@ -42,15 +38,15 @@ Item {
     RowLayout {
         id: layout
         anchors.centerIn: parent
-        spacing: 4
+        spacing: 5
         
         Text {
-            Layout.preferredWidth: 20
+            Layout.preferredWidth: 18
             horizontalAlignment: Text.AlignHCenter
             text: root.getIcon()
             color: root.isMuted ? Theme.red : Theme.blue
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSize
+            font.pixelSize: Theme.fontSizeSmall
             font.weight: Theme.fontWeight
         }
         
@@ -58,7 +54,7 @@ Item {
             text: root.isMuted ? "Muted" : (root.volume + "%")
             color: root.isMuted ? Theme.red : Theme.fg
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSize
+            font.pixelSize: Theme.fontSizeSmall
             font.weight: Theme.fontWeight
         }
     }

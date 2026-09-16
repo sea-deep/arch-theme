@@ -18,6 +18,10 @@ Components.Pill {
     }
     readonly property bool isRecording: recordingStreams.length > 0
 
+    PwObjectTracker {
+        objects: [root.source].concat(root.recordingStreams).filter(Boolean)
+    }
+
     // Only show the privacy pill when an app is actually capturing audio
     collapseWhenEmpty: true
     isEmpty: !isRecording

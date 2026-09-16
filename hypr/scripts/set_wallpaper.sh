@@ -7,4 +7,9 @@ if [ ! -f "$WALLPAPER" ]; then
 fi
 pkill -x swaybg 2>/dev/null || true
 sleep 0.1
-nohup swaybg -i "$WALLPAPER" -m fill >/dev/null 2>&1 &
+
+if command -v hyprctl >/dev/null 2>&1 && [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+    hyprctl eval "hl.dispatch(hl.dsp.exec_cmd('swaybg -i \"$WALLPAPER\" -m fill'))" >/dev/null 2>&1
+else
+    nohup swaybg -i "$WALLPAPER" -m fill >/dev/null 2>&1 &
+fi

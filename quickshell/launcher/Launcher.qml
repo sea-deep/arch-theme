@@ -655,6 +655,8 @@ PanelWindow {
                 clip: true
                 spacing: 2
                 boundsBehavior: Flickable.StopAtBounds
+                reuseItems: true
+                cacheBuffer: 220
                 model: root.launcherFlatModel
 
                 delegate: Item {

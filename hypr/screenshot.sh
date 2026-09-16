@@ -10,15 +10,10 @@ FREEZE_FILE="/tmp/qs_screenshot_freeze.ppm"
 # ── Section ──
 # Menu Handling
 if [ -z "$MODE" ] || [ "$MODE" = "menu" ]; then
-    full="Full Screen\0icon\x1fvideo-display"
-    region="Selected Region\0icon\x1fselect-rectangular"
-    window="Specific Window\0icon\x1fwindow-new"
-    options="$full\n$region\n$window"
-    chosen="$(echo -e "$options" | rofi -dmenu -i -p "Screenshot" -show-icons -theme ~/.config/rofi/powermenu.rasi -theme-str 'window {location: center; anchor: center; x-offset: 0; y-offset: 0; width: 280px;} listview {lines: 3;}')"
-    if [ -z "$chosen" ]; then exit 0; fi
-    if [ "$chosen" = "Full Screen" ]; then MODE="full"
-    elif [ "$chosen" = "Selected Region" ]; then MODE="region"
-    elif [ "$chosen" = "Specific Window" ]; then MODE="window"; fi
+    if command -v qs >/dev/null 2>&1 && pgrep -x qs >/dev/null 2>&1; then
+        qs ipc call screenshot toggle && exit 0
+    fi
+    MODE="region"
 fi
 
 # Check if freeze snapshot exists and is recent (< 10 seconds old)

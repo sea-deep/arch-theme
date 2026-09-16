@@ -32,6 +32,7 @@ hl.config({
         "stayfocused,class:(polkit-kde-authentication-agent-1)",
         "pin,class:(polkit-kde-authentication-agent-1)",
         "dimaround,class:(polkit-kde-authentication-agent-1)",
+        "float,class:(io.github.sea_deep.MalusNext)",
     },
     input = {
         kb_layout = "us",
@@ -140,6 +141,7 @@ hl.env("HYPRCURSOR_SIZE", "24")
 hl.env("GTK_THEME", "adw-gtk3-dark")
 hl.env("QT_QPA_PLATFORM", "wayland;xcb")
 hl.env("QT_QPA_PLATFORMTHEME", "qt5ct")
+hl.env("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1")
 hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
 hl.env("XDG_SESSION_TYPE", "wayland")
 hl.env("XDG_SESSION_DESKTOP", "Hyprland")
@@ -148,8 +150,8 @@ hl.env("GDK_BACKEND", "wayland,x11,*")
 hl.on("hyprland.start", function()
     hl.exec_cmd("dbus-update-activation-environment --systemd --all")
     hl.exec_cmd("systemctl --user start xdg-desktop-portal-hyprland.service")
-    hl.exec_cmd("swww-daemon || swaybg -i /home/dipak/code/arch-theme/wallpapers/satisfaction_waybar_blur.png -m fill")
-    hl.exec_cmd("sleep 0.5 && swww img /home/dipak/code/arch-theme/wallpapers/satisfaction_waybar_blur.png --transition-type grow --transition-duration 1")
+    hl.exec_cmd("swww-daemon || swaybg -i /home/dipak/Pictures/wallpapers/satisfaction_hires.png -m fill")
+    hl.exec_cmd("sleep 0.5 && swww img /home/dipak/Pictures/wallpapers/satisfaction_hires.png --transition-type grow --transition-duration 1")
     hl.exec_cmd("QT_LOGGING_RULES=\"quickshell.network.warning=false\" qs --no-duplicate")
     hl.exec_cmd("hypridle")
     hl.exec_cmd("systemctl --user start plasma-polkit-agent || /usr/lib/polkit-kde-authentication-agent-1")
@@ -162,7 +164,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("gsettings set org.gnome.desktop.interface cursor-size 24")
     hl.exec_cmd("gsettings set org.gnome.desktop.sound theme-name Pop")
     hl.exec_cmd("gsettings set org.gnome.desktop.interface gtk-theme adw-gtk3-dark")
-    hl.exec_cmd("gsettings set org.gnome.desktop.interface icon-theme TokyoNight-SE")
+    hl.exec_cmd("gsettings set org.gnome.desktop.interface icon-theme YAMIS-enlarged")
     hl.exec_cmd("gsettings set org.gnome.desktop.interface color-scheme prefer-dark")
     hl.exec_cmd("gsettings set org.gnome.desktop.interface font-name 'IBM Plex Sans SmBld 10'")
     hl.exec_cmd("gsettings set org.gnome.desktop.interface document-font-name 'IBM Plex Sans SmBld 10'")

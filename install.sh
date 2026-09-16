@@ -95,11 +95,11 @@ PACKAGES=(
     "hyprland" "quickshell" "kitty" "thunar" "ly"
     # Qt6 / Quickshell Runtime Dependencies
     "qt6-declarative" "qt6-wayland" "qt6-svg" "qt6-5compat" "qt6-shadertools" "librsvg"
-    # Sway fallback & background daemons
-    "swayfx" "swaybg" "swww"
+    # Background daemons & Wallpaper
+    "swww"
     # System / UX Utilities
-    "hypridle" "hyprlock" "swayidle" "swaylock" "brightnessctl" "swaync" "wlogout" 
-    "polkit-kde-agent" "network-manager-applet" "xdg-desktop-portal" "xdg-desktop-portal-hyprland" "xdg-desktop-portal-wlr" 
+    "hypridle" "hyprlock" "brightnessctl" "wlogout"
+    "polkit-kde-agent" "network-manager-applet" "xdg-desktop-portal" "xdg-desktop-portal-hyprland"
     "jq" "socat" "upower" "playerctl" "pamixer" "pipewire" "wireplumber"
     # Screenshot & Recording
     "grim" "slurp" "swappy" "wf-recorder" "ffmpeg"
@@ -174,9 +174,9 @@ backup_and_symlink() {
 
 # Config directories
 CONFIG_DIRS=(
-    "hypr" "quickshell" "kitty" "sway" "swaylock" "waybar" "swaync" "wlogout" 
-    "btop" "environment.d" "qt5ct" "qt6ct" "tlpui" "gtk-3.0" "gtk-4.0" 
-    "fontconfig" "Thunar" "xfce4" "Kvantum" "fastfetch" "rofi"
+    "hypr" "quickshell" "kitty" "wlogout"
+    "btop" "environment.d" "qt5ct" "qt6ct" "tlpui" "gtk-3.0" "gtk-4.0"
+    "fontconfig" "Thunar" "xfce4" "Kvantum" "fastfetch" "xsettingsd"
 )
 
 for config in "${CONFIG_DIRS[@]}"; do
@@ -186,10 +186,14 @@ for config in "${CONFIG_DIRS[@]}"; do
 done
 
 # Independent dotfiles
+[ -f "$DOTFILES_DIR/kdeglobals" ] && backup_and_symlink "$DOTFILES_DIR/kdeglobals" "$HOME/.config/kdeglobals"
 [ -f "$DOTFILES_DIR/starship.toml" ] && backup_and_symlink "$DOTFILES_DIR/starship.toml" "$HOME/.config/starship.toml"
 [ -f "$DOTFILES_DIR/zshrc" ] && backup_and_symlink "$DOTFILES_DIR/zshrc" "$HOME/.zshrc"
 [ -f "$DOTFILES_DIR/mimeapps.list" ] && backup_and_symlink "$DOTFILES_DIR/mimeapps.list" "$HOME/.config/mimeapps.list"
-log_success "Configs successfully linked!"
+
+log_info "Synchronizing theme tokens..."
+[ -f "$DOTFILES_DIR/scripts/sync-theme.sh" ] && bash "$DOTFILES_DIR/scripts/sync-theme.sh"
+log_success "Configs successfully linked and theme synchronized!"
 
 # --- 8. Install Wallpaper & Generate Bookmarks ---
 log_info "Installing wallpapers..."
@@ -283,12 +287,6 @@ if prompt_yn "Configure Ly Display Manager & TTY theme?"; then
         sudo chmod 644 /etc/systemd/system/tty-theme.service
     fi
 
-    # Fix swaylock PAM to remove faillock delay
-    if [ -f "$DOTFILES_DIR/swaylock/pam" ]; then
-        sudo cp "$DOTFILES_DIR/swaylock/pam" /etc/pam.d/swaylock
-        sudo chmod 644 /etc/pam.d/swaylock
-    fi
-
     # Disable old display managers
     sudo systemctl disable lemurs.service 2>/dev/null || true
     sudo systemctl disable greetd.service 2>/dev/null || true
@@ -300,14 +298,5 @@ if prompt_yn "Configure Ly Display Manager & TTY theme?"; then
     sudo systemctl daemon-reload
     log_success "Ly display manager configured!"
 fi
-
-# --- 11. Systemd User Services ---
-log_info "Enabling systemd user services..."
-if [ -f "$DOTFILES_DIR/systemd/user/sway-hw-notify.service" ]; then
-    backup_and_symlink "$DOTFILES_DIR/systemd/user/sway-hw-notify.service" "$HOME/.config/systemd/user/sway-hw-notify.service"
-    systemctl --user daemon-reload
-    systemctl --user enable --now sway-hw-notify.service 2>/dev/null || true
-fi
-log_success "Systemd services enabled!"
 
 log_success "Installation Complete! Reboot or log out to enjoy your pristine Hyprland + Quickshell setup!"

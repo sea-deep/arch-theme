@@ -1,16 +1,17 @@
 <h1 align="center">
   <br>
-  🌊 Miku × Tokyo Night — Arch Linux Sway Dotfiles
+  🌊 Miku × Tokyo Night — Arch Linux Hyprland & Quickshell Dotfiles
   <br>
 </h1>
 
 <p align="center">
-  <b>A meticulously crafted, Hatsune Miku–inspired Sway desktop environment built on the Tokyo Night color palette.</b>
+  <b>A meticulously crafted, Hatsune Miku–inspired Wayland desktop environment built on Hyprland, Quickshell, and the Tokyo Night color palette.</b>
 </p>
 
 <p align="center">
   <a href="#-quick-start"><img src="https://img.shields.io/badge/Arch-Linux-1793d1?style=for-the-badge&logo=archlinux&logoColor=white" alt="Arch Linux"></a>
-  <a href="#-components"><img src="https://img.shields.io/badge/WM-SwayFX-39c5bb?style=for-the-badge" alt="SwayFX"></a>
+  <a href="#-components"><img src="https://img.shields.io/badge/WM-Hyprland-39c5bb?style=for-the-badge" alt="Hyprland"></a>
+  <a href="#-components"><img src="https://img.shields.io/badge/Shell-Quickshell-7aa2f7?style=for-the-badge" alt="Quickshell"></a>
   <a href="#-color-palette"><img src="https://img.shields.io/badge/Theme-Tokyo%20Night-1a1b26?style=for-the-badge" alt="Tokyo Night"></a>
 </p>
 
@@ -18,33 +19,33 @@
 
 ## 🖼️ Wallpaper
 
-![Miku Wallpaper](wallpapers/satisfaction_hires_final.png)
+![Miku Wallpaper](wallpapers/satisfaction_hires.png)
 
 ---
 
 ## 📑 Table of Contents
 
 - [Quick Start](#-quick-start)
+- [Single Source of Truth & Theme Tokens](#-single-source-of-truth--theme-tokens)
 - [Color Palette](#-color-palette)
 - [Typography](#-typography)
+- [Icon Hierarchy](#-icon-hierarchy)
 - [Components](#-components)
-  - [Sway (Window Manager)](#sway-window-manager)
-  - [Waybar (Status Bar)](#waybar-status-bar)
-  - [Rofi (App Launcher)](#rofi-app-launcher)
+  - [Hyprland (Compositor)](#hyprland-compositor)
+  - [Quickshell (Status Bar, Launcher, Overlays)](#quickshell-status-bar-launcher-overlays)
+  - [Hyprlock & Hypridle (Lock & Power Management)](#hyprlock--hypridle)
   - [Kitty (Terminal)](#kitty-terminal)
-  - [Swaync (Notifications)](#swaync-notifications)
   - [Ly (Login Screen)](#ly-login-screen)
-  - [Swaylock (Lock Screen)](#swaylock-lock-screen)
   - [Wlogout (Logout Menu)](#wlogout-logout-menu)
   - [Btop (System Monitor)](#btop-system-monitor)
   - [Starship (Shell Prompt)](#starship-shell-prompt)
-  - [GTK Theming](#gtk-theming)
-  - [Fontconfig (Browser Fonts)](#fontconfig-browser-fonts)
-  - [Qt Theming](#qt-theming)
+  - [GTK 3 & GTK 4 Theming](#gtk-theming)
+  - [Qt 5 & Qt 6 Theming](#qt-theming)
+  - [Fontconfig (Font Fallback Chain)](#fontconfig-browser-fonts)
+  - [Thunar Custom Actions](#thunar-custom-actions)
 - [Custom Scripts](#-custom-scripts)
 - [Keybindings](#-keybindings)
 - [Directory Structure](#-directory-structure)
-- [Customization Guide](#-customization-guide)
 - [Credits](#-credits)
 
 ---
@@ -62,186 +63,123 @@ chmod +x install.sh
 ```
 
 The installer will:
-1. Configure Pacman parallel downloads, enable the `multilib` repository, and set up the `chaotic-aur` pre-compiled repository.
+1. Configure Pacman parallel downloads, enable the `multilib` repository, and set up `chaotic-aur`.
 2. Install `yay` (AUR helper) if missing.
-3. Install all required packages via `yay`.
-4. Back up any existing configs to `*.bak` (and prevent nested backups).
-5. Symlink everything from this repo into `~/.config/`.
-6. Set up Ly display manager, TLP, and systemd services.
-7. Optionally configure fingerprint authentication.
+3. Install all required packages via `yay` (Hyprland, Quickshell, Ly, Kitty, Thunar, Qt/GTK engines).
+4. Back up any existing configs to `*.bak`.
+5. Symlink configurations from this repo into `~/.config/` and `~/.local/share/`.
+6. Run `scripts/sync-theme.sh` to compile all Qt, GTK, and KDE palettes from `theme/tokens.json`.
+7. Configure Ly display manager and TTY color service.
+8. Optionally configure fingerprint authentication and TLP power management.
 
-> **Note:** After installation, reboot or log out to enter your new Sway session.
+---
+
+## 💎 Single Source of Truth & Theme Tokens
+
+All design tokens across colors, typography, geometry metrics, icon inheritance, wallpaper, and platform environment defaults are centrally defined in:
+
+- **Tokens Definition:** [`theme/tokens.json`](theme/tokens.json)
+- **Synchronizer Script:** [`scripts/sync-theme.sh`](scripts/sync-theme.sh)
+
+Whenever you adjust a color, font, or metric in `theme/tokens.json`, run:
+
+```bash
+./scripts/sync-theme.sh
+```
+
+This single command automatically regenerates and updates:
+- **Qt5 & Qt6:** 21-role `TokyoNight.conf` color schemes in `qt5ct/colors/` and `qt6ct/colors/`.
+- **GTK3 & GTK4:** `colors.css` and `settings.ini` variables.
+- **KDE / Polkit:** Tokyo Night RGB definitions in `kdeglobals`.
+- **Kvantum:** `Kvantum-Tokyo-Night.kvconfig` general colors.
+- **XSettings:** `xsettingsd/xsettingsd.conf`.
+- **User Symlinks:** Re-links all palettes into `~/.local/share/qt5ct/` and `~/.local/share/qt6ct/`.
 
 ---
 
 ## 🎨 Color Palette
 
-Every component in this dotfiles collection uses the same unified color palette, derived from **Tokyo Night** and accented with **Miku Teal**.
+The desktop color scheme is derived from **Tokyo Night** with **Hatsune Miku Teal** accents:
 
-| Role | Hex | Preview | Used In |
-|------|-----|---------|---------|
-| **Base Background** | `#1a1b26` | 🟫 | Everywhere — Sway, Waybar, Kitty, Rofi, Ly |
-| **Deep Background** | `#15161e` | ⬛ | Waybar borders, Rofi panel backgrounds |
-| **Surface / Gutter** | `#414868` | 🔘 | Unfocused UI elements, dim text |
-| **Miku Teal (Primary)** | `#39c5bb` | 🟩 | Focused borders, active workspace, accents |
-| **Bright Teal** | `#33e0e0` | 🟦 | Hover states, Waybar border glow |
-| **Sky Cyan** | `#7dcfff` | 🔵 | Links, secondary highlights, unfocused labels |
-| **Blue** | `#7aa2f7` | 🔷 | Focused input labels, secondary accents |
-| **Purple** | `#bb9af7` | 🟣 | Sway indicator color |
-| **Red / Error** | `#f7768e` | 🔴 | Urgent windows, battery critical, muted audio |
-| **Yellow / Warning** | `#e0af68` | 🟡 | Warning states |
-| **Foreground** | `#c0caf5` | ⬜ | Primary text color |
-| **Soft Foreground** | `#a9b1d6` | 🩶 | Secondary text, environment switcher |
-
-> **To re-theme the entire desktop**, you only need to search-and-replace these hex codes across the config files. Every component references them directly — there are no magic variables or indirection layers.
+| Role | Hex | RGB | Purpose |
+|------|-----|-----|---------|
+| **Base Background (`bg`)** | `#1a1b26` | `26, 27, 38` | Main window, panel backgrounds, terminal bg |
+| **Deep Background (`bgDark`)** | `#16161e` | `22, 22, 30` | Base text inputs, inactive surfaces, borders |
+| **Light Surface (`bgLight`)** | `#24283b` | `36, 40, 59` | Buttons, cards, popover surfaces |
+| **Muted Surface (`surface`)** | `#2f3549` | `47, 53, 73` | Dividers, mid-level surface containers |
+| **Surface Variant (`surfaceVariant`)** | `#3b4261` | `59, 66, 97` | Subtle borders, elevated card highlights |
+| **Foreground (`fg`)** | `#c0caf5` | `192, 202, 245` | Primary text and sharp iconography |
+| **Dim Foreground (`fgDim`)** | `#9aa5ce` | `154, 165, 206` | Secondary labels and inactive text |
+| **Muted Foreground (`fgMuted`)** | `#565f89` | `86, 95, 137` | Placeholders, disabled states, comments |
+| **Miku Teal (`accent`)** | `#39c5bb` | `57, 197, 187` | Focused borders, active pills, primary accents |
+| **Teal Glow (`accentGlow`)** | `#33e0e0` | `51, 224, 224` | Hover states, glowing boundary effects |
+| **Miku Pink (`mikuPink`)** | `#e35885` | `227, 88, 133` | Special badges, media playback accents |
+| **Miku Dark (`mikuDark`)** | `#134c48` | `19, 76, 72` | Subtle inactive teal fills |
+| **Blue (`blue`)** | `#7aa2f7` | `122, 162, 247` | Hyperlinks and informational widgets |
+| **Purple (`purple`)** | `#bb9af7` | `187, 154, 247` | Media progress, secondary highlight |
+| **Red (`red`)** | `#f7768e` | `247, 118, 142` | Errors, close buttons, battery critical |
+| **Yellow (`yellow`)** | `#e0af68` | `224, 175, 104` | Warnings, notifications |
+| **Green (`green`)** | `#73daca` | `115, 218, 202` | Success indicators, battery full |
 
 ---
 
 ## ✏️ Typography
 
-This setup uses **two font families** with a strict separation of concerns:
+The desktop standardizes strictly on two typefaces:
 
-| Context | Font | Weight | Where to Change |
-|---------|------|--------|-----------------|
-| **System UI** | IBM Plex Sans SmBld | SemiBold (600) | `sway/config` line 10, `gtk-3.0/settings.ini`, `gtk-4.0/settings.ini` |
-| **Monospace / Code** | FiraCode Nerd Font | Regular (400) | `kitty/kitty.conf` line 6, `waybar/style.css` line 4 |
+| Context | Font | Weight | Weight Token | Where Applied |
+|---------|------|--------|--------------|---------------|
+| **System UI & Documents** | IBM Plex Sans | SemiBold (600) | `63` | Hyprland, Quickshell, GTK 3/4, Qt 5/6, KDE |
+| **Monospace & Code** | FiraCode Nerd Font | SemiBold (600) | `63` | Kitty, Starship, Quickshell status clock |
 
-### Font Fallback Chain (Fontconfig)
+---
 
-The file `fontconfig/conf.d/99-user-fonts.conf` ensures that **all applications** (including web browsers) resolve generic font families to your chosen fonts:
+## 🎭 Icon Hierarchy
 
-| Generic Family | Resolves To |
-|---------------|-------------|
-| `sans-serif` | IBM Plex Sans |
-| `serif` | IBM Plex Serif |
-| `monospace` | FiraCode Nerd Font |
+A two-tiered icon inheritance hierarchy provides clean minimalism for application browsing alongside rich iconography inside applications:
 
-> **To change the system font**, update the font name in the files listed above AND update `fontconfig/conf.d/99-user-fonts.conf` to match.
+1. **Top Tier — App Launcher & Workspaces (`YAMIS-enlarged`):**
+   - Pure flat monochromatic SVG icons for applications (`icons/YAMIS-enlarged/apps/`).
+   - Non-app directories are pruned from YAMIS so they never conflict with in-app UI.
+2. **Inherited Tier — In-App UI, Toolbars & Places (`TokyoNight-SE`):**
+   - File actions, save icons, folder glyphs, and status indicators automatically fall through to `TokyoNight-SE`, `breeze-dark`, and `hicolor`.
 
 ---
 
 ## 🧩 Components
 
-### Sway (Window Manager)
+### Hyprland (Compositor)
 
-**Config:** [`sway/config`](sway/config)
+**Config:** [`hypr/hyprland.lua`](hypr/hyprland.lua)
 
-The heart of the desktop. SwayFX is used (not vanilla Sway) for blur and rounded corners.
-
-| Setting | Value | Line |
-|---------|-------|------|
-| Font | `IBM Plex Sans SmBld 10` | 10 |
-| Mod Key | `Super` (Mod4) | 45 |
-| Terminal | `kitty` | 52 |
-| Launcher | `rofi` (via `rofi-manager.sh`) | 54 |
-| Browser | `zen-browser` | 58 |
-| File Manager | `thunar` | 56 |
-| Wallpaper | `wallpapers/satisfaction_hires_final.png` | 65 |
-| Display | 1920×1080 @ 60Hz, scale 1.25 | 66 |
-| Border Width | 2px (no titlebars) | 30 |
-| Corner Radius | 10px | 32 |
-| Gaps (inner) | 2px | 70 |
-| Gaps (outer) | 1px | 71 |
-| Blur | Enabled, radius 7, passes 4 (frosted glass) | 41–43 |
-| Shadows | Enabled, radius 20, color `#15161ecc` | 44–46 |
-| Inactive Dimming | Enabled, 15% dim | 48–49 |
-
-**Window Border Colors** (lines 35–39):
-
-| State | Border | Background | Text |
-|-------|--------|------------|------|
-| Focused | `#39c5bb` | `#39c5bb` | `#1a1b26` |
-| Focused Inactive | `#414868` | `#414868` | `#c0caf5` |
-| Unfocused | `#24283b` | `#24283b` | `#a9b1d6` |
-| Urgent | `#f7768e` | `#f7768e` | `#c0caf5` |
-
-**Cursor Theme** (lines 13–15):
-
-| Setting | Value |
-|---------|-------|
-| Theme | `breeze_cursors` |
-| Size | 24 |
-
-> **To change wallpaper:** Replace the PNG at `wallpapers/satisfaction_hires_final.png` or edit line 65.
-> **To change display scaling:** Edit the `scale` value on line 66.
-> **To change gaps:** Edit lines 70–71.
+- Native Lua-based configuration (`hyprland.lua`).
+- Dynamic 1080p fractional scale cycling bound to <kbd>Super + =</kbd>.
+- Hardware screen shaders with alternating cache fix (`comfort`, `grayscale`, `vivid`).
+- Enforced `:close` window decoration button layout preventing Electron/Chromium minimization suspension bugs.
 
 ---
 
-### Waybar (Status Bar)
+### Quickshell (Status Bar, Launcher, Overlays)
 
-**Config:** [`waybar/config`](waybar/config) · **Style:** [`waybar/style.css`](waybar/style.css)
+**Root:** [`quickshell/shell.qml`](quickshell/shell.qml) · **Bar:** [`quickshell/Bar.qml`](quickshell/Bar.qml)
 
-A top-mounted, rounded-pill-style bar with transparent spacing between modules.
-
-**Layout:**
-```
-┌─────────────────────────────────────────────────────────┐
-│ [Workspaces] [Window]    [Clock]    [Tray] [🔔] [HW] [⏻] │
-└─────────────────────────────────────────────────────────┘
-```
-
-| Module | Content | Click Action |
-|--------|---------|--------------|
-| **Workspaces** | Workspace numbers | Switch workspace |
-| **Window** | Focused window title | — |
-| **Clock** | `HH:MM AM/PM · Mon DD` | Tooltip: Calendar |
-| **Tray** | System tray icons | — |
-| **Notifications (🔔)** | Swaync indicator | Toggle notification panel |
-| **Hardware Group** | Audio / Brightness / Battery | See below |
-| **Power (⏻)** | Power icon | Opens Rofi power menu |
-
-**Hardware Group Actions:**
-
-| Sub-module | Click | Middle-Click | Scroll |
-|------------|-------|-------------|--------|
-| Audio | Toggle Pavucontrol popup | Mute/Unmute | — |
-| Brightness | — | Toggle idle inhibitor | Adjust brightness ±1% |
-| Battery | Open TLP power profile menu | — | — |
-
-**Styling Quick Reference** (`waybar/style.css`):
-
-| Property | Value | Line |
-|----------|-------|------|
-| Font | `FiraCode Nerd Font` | 4 |
-| Font Weight | normal | 5 |
-| Font Size | 16px | 6 |
-| Module Background | `#1a1b26` | 23 |
-| Module Border | `2px solid #15161e` | 27 |
-| Module Border Radius | 12px | 26 |
-| Hover Border | `2px solid #33e0e0` | 63 |
-| Active Workspace BG | `#39c5bb` | 82 |
-| Active Workspace Text | `#1a1b26` | 83 |
-
-> **To change the bar font:** Edit `waybar/style.css` line 4.
-> **To change module layout:** Edit the `modules-left/center/right` arrays in `waybar/config`.
-> **To change accent color:** Replace `#39c5bb` and `#33e0e0` in `waybar/style.css`.
+Quickshell implements the entire interactive shell:
+- **Full-Width Fluid Bar:** Zero-gap edge-to-edge status bar with concave corner fillets.
+- **Native App Launcher (`Launcher.qml`):** Instant search, pinned apps, recently opened tracking, and smooth gliding unroll.
+- **Clipboard Manager (`ClipboardPicker.qml`):** Standalone cursor-following popup with Wayland Drag-and-Drop support and auto-paste simulation.
+- **Emoji Picker (`EmojiPicker.qml`):** Native categorised picker with search.
+- **Quick Controls (`QuickControls.qml`):** Master audio, application streams, brightness, and screen shaders with hover-wheel volume control.
+- **System Tray (`TrayExpander.qml`):** StatusNotifier DBus tray with reactive hot-reload synchronization.
 
 ---
 
-### Rofi (App Launcher)
+### Hyprlock & Hypridle
 
-**Config:** [`rofi/config.rasi`](rofi/config.rasi) · **Power Menu:** [`rofi/powermenu.rasi`](rofi/powermenu.rasi)
+**Lockscreen:** [`hypr/hyprlock.conf`](hypr/hyprlock.conf) · **Idle:** [`hypr/hypridle.conf`](hypr/hypridle.conf)
 
-Rofi is used for three functions, all managed through [`sway/rofi-manager.sh`](sway/rofi-manager.sh):
-
-| Function | Keybinding | Mode |
-|----------|-----------|------|
-| App Launcher | `Super + D` | `drun` |
-| Clipboard History | `Super + V` | `clipboard` |
-| Emoji Picker | `Super + .` | `emoji` |
-
-**Key Customization Points** (`rofi/config.rasi`):
-
-| Setting | Value |
-|---------|-------|
-| Font | `IBM Plex Sans SmBld 13` |
-| Icon Theme | `TokyoNight-SE` |
-| Display Columns | 2 |
-| Window Width | 600px |
-
-> **To change the launcher font:** Edit the `font:` line in `rofi/config.rasi`.
-> **To change launcher width/columns:** Edit the `configuration` block in `rofi/config.rasi`.
+- Uses canonical crisp wallpaper (`satisfaction_hires.png`).
+- Seamless fingerprint and password unlock.
+- Non-poisoning brightness persistence: restores hardware backlight upon resume.
 
 ---
 
@@ -249,88 +187,18 @@ Rofi is used for three functions, all managed through [`sway/rofi-manager.sh`](s
 
 **Config:** [`kitty/kitty.conf`](kitty/kitty.conf)
 
-| Setting | Value | Line |
-|---------|-------|------|
-| Font | `FiraCode Nerd Font` | 6 |
-| Font Size | 13pt | 10 |
-| Padding | 12px | 14 |
-| Opacity | 0.95 (95%) | 20 |
-| Background | `#1a1b26` | 23 |
-| Foreground | `#c0caf5` | 24 |
-| Cursor | `#39c5bb` | 25 |
-| Selection | Teal on dark | 27–28 |
-| Window Decorations | Hidden | 16 |
-
-**Terminal Color Map:**
-
-| Index | Normal | Bright | Color |
-|-------|--------|--------|-------|
-| 0/8 | `#1a1b26` | `#414868` | Black/Gray |
-| 1/9 | `#f7768e` | `#f7768e` | Red |
-| 2/10 | `#39c5bb` | `#39c5bb` | Green (Miku Teal) |
-| 3/11 | `#e0af68` | `#e0af68` | Yellow |
-| 4/12 | `#7aa2f7` | `#7aa2f7` | Blue |
-| 5/13 | `#bb9af7` | `#bb9af7` | Purple |
-| 6/14 | `#7dcfff` | `#7dcfff` | Cyan |
-| 7/15 | `#a9b1d6` | `#c0caf5` | White |
-
-> **To change terminal transparency:** Edit line 20 (`background_opacity`).
-> **To change terminal font size:** Edit line 10 (`font_size`).
-
----
-
-### Swaync (Notifications)
-
-**Config:** [`swaync/config.json`](swaync/config.json) · **Style:** [`swaync/style.css`](swaync/style.css)
-
-Desktop notification daemon with a slide-out side panel.
-
-> **To change notification styling:** Edit colors in `swaync/style.css`.
-> **To change notification behavior:** Edit `swaync/config.json`.
+- Tokyo Night colors with Miku Teal cursor.
+- 95% opacity with crisp text rendering.
+- `FiraCode Nerd Font` 13pt.
 
 ---
 
 ### Ly (Login Screen)
 
-**Config:** [`ly/config.ini`](ly/config.ini) · **PAM:** [`ly/pam`](ly/pam) · **TTY Colors:** [`ly/set-tty-theme.sh`](ly/set-tty-theme.sh)
+**Config:** [`ly/config.ini`](ly/config.ini) · **TTY Theme:** [`ly/set-tty-theme.sh`](ly/set-tty-theme.sh)
 
-A lightweight, blazing-fast TUI display manager for Wayland and TTY. Styled to match the Kitty terminal palette using an automated TTY 16-color hex palette injection service (`tty-theme.service`).
-
-| Setting | Value |
-|---------|-------|
-| Background (`bg`) | `0` (`#1a1b26` - Miku Dark Blue) |
-| Foreground (`fg`) | `7` (`#c0caf5` - Miku Text) |
-| Borders (`border_fg`) | `6` (`#39c5bb` - Miku Teal) |
-| Active Item (`active_user_fg`) | `14` (`#39c5bb` - Bright Miku Teal) |
-| Box Title | `"Arch Linux"` |
-| Blank Empty Password | `true` |
-
-**PAM Configuration:**
-
-The login PAM stack requires a password on every login and automatically unlocks GNOME Keyring.
-
-```
-auth       include      system-local-login
-auth       optional     pam_gnome_keyring.so       ← Unlocks keyring with login password
-session    optional     pam_gnome_keyring.so auto_start
-```
-
-> **To change login colors:** Edit the hex values in `ly/set-tty-theme.sh` or the color indices in `ly/config.ini`.
-
----
-
-### Swaylock (Lock Screen)
-
-Swaylock is configured **inline via CLI flags** — there is no standalone `swaylock/config` file. The lock command and wallpaper path are defined in:
-- [`sway/idle.sh`](sway/idle.sh) — auto-lock after idle timeout
-- [`rofi/powermenu.sh`](rofi/powermenu.sh) — manual lock from power menu
-- [`wlogout/layout`](wlogout/layout) — lock button in logout overlay
-
-**Lock Wallpaper:** `~/Pictures/wallpapers/satisfaction_waybar_blur_lock.png`
-
-Optional fingerprint unlock support is available via [`fingerprint/`](fingerprint/).
-
-> **To change the lock wallpaper:** Update the image path in all three files listed above.
+- Elegant, lightweight TUI display manager.
+- Automated systemd one-shot service sets the 16-color Linux VT palette to Tokyo Night before login.
 
 ---
 
@@ -338,9 +206,7 @@ Optional fingerprint unlock support is available via [`fingerprint/`](fingerprin
 
 **Layout:** [`wlogout/layout`](wlogout/layout) · **Style:** [`wlogout/style.css`](wlogout/style.css)
 
-Fullscreen logout/power overlay triggered by the Rofi power menu.
-
-> **To customize:** Edit button labels and actions in `wlogout/layout`, and styling in `wlogout/style.css`.
+- Fullscreen power overlay for lock, suspend, logout, reboot, and shutdown.
 
 ---
 
@@ -348,9 +214,7 @@ Fullscreen logout/power overlay triggered by the Rofi power menu.
 
 **Config:** [`btop/btop.conf`](btop/btop.conf) · **Theme:** [`btop/themes/miku-dark.theme`](btop/themes/miku-dark.theme)
 
-Launched with `Super + Escape`. Uses a custom Miku Dark theme file.
-
-> **To change btop colors:** Edit `btop/themes/miku-dark.theme`.
+- Launched via <kbd>Super + Escape</kbd>.
 
 ---
 
@@ -358,231 +222,81 @@ Launched with `Super + Escape`. Uses a custom Miku Dark theme file.
 
 **Config:** [`starship.toml`](starship.toml)
 
-Cross-shell prompt using a **powerline pill** style with Nerd Font icons.
-
-**Prompt Layout:**
-```
-󰣇 dipak@arch  ~/code/project  dart flutter git:main  ❯
-└── teal bg ──┘└── gray bg ──┘└── purple bg ─────────┘
-```
-
-| Segment | Background | Foreground |
-|---------|-----------|------------|
-| OS + User + Host | `#39c5bb` | `#1a1b26` |
-| Directory | `#414868` | `#c0caf5` |
-| Languages + Git | `#bb9af7` | `#1a1b26` |
-| Success prompt char | — | `#39c5bb` ❯ |
-| Error prompt char | — | `#f7768e` ❯ |
-
-> **To customize the prompt:** Edit `starship.toml`. See [starship.rs](https://starship.rs) for docs.
+- Powerline pill prompt in Zsh showing user, directory, git status, and execution state.
 
 ---
 
 ### GTK Theming
 
-**GTK-3:** [`gtk-3.0/`](gtk-3.0/) · **GTK-4:** [`gtk-4.0/`](gtk-4.0/)
+**Config:** [`gtk-3.0/`](gtk-3.0/) · [`gtk-4.0/`](gtk-4.0/)
 
-| Setting | Value |
-|---------|-------|
-| GTK Theme | `adw-gtk3-dark` |
-| Icon Theme | `TokyoNight-SE` |
-| Cursor Theme | `breeze_cursors` |
-| Font | `IBM Plex Sans SmBld 10` |
-| Sound Theme | `Pop` |
-| Dark Mode | Enforced |
-
-Custom color overrides are in `gtk-3.0/colors.css` and `gtk-4.0/colors.css`, using a Breeze-derived teal accent.
-
-> **To change GTK font:** Edit `gtk-font-name` in both `gtk-3.0/settings.ini` and `gtk-4.0/settings.ini`.
-> **To change icon theme:** Edit `gtk-icon-theme-name` in both settings files.
-
----
-
-### Fontconfig (Browser Fonts)
-
-**Config:** [`fontconfig/conf.d/99-user-fonts.conf`](fontconfig/conf.d/99-user-fonts.conf)
-
-Forces all applications (especially web browsers) to resolve generic font families to your chosen fonts. Without this, browsers may fall back to Times New Roman.
-
-Additional configs handle emoji rendering:
-- `75-joypixels.conf` — JoyPixels emoji support
-- `98-remove-mono-emojis.conf` — Strips monochrome emoji fallbacks
-- `99-reject-google-emoji.conf` — Blocks Google Noto Color Emoji
-
-> **To change browser fallback fonts:** Edit `fontconfig/conf.d/99-user-fonts.conf`.
+- Base theme: `adw-gtk3-dark`.
+- Dynamic color variables generated from `theme/tokens.json`.
+- Icon theme: `YAMIS-enlarged`.
 
 ---
 
 ### Qt Theming
 
-**Config:** [`environment.d/qt-theming.conf`](environment.d/qt-theming.conf) · [`qt5ct/qt5ct.conf`](qt5ct/qt5ct.conf) · [`qt6ct/qt6ct.conf`](qt6ct/qt6ct.conf)
+**Config:** [`qt5ct/`](qt5ct/) · [`qt6ct/`](qt6ct/) · [`Kvantum/`](Kvantum/) · [`kdeglobals`](kdeglobals)
 
-Environment variables force Qt apps to use `qt5ct`/`qt6ct` for consistent theming.
+- Complete 21-role Tokyo Night palette for Qt 5 and Qt 6.
+- `Kvantum-Tokyo-Night` SVG widget theme with teal accents.
+- `QT_WAYLAND_DISABLE_WINDOWDECORATION="1"` disables conflicting client-side borders.
+- Unified `QT_QPA_PLATFORMTHEME="qt5ct"` seamlessly loads `libqt5ct.so` for Qt5 and `libqt6ct.so` for Qt6.
 
 ---
 
-## 🔧 Custom Scripts
+### Thunar Custom Actions
 
-| Script | Location | Purpose | Triggered By |
-|--------|----------|---------|-------------|
-| `rofi-manager.sh` | `sway/` | Unified launcher for Rofi (drun/clipboard/emoji) | `Super+D`, `Super+V`, `Super+.` |
-| `idle.sh` | `sway/` | Swayidle configuration: dim→lock→dpms off→suspend | Auto on Sway start |
-| `hw-notifier.py` | `sway/` | Desktop notifications for USB/power events | Systemd service |
-| `battery.sh` | `waybar/` | Custom battery display with TLP profile indicator | Waybar module |
-| `pavu_toggle.sh` | `waybar/` | Pavucontrol popup with global Escape-to-close | Waybar audio click |
-| `tlp_menu.sh` | `waybar/` | Rofi dropdown for TLP power profile switching | Waybar battery click |
-| `toggle_idle.sh` | `waybar/` | Toggle idle inhibitor on/off | Backlight middle-click |
-| `powermenu.sh` | `rofi/` | Rofi power menu (lock/logout/reboot/shutdown) | `Super+Power` button |
-| `install-miku-tray-patch.sh` | `scripts/` | Patches system tray icons to Miku theme | Manual |
-| `apply_frosted_glass.sh` | `scripts/` | Wallpaper generator (frosted glass + lockscreen) | Manual |
+**Config:** [`Thunar/uca.xml`](Thunar/uca.xml)
 
-### Wallpaper Generator (`scripts/apply_frosted_glass.sh`)
-
-An ImageMagick pipeline that takes **any wallpaper** and converts it into two theme-ready images:
-
-1. **Desktop wallpaper** — with a frosted glass blur strip along the top edge (designed so Waybar blends seamlessly into the wallpaper)
-2. **Lock screen wallpaper** — a heavily blurred, darkened variant tinted with the Tokyo Night base color (`#1a1b26` at 60% opacity), downscaled to native resolution
-
-**Requirements:** `imagemagick` must be installed (`sudo pacman -S imagemagick`).
-
-**Usage:**
-```bash
-# Interactive mode
-./scripts/apply_frosted_glass.sh
-
-# CLI mode
-./scripts/apply_frosted_glass.sh input.png output.png
-```
-
-**How the pipeline works:**
-
-```
-┌─────────────────────────────────────────────────┐
-│  1. INPUT IMAGE                                 │
-│     ↓                                           │
-│  2. Auto-detect display resolution via Sway IPC │
-│     (falls back to manual input if no session)  │
-│     ↓                                           │
-│  3. Resize to display resolution if needed      │
-│     • Option A: Crop to fill (preserves ratio)  │
-│     • Option B: Stretch to fit                  │
-│     ↓                                           │
-│  4. Generate top bar mask:                      │
-│     • Top: 40px solid white + 20px fade         │
-│     • Rest: Solid black                         │
-│     ↓                                           │
-│  5. Apply 25px Gaussian blur to masked top area │
-│     ↓                                           │
-│  6. OUTPUT: Desktop wallpaper (native res)       │
-│     ↓                                           │
-│  7. BONUS: Generate lockscreen variant           │
-│     • 40px blur + 60% Tokyo Night tint           │
-│     • Same native resolution                     │
-└─────────────────────────────────────────────────┘
-```
-
-**Output files:**
-| File | Resolution | Description |
-|------|-----------|-------------|
-| `<output>.png` | Auto-detected | Desktop wallpaper with frosted glass edges |
-| `<output>_lock.png` | Auto-detected | Lock screen — blurred & tinted Tokyo Night |
-
-> **To use a new wallpaper:** Run this script on any image, then copy the outputs into `wallpapers/` and update the path in `sway/config` line 65.
-
-### Idle Timeouts (`sway/idle.sh`)
-
-| Timeout | Action |
-|---------|--------|
-| 3 minutes | Dim screen (brightness → 5%) |
-| 5 minutes | Lock screen (swaylock) |
-| 10 minutes | Turn off display (DPMS) |
-| 15 minutes | Suspend to RAM |
-
-> **To change idle timeouts:** Edit the timeout values in `sway/idle.sh`.
-
-### Idle Inhibition
-
-Screen sleep is automatically prevented when:
-- Any audio is playing (`sway-audio-idle-inhibit`)
-- Any window is fullscreen (YouTube, video players, etc.)
+1. **Copy Path:** Copies exact file/directory path to Wayland clipboard (`wl-copy -n "%f"`).
+2. **Set as Wallpaper:** Instantly applies image as wallpaper via `swww`.
+3. **Open Terminal Here:** Opens Kitty at the current directory.
+4. **Open as Root:** Opens elevated Thunar window.
+5. **Open with VSCode:** Opens file or directory in VS Code.
 
 ---
 
 ## ⌨️ Keybindings
 
-All keybindings use `Super` (Windows key) as the modifier.
+All keybindings use `Super` (Windows key) as the main modifier:
 
 ### Applications
-
 | Keys | Action |
 |------|--------|
-| `Super + Return` | Open terminal (Kitty) |
-| `Super + D` | App launcher (Rofi) |
-| `Super + B` | Open browser (Zen Browser) |
-| `Super + E` | File manager (Thunar) |
-| `Super + Z` | Open Zed editor |
-| `Super + Shift + Z` | Open new Zed window |
-| `Super + V` | Clipboard history |
-| `Super + .` | Emoji picker |
-| `Super + Escape` | System monitor (Btop) |
+| `Super + Return` | Terminal (Kitty) |
+| `Super + Space` | Native App Launcher (Quickshell) |
+| `Super + V` | Native Clipboard Manager (Quickshell) |
+| `Super + .` | Native Emoji Picker (Quickshell) |
+| `Super + B` | Web Browser (Zen Browser) |
+| `Super + E` | File Manager (Thunar) |
+| `Super + Z` | Code Editor (Zed) |
+| `Super + Escape` | System Monitor (Btop) |
 
-### Window Management
-
+### Window Management & Workspaces
 | Keys | Action |
 |------|--------|
-| `Super + Q` | Kill focused window |
+| `Super + Q` | Close window |
 | `Super + F` | Toggle fullscreen |
 | `Super + Shift + Space` | Toggle floating |
-| `Super + Space` | Toggle focus (tiling ↔ floating) |
-| `Super + H/J/K/L` | Move focus (Vim-style) |
-| `Super + Shift + H/J/K/L` | Move window (Vim-style) |
-| `Super + Arrow Keys` | Move focus (Arrow keys) |
-| `Super + R` | Enter resize mode |
-| `Super + S` | Stacking layout |
-| `Super + W` | Toggle tabbed/split layout |
-| `Super + A` | Focus parent container |
-
-### Workspaces
-
-| Keys | Action |
-|------|--------|
+| `Super + H/J/K/L` | Move focus (Vim keys) |
+| `Super + Shift + H/J/K/L` | Move window (Vim keys) |
 | `Super + 1–0` | Switch to workspace 1–10 |
 | `Super + Shift + 1–0` | Move window to workspace 1–10 |
-
-### Scratchpad
-
-| Keys | Action |
-|------|--------|
-| `Super + Shift + -` | Move window to scratchpad |
-| `Super + -` | Show/cycle scratchpad |
+| `Super + =` | Cycle display fractional scale (1.0 → 1.2 → 1.25 → 1.5) |
 
 ### Media & Hardware
-
 | Keys | Action |
 |------|--------|
 | `XF86AudioMute` | Toggle mute |
-| `XF86AudioLowerVolume` | Volume -5% |
-| `XF86AudioRaiseVolume` | Volume +5% |
-| `XF86AudioMicMute` | Toggle mic mute |
-| `XF86AudioPlay/Pause` | Play/Pause media |
-| `XF86AudioPrev/Next` | Previous/Next track |
-| `XF86MonBrightnessDown` | Brightness -5% |
-| `XF86MonBrightnessUp` | Brightness +5% |
-
-### Screenshots
-
-| Keys | Action |
-|------|--------|
-| `Super + Shift + S` | Region select → Swappy editor |
-| `Super + Print` | Full screen → clipboard |
-
-### System
-
-| Keys | Action |
-|------|--------|
-| `Super + N` | Toggle notification panel |
-| `Super + Shift + C` | Reload Sway config |
-| `Super + Shift + E` | Exit Sway (with confirmation) |
+| `XF86AudioLowerVolume` / `RaiseVolume` | Volume ±5% |
+| `XF86AudioMicMute` | Toggle microphone |
+| `XF86AudioPlay` / `Next` / `Prev` | Media controls |
+| `XF86MonBrightnessDown` / `Up` | Brightness ±5% |
+| `Super + Shift + S` | Region screenshot → Swappy |
+| `Super + Print` | Fullscreen screenshot to clipboard |
 
 ---
 
@@ -590,162 +304,75 @@ All keybindings use `Super` (Windows key) as the modifier.
 
 ```
 arch-theme/
-├── 🪟 sway/                    # Window manager config
-│   ├── config                   #   Main Sway configuration
-│   ├── idle.sh                  #   Idle timeout handler
-│   ├── rofi-manager.sh          #   Unified Rofi launcher
-│   └── hw-notifier.py           #   USB/power notification daemon
+├── ⚙️ theme/                     # Single source of truth
+│   └── tokens.json              #   Unified design tokens
 │
-├── 📊 waybar/                   # Status bar
-│   ├── config                   #   Module layout & behavior
-│   ├── style.css                #   Visual styling
-│   ├── battery.sh               #   Battery + TLP status script
-│   ├── pavu_toggle.sh           #   Audio mixer popup script
-│   ├── tlp_menu.sh              #   Power profile switcher
-│   └── toggle_idle.sh           #   Idle inhibitor toggle
+├── 🪟 hypr/                      # Hyprland compositor configuration
+│   ├── hyprland.lua             #   Main Hyprland Lua config
+│   ├── hypridle.conf            #   Idle inhibitor & sleep daemon
+│   ├── hyprlock.conf            #   Lockscreen configuration
+│   ├── screenshot.sh            #   Quickshell IPC screenshot helper
+│   └── scripts/                 #   Compositor helper utilities
 │
-├── 🔍 rofi/                     # Application launcher
-│   ├── config.rasi              #   Main Rofi theme
-│   ├── powermenu.rasi           #   Power menu theme
-│   ├── powermenu.sh             #   Power menu script
-│   └── rofimoji-theme.rasi      #   Emoji picker theme
+├── 🐚 quickshell/                # Quickshell desktop shell
+│   ├── shell.qml                #   ShellRoot & IPC dispatcher
+│   ├── Bar.qml                  #   Fluid top status bar
+│   ├── launcher/                #   Native app launcher
+│   ├── clipboard/               #   Cursor-following clipboard overlay
+│   ├── emoji/                   #   Native emoji picker
+│   ├── controls/                #   Drop-down expanders (QuickControls, Tray, etc.)
+│   ├── bar/                     #   Bar modules (Clock, Audio, Battery, Workspaces)
+│   ├── theme/                   #   Theme.qml & UiState.qml
+│   └── scripts/                 #   Brightness, power profile, shader scripts
 │
-├── 🐱 kitty/                    # Terminal emulator
+├── 🐱 kitty/                     # Terminal emulator
 │   └── kitty.conf               #   Colors, font, opacity
 │
-├── 🔔 swaync/                   # Notification daemon
-│   ├── config.json              #   Behavior settings
-│   └── style.css                #   Visual styling
+├── 🎨 gtk-3.0/ & gtk-4.0/        # GTK theming
+│   ├── colors.css               #   Compiled Tokyo Night color variables
+│   ├── gtk.css                  #   Custom widget styles
+│   └── settings.ini             #   Theme, icon, font configuration
 │
-├── 🔒 swaylock/                 # Lock screen
-├── 🔑 ly/                       # Display manager (login screen)
-│   ├── config.ini               #   UI styling & behavior
-│   ├── pam                      #   PAM authentication stack
-│   ├── set-tty-theme.sh         #   TTY 16-color hex scheme
-│   └── tty-theme.service        #   Systemd oneshot color service
+├── ⚙️ qt5ct/ & qt6ct/            # Qt 5 and Qt 6 configuration
+│   ├── qt5ct.conf / qt6ct.conf  #   Active palette and proxy settings
+│   └── colors/TokyoNight.conf   #   21-role Tokyo Night color scheme
 │
-├── 🚪 wlogout/                  # Logout overlay
-│   ├── layout                   #   Button definitions
-│   └── style.css                #   Visual styling
+├── 🎨 Kvantum/                   # Kvantum SVG widget themes
+│   ├── kvantum.kvconfig         #   Theme selection
+│   └── Kvantum-Tokyo-Night/     #   Tokyo Night Kvantum theme
 │
-├── 📈 btop/                     # System monitor
-│   ├── btop.conf                #   Settings
-│   └── themes/miku-dark.theme   #   Custom Miku color theme
+├── 📁 Thunar/                    # File manager custom actions
+│   └── uca.xml                  #   Copy Path, Set as Wallpaper, etc.
 │
-├── 🔤 fontconfig/               # System font overrides
-│   └── conf.d/
-│       ├── 99-user-fonts.conf   #   Font family aliases
-│       ├── 75-joypixels.conf    #   Emoji font config
-│       ├── 98-remove-mono-emojis.conf
-│       └── 99-reject-google-emoji.conf
+├── 🖼️ icons/                     # Icon themes
+│   └── YAMIS-enlarged/          #   Flat app icons inheriting TokyoNight-SE
 │
-├── 🎨 gtk-3.0/                  # GTK-3 theming
-│   ├── settings.ini             #   Theme, font, icons
-│   ├── colors.css               #   Color overrides
-│   └── gtk.css                  #   CSS overrides
+├── 🔑 ly/                        # Display manager
+│   ├── config.ini               #   Ly TUI theme configuration
+│   └── set-tty-theme.sh         #   16-color TTY scheme injector
 │
-├── 🎨 gtk-4.0/                  # GTK-4 theming
-│   ├── settings.ini             #   Theme, font, icons
-│   ├── colors.css               #   Color overrides
-│   └── gtk.css                  #   CSS overrides
-│
-├── 🧰 environment.d/            # Environment variables
-│   └── qt-theming.conf          #   Qt platform theme config
-│
-├── ⚙️ qt5ct/ & qt6ct/           # Qt theme configurations
-├── 🖼️ icons/                    # Custom icon theme (YAMIS-enlarged)
-├── 📁 Thunar/                   # Thunar file manager settings (custom actions/shortcuts)
-├── 📁 xfce4/                    # Xfce4/Thunar system registry configuration XMLs
-├── 🏠 applications/             # Custom .desktop launchers
-├── 📜 scripts/                  # Utility scripts
-├── 🖥️ systemd/                  # User systemd services
-├── 🌌 wallpapers/               # Wallpaper images
-├── 🐚 zshrc                     # Zsh shell configuration
-├── 🚀 starship.toml             # Shell prompt configuration
-├── 📋 mimeapps.list             # Default application associations
-├── 👆 fingerprint/              # Fingerprint auth setup
-├── ⚡ etc/tlp.conf              # TLP power management
-└── 📦 install.sh                # One-shot installer
+├── 🚪 wlogout/                   # Logout overlay
+├── 📈 btop/                      # System monitor
+├── 🔤 fontconfig/                # Font fallback configuration
+├── 🧰 environment.d/             # Wayland & Qt session environment variables
+├── 📜 scripts/                   # Theme sync & system hooks
+│   └── sync-theme.sh            #   Compiles all configs from tokens.json
+├── 🌌 wallpapers/                # Canonical high-resolution wallpaper
+└── 📦 install.sh                 # Unified installation & setup script
 ```
-
----
-
-## 🎛️ Customization Guide
-
-### I want to change the accent color
-
-The primary accent is **Miku Teal `#39c5bb`**. To change it:
-
-1. Search and replace `#39c5bb` across all files
-2. Also replace the hover variant `#33e0e0`
-3. Key files to update:
-   - `sway/config` (border colors)
-   - `waybar/style.css` (active workspace, hover)
-   - `waybar/config` (icon span colors)
-   - `rofi/config.rasi` (selection highlight)
-   - `kitty/kitty.conf` (cursor, selection, color2/10)
-   - `swaync/style.css` (notification accent)
-   - `ly/config.ini` & `ly/set-tty-theme.sh` (focused colors)
-
-### I want to change the wallpaper
-
-1. Replace `wallpapers/satisfaction_hires_final.png` with your image
-2. Or edit `sway/config` line 65 to point to a different path
-3. For the lock screen wallpaper, check `swaylock/config`
-
-### I want to change the font
-
-1. **System UI font:** Change `IBM Plex Sans SmBld` in:
-   - `sway/config` line 10
-   - `gtk-3.0/settings.ini` → `gtk-font-name`
-   - `gtk-4.0/settings.ini` → `gtk-font-name`
-   - `rofi/config.rasi` → `font:`
-   - `fontconfig/conf.d/99-user-fonts.conf`
-2. **Monospace font:** Change `FiraCode Nerd Font` in:
-   - `kitty/kitty.conf` line 6
-   - `waybar/style.css` line 4
-   - `fontconfig/conf.d/99-user-fonts.conf`
-3. Run `fc-cache -fv` after changing fontconfig
-
-### I want to change the terminal transparency
-
-Edit `kitty/kitty.conf` line 20:
-```
-background_opacity 0.95    # 0.0 = fully transparent, 1.0 = opaque
-```
-
-### I want to change idle timeouts
-
-Edit the timeout values in `sway/idle.sh`. The current values are:
-- Dim: 180s (3 min)
-- Lock: 300s (5 min)
-- DPMS off: 600s (10 min)
-- Suspend: 900s (15 min)
-
-### I want to add a new Waybar module
-
-1. Add the module name to `modules-left/center/right` in `waybar/config`
-2. Add module configuration in the same file
-3. Add CSS styling in `waybar/style.css`
-
-### I want to change the display manager theme
-
-Edit `ly/config.ini` and `ly/set-tty-theme.sh`. The PAM file at `ly/pam` controls authentication.
-
-> ⚠️ **Be careful editing PAM files.** A misconfigured PAM stack can lock you out of your system. Always keep a root shell open when testing PAM changes.
 
 ---
 
 ## 🙏 Credits
 
-- **Color Scheme:** Based on [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme) by enkia
-- **Icon Theme:** [TokyoNight-SE](https://github.com/ljmill/tokyo-night-icons) (YAMIS enlarged variant)
-- **GTK Theme:** [adw-gtk3-dark](https://github.com/lassekongo83/adw-gtk3)
-- **Cursor Theme:** [Breeze](https://github.com/KDE/breeze)
-- **Wallpaper Art:** Hatsune Miku "Satisfaction" illustration
+- **Design System:** [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme) by enkia, accented with Hatsune Miku Teal.
+- **Icons:** [YAMIS](https://github.com/dirn/yamis) by dirn & [TokyoNight-SE](https://github.com/ljmill/tokyo-night-icons).
+- **GTK Theme:** [adw-gtk3](https://github.com/lassekongo83/adw-gtk3).
+- **Cursor Theme:** [Breeze](https://github.com/KDE/breeze).
+- **Wallpaper Art:** Hatsune Miku "Satisfaction" illustration.
 
 ---
 
 <p align="center">
-  <sub>Built with 💙 on Arch Linux · Maintained by <a href="https://github.com/sea-deep">@sea-deep</a></sub>
+  <sub>Maintained with 💙 by <a href="https://github.com/sea-deep">@sea-deep</a></sub>
 </p>

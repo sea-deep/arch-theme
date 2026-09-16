@@ -133,7 +133,7 @@ smallestReadableFont=IBM Plex Sans,8,-1,5,63,0,0,0,0,0
 toolBarFont=IBM Plex Sans,10,-1,5,63,0,0,0,0,0
 
 [Icons]
-Theme=TokyoNight-SE
+Theme=YAMIS-enlarged
 
 [KDE]
 AnimationDurationFactor=1.0
@@ -152,17 +152,13 @@ Show Preview=false
 Show Speedbar=true
 Show hidden files=false
 Sort by=Name
-Sort directories first=true
-Sort hidden files last=false
 Sort reversed=false
-Speedbar Width=138
-View Style=DetailTree
+View Mode=Detail
 
 [WM]
 activeBackground=26,27,38
-activeBlend=192,202,245
-activeFont=IBM Plex Sans,10,-1,5,600,0,0,0,0,0
+activeBlend=26,27,38
 activeForeground=192,202,245
 inactiveBackground=22,22,30
-inactiveBlend=86,95,137
-inactiveForeground=86,95,137
+inactiveBlend=22,22,30
+inactiveForeground=154,165,206

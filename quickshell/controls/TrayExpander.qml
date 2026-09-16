@@ -17,15 +17,24 @@ Item {
     property bool submenuLoading: false
     property bool rootMenuRetained: false
     property bool rootMenuLoading: false
+    property int _trayRevision: 0
+    function refreshTrayItems() {
+        _trayRevision++
+    }
+
     readonly property real collapsedWidth: trayItems.length <= 1 ? Theme.compactPillSize : Math.max(Theme.compactPillSize, trayItems.length * 30 + 12)
     readonly property real topWidth: collapsedWidth
-    readonly property var trayItems: SystemTray.items.values.filter(item => {
-        if (!item) return false
-        // The NetworkManager applet is replaced by NetworkExpander, which uses
-        // Quickshell's native NetworkManager integration instead of its flaky
-        // mutable DBusMenu implementation.
-        return (item.id || "").toLowerCase().indexOf("nm-applet") === -1
-    })
+    readonly property var trayItems: {
+        const _ = _trayRevision
+        if (!SystemTray || !SystemTray.items || !SystemTray.items.values) return []
+        return SystemTray.items.values.filter(item => {
+            if (!item) return false
+            // The NetworkManager applet is replaced by NetworkExpander, which uses
+            // Quickshell's native NetworkManager integration instead of its flaky
+            // mutable DBusMenu implementation.
+            return (item.id || "").toLowerCase().indexOf("nm-applet") === -1
+        })
+    }
     readonly property bool isEmpty: trayItems.length === 0
     readonly property bool expanded: UiState.trayMenuVisible
         && UiState.trayMenuHandle !== null
@@ -75,6 +84,47 @@ Item {
             reloadRootMenu()
         } else {
             resetMenuState()
+        }
+    }
+
+    Component.onCompleted: {
+        root.refreshTrayItems()
+    }
+
+    Connections {
+        target: SystemTray.items
+        function onValuesChanged() {
+            root.refreshTrayItems()
+        }
+        function onObjectInsertedPost(object, index) {
+            root.refreshTrayItems()
+            traySyncTimer.restart()
+        }
+        function onObjectRemovedPost(object, index) {
+            root.refreshTrayItems()
+            traySyncTimer.restart()
+        }
+    }
+
+    Timer {
+        id: traySyncTimer
+        interval: 150
+        repeat: false
+        onTriggered: root.refreshTrayItems()
+    }
+
+    Timer {
+        id: reloadGraceTimer
+        interval: 400
+        repeat: true
+        running: true
+        property int ticks: 0
+        onTriggered: {
+            root.refreshTrayItems()
+            ticks++
+            if (ticks >= 8) {
+                running = false
+            }
         }
     }
 

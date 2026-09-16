@@ -13,14 +13,54 @@
 	<directories/>
 </action>
 <action>
-        <icon>dialog-password</icon>
-        <name>Open as Root</name>
-        <submenu></submenu>
-        <unique-id>1766393036319641-2</unique-id>
-        <command>thunar admin://%f</command>
-        <description>Open restricted folders with root privileges</description>
-        <range></range>
-        <patterns>*</patterns>
-        <directories/>
+	<icon>dialog-password</icon>
+	<name>Open as Root</name>
+	<submenu></submenu>
+	<unique-id>1766393036319641-2</unique-id>
+	<command>thunar admin://%f</command>
+	<description>Open restricted folders with root privileges</description>
+	<range></range>
+	<patterns>*</patterns>
+	<directories/>
+</action>
+<action>
+	<icon>com.visualstudio.code</icon>
+	<name>Open with VSCode</name>
+	<submenu></submenu>
+	<unique-id>1766393036319642-3</unique-id>
+	<command>code %F</command>
+	<description>Open selected files or folders in VSCode</description>
+	<range></range>
+	<patterns>*</patterns>
+	<directories/>
+	<text-files/>
+	<other-files/>
+</action>
+<action>
+	<icon>edit-copy</icon>
+	<name>Copy Path</name>
+	<submenu></submenu>
+	<unique-id>1766393036319643-4</unique-id>
+	<command>wl-copy -n "%f"</command>
+	<description>Copy file or folder path to clipboard</description>
+	<range></range>
+	<patterns>*</patterns>
+	<directories/>
+	<audio-files/>
+	<image-files/>
+	<other-files/>
+	<text-files/>
+	<video-files/>
+</action>
+<action>
+	<icon>preferences-desktop-wallpaper</icon>
+	<name>Set as Wallpaper</name>
+	<submenu></submenu>
+	<unique-id>1766393036319644-5</unique-id>
+	<command>swww img "%f" --transition-type grow --transition-duration 1</command>
+	<description>Set selected image as desktop wallpaper</description>
+	<range></range>
+	<patterns>*.png;*.jpg;*.jpeg;*.webp;*.bmp;*.gif</patterns>
+	<image-files/>
 </action>
 </actions>

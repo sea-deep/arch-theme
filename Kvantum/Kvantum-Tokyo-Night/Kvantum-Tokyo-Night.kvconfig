@@ -75,25 +75,25 @@ submenu_delay=250
 tooltip_blur_radius=0
 
 [GeneralColors]
-window.color=#16161e
-base.color=#1a1b26
-alt.base.color=#1a1b26
-button.color=#1d1f2b
+window.color=#1a1b26
+base.color=#16161e
+alt.base.color=#24283b
+button.color=#24283b
 light.color=#3e415c
 mid.light.color=#313131
 dark.color=black
 mid.color=#191919
-highlight.color=#c0caf5
+highlight.color=#39c5bb
 inactive.highlight.color=#c0caf5
 text.color=#c0caf5
 window.text.color=#c0caf5
 button.text.color=#c0caf5
-disabled.text.color=#c0caf5
+disabled.text.color=#565f89
 tooltip.text.color=#c0caf5
-highlight.text.color=#1a1b26
-link.color=#d8e4fd
-link.visited.color=#a8c2fa
-progress.indicator.text.color=#15161E
+highlight.text.color=#16161e
+link.color=#7aa2f7
+link.visited.color=#bb9af7
+progress.indicator.text.color=#16161e
 
 [Hacks]
 transparent_ktitle_label=true

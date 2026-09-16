@@ -298,6 +298,12 @@ All keybindings use `Super` (Windows key) as the main modifier:
 | `Super + Shift + S` | Region screenshot → Swappy |
 | `Super + Print` | Fullscreen screenshot to clipboard |
 
+### System & Compositor
+| Keys | Action |
+|------|--------|
+| `Super + Shift + C` | Hot reload desktop (Hyprland, Quickshell & screen shaders) |
+| `Super + Shift + E` | Logout overlay (Wlogout) |
+
 ---
 
 ## 📁 Directory Structure

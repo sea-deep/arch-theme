@@ -1,6 +1,6 @@
 [Icon Theme]
 Name=YAMIS-enlarged
-Inherits=TokyoNight-Files,Adwaita,AdwaitaLegacy,breeze-dark,hicolor
+Inherits=TokyoNight-Files,Adwaita,breeze-dark,hicolor
 Comment=YAMIS Enlarged - App icons with TokyoNight-Files for file/folder icons and Adwaita for UI tools
 
 DisplayDepth=32
@@ -9,7 +9,7 @@ Example=x-directory-normal
 
 KDE-Extensions=.svg
 
-Directories=apps/16,apps/scalable
+Directories=apps/16,apps/scalable,mimetypes/scalable
 
 [apps/16]
 Size=16
@@ -21,6 +21,13 @@ MaxSize=24
 [apps/scalable]
 Size=128
 Context=Applications
+Type=Scalable
+MinSize=8
+MaxSize=512
+
+[mimetypes/scalable]
+Size=128
+Context=MimeTypes
 Type=Scalable
 MinSize=8
 MaxSize=512

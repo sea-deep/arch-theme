@@ -1,0 +1,10 @@
+[Icon Theme]
+Name=sea-deep
+Comment=sea-deep unified desktop icon theme - YAMIS apps with Tokyo Night files and GNOME Adwaita UI controls
+Inherits=YAMIS-enlarged,TokyoNight-Files,Adwaita,breeze-dark,hicolor
+
+DisplayDepth=32
+FollowsColorScheme=true
+Example=folder
+
+Directories=

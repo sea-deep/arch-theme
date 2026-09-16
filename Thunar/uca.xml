@@ -57,7 +57,7 @@
 	<name>Set as Wallpaper</name>
 	<submenu></submenu>
 	<unique-id>1766393036319644-5</unique-id>
-	<command>swww img "%f" --transition-type grow --transition-duration 1</command>
+	<command>/home/dipak/code/arch-theme/hypr/scripts/set_wallpaper.sh "%f"</command>
 	<description>Set selected image as desktop wallpaper</description>
 	<range></range>
 	<patterns>*.png;*.jpg;*.jpeg;*.webp;*.bmp;*.gif</patterns>

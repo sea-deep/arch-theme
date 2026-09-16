@@ -1,7 +1,7 @@
 [Icon Theme]
 Name=TokyoNight-Files
 Comment=Tokyo Night icons strictly for folders (places), files (mimetypes), and drives (devices)
-Inherits=Adwaita,AdwaitaLegacy,breeze-dark,hicolor
+Inherits=Adwaita,breeze-dark,hicolor
 
 Example=folder
 

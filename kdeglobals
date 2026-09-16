@@ -119,7 +119,7 @@ ForegroundVisited=187,154,247
 [General]
 AccentColor=57,197,187
 ColorScheme=TokyoNight
-Name=Tokyo Night Miku
+Name=sea-deep
 TerminalApplication=kitty
 TerminalService=kitty.desktop
 UseSystemBell=true
@@ -133,7 +133,7 @@ smallestReadableFont=IBM Plex Sans,8,-1,5,63,0,0,0,0,0
 toolBarFont=IBM Plex Sans,10,-1,5,63,0,0,0,0,0
 
 [Icons]
-Theme=YAMIS-enlarged
+Theme=sea-deep
 
 [KDE]
 AnimationDurationFactor=1.0

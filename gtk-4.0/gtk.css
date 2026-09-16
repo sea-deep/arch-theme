@@ -1,83 +1,80 @@
 /* ═══════════════════════════════════════════════════════
-   Miku GTK4 Theme — Tokyo Night × Hatsune Miku
+   sea-deep GTK4 Theme — Tokyo Night × Hatsune Miku
    Global coherent color system for all GTK4 apps
    ═══════════════════════════════════════════════════════ */
 
-/* ── Named Color Definitions ── */
-@define-color accent_color #33E0E0;
-@define-color accent_bg_color #33E0E0;
-@define-color accent_fg_color #15161E;
+@import "colors.css";
 
-@define-color destructive_color #F7768E;
-@define-color destructive_bg_color #F7768E;
-@define-color destructive_fg_color #15161E;
+/* ── Fallback Named Color Definitions ── */
+@define-color accent_color #39c5bb;
+@define-color accent_bg_color #39c5bb;
+@define-color accent_fg_color #16161e;
 
-@define-color success_color #7DCFFF;
-@define-color success_bg_color #7DCFFF;
-@define-color success_fg_color #15161E;
+@define-color destructive_color #f7768e;
+@define-color destructive_bg_color #f7768e;
+@define-color destructive_fg_color #16161e;
 
-@define-color warning_color #E0AF68;
-@define-color warning_bg_color #E0AF68;
-@define-color warning_fg_color #15161E;
+@define-color success_color #73daca;
+@define-color success_bg_color #73daca;
+@define-color success_fg_color #16161e;
 
-@define-color error_color #F7768E;
-@define-color error_bg_color #F7768E;
-@define-color error_fg_color #15161E;
+@define-color warning_color #e0af68;
+@define-color warning_bg_color #e0af68;
+@define-color warning_fg_color #16161e;
 
-@define-color window_bg_color #15161E;
-@define-color window_fg_color #C0CAF5;
+@define-color error_color #f7768e;
+@define-color error_bg_color #f7768e;
+@define-color error_fg_color #16161e;
 
-@define-color view_bg_color #1A1B26;
-@define-color view_fg_color #C0CAF5;
+@define-color window_bg_color #1a1b26;
+@define-color window_fg_color #c0caf5;
 
-@define-color headerbar_bg_color #15161E;
-@define-color headerbar_fg_color #C0CAF5;
+@define-color view_bg_color #16161e;
+@define-color view_fg_color #c0caf5;
+
+@define-color headerbar_bg_color #16161e;
+@define-color headerbar_fg_color #c0caf5;
 @define-color headerbar_border_color transparent;
 @define-color headerbar_shade_color rgba(0, 0, 0, 0.36);
 
-@define-color sidebar_bg_color #15161E;
-@define-color sidebar_fg_color #C0CAF5;
+@define-color sidebar_bg_color #16161e;
+@define-color sidebar_fg_color #c0caf5;
 @define-color sidebar_shade_color rgba(0, 0, 0, 0.25);
 
-@define-color card_bg_color #1A1B26;
-@define-color card_fg_color #C0CAF5;
+@define-color card_bg_color #24283b;
+@define-color card_fg_color #c0caf5;
 @define-color card_shade_color rgba(0, 0, 0, 0.36);
 
-@define-color popover_bg_color #1A1B26;
-@define-color popover_fg_color #C0CAF5;
+@define-color popover_bg_color #24283b;
+@define-color popover_fg_color #c0caf5;
 
-@define-color dialog_bg_color #15161E;
-@define-color dialog_fg_color #C0CAF5;
+@define-color dialog_bg_color #1a1b26;
+@define-color dialog_fg_color #c0caf5;
 
 @define-color shade_color rgba(0, 0, 0, 0.36);
 @define-color scrollbar_outline_color rgba(0, 0, 0, 0.5);
 
-/* ── Global Foreground Color ──
-   This is THE fix. GTK4 resolves currentColor from the 
-   CSS 'color' property. By setting it on the root '*' 
-   selector, every widget—including images that use 
-   fill:currentColor—will inherit #C0CAF5 unless a more 
-   specific rule overrides it. */
+/* ── Global Foreground Color ── */
 * {
-    color: #C0CAF5;
+    color: @theme_fg_color;
 }
 
 /* ── Backgrounds ── */
 window {
-    background-color: #15161E;
+    background-color: @theme_bg_color;
     border-radius: 12px;
 }
 
 window.csd {
     border-radius: 12px;
     box-shadow: none;
-    border: 1px solid rgba(51, 224, 224, 0.15);
+    border: 1px solid rgba(57, 197, 187, 0.15);
 }
 
 /* ── Headerbar ── */
 headerbar {
-    background-color: #15161E;
-    color: #C0CAF5;
+    background-color: @theme_base_color;
+    color: @theme_fg_color;
     border-bottom: 1px solid rgba(192, 202, 245, 0.08);
 }
 
@@ -88,55 +85,104 @@ treeview,
 listview,
 list,
 flowbox {
-    background-color: #1A1B26;
-    color: #C0CAF5;
+    background-color: @theme_base_color;
+    color: @theme_fg_color;
 }
 
 row {
-    color: #C0CAF5;
+    color: @theme_fg_color;
 }
 
 /* ── Selections (targeted, never cascades into menus) ── */
 row:selected,
 row:selected * {
-    background-color: #33E0E0;
-    color: #1A1B26;
+    background-color: @accent_bg_color;
+    color: @accent_fg_color;
 }
 
 entry selection,
 textview selection {
-    background-color: #33E0E0;
-    color: #1A1B26;
+    background-color: @accent_bg_color;
+    color: @accent_fg_color;
 }
 
 /* ── Buttons ── */
-button {
-    color: #C0CAF5;
+button,
+headerbar button {
+    border-radius: 6px;
+    color: @theme_fg_color;
+    transition: background-color 100ms ease-out, color 100ms ease-out;
 }
 
-button:hover {
-    background-color: rgba(51, 224, 224, 0.15);
+button:hover,
+button.flat:hover,
+headerbar button:hover,
+headerbar button.flat:hover {
+    background-color: @accent_bg_color;
+    color: @accent_fg_color;
+}
+
+button:hover *,
+button.flat:hover *,
+headerbar button:hover *,
+headerbar button.flat:hover * {
+    color: @accent_fg_color;
+}
+
+button:hover image,
+button.flat:hover image,
+headerbar button:hover image,
+headerbar button.flat:hover image {
+    color: @accent_fg_color;
 }
 
 button.suggested-action,
 button.suggested-action * {
-    background-color: #33E0E0;
-    color: #1A1B26;
+    background-color: @accent_bg_color;
+    color: @accent_fg_color;
+}
+
+button:checked,
+button:active,
+button.flat:checked,
+button.flat:active,
+headerbar button:checked,
+headerbar button:active {
+    background-color: @accent_bg_color;
+    color: @accent_fg_color;
+}
+
+button:checked *,
+button:active *,
+button.flat:checked *,
+button.flat:active *,
+headerbar button:checked *,
+headerbar button:active * {
+    color: @accent_fg_color;
+}
+
+button:checked image,
+button:active image,
+button.flat:checked image,
+button.flat:active image,
+headerbar button:checked image,
+headerbar button:active image {
+    color: @accent_fg_color;
 }
 
 /* ── Menus & Popovers ── */
 popover,
 popover.menu {
-    background-color: #1A1B26;
-    color: #C0CAF5;
+    background-color: @theme_base_color;
+    color: @theme_fg_color;
 }
 
 popover modelbutton:hover,
 popover modelbutton:hover *,
 popover row:hover,
 popover row:hover * {
-    background-color: #33E0E0;
-    color: #1A1B26;
+    background-color: @accent_bg_color;
+    color: @accent_fg_color;
 }
 
 /* ── Tabs (Notebook) — for Pavucontrol tabs ── */
@@ -145,7 +191,7 @@ notebook > header > tabs > tab {
 }
 
 notebook > header > tabs > tab:checked {
-    color: #C0CAF5;
+    color: @theme_fg_color;
 }
 
 /* ── Scale / Slider (volume sliders in Pavucontrol) ── */
@@ -154,17 +200,17 @@ scale trough {
 }
 
 scale trough highlight {
-    background-color: #33E0E0;
+    background-color: @accent_bg_color;
 }
 
 scale slider {
-    background-color: #C0CAF5;
+    background-color: @theme_fg_color;
 }
 
 /* ── Entries ── */
 entry {
     background-color: rgba(26, 27, 38, 0.8);
-    color: #C0CAF5;
+    color: @theme_fg_color;
 }
 
 /* ── Scrollbar ── */
@@ -187,7 +233,7 @@ switch {
 }
 
 switch:checked {
-    background-color: #33E0E0;
+    background-color: @accent_bg_color;
 }
 
 /* ── Check / Radio ── */
@@ -195,25 +241,25 @@ checkbutton indicator,
 radiobutton indicator,
 check,
 radio {
-    color: #C0CAF5;
+    color: @theme_fg_color;
 }
 
 checkbutton indicator:checked,
 radiobutton indicator:checked,
 check:checked,
 radio:checked {
-    background-color: #33E0E0;
-    color: #15161E;
+    background-color: @accent_bg_color;
+    color: @accent_fg_color;
 }
 
 /* ── Spinbutton ── */
 spinbutton {
     background-color: rgba(26, 27, 38, 0.8);
-    color: #C0CAF5;
+    color: @theme_fg_color;
 }
 
 /* ── Tooltip ── */
 tooltip {
-    background-color: #1A1B26;
-    color: #C0CAF5;
+    background-color: @theme_base_color;
+    color: @theme_fg_color;
 }

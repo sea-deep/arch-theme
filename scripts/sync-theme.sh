@@ -514,6 +514,8 @@ ensure_symlink "$REPO_DIR/xsettingsd/xsettingsd.conf" "$HOME/.config/xsettingsd/
 ensure_symlink "$REPO_DIR/icons/TokyoNight-Files" "$HOME/.local/share/icons/TokyoNight-Files"
 ensure_symlink "$REPO_DIR/icons/YAMIS-enlarged" "$HOME/.local/share/icons/YAMIS-enlarged"
 ensure_symlink "$REPO_DIR/icons/sea-deep" "$HOME/.local/share/icons/sea-deep"
+ensure_symlink "$REPO_DIR/gtk-3.0" "$HOME/.config/gtk-3.0"
+ensure_symlink "$REPO_DIR/gtk-4.0" "$HOME/.config/gtk-4.0"
 
 if command -v gtk-update-icon-cache >/dev/null 2>&1; then
     gtk-update-icon-cache -q -f -t "$HOME/.local/share/icons/TokyoNight-Files" 2>/dev/null || true

@@ -1,61 +1,67 @@
 /* ═══════════════════════════════════════════════════════
-   Miku GTK3 Theme — Tokyo Night × Hatsune Miku
+   sea-deep GTK3 Theme — Tokyo Night × Hatsune Miku
    Global coherent color system for all GTK3 apps
    Base theme: adw-gtk3-dark
    ═══════════════════════════════════════════════════════ */
 
-/* ── Named Color Definitions (GTK3 Legacy) ── */
-@define-color theme_bg_color #15161E;
-@define-color theme_fg_color #C0CAF5;
-@define-color theme_base_color #1A1B26;
-@define-color theme_text_color #C0CAF5;
-@define-color theme_selected_bg_color #33E0E0;
-@define-color theme_selected_fg_color #1A1B26;
+@import "colors.css";
 
-/* ── Named Color Definitions (adw-gtk3 compatibility) ── */
-@define-color accent_color #33E0E0;
-@define-color accent_bg_color #33E0E0;
-@define-color accent_fg_color #15161E;
+/* ── Fallback Named Color Definitions ── */
+@define-color theme_bg_color #1a1b26;
+@define-color theme_fg_color #c0caf5;
+@define-color theme_base_color #16161e;
+@define-color theme_text_color #c0caf5;
+@define-color theme_selected_bg_color #39c5bb;
+@define-color theme_selected_fg_color #16161e;
 
-@define-color destructive_color #F7768E;
-@define-color destructive_bg_color #F7768E;
-@define-color destructive_fg_color #15161E;
+@define-color accent_color #39c5bb;
+@define-color accent_bg_color #39c5bb;
+@define-color accent_fg_color #16161e;
 
-@define-color success_color #7DCFFF;
-@define-color success_bg_color #7DCFFF;
-@define-color success_fg_color #15161E;
+@define-color destructive_color #f7768e;
+@define-color destructive_bg_color #f7768e;
+@define-color destructive_fg_color #16161e;
 
-@define-color warning_color #E0AF68;
-@define-color warning_bg_color #E0AF68;
-@define-color warning_fg_color #15161E;
+@define-color success_color #73daca;
+@define-color success_bg_color #73daca;
+@define-color success_fg_color #16161e;
 
-@define-color error_color #F7768E;
-@define-color error_bg_color #F7768E;
-@define-color error_fg_color #15161E;
+@define-color warning_color #e0af68;
+@define-color warning_bg_color #e0af68;
+@define-color warning_fg_color #16161e;
 
-@define-color window_bg_color #15161E;
-@define-color window_fg_color #C0CAF5;
+@define-color error_color #f7768e;
+@define-color error_bg_color #f7768e;
+@define-color error_fg_color #16161e;
 
-@define-color view_bg_color #1A1B26;
-@define-color view_fg_color #C0CAF5;
+@define-color window_bg_color #1a1b26;
+@define-color window_fg_color #c0caf5;
 
-@define-color headerbar_bg_color #15161E;
-@define-color headerbar_fg_color #C0CAF5;
+@define-color view_bg_color #16161e;
+@define-color view_fg_color #c0caf5;
+
+@define-color headerbar_bg_color #16161e;
+@define-color headerbar_fg_color #c0caf5;
 @define-color headerbar_border_color transparent;
 
-@define-color card_bg_color #1A1B26;
-@define-color card_fg_color #C0CAF5;
+@define-color sidebar_bg_color #16161e;
+@define-color sidebar_fg_color #c0caf5;
+
+@define-color card_bg_color #24283b;
+@define-color card_fg_color #c0caf5;
 @define-color card_shade_color rgba(0, 0, 0, 0.36);
 
-@define-color popover_bg_color #1A1B26;
-@define-color popover_fg_color #C0CAF5;
+@define-color popover_bg_color #24283b;
+@define-color popover_fg_color #c0caf5;
 
-@define-color dialog_bg_color #15161E;
-@define-color dialog_fg_color #C0CAF5;
+@define-color dialog_bg_color #1a1b26;
+@define-color dialog_fg_color #c0caf5;
+
+@define-color borders #2f3549;
 
 /* ── Global Foreground ── */
 * {
-    color: #C0CAF5;
+    color: @theme_fg_color;
 }
 
 /* ── Window Chrome ── */
@@ -65,7 +71,7 @@ window {
 window.csd {
     border-radius: 12px;
     box-shadow: none;
-    border: 1px solid rgba(51, 224, 224, 0.15);
+    border: 1px solid rgba(57, 197, 187, 0.15);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -76,8 +82,8 @@ window.csd {
 /* Treeview rows (Thunar sidebar, list view) */
 treeview:selected,
 treeview:selected * {
-    background-color: #33E0E0;
-    color: #1A1B26;
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
 }
 
 /* Icon view (Thunar grid, ExoIconView) */
@@ -87,22 +93,22 @@ iconview:selected *,
 .view:selected *,
 ExoIconView:selected,
 ExoIconView:selected * {
-    background-color: #33E0E0;
-    color: #1A1B26;
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
 }
 
 /* Generic row selections (other GTK3 apps) */
 row:selected,
 row:selected * {
-    background-color: #33E0E0;
-    color: #1A1B26;
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
 }
 
 /* Text selections inside entries/textviews */
 entry selection,
 textview selection {
-    background-color: #33E0E0;
-    color: #1A1B26;
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -113,40 +119,139 @@ textview selection {
 
 /* Top menubar item hover (File, Edit, View...) */
 menubar > menuitem:hover {
-    background-color: #33E0E0;
-    color: #1A1B26;
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
 }
 menubar > menuitem:hover > label,
 menubar > menuitem:hover > image {
-    color: #1A1B26;
+    color: @theme_selected_fg_color;
 }
 
 /* Dropdown menu container — force dark bg, light text */
 .menu,
 menu {
-    background-color: #1A1B26;
-    color: #C0CAF5;
+    background-color: @theme_base_color;
+    color: @theme_fg_color;
 }
 
 /* Individual dropdown menu item hover */
 .menu menuitem:hover,
 menu menuitem:hover {
-    background-color: #33E0E0;
-    color: #1A1B26;
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
 }
 .menu menuitem:hover > *,
 menu menuitem:hover > * {
-    color: #1A1B26;
+    color: @theme_selected_fg_color;
 }
 
 /* Ensure non-hovered menu items stay light */
 .menu menuitem,
 menu menuitem {
-    color: #C0CAF5;
+    color: @theme_fg_color;
 }
 .menu menuitem > *,
 menu menuitem > * {
-    color: #C0CAF5;
+    color: @theme_fg_color;
+}
+
+/* ═══════════════════════════════════════════════════════
+   BUTTONS — Accent highlight on hover and active/checked
+   ═══════════════════════════════════════════════════════ */
+
+button,
+headerbar button,
+toolbar button,
+.toolbar button {
+    border-radius: 6px;
+    transition: background-color 100ms ease-out, color 100ms ease-out;
+}
+
+button:hover,
+button.flat:hover,
+headerbar button:hover,
+headerbar button.flat:hover,
+toolbar button:hover,
+.toolbar button:hover {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+
+button:hover *,
+button.flat:hover *,
+headerbar button:hover *,
+headerbar button.flat:hover *,
+toolbar button:hover *,
+.toolbar button:hover * {
+    color: @theme_selected_fg_color;
+}
+
+button:hover image,
+button.flat:hover image,
+headerbar button:hover image,
+headerbar button.flat:hover image,
+toolbar button:hover image,
+.toolbar button:hover image {
+    color: @theme_selected_fg_color;
+}
+
+/* Checked / Active / Toggled buttons (e.g. Swappy tool selection) */
+button:checked,
+button:active,
+button.flat:checked,
+button.flat:active,
+headerbar button:checked,
+headerbar button:active,
+headerbar button.flat:checked,
+headerbar button.flat:active,
+toolbar button:checked,
+toolbar button:active,
+.toolbar button:checked,
+.toolbar button:active {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+
+button:checked *,
+button:active *,
+button.flat:checked *,
+button.flat:active *,
+headerbar button:checked *,
+headerbar button:active *,
+toolbar button:checked *,
+toolbar button:active * {
+    color: @theme_selected_fg_color;
+}
+
+button:checked image,
+button:active image,
+button.flat:checked image,
+button.flat:active image,
+headerbar button:checked image,
+headerbar button:active image,
+toolbar button:checked image,
+toolbar button:active image {
+    color: @theme_selected_fg_color;
+}
+
+/* Disabled buttons — preserve legibility and prevent hover highlights */
+button:disabled,
+button:disabled:hover,
+headerbar button:disabled,
+headerbar button:disabled:hover,
+toolbar button:disabled,
+toolbar button:disabled:hover {
+    background-color: transparent;
+    color: alpha(@theme_fg_color, 0.35);
+}
+
+button:disabled image,
+button:disabled:hover image,
+headerbar button:disabled image,
+headerbar button:disabled:hover image,
+toolbar button:disabled image,
+toolbar button:disabled:hover image {
+    color: alpha(@theme_fg_color, 0.35);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -154,12 +259,12 @@ menu menuitem > * {
    ═══════════════════════════════════════════════════════ */
 image {
     -gtk-icon-style: symbolic;
-    color: #33E0E0; /* Miku Teal */
+    color: @accent_color;
 }
 
 *:selected image,
 *:hover > image,
 button:hover image,
 row:hover image {
-    color: #1A1B26; /* Dark background inversion */
+    color: @theme_selected_fg_color;
 }

@@ -9,7 +9,7 @@
 #   python-validity  →  Hardware USB driver (talks to the sensor chip)
 #   open-fprintd     →  D-Bus daemon (replaces the standard fprintd)
 #   fprintd-clients  →  CLI tools (fprintd-enroll, fprintd-verify, etc.)
-#   pam-fprint-grosshack  →  PAM module for simultaneous password+fingerprint (used for sudo/swaylock; excluded from Lemurs login)
+#   pam-fprint-grosshack  →  PAM module for simultaneous password+fingerprint (used for sudo/hyprlock; excluded from Ly login)
 #
 # NOTE: This script must be run AFTER install.sh (needs yay).
 # ============================================================================
@@ -113,14 +113,14 @@ sudo systemctl enable open-fprintd-resume.service
 sudo systemctl enable open-fprintd-suspend.service
 sudo systemctl enable python3-validity-suspend-hotfix.service
 
-log_info "Installing swaylock resume hook..."
-sudo cp "$SCRIPT_DIR/swaylock-fprint-resume.sh" /usr/lib/systemd/system-sleep/swaylock-fprint-resume.sh
-sudo chmod +x /usr/lib/systemd/system-sleep/swaylock-fprint-resume.sh
+log_info "Installing hyprlock resume hook..."
+sudo cp "$SCRIPT_DIR/hyprlock-fprint-resume.sh" /usr/lib/systemd/system-sleep/hyprlock-fprint-resume.sh
+sudo chmod +x /usr/lib/systemd/system-sleep/hyprlock-fprint-resume.sh
 
 log_success "Services enabled!"
 
 # ============================================================================
-# PHASE 5: PAM Configuration (fingerprint for sudo + swaylock)
+# PHASE 5: PAM Configuration (fingerprint for sudo + hyprlock)
 # ============================================================================
 log_info "Configuring PAM for fingerprint authentication..."
 
@@ -128,11 +128,11 @@ log_info "Configuring PAM for fingerprint authentication..."
 sudo cp "$SCRIPT_DIR/pam/sudo" /etc/pam.d/sudo
 sudo chmod 644 /etc/pam.d/sudo
 
-# swaylock: fingerprint as sufficient (unlock screen with fingerprint)
-sudo cp "$SCRIPT_DIR/pam/swaylock" /etc/pam.d/swaylock
-sudo chmod 644 /etc/pam.d/swaylock
+# hyprlock: fingerprint as sufficient (unlock screen with fingerprint)
+sudo cp "$SCRIPT_DIR/pam/hyprlock" /etc/pam.d/hyprlock
+sudo chmod 644 /etc/pam.d/hyprlock
 
-log_success "PAM configured! Fingerprint works for sudo and swaylock."
+log_success "PAM configured! Fingerprint works for sudo and hyprlock."
 
 # ============================================================================
 # PHASE 6: Enroll Fingerprints
@@ -163,7 +163,7 @@ fprintd-list "$(whoami)" 2>/dev/null || true
 echo ""
 log_info "Test it out:"
 log_info "  • sudo ls        (should prompt for fingerprint)"
-log_info "  • swaylock       (touch sensor to unlock)"
+log_info "  • hyprlock       (touch sensor to unlock)"
 log_info "  • fprintd-verify (quick hardware test)"
 echo ""
 log_warn "If fingerprint stops working after suspend/resume:"

@@ -5,11 +5,11 @@ if [ ! -f "$WALLPAPER" ]; then
     echo "Error: wallpaper file not found: $WALLPAPER" >&2
     exit 1
 fi
-pkill -x swaybg 2>/dev/null || true
-sleep 0.1
-
-if command -v hyprctl >/dev/null 2>&1 && [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-    hyprctl eval "hl.dispatch(hl.dsp.exec_cmd('swaybg -i \"$WALLPAPER\" -m fill'))" >/dev/null 2>&1
-else
-    nohup swaybg -i "$WALLPAPER" -m fill >/dev/null 2>&1 &
+# Ensure awww-daemon is running
+if ! pgrep -x awww-daemon >/dev/null 2>&1; then
+    systemctl --user start awww-daemon.service 2>/dev/null || awww-daemon &
+    sleep 0.2
 fi
+
+# Apply wallpaper with smooth transition
+awww img "$WALLPAPER" --transition-type grow --transition-duration 1

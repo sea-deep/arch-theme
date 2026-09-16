@@ -1,0 +1,3 @@
+# PAM configuration for hyprlock screen locker with fingerprint support
+auth            sufficient      pam_fprintd_grosshack.so
+auth            include         login

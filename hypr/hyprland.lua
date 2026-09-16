@@ -157,7 +157,6 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("systemctl --user start plasma-polkit-agent || /usr/lib/polkit-kde-authentication-agent-1")
     hl.exec_cmd("wl-paste --type text --watch clipse -wl-store")
     hl.exec_cmd("wl-paste --type image --watch clipse -wl-store")
-    hl.exec_cmd("sway-audio-idle-inhibit")
     hl.exec_cmd("gsettings set org.gnome.desktop.wm.preferences button-layout ':close'")
     hl.exec_cmd("gsettings set org.gnome.desktop.interface text-scaling-factor 1.0")
     hl.exec_cmd("gsettings set org.gnome.desktop.interface cursor-theme breeze_cursors")
@@ -196,8 +195,7 @@ hl.bind(mainMod .. " + SHIFT + Tab", hl.dsp.exec_cmd("hyprctl dispatch changegro
 hl.bind(mainMod .. " + W", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 
--- Sway's focus mode toggle has no exact Hyprland equivalent. Cycle between
--- the tiled and floating layers while preserving the same Super+Space muscle memory.
+-- Focus mode toggle: Cycle between the tiled and floating layers (Super+Space).
 hl.bind(mainMod .. " + Space", function()
     local active = hl.get_active_window()
     if active == nil then

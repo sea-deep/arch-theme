@@ -7,10 +7,10 @@ Synaptics Metallica/Prometheus sensor (`06cb:009a`).
 
 Fingerprint auth is enabled for:
 - **sudo** — touch sensor instead of typing password
-- **swaylock** — touch sensor to unlock screen
+- **hyprlock** — touch sensor to unlock screen
 - **polkit** — system auth prompts
 
-Fingerprint is intentionally **NOT** used for the boot greeter (greetd/tuigreet)
+Fingerprint is intentionally **NOT** used for the boot greeter (ly)
 because the sensor requires a warm-up period after cold boot.
 
 ## Driver Stack

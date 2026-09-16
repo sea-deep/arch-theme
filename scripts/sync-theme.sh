@@ -106,7 +106,7 @@ write_qt_conf() {
 color_scheme_path=$scheme_path
 custom_palette=true
 icon_theme=$icon_theme
-standard_dialogs=default
+standard_dialogs=xdgdesktopportal
 style=kvantum
 
 [Fonts]
@@ -511,5 +511,12 @@ ensure_symlink() {
 ensure_symlink "$REPO_DIR/qt5ct/colors/TokyoNight.conf" "$HOME/.local/share/qt5ct/colors/TokyoNight.conf"
 ensure_symlink "$REPO_DIR/qt6ct/colors/TokyoNight.conf" "$HOME/.local/share/qt6ct/colors/TokyoNight.conf"
 ensure_symlink "$REPO_DIR/xsettingsd/xsettingsd.conf" "$HOME/.config/xsettingsd/xsettingsd.conf"
+ensure_symlink "$REPO_DIR/icons/TokyoNight-Files" "$HOME/.local/share/icons/TokyoNight-Files"
+ensure_symlink "$REPO_DIR/icons/YAMIS-enlarged" "$HOME/.local/share/icons/YAMIS-enlarged"
+
+if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+    gtk-update-icon-cache -q -f -t "$HOME/.local/share/icons/TokyoNight-Files" 2>/dev/null || true
+    gtk-update-icon-cache -q -f -t "$HOME/.local/share/icons/YAMIS-enlarged" 2>/dev/null || true
+fi
 
 echo "[+] Theme synchronization complete!"

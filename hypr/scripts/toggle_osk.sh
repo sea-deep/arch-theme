@@ -10,6 +10,7 @@ else
     "$WVKBD" \
         -L 280 \
         -R 8 \
+        --no-popup \
         --bg 1a1b26 \
         --fg 24283b \
         --fg-sp 1f2335 \
@@ -18,6 +19,6 @@ else
         --text c0caf5 \
         --text-sp 7aa2f7 \
         --text-press 1a1b26 \
-        --fn "IBM Plex Sans 12" \
+        --fn "IBM Plex Sans SemiBold 15" \
         > /dev/null 2>&1 &
 fi

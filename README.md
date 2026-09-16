@@ -1,25 +1,27 @@
 <h1 align="center">
   <br>
-  🌊 Miku × Tokyo Night — Arch Linux Hyprland & Quickshell Dotfiles
+  🌊 sea-deep — Arch Linux Hyprland & Quickshell Desktop Environment
   <br>
 </h1>
 
 <p align="center">
-  <b>A meticulously crafted, Hatsune Miku–inspired Wayland desktop environment built on Hyprland, Quickshell, and the Tokyo Night color palette.</b>
+  <b>A meticulously crafted, monolithic Wayland desktop environment built on Hyprland, Quickshell, and the sea-deep theme (Tokyo Night palette accented with vivid teal).</b>
 </p>
 
 <p align="center">
   <a href="#-quick-start"><img src="https://img.shields.io/badge/Arch-Linux-1793d1?style=for-the-badge&logo=archlinux&logoColor=white" alt="Arch Linux"></a>
   <a href="#-components"><img src="https://img.shields.io/badge/WM-Hyprland-39c5bb?style=for-the-badge" alt="Hyprland"></a>
   <a href="#-components"><img src="https://img.shields.io/badge/Shell-Quickshell-7aa2f7?style=for-the-badge" alt="Quickshell"></a>
-  <a href="#-color-palette"><img src="https://img.shields.io/badge/Theme-Tokyo%20Night-1a1b26?style=for-the-badge" alt="Tokyo Night"></a>
+  <a href="#-color-palette"><img src="https://img.shields.io/badge/Theme-sea--deep-39c5bb?style=for-the-badge" alt="sea-deep"></a>
 </p>
 
 ---
 
 ## 🖼️ Wallpaper
 
-![Miku Wallpaper](wallpapers/satisfaction_hires.png)
+![Wallpaper](wallpapers/satisfaction_hires.png)
+
+The canonical wallpaper (`wallpapers/satisfaction_hires.png`) is powered natively by the `awww-daemon` Wayland user service, featuring smooth animated transitions and direct integration with Hyprland and Thunar file manager context actions. Zero legacy Sway or X11 dependencies.
 
 ---
 
@@ -33,17 +35,16 @@
 - [Components](#-components)
   - [Hyprland (Compositor)](#hyprland-compositor)
   - [Quickshell (Status Bar, Launcher, Overlays)](#quickshell-status-bar-launcher-overlays)
+  - [Native Custom Session Menu](#native-custom-session-menu)
+  - [On-Screen Virtual Keyboard](#on-screen-virtual-keyboard)
   - [Hyprlock & Hypridle (Lock & Power Management)](#hyprlock--hypridle)
   - [Kitty (Terminal)](#kitty-terminal)
   - [Ly (Login Screen)](#ly-login-screen)
-  - [Wlogout (Logout Menu)](#wlogout-logout-menu)
   - [Btop (System Monitor)](#btop-system-monitor)
   - [Starship (Shell Prompt)](#starship-shell-prompt)
   - [GTK 3 & GTK 4 Theming](#gtk-theming)
   - [Qt 5 & Qt 6 Theming](#qt-theming)
-  - [Fontconfig (Font Fallback Chain)](#fontconfig-browser-fonts)
-  - [Thunar Custom Actions](#thunar-custom-actions)
-- [Custom Scripts](#-custom-scripts)
+  - [Thunar File Manager & Custom Actions](#thunar-custom-actions)
 - [Keybindings](#-keybindings)
 - [Directory Structure](#-directory-structure)
 - [Credits](#-credits)
@@ -70,13 +71,13 @@ The installer will:
 5. Symlink configurations from this repo into `~/.config/` and `~/.local/share/`.
 6. Run `scripts/sync-theme.sh` to compile all Qt, GTK, and KDE palettes from `theme/tokens.json`.
 7. Configure Ly display manager and TTY color service.
-8. Optionally configure fingerprint authentication and TLP power management.
+8. Enable native systemd user services (`awww-daemon.service`, `plasma-polkit-agent.service`).
 
 ---
 
 ## 💎 Single Source of Truth & Theme Tokens
 
-All design tokens across colors, typography, geometry metrics, icon inheritance, wallpaper, and platform environment defaults are centrally defined in:
+All design tokens across colors, typography, geometry metrics, on-screen keyboard styling, icon inheritance, wallpaper, and platform environment defaults are centrally defined in:
 
 - **Tokens Definition:** [`theme/tokens.json`](theme/tokens.json)
 - **Synchronizer Script:** [`scripts/sync-theme.sh`](scripts/sync-theme.sh)
@@ -93,13 +94,13 @@ This single command automatically regenerates and updates:
 - **KDE / Polkit:** Tokyo Night RGB definitions in `kdeglobals`.
 - **Kvantum:** `Kvantum-Tokyo-Night.kvconfig` general colors.
 - **XSettings:** `xsettingsd/xsettingsd.conf`.
-- **User Symlinks:** Re-links all palettes into `~/.local/share/qt5ct/` and `~/.local/share/qt6ct/`.
+- **User Symlinks & Caches:** Re-links palettes and updates icon caches for `sea-deep`.
 
 ---
 
 ## 🎨 Color Palette
 
-The desktop color scheme is derived from **Tokyo Night** with **Hatsune Miku Teal** accents:
+The desktop color scheme is derived from **Tokyo Night** with **Teal (`#39c5bb`)** accents:
 
 | Role | Hex | RGB | Purpose |
 |------|-----|-----|---------|
@@ -111,10 +112,10 @@ The desktop color scheme is derived from **Tokyo Night** with **Hatsune Miku Tea
 | **Foreground (`fg`)** | `#c0caf5` | `192, 202, 245` | Primary text and sharp iconography |
 | **Dim Foreground (`fgDim`)** | `#9aa5ce` | `154, 165, 206` | Secondary labels and inactive text |
 | **Muted Foreground (`fgMuted`)** | `#565f89` | `86, 95, 137` | Placeholders, disabled states, comments |
-| **Miku Teal (`accent`)** | `#39c5bb` | `57, 197, 187` | Focused borders, active pills, primary accents |
+| **Accent Teal (`accent`)** | `#39c5bb` | `57, 197, 187` | Focused borders, active pills, primary accents |
 | **Teal Glow (`accentGlow`)** | `#33e0e0` | `51, 224, 224` | Hover states, glowing boundary effects |
-| **Miku Pink (`mikuPink`)** | `#e35885` | `227, 88, 133` | Special badges, media playback accents |
-| **Miku Dark (`mikuDark`)** | `#134c48` | `19, 76, 72` | Subtle inactive teal fills |
+| **Pink (`mikuPink`)** | `#e35885` | `227, 88, 133` | Special badges, media playback accents |
+| **Dark Teal (`mikuDark`)** | `#134c48` | `19, 76, 72` | Subtle inactive teal fills |
 | **Blue (`blue`)** | `#7aa2f7` | `122, 162, 247` | Hyperlinks and informational widgets |
 | **Purple (`purple`)** | `#bb9af7` | `187, 154, 247` | Media progress, secondary highlight |
 | **Red (`red`)** | `#f7768e` | `247, 118, 142` | Errors, close buttons, battery critical |
@@ -136,13 +137,25 @@ The desktop standardizes strictly on two typefaces:
 
 ## 🎭 Icon Hierarchy
 
-A two-tiered icon inheritance hierarchy provides clean minimalism for application browsing alongside rich iconography inside applications:
+A unified master theme **`sea-deep`** (`icons/sea-deep/index.theme`) provides a 3-layer inheritance architecture ensuring complete coverage across all desktop software:
 
-1. **Top Tier — App Launcher & Workspaces (`YAMIS-enlarged`):**
-   - Pure flat monochromatic SVG icons for applications (`icons/YAMIS-enlarged/apps/`).
-   - Non-app directories are pruned from YAMIS so they never conflict with in-app UI.
-2. **Inherited Tier — In-App UI, Toolbars & Places (`TokyoNight-SE`):**
-   - File actions, save icons, folder glyphs, and status indicators automatically fall through to `TokyoNight-SE`, `breeze-dark`, and `hicolor`.
+```ini
+[Icon Theme]
+Name=sea-deep
+Comment=sea-deep unified icon theme
+Inherits=YAMIS-enlarged,TokyoNight-Files,Adwaita,breeze-dark,hicolor
+```
+
+1. **Layer 1: Applications & App MIME Types (`YAMIS-enlarged`):**
+   - Pure flat monochromatic SVG icons for desktop applications (`icons/YAMIS-enlarged/apps/`).
+   - Monochromatic app and executable MIME types (`application-x-executable`, `application-x-desktop`, `apk`, `deb`, `rpm`, `shellscript`).
+   - Custom additions for apps lacking standard vendor icons (`antigravity-ide`, `co.anysphere.cursor`, `org.vinegarhq.Sober`).
+2. **Layer 2: Files, Folders & Storage Devices in Thunar (`TokyoNight-Files`):**
+   - Rich Tokyo Night blue folders and user directories (`places/`).
+   - Distinct file type icons for documents, media, archives, and code (`mimetypes/`).
+   - Hardware storage, disks, and partitions (`devices/`).
+3. **Layer 3: System-Wide UI Controls, Toolbar Actions & Window Buttons (`Adwaita`):**
+   - Standard modern GNOME vector symbolic SVGs (`document-save-symbolic`, `edit-copy-symbolic`, `pan-down-symbolic`, window controls).
 
 ---
 
@@ -153,9 +166,10 @@ A two-tiered icon inheritance hierarchy provides clean minimalism for applicatio
 **Config:** [`hypr/hyprland.lua`](hypr/hyprland.lua)
 
 - Native Lua-based configuration (`hyprland.lua`).
-- Dynamic 1080p fractional scale cycling bound to <kbd>Super + =</kbd>.
+- Dynamic 1080p fractional scale cycling bound to <kbd>Super + =</kbd> (1.0 → 1.2 → 1.25 → 1.5).
 - Hardware screen shaders with alternating cache fix (`comfort`, `grayscale`, `vivid`).
 - Enforced `:close` window decoration button layout preventing Electron/Chromium minimization suspension bugs.
+- Global IPC shortcuts for Quickshell overlays and app launchers.
 
 ---
 
@@ -165,11 +179,39 @@ A two-tiered icon inheritance hierarchy provides clean minimalism for applicatio
 
 Quickshell implements the entire interactive shell:
 - **Full-Width Fluid Bar:** Zero-gap edge-to-edge status bar with concave corner fillets.
-- **Native App Launcher (`Launcher.qml`):** Instant search, pinned apps, recently opened tracking, and smooth gliding unroll.
-- **Clipboard Manager (`ClipboardPicker.qml`):** Standalone cursor-following popup with Wayland Drag-and-Drop support and auto-paste simulation.
-- **Emoji Picker (`EmojiPicker.qml`):** Native categorised picker with search.
-- **Quick Controls (`QuickControls.qml`):** Master audio, application streams, brightness, and screen shaders with hover-wheel volume control.
-- **System Tray (`TrayExpander.qml`):** StatusNotifier DBus tray with reactive hot-reload synchronization.
+- **Native App Launcher (`Launcher.qml`):** Instant search, pinned apps, recently opened tracking, smooth gliding unroll, and virtualized list item reuse (`reuseItems: true`).
+- **Clipboard Manager (`ClipboardPicker.qml`):** Standalone cursor-following popup with Wayland Drag-and-Drop support, auto-paste simulation, and virtualized list item reuse.
+- **Emoji Picker (`EmojiPicker.qml`):** Native categorised picker with search, category jump bar, and virtualized list item reuse.
+- **Quick Controls (`QuickControls.qml`):** Master audio, application streams, brightness, and screen shaders with hover-wheel volume and slider controls.
+- **System Tray (`TrayExpander.qml`):** StatusNotifier DBus tray with reactive hot-reload synchronization and grace timers.
+- **Screenshot Menu (`ScreenshotMenu.qml`):** Region, window, and monitor capture overlay.
+- **Recorder Menu (`RecorderMenu.qml`):** Screen and audio recording overlay with live recording indicators in the status bar.
+
+---
+
+### Native Custom Session Menu
+
+**Component:** [`quickshell/controls/PowerExpander.qml`](quickshell/controls/PowerExpander.qml)
+
+Triggered instantly via <kbd>Super + Shift + E</kbd> or the status bar power icon. Features zero-lag keyboard navigation:
+
+- <kbd>L</kbd> — Lock session (`loginctl lock-session` via Hyprlock)
+- <kbd>U</kbd> — Suspend system (`systemctl suspend`)
+- <kbd>E</kbd> — Log out (`loginctl terminate-user $USER`)
+- <kbd>R</kbd> — Reboot system (`systemctl reboot`)
+- <kbd>S</kbd> — Shut down (`systemctl poweroff`)
+- <kbd>H</kbd> — Hibernate system (`systemctl hibernate`)
+- <kbd>Esc</kbd> — Dismiss menu
+
+---
+
+### On-Screen Virtual Keyboard
+
+**Script:** [`hypr/scripts/toggle_osk.sh`](hypr/scripts/toggle_osk.sh)
+
+Toggled via <kbd>Super + ,</kbd> (comma). Runs `wvkbd` with fully tokenized styling extracted dynamically from [`theme/tokens.json`](theme/tokens.json):
+- Matches `sea-deep` background, key surface, pressed highlight, font family, and rounding metrics.
+- Sub-3ms launch time with graceful fallback tokens and zero-latency instant `pkill` toggle-off.
 
 ---
 
@@ -177,9 +219,9 @@ Quickshell implements the entire interactive shell:
 
 **Lockscreen:** [`hypr/hyprlock.conf`](hypr/hyprlock.conf) · **Idle:** [`hypr/hypridle.conf`](hypr/hypridle.conf)
 
-- Uses canonical crisp wallpaper (`satisfaction_hires.png`).
-- Seamless fingerprint and password unlock.
-- Non-poisoning brightness persistence: restores hardware backlight upon resume.
+- Uses canonical 4K wallpaper (`satisfaction_hires.png`).
+- Seamless fingerprint and password unlock via PAM.
+- Non-poisoning brightness persistence: restores hardware backlight upon resume without retaining idle dimming.
 
 ---
 
@@ -187,9 +229,9 @@ Quickshell implements the entire interactive shell:
 
 **Config:** [`kitty/kitty.conf`](kitty/kitty.conf)
 
-- Tokyo Night colors with Miku Teal cursor.
+- Tokyo Night colors with vivid teal cursor.
 - 95% opacity with crisp text rendering.
-- `FiraCode Nerd Font` 13pt.
+- `FiraCode Nerd Font` 13pt SemiBold.
 
 ---
 
@@ -197,16 +239,8 @@ Quickshell implements the entire interactive shell:
 
 **Config:** [`ly/config.ini`](ly/config.ini) · **TTY Theme:** [`ly/set-tty-theme.sh`](ly/set-tty-theme.sh)
 
-- Elegant, lightweight TUI display manager.
-- Automated systemd one-shot service sets the 16-color Linux VT palette to Tokyo Night before login.
-
----
-
-### Wlogout (Logout Menu)
-
-**Layout:** [`wlogout/layout`](wlogout/layout) · **Style:** [`wlogout/style.css`](wlogout/style.css)
-
-- Fullscreen power overlay for lock, suspend, logout, reboot, and shutdown.
+- Lightweight TUI display manager.
+- Automated systemd service sets the 16-color Linux VT console palette to Tokyo Night before login.
 
 ---
 
@@ -214,7 +248,7 @@ Quickshell implements the entire interactive shell:
 
 **Config:** [`btop/btop.conf`](btop/btop.conf) · **Theme:** [`btop/themes/miku-dark.theme`](btop/themes/miku-dark.theme)
 
-- Launched via <kbd>Super + Escape</kbd>.
+- Launched in a dedicated terminal window via <kbd>Super + Escape</kbd>.
 
 ---
 
@@ -222,7 +256,7 @@ Quickshell implements the entire interactive shell:
 
 **Config:** [`starship.toml`](starship.toml)
 
-- Powerline pill prompt in Zsh showing user, directory, git status, and execution state.
+- Powerline pill prompt in Zsh showing user, directory, git branch, and execution status.
 
 ---
 
@@ -232,7 +266,9 @@ Quickshell implements the entire interactive shell:
 
 - Base theme: `adw-gtk3-dark`.
 - Dynamic color variables generated from `theme/tokens.json`.
-- Icon theme: `YAMIS-enlarged`.
+- Icon theme: `sea-deep`.
+- Standardized hover and active button styling (`#39c5bb` background highlight with `#16161e` text/icon inversion).
+- `GTK_USE_PORTAL=1` enforced to unify file chooser dialogs across all applications.
 
 ---
 
@@ -244,18 +280,20 @@ Quickshell implements the entire interactive shell:
 - `Kvantum-Tokyo-Night` SVG widget theme with teal accents.
 - `QT_WAYLAND_DISABLE_WINDOWDECORATION="1"` disables conflicting client-side borders.
 - Unified `QT_QPA_PLATFORMTHEME="qt5ct"` seamlessly loads `libqt5ct.so` for Qt5 and `libqt6ct.so` for Qt6.
+- `standard_dialogs=xdgdesktopportal` routes Qt file pickers to XDG Desktop Portal.
 
 ---
 
-### Thunar Custom Actions
+### Thunar File Manager & Custom Actions
 
-**Config:** [`Thunar/uca.xml`](Thunar/uca.xml)
+**Config:** [`Thunar/uca.xml`](Thunar/uca.xml) · **MIME Defaults:** [`mimeapps.list`](mimeapps.list)
 
-1. **Copy Path:** Copies exact file/directory path to Wayland clipboard (`wl-copy -n "%f"`).
-2. **Set as Wallpaper:** Instantly applies image as wallpaper via `swww`.
-3. **Open Terminal Here:** Opens Kitty at the current directory.
-4. **Open as Root:** Opens elevated Thunar window.
-5. **Open with VSCode:** Opens file or directory in VS Code.
+Thunar is configured as the canonical system file opener (`inode/directory` and `x-scheme-handler/file`), featuring custom context actions:
+1. **Copy Path:** Copies exact file or folder path to Wayland clipboard (`wl-copy -n "%f"`).
+2. **Set as Wallpaper:** Instantly applies image as wallpaper with animated transition via `hypr/scripts/set_wallpaper.sh`.
+3. **Open Terminal Here:** Opens Kitty at current directory.
+4. **Open as Root:** Opens elevated Thunar window with pkexec.
+5. **Open with VSCode:** Opens selected file or folder in VS Code.
 
 ---
 
@@ -263,46 +301,62 @@ Quickshell implements the entire interactive shell:
 
 All keybindings use `Super` (Windows key) as the main modifier:
 
-### Applications
+### Applications & Overlays
 | Keys | Action |
 |------|--------|
 | `Super + Return` | Terminal (Kitty) |
-| `Super + Space` | Native App Launcher (Quickshell) |
+| `Super + D` | Native App Launcher (Quickshell) |
 | `Super + V` | Native Clipboard Manager (Quickshell) |
 | `Super + .` | Native Emoji Picker (Quickshell) |
+| `Super + ,` | On-Screen Virtual Keyboard (`toggle_osk.sh`) |
 | `Super + B` | Web Browser (Zen Browser) |
 | `Super + E` | File Manager (Thunar) |
 | `Super + Z` | Code Editor (Zed) |
+| `Super + Shift + Z` | Code Editor New Window (Zed) |
 | `Super + Escape` | System Monitor (Btop) |
+| `Super + N` | Notification Center (Quickshell) |
+| `Super + Shift + N` / `Super + BackSpace` | Dismiss All Notifications |
+| `Super + Shift + P` | Cycle Power Profile (performance / balanced / power-saver) |
 
 ### Window Management & Workspaces
 | Keys | Action |
 |------|--------|
 | `Super + Q` | Close window |
 | `Super + F` | Toggle fullscreen |
-| `Super + Shift + Space` | Toggle floating |
-| `Super + H/J/K/L` | Move focus (Vim keys) |
-| `Super + Shift + H/J/K/L` | Move window (Vim keys) |
+| `Super + Shift + Space` | Toggle floating mode for active window |
+| `Super + Space` | Cycle focus between tiled and floating window layers |
+| `Super + A` | Cycle focus across tiled windows |
+| `Super + S` | Toggle window grouping (tabbed windows) |
+| `Super + Tab` / `Super + Shift + Tab` | Cycle active window in current group |
+| `Super + W` | Toggle layout split direction |
+| `Super + P` | Pseudo-tile active window |
+| `Super + H/J/K/L` (or Arrows) | Move focus (Vim direction keys) |
+| `Super + Shift + H/J/K/L` (or Arrows) | Move active window |
 | `Super + 1–0` | Switch to workspace 1–10 |
 | `Super + Shift + 1–0` | Move window to workspace 1–10 |
+| `Super + minus` | Toggle special workspace (scratchpad) |
+| `Super + Shift + minus` | Move window to scratchpad |
 | `Super + =` | Cycle display fractional scale (1.0 → 1.2 → 1.25 → 1.5) |
+| `Super + R` | Enter interactive window resize submap (<kbd>H/J/K/L</kbd> to resize, <kbd>Enter</kbd>/<kbd>Esc</kbd> to exit) |
 
-### Media & Hardware
+### Media, Screenshot & Recording
 | Keys | Action |
 |------|--------|
-| `XF86AudioMute` | Toggle mute |
+| `XF86AudioMute` | Toggle speaker mute |
 | `XF86AudioLowerVolume` / `RaiseVolume` | Volume ±5% |
-| `XF86AudioMicMute` | Toggle microphone |
-| `XF86AudioPlay` / `Next` / `Prev` | Media controls |
-| `XF86MonBrightnessDown` / `Up` | Brightness ±5% |
-| `Super + Shift + S` | Region screenshot → Swappy |
-| `Super + Print` | Fullscreen screenshot to clipboard |
+| `XF86AudioMicMute` | Toggle microphone mute |
+| `XF86AudioPlay` / `Pause` / `Stop` | Media playback toggle |
+| `XF86AudioNext` / `Prev` | Next / previous media track |
+| `XF86MonBrightnessDown` / `Up` | Screen backlight ±5% |
+| `Super + Shift + S` / `Print` | Native Screenshot Menu (Quickshell) |
+| `Super + Print` | Fullscreen screenshot copied directly to clipboard |
+| `Super + Shift + R` | Screen Recorder Menu / toggle recording (Quickshell / wf-recorder) |
 
 ### System & Compositor
 | Keys | Action |
 |------|--------|
 | `Super + Shift + C` | Hot reload desktop (Hyprland, Quickshell & screen shaders) |
-| `Super + Shift + E` | Logout overlay (Wlogout) |
+| `Super + Shift + E` | Native Custom Session Menu (Lock, Suspend, Logout, Reboot, Shutdown, Hibernate) |
 
 ---
 
@@ -311,22 +365,22 @@ All keybindings use `Super` (Windows key) as the main modifier:
 ```
 arch-theme/
 ├── ⚙️ theme/                     # Single source of truth
-│   └── tokens.json              #   Unified design tokens
+│   └── tokens.json              #   Unified design tokens (colors, typography, geometry, OSK)
 │
 ├── 🪟 hypr/                      # Hyprland compositor configuration
 │   ├── hyprland.lua             #   Main Hyprland Lua config
 │   ├── hypridle.conf            #   Idle inhibitor & sleep daemon
 │   ├── hyprlock.conf            #   Lockscreen configuration
 │   ├── screenshot.sh            #   Quickshell IPC screenshot helper
-│   └── scripts/                 #   Compositor helper utilities
+│   └── scripts/                 #   Compositor helper utilities (wallpaper, OSK, hot-reload)
 │
 ├── 🐚 quickshell/                # Quickshell desktop shell
 │   ├── shell.qml                #   ShellRoot & IPC dispatcher
 │   ├── Bar.qml                  #   Fluid top status bar
-│   ├── launcher/                #   Native app launcher
-│   ├── clipboard/               #   Cursor-following clipboard overlay
-│   ├── emoji/                   #   Native emoji picker
-│   ├── controls/                #   Drop-down expanders (QuickControls, Tray, etc.)
+│   ├── launcher/                #   Native app launcher with virtualized list reuse
+│   ├── clipboard/               #   Cursor-following clipboard overlay with Wayland DnD
+│   ├── emoji/                   #   Native emoji picker with virtualized list reuse
+│   ├── controls/                #   Drop-down expanders (PowerExpander, QuickControls, Tray, etc.)
 │   ├── bar/                     #   Bar modules (Clock, Audio, Battery, Workspaces)
 │   ├── theme/                   #   Theme.qml & UiState.qml
 │   └── scripts/                 #   Brightness, power profile, shader scripts
@@ -336,7 +390,7 @@ arch-theme/
 │
 ├── 🎨 gtk-3.0/ & gtk-4.0/        # GTK theming
 │   ├── colors.css               #   Compiled Tokyo Night color variables
-│   ├── gtk.css                  #   Custom widget styles
+│   ├── gtk.css                  #   Custom widget styles & standardized button highlights
 │   └── settings.ini             #   Theme, icon, font configuration
 │
 ├── ⚙️ qt5ct/ & qt6ct/            # Qt 5 and Qt 6 configuration
@@ -351,19 +405,20 @@ arch-theme/
 │   └── uca.xml                  #   Copy Path, Set as Wallpaper, etc.
 │
 ├── 🖼️ icons/                     # Icon themes
-│   └── YAMIS-enlarged/          #   Flat app icons inheriting TokyoNight-SE
+│   ├── sea-deep/                #   Master icon theme with layered inheritance
+│   ├── TokyoNight-Files/        #   Places, mimetypes, and devices for Thunar
+│   └── YAMIS-enlarged/          #   Flat monochrome app and executable MIME icons
 │
 ├── 🔑 ly/                        # Display manager
 │   ├── config.ini               #   Ly TUI theme configuration
 │   └── set-tty-theme.sh         #   16-color TTY scheme injector
 │
-├── 🚪 wlogout/                   # Logout overlay
-├── 📈 btop/                      # System monitor
+├── 📈 btop/                      # System monitor configuration
 ├── 🔤 fontconfig/                # Font fallback configuration
 ├── 🧰 environment.d/             # Wayland & Qt session environment variables
 ├── 📜 scripts/                   # Theme sync & system hooks
 │   └── sync-theme.sh            #   Compiles all configs from tokens.json
-├── 🌌 wallpapers/                # Canonical high-resolution wallpaper
+├── 🌌 wallpapers/                # Canonical high-resolution wallpaper (satisfaction_hires.png)
 └── 📦 install.sh                 # Unified installation & setup script
 ```
 
@@ -371,8 +426,8 @@ arch-theme/
 
 ## 🙏 Credits
 
-- **Design System:** [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme) by enkia, accented with Hatsune Miku Teal.
-- **Icons:** [YAMIS](https://github.com/dirn/yamis) by dirn & [TokyoNight-SE](https://github.com/ljmill/tokyo-night-icons).
+- **Design System:** [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme) by enkia, accented with Hatsune Miku Teal (`#39c5bb`).
+- **Icons:** [YAMIS](https://github.com/dirn/yamis) by dirn, [TokyoNight-SE](https://github.com/ljmill/tokyo-night-icons), and [Adwaita](https://gitlab.gnome.org/GNOME/adwaita-icon-theme).
 - **GTK Theme:** [adw-gtk3](https://github.com/lassekongo83/adw-gtk3).
 - **Cursor Theme:** [Breeze](https://github.com/KDE/breeze).
 - **Wallpaper Art:** Hatsune Miku "Satisfaction" illustration.

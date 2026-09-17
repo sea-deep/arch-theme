@@ -232,6 +232,42 @@ toolbar button:active image {
     color: @theme_selected_fg_color;
 }
 
+/* Suggested action buttons (Open, Save, Confirm) */
+button.suggested-action,
+headerbar button.suggested-action {
+    background-color: @accent_bg_color;
+    color: @accent_fg_color;
+}
+
+button.suggested-action:hover,
+headerbar button.suggested-action:hover {
+    background-color: alpha(@accent_bg_color, 0.85);
+    color: @accent_fg_color;
+}
+
+button.suggested-action *,
+headerbar button.suggested-action * {
+    color: @accent_fg_color;
+}
+
+/* Destructive action buttons (Delete, Remove) */
+button.destructive-action,
+headerbar button.destructive-action {
+    background-color: @destructive_bg_color;
+    color: @destructive_fg_color;
+}
+
+button.destructive-action:hover,
+headerbar button.destructive-action:hover {
+    background-color: alpha(@destructive_bg_color, 0.85);
+    color: @destructive_fg_color;
+}
+
+button.destructive-action *,
+headerbar button.destructive-action * {
+    color: @destructive_fg_color;
+}
+
 /* Disabled buttons — preserve legibility and prevent hover highlights */
 button:disabled,
 button:disabled:hover,

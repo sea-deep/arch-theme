@@ -146,19 +146,19 @@ write_gtk_colors() {
 @define-color theme_base_color $c_bgDark;
 @define-color theme_text_color $c_fg;
 @define-color theme_selected_bg_color $c_accent;
-@define-color theme_selected_fg_color #ffffff;
+@define-color theme_selected_fg_color $c_bgDark;
 
 @define-color accent_color $c_accent;
 @define-color accent_bg_color $c_accent;
-@define-color accent_fg_color #ffffff;
+@define-color accent_fg_color $c_bgDark;
 
 @define-color destructive_color $c_red;
 @define-color destructive_bg_color $c_red;
-@define-color destructive_fg_color #ffffff;
+@define-color destructive_fg_color $c_bgDark;
 
 @define-color success_color $c_green;
 @define-color success_bg_color $c_green;
-@define-color success_fg_color #ffffff;
+@define-color success_fg_color $c_bgDark;
 
 @define-color warning_color $c_yellow;
 @define-color warning_bg_color $c_yellow;
@@ -166,7 +166,7 @@ write_gtk_colors() {
 
 @define-color error_color $c_red;
 @define-color error_bg_color $c_red;
-@define-color error_fg_color #ffffff;
+@define-color error_fg_color $c_bgDark;
 
 @define-color window_bg_color $c_bg;
 @define-color window_fg_color $c_fg;

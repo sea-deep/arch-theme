@@ -37,6 +37,19 @@
 	<other-files/>
 </action>
 <action>
+	<icon>dev.zed.Zed</icon>
+	<name>Open with Zed</name>
+	<submenu></submenu>
+	<unique-id>1766393036319645-6</unique-id>
+	<command>zeditor %F</command>
+	<description>Open selected files or folders in Zed</description>
+	<range></range>
+	<patterns>*</patterns>
+	<directories/>
+	<text-files/>
+	<other-files/>
+</action>
+<action>
 	<icon>edit-copy</icon>
 	<name>Copy Path</name>
 	<submenu></submenu>

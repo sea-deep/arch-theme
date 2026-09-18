@@ -110,47 +110,125 @@ textview selection {
 }
 
 /* ═══════════════════════════════════════════════════════
-   MENUS — Use :hover, never :selected.
-   Only the individual hovered item highlights, not 
-   the whole dropdown container.
+   MENUS — Individual item hover with dynamic symbolic icon
+   inversion to @theme_selected_fg_color.
    ═══════════════════════════════════════════════════════ */
 
 /* Top menubar item hover (File, Edit, View...) */
-menubar > menuitem:hover {
+menubar > menuitem:hover,
+.menubar > menuitem:hover,
+menubar > menuitem:selected,
+.menubar > menuitem:selected {
     background-color: @theme_selected_bg_color;
     color: @theme_selected_fg_color;
 }
-menubar > menuitem:hover > label,
-menubar > menuitem:hover > image {
+menubar > menuitem:hover *,
+.menubar > menuitem:hover *,
+menubar > menuitem:selected *,
+.menubar > menuitem:selected * {
     color: @theme_selected_fg_color;
 }
+menubar > menuitem:hover image,
+.menubar > menuitem:hover image,
+menubar > menuitem:selected image,
+.menubar > menuitem:selected image {
+    color: @theme_selected_fg_color;
+    -gtk-icon-style: symbolic;
+}
 
-/* Dropdown menu container — force dark bg, light text */
+/* Dropdown and context menu containers — force dark bg, light text */
 .menu,
-menu {
+menu,
+.context-menu {
     background-color: @theme_base_color;
     color: @theme_fg_color;
 }
 
-/* Individual dropdown menu item hover */
+/* Ensure non-hovered menu items and icons stay light */
+.menu menuitem,
+menu menuitem,
+.context-menu menuitem {
+    color: @theme_fg_color;
+}
+.menu menuitem *,
+menu menuitem *,
+.context-menu menuitem * {
+    color: @theme_fg_color;
+}
+.menu menuitem image,
+menu menuitem image,
+.context-menu menuitem image,
+.menu menuitem arrow,
+menu menuitem arrow,
+.context-menu menuitem arrow {
+    color: @theme_fg_color;
+    -gtk-icon-style: symbolic;
+}
+
+/* Individual dropdown and context menu item hover / selection */
 .menu menuitem:hover,
-menu menuitem:hover {
+menu menuitem:hover,
+.context-menu menuitem:hover,
+.menu menuitem:selected,
+menu menuitem:selected,
+.context-menu menuitem:selected {
     background-color: @theme_selected_bg_color;
     color: @theme_selected_fg_color;
 }
-.menu menuitem:hover > *,
-menu menuitem:hover > * {
+.menu menuitem:hover *,
+menu menuitem:hover *,
+.context-menu menuitem:hover *,
+.menu menuitem:selected *,
+menu menuitem:selected *,
+.context-menu menuitem:selected * {
     color: @theme_selected_fg_color;
 }
-
-/* Ensure non-hovered menu items stay light */
-.menu menuitem,
-menu menuitem {
-    color: @theme_fg_color;
+.menu menuitem:hover image,
+menu menuitem:hover image,
+.context-menu menuitem:hover image,
+.menu menuitem:selected image,
+menu menuitem:selected image,
+.context-menu menuitem:selected image,
+.menu menuitem:hover arrow,
+menu menuitem:hover arrow,
+.context-menu menuitem:hover arrow,
+.menu menuitem:selected arrow,
+menu menuitem:selected arrow,
+.context-menu menuitem:selected arrow {
+    color: @theme_selected_fg_color;
+    -gtk-icon-style: symbolic;
 }
-.menu menuitem > *,
-menu menuitem > * {
-    color: @theme_fg_color;
+
+/* Popovers and modelbuttons hover / selection */
+popover.menu modelbutton:hover,
+popover.menu modelbutton:selected,
+.menuitem.button.flat:hover,
+.menuitem.button.flat:selected {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+popover.menu modelbutton:hover *,
+popover.menu modelbutton:selected *,
+.menuitem.button.flat:hover *,
+.menuitem.button.flat:selected * {
+    color: @theme_selected_fg_color;
+}
+popover.menu modelbutton:hover image,
+popover.menu modelbutton:selected image,
+.menuitem.button.flat:hover image,
+.menuitem.button.flat:selected image {
+    color: @theme_selected_fg_color;
+    -gtk-icon-style: symbolic;
+}
+
+/* Disabled menu items */
+.menu menuitem:disabled,
+menu menuitem:disabled,
+.context-menu menuitem:disabled,
+.menu menuitem:disabled *,
+menu menuitem:disabled *,
+.context-menu menuitem:disabled * {
+    color: alpha(@theme_fg_color, 0.4);
 }
 
 /* ═══════════════════════════════════════════════════════

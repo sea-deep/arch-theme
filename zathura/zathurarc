@@ -56,10 +56,9 @@ set recolor-darkcolor           "#c0caf5"
 set recolor-keephue             "true"
 set recolor-reverse-video       "true"
 
-# Loading Screen
-set render-loading              "true"
-set render-loading-bg           "#1a1b26"
-set render-loading-fg           "#39c5bb"
+# Performance, Cache & Render Settings
+set render-loading              "false"
+set page-cache-size             60
 
 # ── Typography & Display Ergonomics ───────────────────────────────────────────
 set font                        "IBM Plex Sans SmBld 11"
@@ -67,9 +66,10 @@ set page-v-padding              10
 set page-h-padding              10
 set pages-per-row               1
 set adjust-open                 "width"
-set scroll-page-aware           "true"
+set scroll-page-aware           "false"
 set scroll-full-overlap         0.05
-set scroll-step                 65
+set scroll-step                 25
+set scroll-hstep                25
 set zoom-step                   10
 set zoom-min                    10
 set zoom-max                    1000
@@ -86,11 +86,21 @@ set selection-clipboard         "clipboard"
 # Toggle dark/recolor mode
 map r recolor
 
+# Silky Smooth Scrolling (Continuous kinetic flow)
+map j scroll smooth-down
+map k scroll smooth-up
+map <Down> scroll smooth-down
+map <Up> scroll smooth-up
+
 # Half-page and full-page scrolling
 map u scroll half-up
 map d scroll half-down
+map <C-u> scroll half-up
+map <C-d> scroll half-down
 map J scroll full-down
 map K scroll full-up
+map <Space> scroll full-down
+map <S-Space> scroll full-up
 
 # Fast Zooming
 map = zoom in

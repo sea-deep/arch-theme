@@ -363,12 +363,13 @@ Rectangle {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
-                    if (root.app) {
-                        var execCmd = root.app.execString || root.app.id || ""
-                        if (execCmd) {
-                            var scriptPath = Quickshell.env("HOME") + "/.config/hypr/scripts/uninstall_app.sh"
-                            Quickshell.execDetached(["kitty", "--title", "Uninstall App", "-e", "bash", scriptPath, execCmd, root.app.id || "", root.appName || ""])
-                        }
+                    if (root.app || root.appName) {
+                        var appObj = root.app || {}
+                        var execCmd = appObj.execString || (appObj.command ? appObj.command.join(" ") : "") || ""
+                        var appId = appObj.id || ""
+                        var appDisplayName = root.appName || appObj.name || ""
+                        var scriptPath = Quickshell.env("HOME") + "/.config/hypr/scripts/uninstall_app.sh"
+                        Quickshell.execDetached(["kitty", "--title", "Uninstall App", "-e", "bash", scriptPath, execCmd, appId, appDisplayName])
                     }
                     root.actionTriggered()
                 }

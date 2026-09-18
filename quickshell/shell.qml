@@ -12,6 +12,7 @@ import "clipboard" as Clipboard
 import "launcher" as Launcher
 import "screenshot" as Screenshot
 import "recorder" as Recorder
+import Quickshell.Services.UPower
 
 ShellRoot {
     id: root
@@ -45,6 +46,73 @@ ShellRoot {
             UiState.recorderActive = false
             if (!recorderProbe.running)
                 recorderProbe.running = true
+        }
+    }
+
+    // ── In-process Battery & Power Profile Automator ──
+    Item {
+        id: powerAutomator
+        readonly property var dev: UPower.displayDevice
+        readonly property bool hasBattery: dev !== null && dev.ready && dev.isPresent
+        readonly property real pct: hasBattery ? dev.percentage : 1.0
+        readonly property bool onBattery: UPower.onBattery
+        property bool lowBatteryTriggered: false
+        property bool initialized: false
+
+        function evaluate() {
+            if (!hasBattery) return
+
+            if (onBattery) {
+                if (pct <= 0.30) {
+                    if (!lowBatteryTriggered) {
+                        lowBatteryTriggered = true
+                        Quickshell.execDetached([
+                            Quickshell.shellPath("scripts/power_profile.sh"), "set", "powersave", "false", "low_battery"
+                        ])
+                    }
+                } else {
+                    lowBatteryTriggered = false
+                    Quickshell.execDetached([
+                        Quickshell.shellPath("scripts/power_profile.sh"), "set", "balanced", "false", "battery"
+                    ])
+                }
+            } else {
+                lowBatteryTriggered = false
+                Quickshell.execDetached([
+                    Quickshell.shellPath("scripts/power_profile.sh"), "set", "performance", "false", "ac"
+                ])
+            }
+        }
+
+        Connections {
+            target: UPower
+            function onOnBatteryChanged() {
+                if (!powerAutomator.initialized) return
+                powerAutomator.evaluate()
+            }
+        }
+
+        Connections {
+            target: powerAutomator.dev
+            function onPercentageChanged() {
+                if (!powerAutomator.initialized) return
+                if (powerAutomator.onBattery) {
+                    if (powerAutomator.pct <= 0.30 && !powerAutomator.lowBatteryTriggered) {
+                        powerAutomator.lowBatteryTriggered = true
+                        Quickshell.execDetached([
+                            Quickshell.shellPath("scripts/power_profile.sh"), "set", "powersave", "false", "low_battery"
+                        ])
+                    } else if (powerAutomator.pct > 0.35) {
+                        powerAutomator.lowBatteryTriggered = false
+                    }
+                }
+            }
+        }
+
+        Component.onCompleted: {
+            Qt.callLater(() => {
+                initialized = true
+            })
         }
     }
 

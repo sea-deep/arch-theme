@@ -28,24 +28,21 @@ Components.Pill {
         return paths.length > 0 ? paths : ["/dev/video0", "/dev/video2"]
     }
 
-    // Direct V4L2 device check for apps that bypass PipeWire (e.g. Discord, Electron, Cheese, ffmpeg)
+    // Pure event-based inotify listener for V4L2 apps that bypass PipeWire (e.g. Discord, Electron, Cheese, ffmpeg)
+    // 0 polling, 0 timers, 0 CPU while idle: Linux kernel wakes up process on open/close events
     Process {
-        id: v4l2CheckProc
-        command: ["fuser", "-s"].concat(root.cameraPaths)
-        onExited: (exitCode) => {
-            root.isV4l2Active = (exitCode === 0)
-        }
-    }
-
-    Timer {
-        interval: 800
+        id: v4l2EventProc
+        command: [Quickshell.shellPath("scripts/v4l2_watch.sh")].concat(root.cameraPaths)
         running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: {
-            if (!root.isPipewireActive && !v4l2CheckProc.running) {
-                v4l2CheckProc.command = ["fuser", "-s"].concat(root.cameraPaths)
-                v4l2CheckProc.running = true
+        stdout: SplitParser {
+            splitMarker: "\n"
+            onRead: (data) => {
+                const val = data.trim()
+                if (val === "1") {
+                    root.isV4l2Active = true
+                } else if (val === "0") {
+                    root.isV4l2Active = false
+                }
             }
         }
     }

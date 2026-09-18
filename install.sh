@@ -108,7 +108,7 @@ PACKAGES=(
     # Terminal Tools & Showcase
     "pipes.sh" "fastfetch" "ddgr" "neovim" "mpv" "imv" "xarchiver" "snapshot"
     # Default Apps
-    "zen-browser-bin" "zed" "zathura" "zathura-pdf-mupdf" "vesktop"
+    "zen-browser-bin" "zed" "zathura" "zathura-pdf-mupdf" "mupdf-gl" "vesktop"
     # Theming, Fonts & Icons
     "adw-gtk-theme" "ttf-ibm-plex" "ttf-firacode-nerd" "noto-fonts-emoji" "npm" "kvantum" "kvantum-qt5"
 )
@@ -220,6 +220,9 @@ if [ -d "$DOTFILES_DIR/icons/YAMIS-enlarged" ]; then
 fi
 if [ -f "$DOTFILES_DIR/applications/miku.desktop" ]; then
     backup_and_symlink "$DOTFILES_DIR/applications/miku.desktop" "$HOME/.local/share/applications/miku.desktop"
+fi
+if [ -f "$DOTFILES_DIR/applications/mupdf.desktop" ]; then
+    backup_and_symlink "$DOTFILES_DIR/applications/mupdf.desktop" "$HOME/.local/share/applications/mupdf.desktop"
 fi
 log_success "Custom icons linked!"
 

@@ -1,5 +1,5 @@
 [Added Associations]
-application/pdf=org.pwmt.zathura.desktop;brave-browser.desktop;
+application/pdf=org.pwmt.zathura.desktop;mupdf.desktop;brave-browser.desktop;
 image/bmp=imv.desktop;
 image/jpeg=imv.desktop;
 image/png=imv-dir.desktop;imv.desktop;

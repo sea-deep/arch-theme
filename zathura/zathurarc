@@ -48,28 +48,38 @@ set index-active-bg             "#39c5bb"
 set index-active-fg             "#16161e"
 
 # Document Recolor Mode (Eye-Comfort Dark Mode)
-# Replaces blazing white page backgrounds with Tokyo Night deep charcoal,
-# while preserving syntax colors, diagrams, charts, and image hues.
+# Replaces blazing white page backgrounds with Tokyo Night deep charcoal.
+# NOTE: 'recolor-keephue false' is CRITICAL for high performance:
+# Avoids heavy CPU-side HSL matrix math on millions of pixels per frame.
 set recolor                     "true"
 set recolor-lightcolor          "#1a1b26"
 set recolor-darkcolor           "#c0caf5"
-set recolor-keephue             "true"
-set recolor-reverse-video       "true"
+set recolor-keephue             "false"
+set recolor-reverse-video       "false"
 
-# Performance, Cache & Render Settings
+# Performance, Cache & Render Settings (Optimized from community dotfiles)
+# - render-loading false avoids redraw flicker of loading banners
+# - page-cache-size 20 prevents RAM thrashing and keeps pixmap cache hot
+# - continuous-hist-save false stops constant disk writes on page flips
+# - scroll-page-aware true snaps cleanly at page margins without stutter
 set render-loading              "false"
-set page-cache-size             60
+set render-loading-bg           "#1a1b26"
+set render-loading-fg           "#39c5bb"
+set page-cache-size             20
+set continuous-hist-save        "false"
+set database                    "sqlite"
+set incremental-search          "true"
 
 # ── Typography & Display Ergonomics ───────────────────────────────────────────
 set font                        "IBM Plex Sans SmBld 11"
-set page-v-padding              10
-set page-h-padding              10
+set page-v-padding              8
+set page-h-padding              8
 set pages-per-row               1
-set adjust-open                 "width"
-set scroll-page-aware           "false"
-set scroll-full-overlap         0.05
-set scroll-step                 25
-set scroll-hstep                25
+set adjust-open                 "best-fit"
+set scroll-page-aware           "true"
+set scroll-full-overlap         0.0
+set scroll-step                 60
+set scroll-hstep                60
 set zoom-step                   10
 set zoom-min                    10
 set zoom-max                    1000
@@ -82,41 +92,79 @@ set guioptions                  "s"
 # System Clipboard Integration (Direct Wayland wl-copy)
 set selection-clipboard         "clipboard"
 
-# ── Navigation & Keybindings ──────────────────────────────────────────────────
-# Toggle dark/recolor mode
-map r recolor
+# ── Easy & Intuitive Keybindings (Like image viewer / imv / browser) ──────────
 
-# Silky Smooth Scrolling (Continuous kinetic flow)
-map j scroll smooth-down
-map k scroll smooth-up
-map <Down> scroll smooth-down
-map <Up> scroll smooth-up
+# Page Navigation (Next / Previous)
+map <Right>                     navigate next
+map <Left>                      navigate previous
+map ]                           navigate next
+map [                           navigate previous
+map n                           navigate next
+map p                           navigate previous
+map <PageDown>                  scroll full-down
+map <PageUp>                    scroll full-up
+map <Space>                     scroll full-down
+map <S-Space>                   scroll full-up
+map <BackSpace>                 scroll full-up
 
-# Half-page and full-page scrolling
-map u scroll half-up
-map d scroll half-down
-map <C-u> scroll half-up
-map <C-d> scroll half-down
-map J scroll full-down
-map K scroll full-up
-map <Space> scroll full-down
-map <S-Space> scroll full-up
+# Start / End of Document
+map <Home>                      goto top
+map <End>                       goto bottom
+map gg                          goto top
+map G                           goto bottom
 
-# Fast Zooming
-map = zoom in
-map - zoom out
-map 0 zoom 100
-map a adjust_window width
-map s adjust_window best-fit
+# Scrolling & Panning (Snappy, discrete steps — NO smooth animation timer lag)
+map <Down>                      scroll down
+map <Up>                        scroll up
+map j                           scroll down
+map k                           scroll up
+map h                           scroll left
+map l                           scroll right
+map d                           scroll half-down
+map u                           scroll half-up
+map <C-d>                       scroll half-down
+map <C-u>                       scroll half-up
 
-# Dual-page / Book reading layout toggle
-map D toggle_page_mode
+# Zooming (Standard +, -, 0, Ctrl+Scroll, and image viewer keys)
+map =                           zoom in
+map +                           zoom in
+map -                           zoom out
+map 0                           zoom 100
+map <C-=>                       zoom in
+map <C-+>                       zoom in
+map <C-->                       zoom out
+map <C-0>                       adjust_window width
+map w                           adjust_window width
+map a                           adjust_window width
+map s                           adjust_window best-fit
 
-# Zen mode (hide/show statusbar for distraction-free reading)
-map b toggle_statusbar
+# Fullscreen & Window Mode
+map f                           toggle_fullscreen
+map <F11>                       toggle_fullscreen
+map b                           toggle_statusbar
+map D                           toggle_page_mode
 
-# Document Reload & Rotation
-map R reload
-map <C-r> reload
-map <C-Left> rotate rotate-ccw
-map <C-Right> rotate rotate-cw
+# Rotating (Like imv / image viewers: Ctrl+r to rotate)
+map <C-r>                       rotate rotate-cw
+map <C-R>                       rotate rotate-ccw
+map <C-Left>                    rotate rotate-ccw
+map <C-Right>                   rotate rotate-cw
+
+# Invert / Dark Mode Toggle (Standard 'i' like mupdf/imv, and 'r')
+map i                           recolor
+map <C-i>                       recolor
+map r                           recolor
+
+# Reload Document
+map <F5>                        reload
+map R                           reload
+
+# Search (Standard Ctrl+f or /)
+map <C-f>                       focus_inputbar /
+map /                           focus_inputbar /
+
+# Quick Quit / Close (Standard q, Ctrl+q, Ctrl+w, Esc)
+map q                           quit
+map <C-q>                       quit
+map <C-w>                       quit
+map <Esc>                       abort

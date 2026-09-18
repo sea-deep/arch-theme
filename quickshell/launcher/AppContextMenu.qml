@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
 import "../theme"
@@ -338,9 +339,14 @@ Rectangle {
                 spacing: 8
 
                 IconImage {
+                    id: trashIcon
                     Layout.preferredWidth: 14
                     Layout.preferredHeight: 14
                     source: Quickshell.iconPath("user-trash", "preferences-system-windows")
+                    layer.enabled: true
+                    layer.effect: ColorOverlay {
+                        color: uninstallHover.containsMouse ? Theme.red : Theme.fgDim
+                    }
                 }
                 Text {
                     text: "Uninstall App"

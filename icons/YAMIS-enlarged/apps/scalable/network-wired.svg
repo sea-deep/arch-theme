@@ -1,19 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 48 48">
   <defs>
-    <style id="current-color-scheme" type="text/css">.ColorScheme-Text {color:#d8dee9} .ColorScheme-Highlight {color:#3b4252}</style>
+    <style id="current-color-scheme" type="text/css">.ColorScheme-Text { color: #c0caf5; } .ColorScheme-Highlight { color: #39c5bb; }</style>
   </defs>
   <g class="ColorScheme-Text" style="fill:currentColor;fill-opacity:1;">
     <!-- RJ45 Housing with socket cutout (evenodd) -->
-    <path fill-rule="evenodd" d="
+    <path class="ColorScheme-Text" style="fill:currentColor;fill-opacity:1;" fill-rule="evenodd" d="
       M 7,8 C 5.338,8 4,9.338 4,11 L 4,35 C 4,36.662 5.338,38 7,38 L 12,38 L 16,42 L 32,42 L 36,38 L 41,38 C 42.662,38 44,36.662 44,35 L 44,11 C 44,9.338 42.662,8 41,8 Z
       M 10,14 L 38,14 L 38,31 L 32,31 L 28,35 L 20,35 L 16,31 L 10,31 Z
     "/>
     <!-- Ethernet Pins inside socket -->
-    <rect x="14" y="14" width="2" height="4" rx="0.5"/>
-    <rect x="18" y="14" width="2" height="4" rx="0.5"/>
-    <rect x="22" y="14" width="2" height="4" rx="0.5"/>
-    <rect x="26" y="14" width="2" height="4" rx="0.5"/>
-    <rect x="30" y="14" width="2" height="4" rx="0.5"/>
-    <rect x="34" y="14" width="2" height="4" rx="0.5"/>
+    <rect class="ColorScheme-Text" style="fill:currentColor;fill-opacity:1;" x="14" y="14" width="2" height="4" rx="0.5"/>
+    <rect class="ColorScheme-Text" style="fill:currentColor;fill-opacity:1;" x="18" y="14" width="2" height="4" rx="0.5"/>
+    <rect class="ColorScheme-Text" style="fill:currentColor;fill-opacity:1;" x="22" y="14" width="2" height="4" rx="0.5"/>
+    <rect class="ColorScheme-Text" style="fill:currentColor;fill-opacity:1;" x="26" y="14" width="2" height="4" rx="0.5"/>
+    <rect class="ColorScheme-Text" style="fill:currentColor;fill-opacity:1;" x="30" y="14" width="2" height="4" rx="0.5"/>
+    <rect class="ColorScheme-Text" style="fill:currentColor;fill-opacity:1;" x="34" y="14" width="2" height="4" rx="0.5"/>
   </g>
 </svg>

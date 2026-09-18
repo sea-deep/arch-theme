@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
@@ -726,6 +727,10 @@ PanelWindow {
                                         width: 44
                                         height: 44
                                         source: delegateRoot.modelData ? (delegateRoot.modelData.iconSource || "") : ""
+                                        layer.enabled: true
+                                        layer.effect: ColorOverlay {
+                                            color: cardMouse.containsMouse ? Theme.accent : Theme.fg
+                                        }
                                     }
 
                                     Text {

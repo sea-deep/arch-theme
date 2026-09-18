@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 48 48">
   <defs>
-    <style id="current-color-scheme" type="text/css">.ColorScheme-Text {color:#d8dee9} .ColorScheme-Highlight {color:#3b4252}</style>
+    <style id="current-color-scheme" type="text/css">.ColorScheme-Text { color: #c0caf5; } .ColorScheme-Highlight { color: #39c5bb; }</style>
     <mask id="byobu-cutout">
       <rect width="48" height="48" fill="white"/>
       <g fill="black">

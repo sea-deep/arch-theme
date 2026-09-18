@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Widgets
@@ -399,10 +400,15 @@ Item {
                                             color: iconHoverHandler.hovered ? Theme.surfaceVariant : "transparent"
 
                                             IconImage {
+                                                id: wsAppIcon
                                                 anchors.centerIn: parent
                                                 width: 20
                                                 height: 20
                                                 source: (iconGroup.modelData && iconGroup.modelData.icon) || Quickshell.iconPath("preferences-system-windows")
+                                                layer.enabled: true
+                                                layer.effect: ColorOverlay {
+                                                    color: wsPill.isActive ? Theme.accent : (wsPill.isUrgent ? Theme.red : (iconHoverHandler.hovered || wsHoverHandler.hovered ? Theme.blue : (wsPill.windowCount > 0 ? Theme.fg : Theme.fgDim)))
+                                                }
                                             }
 
                                             HoverHandler {
@@ -601,10 +607,15 @@ Item {
                                     spacing: 6
 
                                     IconImage {
+                                        id: previewAppIcon
                                         width: 16
                                         height: 16
                                         Layout.alignment: Qt.AlignVCenter
                                         source: (rowItem.modelData && rowItem.modelData.icon) || Quickshell.iconPath("preferences-system-windows")
+                                        layer.enabled: true
+                                        layer.effect: ColorOverlay {
+                                            color: (rowItem.modelData && rowItem.modelData.activated) ? Theme.accent : Theme.fg
+                                        }
                                     }
 
                                     Text {

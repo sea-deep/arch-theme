@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
@@ -210,9 +211,14 @@ PanelWindow {
                         spacing: 12
                         
                         IconImage {
+                            id: winIcon
                             Layout.preferredWidth: 16
                             Layout.preferredHeight: 16
                             source: Quickshell.iconPath(modelData.icon)
+                            layer.enabled: true
+                            layer.effect: ColorOverlay {
+                                color: hover.containsMouse ? Theme.accent : Theme.fg
+                            }
                         }
                         
                         Text {

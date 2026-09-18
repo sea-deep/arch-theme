@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
 import "../theme"
@@ -35,8 +36,13 @@ Rectangle {
             Layout.preferredHeight: 32
             
             IconImage {
+                id: entryAppIcon
                 anchors.fill: parent
                 source: modelData && modelData.icon ? Quickshell.iconPath(modelData.icon, "preferences-system-windows") : ""
+                layer.enabled: true
+                layer.effect: ColorOverlay {
+                    color: ListView.isCurrentItem ? Theme.bgDark : (hover.hovered ? Theme.accent : Theme.fg)
+                }
             }
         }
         

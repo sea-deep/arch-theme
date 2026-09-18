@@ -92,79 +92,52 @@ set guioptions                  "s"
 # System Clipboard Integration (Direct Wayland wl-copy)
 set selection-clipboard         "clipboard"
 
-# ── Easy & Intuitive Keybindings (Like image viewer / imv / browser) ──────────
+# ── Navigation & Keybindings (Authentic Zathura Vim Controls) ─────────────────
+# Recolor / Dark mode toggle
+map r                           recolor
 
-# Page Navigation (Next / Previous)
-map <Right>                     navigate next
-map <Left>                      navigate previous
-map ]                           navigate next
-map [                           navigate previous
-map n                           navigate next
-map p                           navigate previous
-map <PageDown>                  scroll full-down
-map <PageUp>                    scroll full-up
+# Continuous Scrolling (Snappy, discrete steps — zero animation timer lag)
+map j                           scroll down
+map k                           scroll up
+map <Down>                      scroll down
+map <Up>                        scroll up
+map h                           scroll left
+map l                           scroll right
+
+# Half-page and full-page scrolling
+map u                           scroll half-up
+map d                           scroll half-down
+map <C-u>                       scroll half-up
+map <C-d>                       scroll half-down
+map J                           scroll full-down
+map K                           scroll full-up
 map <Space>                     scroll full-down
 map <S-Space>                   scroll full-up
-map <BackSpace>                 scroll full-up
 
-# Start / End of Document
-map <Home>                      goto top
-map <End>                       goto bottom
+# Jump to Top / Bottom
 map gg                          goto top
 map G                           goto bottom
 
-# Scrolling & Panning (Snappy, discrete steps — NO smooth animation timer lag)
-map <Down>                      scroll down
-map <Up>                        scroll up
-map j                           scroll down
-map k                           scroll up
-map h                           scroll left
-map l                           scroll right
-map d                           scroll half-down
-map u                           scroll half-up
-map <C-d>                       scroll half-down
-map <C-u>                       scroll half-up
-
-# Zooming (Standard +, -, 0, Ctrl+Scroll, and image viewer keys)
+# Zooming
 map =                           zoom in
 map +                           zoom in
 map -                           zoom out
 map 0                           zoom 100
-map <C-=>                       zoom in
-map <C-+>                       zoom in
-map <C-->                       zoom out
-map <C-0>                       adjust_window width
-map w                           adjust_window width
 map a                           adjust_window width
 map s                           adjust_window best-fit
 
-# Fullscreen & Window Mode
-map f                           toggle_fullscreen
-map <F11>                       toggle_fullscreen
-map b                           toggle_statusbar
+# Dual-page / Book reading layout toggle
 map D                           toggle_page_mode
 
-# Rotating (Like imv / image viewers: Ctrl+r to rotate)
-map <C-r>                       rotate rotate-cw
-map <C-R>                       rotate rotate-ccw
+# Zen mode (hide/show statusbar for distraction-free reading)
+map b                           toggle_statusbar
+
+# Document Reload & Rotation
+map R                           reload
+map <C-r>                       reload
 map <C-Left>                    rotate rotate-ccw
 map <C-Right>                   rotate rotate-cw
 
-# Invert / Dark Mode Toggle (Standard 'i' like mupdf/imv, and 'r')
-map i                           recolor
-map <C-i>                       recolor
-map r                           recolor
-
-# Reload Document
-map <F5>                        reload
-map R                           reload
-
-# Search (Standard Ctrl+f or /)
-map <C-f>                       focus_inputbar /
-map /                           focus_inputbar /
-
-# Quick Quit / Close (Standard q, Ctrl+q, Ctrl+w, Esc)
+# Quit / Close
 map q                           quit
 map <C-q>                       quit
-map <C-w>                       quit
-map <Esc>                       abort

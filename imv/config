@@ -1,0 +1,96 @@
+# ══════════════════════════════════════════════════════════════════════════════
+#  IMV — TOKYO NIGHT × HATSUNE MIKU RICE
+#  Minimalist, high-performance Wayland image viewer with Tokyo Night aesthetics
+# ══════════════════════════════════════════════════════════════════════════════
+
+[options]
+# Tokyo Night deep background canvas
+background = 1a1b26
+
+# Clean window dimensions & title
+width = 1280
+height = 720
+fullscreen = false
+title_text = imv — ${imv_current_file}
+
+# Scaling: shrink scales down oversized images to fit window without blurring smaller icons
+scaling_mode = shrink
+upscaling_method = linear
+
+# Overlay / OSD Statusbar (Matches Zathura statusbar style)
+overlay = false
+overlay_font = IBM Plex Sans SmBld:11
+overlay_position_bottom = true
+overlay_text =  ${imv_current_file}   [${imv_current_index}/${imv_file_count}]   ${imv_width}×${imv_height}   ${imv_scale}% 
+overlay_text_color = c0caf5
+overlay_text_alpha = ff
+overlay_background_color = 16161e
+overlay_background_alpha = d8
+
+# Suppress defaults to ensure clean custom keybindings
+suppress_default_binds = true
+
+[aliases]
+# Shortcut aliases
+
+[binds]
+# ── Window & Close ───────────────────────────────────────────────────────────
+q = quit
+<Escape> = quit
+<Ctrl+q> = quit
+<Ctrl+w> = quit
+x = close
+
+# ── Navigation (Next / Previous) ─────────────────────────────────────────────
+<Right> = next
+<Left> = prev
+<bracketright> = next
+<bracketleft> = prev
+n = next
+p = prev
+<Space> = next
+<Shift+Space> = prev
+gg = goto 1
+<Shift+G> = goto -1
+
+# ── Zooming ──────────────────────────────────────────────────────────────────
+<Shift+plus> = zoom 1
+<plus> = zoom 1
+= = zoom 1
+<minus> = zoom -1
+- = zoom -1
+i = zoom 1
+o = zoom -1
+<Up> = zoom 1
+<Down> = zoom -1
+a = zoom actual
+s = scaling next
+<Shift+S> = upscaling next
+r = reset
+c = center
+
+# ── Panning ──────────────────────────────────────────────────────────────────
+j = pan 0 -50
+k = pan 0 50
+h = pan 50 0
+l = pan -50 0
+
+# ── Rotation & Orientation ───────────────────────────────────────────────────
+<Ctrl+r> = rotate by 90
+<Ctrl+Shift+R> = rotate by 270
+<bracketleft> = rotate by 270
+<bracketright> = rotate by 90
+<Shift+H> = flip horizontal
+<Shift+V> = flip vertical
+
+# ── View Modes & HUD ─────────────────────────────────────────────────────────
+f = fullscreen
+<F11> = fullscreen
+d = overlay
+<Tab> = overlay
+
+# ── Animation & Slideshow ────────────────────────────────────────────────────
+<period> = next_frame
+p = toggle_playing
+t = slideshow +1
+<Shift+T> = slideshow -1

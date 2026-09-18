@@ -39,8 +39,9 @@ Singleton {
     }
 
     function removeToast(notification) {
-        if (!notification) return
-        activeToasts = (activeToasts || []).filter(n => !areSameNotification(n, notification))
+        // Closed QObjects can become null before a toast's exit animation ends.
+        // Always prune those entries, including when the timer passes null.
+        activeToasts = (activeToasts || []).filter(n => n && !areSameNotification(n, notification))
         if (activeToasts.length === 0) {
             UiState.notificationPreviewVisible = false
         }
@@ -58,11 +59,14 @@ Singleton {
     }
 
     function dismiss(notification) {
-        if (notification) {
+        if (notification)
             notification.dismiss()
-            removeToast(notification)
-        }
+    }
 
+    function handleNotificationClosed(notification) {
+        // Clients and action invocations can close notifications too. Release
+        // every UI reference while the QObject is still valid in closed().
+        removeToast(notification)
         unreadCount = Math.max(0, unreadCount - 1)
         if (latestNotification === notification)
             latestNotification = null
@@ -87,6 +91,7 @@ Singleton {
         imageSupported: true
         persistenceSupported: true
         onNotification: (notification) => {
+            notification.closed.connect(() => root.handleNotificationClosed(notification))
             notification.tracked = true
             root.latestNotification = notification
 

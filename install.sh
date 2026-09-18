@@ -176,7 +176,7 @@ backup_and_symlink() {
 CONFIG_DIRS=(
     "hypr" "quickshell" "kitty" "wlogout"
     "btop" "environment.d" "qt5ct" "qt6ct" "tlpui" "gtk-3.0" "gtk-4.0"
-    "fontconfig" "Thunar" "xfce4" "Kvantum" "fastfetch" "xsettingsd" "swappy"
+    "fontconfig" "Thunar" "xfce4" "Kvantum" "fastfetch" "xsettingsd" "swappy" "zathura"
 )
 
 for config in "${CONFIG_DIRS[@]}"; do

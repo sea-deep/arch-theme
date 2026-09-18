@@ -1,0 +1,112 @@
+# ══════════════════════════════════════════════════════════════════════════════
+#  ZATHURA — TOKYO NIGHT × HATSUNE MIKU RICE
+#  Clean typography, eye-comfort dark reading mode, and fluid vim navigation
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── Color Palette (Tokyo Night & Miku Accents) ────────────────────────────────
+# Default Surface & Text
+set default-bg                  "#1a1b26"
+set default-fg                  "#c0caf5"
+
+# Statusbar (Unified 1px elevated border aesthetic)
+set statusbar-bg                "#16161e"
+set statusbar-fg                "#c0caf5"
+set statusbar-h-padding         14
+set statusbar-v-padding         8
+set statusbar-home-tilde        "true"
+set statusbar-basename          "true"
+
+# Command Line / Inputbar
+set inputbar-bg                 "#16161e"
+set inputbar-fg                 "#39c5bb"
+
+# Notifications (Popups / Alerts)
+set notification-bg             "#16161e"
+set notification-fg             "#c0caf5"
+set notification-error-bg       "#f7768e"
+set notification-error-fg       "#16161e"
+set notification-warning-bg     "#e0af68"
+set notification-warning-fg     "#16161e"
+
+# Search Highlights (Miku Teal & Vivid Pink)
+set highlight-color             "rgba(57, 197, 187, 0.45)"
+set highlight-active-color      "rgba(227, 88, 133, 0.55)"
+set highlight-fg                "#1a1b26"
+
+# Command Palette Completion Menu
+set completion-bg               "#24283b"
+set completion-fg               "#c0caf5"
+set completion-group-bg         "#16161e"
+set completion-group-fg         "#7aa2f7"
+set completion-highlight-bg     "#39c5bb"
+set completion-highlight-fg     "#16161e"
+
+# Table of Contents / Index Mode
+set index-bg                    "#1a1b26"
+set index-fg                    "#c0caf5"
+set index-active-bg             "#39c5bb"
+set index-active-fg             "#16161e"
+
+# Document Recolor Mode (Eye-Comfort Dark Mode)
+# Replaces blazing white page backgrounds with Tokyo Night deep charcoal,
+# while preserving syntax colors, diagrams, charts, and image hues.
+set recolor                     "true"
+set recolor-lightcolor          "#1a1b26"
+set recolor-darkcolor           "#c0caf5"
+set recolor-keephue             "true"
+set recolor-reverse-video       "true"
+
+# Loading Screen
+set render-loading              "true"
+set render-loading-bg           "#1a1b26"
+set render-loading-fg           "#39c5bb"
+
+# ── Typography & Display Ergonomics ───────────────────────────────────────────
+set font                        "IBM Plex Sans SmBld 11"
+set page-v-padding              10
+set page-h-padding              10
+set pages-per-row               1
+set adjust-open                 "width"
+set scroll-page-aware           "true"
+set scroll-full-overlap         0.05
+set scroll-step                 65
+set zoom-step                   10
+set zoom-min                    10
+set zoom-max                    1000
+
+# Clean Window Decorations
+set window-title-basename       "true"
+set window-title-home-tilde     "true"
+set guioptions                  "s"
+
+# System Clipboard Integration (Direct Wayland wl-copy)
+set selection-clipboard         "clipboard"
+
+# ── Navigation & Keybindings ──────────────────────────────────────────────────
+# Toggle dark/recolor mode
+map r recolor
+
+# Half-page and full-page scrolling
+map u scroll half-up
+map d scroll half-down
+map J scroll full-down
+map K scroll full-up
+
+# Fast Zooming
+map = zoom in
+map - zoom out
+map 0 zoom 100
+map a adjust_window width
+map s adjust_window best-fit
+
+# Dual-page / Book reading layout toggle
+map D toggle_page_mode
+
+# Zen mode (hide/show statusbar for distraction-free reading)
+map b toggle_statusbar
+
+# Document Reload & Rotation
+map R reload
+map <C-r> reload
+map <C-Left> rotate rotate-ccw
+map <C-Right> rotate rotate-cw

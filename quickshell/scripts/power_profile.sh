@@ -72,11 +72,7 @@ apply_profile() {
         performance)
             echo "performance" > "$STATE_FILE"
             hyprctl repl "hl.config({ animations = { enabled = true }, decoration = { dim_inactive = false } })" > /dev/null 2>&1 || true
-            if is_ac_online; then
-                run_tlp auto
-            else
-                run_tlp ac
-            fi
+            run_tlp ac
             enforce_thresholds
             if [ "$silent" != "true" ]; then
                 if [ "$reason" = "ac" ]; then

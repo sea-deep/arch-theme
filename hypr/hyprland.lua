@@ -28,11 +28,59 @@ hl.config({
         force_zero_scaling = true,
     },
     windowrulev2 = {
+        -- Authentication & system tools
         "float,class:(polkit-kde-authentication-agent-1)",
         "stayfocused,class:(polkit-kde-authentication-agent-1)",
         "pin,class:(polkit-kde-authentication-agent-1)",
         "dimaround,class:(polkit-kde-authentication-agent-1)",
         "float,class:(io.github.sea_deep.MalusNext)",
+
+        -- Global floating window boundaries and positioning
+        -- Center floating windows respecting reserved area (status bar)
+        "center 1, floating:1",
+        -- Restrict maximum floating window size to stay within screen boundaries
+        "maxsize 90% 85%, floating:1",
+
+        -- File pickers, dialogs, and portal windows
+        "float, class:^(xdg-desktop-portal-gtk)$",
+        "center 1, class:^(xdg-desktop-portal-gtk)$",
+        "size 70% 70%, class:^(xdg-desktop-portal-gtk)$",
+        "minsize 640 440, class:^(xdg-desktop-portal-gtk)$",
+        "maxsize 90% 85%, class:^(xdg-desktop-portal-gtk)$",
+
+        -- Zenity and KDialog dialogs
+        "float, class:^(zenity)$",
+        "center 1, class:^(zenity)$",
+        "float, class:^(kdialog)$",
+        "center 1, class:^(kdialog)$",
+
+        -- Common file dialogs matched by title
+        "float, title:^(Open (File|Files|Folder).*)$",
+        "center 1, title:^(Open (File|Files|Folder).*)$",
+        "size 70% 70%, title:^(Open (File|Files|Folder).*)$",
+        "float, title:^(Select a (File|Files|Folder).*)$",
+        "center 1, title:^(Select a (File|Files|Folder).*)$",
+        "size 70% 70%, title:^(Select a (File|Files|Folder).*)$",
+        "float, title:^(Save (File|Files|As).*)$",
+        "center 1, title:^(Save (File|Files|As).*)$",
+        "size 70% 70%, title:^(Save (File|Files|As).*)$",
+        "float, title:^(Choose (File|Files|Folder).*)$",
+        "center 1, title:^(Choose (File|Files|Folder).*)$",
+        "size 70% 70%, title:^(Choose (File|Files|Folder).*)$",
+        "float, title:^(All Files)$",
+        "center 1, title:^(All Files)$",
+        "float, title:^(File Upload)$",
+        "center 1, title:^(File Upload)$",
+
+        -- System utility dialogs
+        "float, class:^(nm-connection-editor)$",
+        "center 1, class:^(nm-connection-editor)$",
+        "float, class:^(blueman-manager)$",
+        "center 1, class:^(blueman-manager)$",
+        "float, class:^(thunar)$, title:^(File Operation Progress)$",
+        "center 1, class:^(thunar)$, title:^(File Operation Progress)$",
+        "float, class:^(thunar)$, title:^(Confirm to replace files)$",
+        "center 1, class:^(thunar)$, title:^(Confirm to replace files)$",
     },
     input = {
         kb_layout = "us",
@@ -65,10 +113,18 @@ hl.config({
         -- inner gap made the centre seam wider than the screen-edge inset.
         gaps_in = 0,
         gaps_out = 0,
+        float_gaps = { top = 8, right = 8, bottom = 8, left = 8 },
         border_size = 2,
         ["col.active_border"] = "rgb(7aa2f7)",
         ["col.inactive_border"] = "rgb(24283b)",
         layout = "dwindle",
+        snap = {
+            enabled = true,
+            border_overlap = false,
+            respect_gaps = true,
+            monitor_gap = 8,
+            window_gap = 8,
+        },
     },
     dwindle = {
         preserve_split = true
@@ -320,6 +376,6 @@ end
 hl.bind(mainMod .. " + equal", cycle_scale)
 
 hl.window_rule({ name = "swappy-float", match = { class = "^(swappy)$" }, float = true })
-hl.window_rule({ name = "pavucontrol-float", match = { class = "^(org.pulseaudio.pavucontrol)$" }, float = true, size = "450 265", move = "875 0" })
-hl.window_rule({ name = "clipse-float", match = { class = "^(clipse)$" }, float = true, size = "800 600", center = true })
+hl.window_rule({ name = "pavucontrol-float", match = { class = "^(org.pulseaudio.pavucontrol)$" }, float = true, size = "450 265", move = "875 42" })
+hl.window_rule({ name = "clipse-float", match = { class = "^(clipse)$" }, float = true, size = "800 600", center = 1 })
 hl.window_rule({ name = "idle_inhibit", match = { class = "^(.*)$" }, idle_inhibit = "fullscreen" })

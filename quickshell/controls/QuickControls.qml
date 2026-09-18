@@ -246,14 +246,14 @@ Components.Pill {
         BarModules.Audio { onPrimaryClicked: root.toggle("audio") }
         Rectangle {
             implicitWidth: 1
-            implicitHeight: 14
+            implicitHeight: 16
             color: Theme.surfaceVariant
             opacity: 0.4
         }
         BarModules.Backlight { onPrimaryClicked: root.toggle("brightness") }
         Rectangle {
             implicitWidth: 1
-            implicitHeight: 14
+            implicitHeight: 16
             color: Theme.surfaceVariant
             opacity: 0.4
         }

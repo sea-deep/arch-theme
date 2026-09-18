@@ -35,25 +35,34 @@ Item {
         Behavior on color { ColorAnimation { duration: Theme.durationFast } }
     }
 
+    FontMetrics {
+        id: fm
+        font.family: Theme.fontFamily
+        font.pixelSize: Theme.fontSize
+        font.weight: Theme.fontWeight
+    }
+
     RowLayout {
         id: layout
         anchors.centerIn: parent
         spacing: 5
 
         Text {
-            Layout.preferredWidth: 18
+            Layout.preferredWidth: 20
             horizontalAlignment: Text.AlignHCenter
             text: root.batteryIcon()
             color: root.isCritical ? (blinkTimer.blinkState ? Theme.red : Theme.bgDark) : Theme.accent
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeSmall
+            font.pixelSize: Theme.fontSize
             font.weight: Theme.fontWeight
         }
         Text {
+            Layout.preferredWidth: Math.ceil(fm.advanceWidth("100%"))
+            horizontalAlignment: Text.AlignLeft
             text: root.available ? root.percentage + "%" : "--%"
             color: root.isCritical ? (blinkTimer.blinkState ? Theme.red : Theme.bgDark) : Theme.fg
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeSmall
+            font.pixelSize: Theme.fontSize
             font.weight: Theme.fontWeight
         }
     }

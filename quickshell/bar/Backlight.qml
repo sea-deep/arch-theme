@@ -43,26 +43,35 @@ Item {
         return "󰃠"
     }
     
+    FontMetrics {
+        id: fm
+        font.family: Theme.fontFamily
+        font.pixelSize: Theme.fontSize
+        font.weight: Theme.fontWeight
+    }
+
     RowLayout {
         id: layout
         anchors.centerIn: parent
         spacing: 5
         
         Text {
-            Layout.preferredWidth: 18
+            Layout.preferredWidth: 20
             horizontalAlignment: Text.AlignHCenter
             text: root.getIcon()
             color: Theme.yellow
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeSmall
+            font.pixelSize: Theme.fontSize
             font.weight: Theme.fontWeight
         }
         
         Text {
+            Layout.preferredWidth: Math.ceil(fm.advanceWidth("100%"))
+            horizontalAlignment: Text.AlignLeft
             text: root.percentage + "%"
             color: Theme.fg
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeSmall
+            font.pixelSize: Theme.fontSize
             font.weight: Theme.fontWeight
         }
     }

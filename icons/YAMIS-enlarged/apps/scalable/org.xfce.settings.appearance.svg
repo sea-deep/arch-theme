@@ -12,9 +12,9 @@
     </rdf:RDF>
   </metadata>
   <g id="g9" transform="matrix(0.43899103,0,0,0.43899103,-5.3550526,-5.7549208)" style="fill:currentColor;fill-opacity:1" class="ColorScheme-Text">
-    <path style="color:none;fill:currentColor;fill-opacity:1;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:0.3" class="ColorScheme-Text" d="m 17.85855,19.44863 c -1.959104,0 -1.959104,1.959102 -1.959104,1.959102 v 19.59104 c 0,1.959104 1.959104,1.959104 1.959104,1.959104 h 9.79552 c 0,0 -1.959104,0 -1.959104,1.959104 v 1.959103 H 37.44959 V 44.91698 c 0,-1.959104 -1.959103,-1.959104 -1.959103,-1.959104 h 9.795518 c 1.959108,0 1.959108,-1.959104 1.959108,-1.959104 v -19.59104 c 0,0 0,-1.959102 -1.959108,-1.959102 z m 1.959104,3.918207 H 43.326905 V 39.039668 H 19.817654 Z" id="path5"/>
+    <path style="fill:currentColor;fill-opacity:1;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:0.3" class="ColorScheme-Text" d="m 17.85855,19.44863 c -1.959104,0 -1.959104,1.959102 -1.959104,1.959102 v 19.59104 c 0,1.959104 1.959104,1.959104 1.959104,1.959104 h 9.79552 c 0,0 -1.959104,0 -1.959104,1.959104 v 1.959103 H 37.44959 V 44.91698 c 0,-1.959104 -1.959103,-1.959104 -1.959103,-1.959104 h 9.795518 c 1.959108,0 1.959108,-1.959104 1.959108,-1.959104 v -19.59104 c 0,0 0,-1.959102 -1.959108,-1.959102 z m 1.959104,3.918207 H 43.326905 V 39.039668 H 19.817654 Z" id="path5"/>
     <g id="g7" transform="matrix(8.9121038,0,0,8.9121038,45.965162,-7.9136892)" style="fill:currentColor;fill-opacity:1" class="ColorScheme-Text">
-      <path id="rect3018-5" class="ColorScheme-Text" d="m -2.6457812,3.7040938 1.3228905,1.3228906 h -1.3228905 z" fill="currentColor" style="color:none;fill:currentColor;fill-opacity:1;stroke-width:0.264578"/>
+      <path id="rect3018-5" class="ColorScheme-Text" d="m -2.6457812,3.7040938 1.3228905,1.3228906 h -1.3228905 z" fill="currentColor" style="fill:currentColor;fill-opacity:1;stroke-width:0.264578"/>
     </g>
   </g>
   </svg>

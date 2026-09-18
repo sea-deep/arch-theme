@@ -8,7 +8,8 @@ fullscreen = false
 title_text = imv - ${imv_current_file}
 
 # Scaling mode: shrink down oversized images
-scaling_mode = shrink
+scaling_mode = full
+initial_pan = 50 50
 upscaling_method = linear
 
 # Bottom status overlay

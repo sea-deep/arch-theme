@@ -16,11 +16,11 @@ if [ -z "$MODE" ] || [ "$MODE" = "menu" ]; then
     MODE="region"
 fi
 
-# Check if freeze snapshot exists and is recent (< 10 seconds old)
+# Check if freeze snapshot exists and is recent (< 60 seconds old)
 USE_FREEZE=false
 if [ -f "$FREEZE_FILE" ]; then
     FILE_AGE=$(( $(date +%s) - $(stat -c %Y "$FREEZE_FILE" 2>/dev/null || echo 0) ))
-    if [ "$FILE_AGE" -le 10 ]; then
+    if [ "$FILE_AGE" -le 60 ]; then
         USE_FREEZE=true
     fi
 fi
@@ -39,37 +39,34 @@ crop_and_pipe() {
         local log_w="${BASH_REMATCH[3]}"
         local log_h="${BASH_REMATCH[4]}"
 
-        # Look up exact monitor scale for the given coordinate
+        # Look up monitor scale and convert to physical coordinates in one fast jq call
         local mon_info
         mon_info=$(hyprctl monitors -j 2>/dev/null)
-        local mon_s
-        mon_s=$(echo "$mon_info" | jq -r --argjson x "$log_x" --argjson y "$log_y" \
-            '.[] | select($x >= .x and $x < (.x + .width / .scale) and $y >= .y and $y < (.y + .height / .scale)) | .scale' 2>/dev/null | head -n 1)
-        if [ -z "$mon_s" ] || [ "$mon_s" = "null" ]; then
-            mon_s=$(echo "$mon_info" | jq -r '.[0].scale // 1.0' 2>/dev/null)
-        fi
-        if [ -z "$mon_s" ] || [ "$mon_s" = "null" ]; then mon_s=1.0; fi
-
         local crop_x crop_y crop_w crop_h
-        crop_x=$(awk "BEGIN {printf \"%d\", ($log_x * $mon_s) + 0.5}")
-        crop_y=$(awk "BEGIN {printf \"%d\", ($log_y * $mon_s) + 0.5}")
-        crop_w=$(awk "BEGIN {printf \"%d\", ($log_w * $mon_s) + 0.5}")
-        crop_h=$(awk "BEGIN {printf \"%d\", ($log_h * $mon_s) + 0.5}")
+        read -r crop_x crop_y crop_w crop_h <<< $(echo "$mon_info" | jq -r --argjson x "$log_x" --argjson y "$log_y" --argjson w "$log_w" --argjson h "$log_h" '
+            ( .[] | select($x >= .x and $x < (.x + .width / .scale) and $y >= .y and $y < (.y + .height / .scale)) | .scale ) // .[0].scale // 1.0 as $s |
+            "\((($x * $s) + 0.5 | floor)) \((($y * $s) + 0.5 | floor)) \((($w * $s) + 0.5 | floor)) \((($h * $s) + 0.5 | floor))"
+        ' 2>/dev/null | head -n 1)
 
-        magick "$FREEZE_FILE" -crop "${crop_w}x${crop_h}+${crop_x}+${crop_y}" +repage png:- | swappy -f -
+        [ -z "$crop_w" ] && crop_w="$log_w"
+        [ -z "$crop_h" ] && crop_h="$log_h"
+        [ -z "$crop_x" ] && crop_x="$log_x"
+        [ -z "$crop_y" ] && crop_y="$log_y"
+
+        # Pipe directly as uncompressed PPM to swappy.
+        # This eliminates the 800-1000ms PNG compression bottleneck of ImageMagick.
+        magick "$FREEZE_FILE" -crop "${crop_w}x${crop_h}+${crop_x}+${crop_y}" +repage ppm:- | swappy -f -
     else
-        # Fallback to grim capture
-        sleep 0.15
-        grim -g "$geometry" - | swappy -f -
+        # Fast direct grim capture in ppm format
+        grim -g "$geometry" -t ppm - | swappy -f -
     fi
 }
 
 if [ "$MODE" = "full" ]; then
     if [ "$USE_FREEZE" = true ]; then
-        magick "$FREEZE_FILE" png:- | swappy -f -
+        swappy -f "$FREEZE_FILE"
     else
-        sleep 0.15
-        grim - | swappy -f -
+        grim -t ppm - | swappy -f -
     fi
 elif [ "$MODE" = "region" ]; then
     if [ -n "$GEOM" ]; then
@@ -83,7 +80,8 @@ elif [ "$MODE" = "window" ]; then
     if [ -n "$GEOM" ]; then
         GEOMETRY="$GEOM"
     else
-        GEOMETRY=$(hyprctl clients -j | jq -r '.[] | select(.mapped == true and .workspace.id > 0) | "\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"' | slurp)
+        ACTIVE_WS=$(hyprctl activeworkspace -j 2>/dev/null | jq -r '.id // 1')
+        GEOMETRY=$(hyprctl clients -j | jq -r --argjson ws "$ACTIVE_WS" '.[] | select(.mapped == true and (.workspace.id == $ws or .floating == true)) | "\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"' | slurp -r)
     fi
     if [ -z "$GEOMETRY" ]; then
         GEOMETRY=$(slurp)

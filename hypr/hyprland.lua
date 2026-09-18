@@ -389,10 +389,32 @@ hl.window_rule({
     center = 1,
 })
 
--- Thunar file progress and conflict dialogs
+-- Thunar single-file rename and folder/document creation popups (compact little popup)
+hl.window_rule({
+    name = "thunar-rename-create",
+    match = { class = "^[Tt]hunar$", title = "^(Rename.*|Create.*)$" },
+    float = true,
+    center = 1,
+    size = "460 170",
+    min_size = "400 150",
+    max_size = "560 220",
+})
+
+-- Thunar bulk rename dialog
+hl.window_rule({
+    name = "thunar-bulk-rename",
+    match = { class = "^[Tt]hunar$", title = "^(Bulk Rename.*|Rename Multiple Files)$" },
+    float = true,
+    center = 1,
+    size = "820 540",
+    min_size = "640 400",
+    max_size = "90% 85%",
+})
+
+-- Thunar standard utility, progress, and properties dialogs
 hl.window_rule({
     name = "thunar-dialogs",
-    match = { class = "^[Tt]hunar$", title = "^(File Operation Progress|Confirm to replace files)$" },
+    match = { class = "^[Tt]hunar$", title = "^(File Operation Progress|Confirm to replace files|.*Properties.*|Preferences|Attention|Question|Open With.*)$" },
     float = true,
     center = 1,
 })

@@ -321,13 +321,13 @@ end
 hl.bind(mainMod .. " + equal", cycle_scale)
 
 -- ==============================================================================
--- WINDOW RULES & BOUNDARIES (Native Hyprland Lua API)
+-- WINDOW RULES & BOUNDARIES (Pure Native Hyprland Lua API — Zero Bloat)
 -- ==============================================================================
 
 -- Authentication & privileged dialogs
 hl.window_rule({
     name = "polkit-kde-agent",
-    match = { class = "polkit-kde-authentication-agent-1" },
+    match = { class = "^(polkit-kde-authentication-agent-1)$" },
     float = true,
     stay_focused = true,
     pin = true,
@@ -336,13 +336,12 @@ hl.window_rule({
 
 hl.window_rule({
     name = "malus-float",
-    match = { class = "io.github.sea_deep.MalusNext" },
+    match = { class = "^(io.github.sea_deep.MalusNext)$" },
     float = true,
 })
 
--- Global floating window boundary & center rule:
--- Any window that floats is centered within the usable area (below 38px status bar)
--- and clamped to at most 90% width and 85% height.
+-- Global floating window boundary & center rule (pure native C++ compositor rule)
+-- Centers all floating windows within usable screen area (respecting top bar reserved zone)
 hl.window_rule({
     name = "global-floating-center",
     match = { float = true },
@@ -350,10 +349,10 @@ hl.window_rule({
     max_size = "90% 85%",
 })
 
--- XDG Desktop Portal GTK (file & folder pickers spawned by apps like Codex/Antigravity, browsers, etc.)
+-- XDG Desktop Portal GTK (file pickers spawned by apps like Codex/Antigravity, browsers, etc.)
 hl.window_rule({
-    name = "portal-gtk-class",
-    match = { class = "[Xx]dg-desktop-portal-gtk" },
+    name = "portal-gtk",
+    match = { class = "^[Xx]dg-desktop-portal-gtk$" },
     float = true,
     center = 1,
     size = "70% 70%",
@@ -361,60 +360,10 @@ hl.window_rule({
     max_size = "90% 85%",
 })
 
+-- File pickers and save/open dialogs matched by title
 hl.window_rule({
-    name = "portal-gtk-initial-class",
-    match = { initial_class = "[Xx]dg-desktop-portal-gtk" },
-    float = true,
-    center = 1,
-    size = "70% 70%",
-    min_size = "640 440",
-    max_size = "90% 85%",
-})
-
--- File pickers matched by title regex
-hl.window_rule({
-    name = "file-picker-select",
-    match = { title = "^Select.*" },
-    float = true,
-    center = 1,
-    size = "70% 70%",
-    min_size = "640 440",
-    max_size = "90% 85%",
-})
-
-hl.window_rule({
-    name = "file-picker-open",
-    match = { title = "^Open.*" },
-    float = true,
-    center = 1,
-    size = "70% 70%",
-    min_size = "640 440",
-    max_size = "90% 85%",
-})
-
-hl.window_rule({
-    name = "file-picker-save",
-    match = { title = "^Save.*" },
-    float = true,
-    center = 1,
-    size = "70% 70%",
-    min_size = "640 440",
-    max_size = "90% 85%",
-})
-
-hl.window_rule({
-    name = "file-picker-choose",
-    match = { title = "^Choose.*" },
-    float = true,
-    center = 1,
-    size = "70% 70%",
-    min_size = "640 440",
-    max_size = "90% 85%",
-})
-
-hl.window_rule({
-    name = "file-picker-all",
-    match = { title = "^(All Files|File Upload)$" },
+    name = "file-pickers",
+    match = { title = "^(Select|Open|Save|Choose|All Files|File Upload).*" },
     float = true,
     center = 1,
     size = "70% 70%",
@@ -424,47 +373,26 @@ hl.window_rule({
 
 -- Common dialog utilities
 hl.window_rule({
-    name = "zenity-dialog",
-    match = { class = "^[Zz]enity$" },
+    name = "dialogs",
+    match = { class = "^([Zz]enity|[Kk]dialog)$" },
     float = true,
     center = 1,
     min_size = "500 350",
     max_size = "90% 85%",
 })
 
+-- System utilities
 hl.window_rule({
-    name = "kdialog-dialog",
-    match = { class = "^[Kk]dialog$" },
-    float = true,
-    center = 1,
-    min_size = "500 350",
-    max_size = "90% 85%",
-})
-
-hl.window_rule({
-    name = "nm-connection-editor",
-    match = { class = "nm-connection-editor" },
+    name = "system-utilities",
+    match = { class = "^(nm-connection-editor|blueman-manager)$" },
     float = true,
     center = 1,
 })
 
+-- Thunar file progress and conflict dialogs
 hl.window_rule({
-    name = "blueman-manager",
-    match = { class = "blueman-manager" },
-    float = true,
-    center = 1,
-})
-
-hl.window_rule({
-    name = "thunar-progress",
-    match = { class = "^[Tt]hunar$", title = "^File Operation Progress$" },
-    float = true,
-    center = 1,
-})
-
-hl.window_rule({
-    name = "thunar-confirm",
-    match = { class = "^[Tt]hunar$", title = "^Confirm to replace files$" },
+    name = "thunar-dialogs",
+    match = { class = "^[Tt]hunar$", title = "^(File Operation Progress|Confirm to replace files)$" },
     float = true,
     center = 1,
 })
@@ -473,19 +401,3 @@ hl.window_rule({ name = "swappy-float", match = { class = "^(swappy)$" }, float 
 hl.window_rule({ name = "pavucontrol-float", match = { class = "^(org.pulseaudio.pavucontrol)$" }, float = true, size = "450 265", move = "875 42" })
 hl.window_rule({ name = "clipse-float", match = { class = "^(clipse)$" }, float = true, size = "800 600", center = 1 })
 hl.window_rule({ name = "idle_inhibit", match = { class = "^(.*)$" }, idle_inhibit = "fullscreen" })
-
--- Dynamic safety-net event listeners:
--- Guarantee that no floating window or portal file chooser ever spawns or sits underneath the 38px top bar.
-hl.on("window.open", function(win)
-    if not win then return end
-    if win.floating or (win.class and win.class:match("[Xx]dg")) then
-        hl.dispatch(hl.dsp.window.center(1))
-    end
-end)
-
-hl.on("window.title", function(win)
-    if not win then return end
-    if win.floating and win.at and win.at.y < 38 then
-        hl.dispatch(hl.dsp.window.center(1))
-    end
-end)

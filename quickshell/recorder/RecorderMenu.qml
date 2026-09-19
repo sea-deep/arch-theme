@@ -50,10 +50,11 @@ PanelWindow {
 
     property string selectedQuality: "balanced"
     property string selectedFormat: "mp4"
+    property string selectedAudio: "none"
 
     Rectangle {
         id: menuItem
-        width: 360
+        width: 380
         readonly property real fullHeight: layout.implicitHeight + 32
         height: fullHeight * root.reveal
         clip: true
@@ -77,7 +78,7 @@ PanelWindow {
         function triggerRecord(mode) {
             UiState.recorderMenuVisible = false;
             var script = Quickshell.env("HOME") + "/.config/hypr/toggle_recorder.sh";
-            Quickshell.execDetached(["bash", script, mode, root.selectedQuality, root.selectedFormat]);
+            Quickshell.execDetached(["bash", script, mode, root.selectedQuality, root.selectedFormat, root.selectedAudio]);
         }
 
         Item {
@@ -179,6 +180,49 @@ PanelWindow {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
                             onClicked: root.selectedFormat = modelData
+                        }
+                    }
+                }
+            }
+
+            // Audio Source Selection
+            Text {
+                text: "Audio Source"
+                color: Theme.fg
+                font.family: Theme.fontFamilySans
+                font.pixelSize: 12
+                opacity: 0.7
+                Layout.topMargin: 8
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+                Repeater {
+                    model: [
+                        { id: "none", label: "Off" },
+                        { id: "device", label: "Device" },
+                        { id: "mic", label: "Mic" },
+                        { id: "both", label: "Both" }
+                    ]
+                    delegate: Rectangle {
+                        Layout.fillWidth: true
+                        height: 32
+                        radius: Theme.radiusSmall
+                        color: root.selectedAudio === modelData.id ? Theme.accent : Theme.surface
+                        Behavior on color { ColorAnimation { duration: Theme.durationFast } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: modelData.label
+                            color: root.selectedAudio === modelData.id ? Theme.bgDark : Theme.fg
+                            font.family: Theme.fontFamilySans
+                            font.pixelSize: 12
+                            font.weight: root.selectedAudio === modelData.id ? Font.Bold : Theme.fontWeight
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.selectedAudio = modelData.id
                         }
                     }
                 }

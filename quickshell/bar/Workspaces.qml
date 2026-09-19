@@ -192,22 +192,58 @@ Item {
         return "0x" + s;
     }
 
+    function findLiveToplevel(addr) {
+        if (!addr) return null;
+        var formatted = root.formatAddress(addr);
+        try {
+            var ws = root.hoveredWorkspace || root.activeWs;
+            if (ws && ws.toplevels && ws.toplevels.values) {
+                for (var i = 0; i < ws.toplevels.values.length; i++) {
+                    var top = ws.toplevels.values[i];
+                    if (top && (top.address === formatted || root.formatAddress(top.address) === formatted)) {
+                        return top;
+                    }
+                }
+            }
+        } catch(e) {}
+
+        try {
+            if (Hyprland.toplevels && Hyprland.toplevels.values) {
+                for (var j = 0; j < Hyprland.toplevels.values.length; j++) {
+                    var ht = Hyprland.toplevels.values[j];
+                    if (ht && (ht.address === formatted || root.formatAddress(ht.address) === formatted)) {
+                        return ht;
+                    }
+                }
+            }
+        } catch(e) {}
+
+        return null;
+    }
+
     function killWindow(item) {
         if (!item) return;
         var rawAddr = item.address || "";
         var addr = root.formatAddress(rawAddr);
-        if (addr !== "" && addr !== "0x0" && addr !== "0x") {
+        if (!addr || addr === "" || addr === "0x0" || addr === "0x") return;
+
+        // 1. Quickshell native Wayland toplevel close via live lookup
+        var top = root.findLiveToplevel(addr);
+        if (top) {
+            try {
+                if (top.wayland && typeof top.wayland.close === "function") {
+                    top.wayland.close();
+                    return;
+                }
+            } catch(e) {}
+        }
+
+        // 2. Dispatch close targeting the specific window address via Hyprland Lua or legacy fallback
+        if (Hyprland.usingLua !== false) {
+            Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.window.close({ address = \"" + addr + "\" })"]);
+        } else {
             var hexOnly = addr.startsWith("0x") ? addr.slice(2) : addr;
             Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "address:0x" + hexOnly]);
-            Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "address:" + hexOnly]);
-        }
-        var pid = item.pid || 0;
-        if (pid > 0) {
-            Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "pid:" + pid]);
-        }
-        var cls = item.className || "";
-        if (cls !== "") {
-            Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "class:" + cls]);
         }
     }
 
@@ -218,7 +254,29 @@ Item {
         if (!item) return;
         var rawAddr = item.address || "";
         var addr = root.formatAddress(rawAddr);
-        if (addr !== "" && addr !== "0x0" && addr !== "0x") {
+        if (!addr || addr === "" || addr === "0x0" || addr === "0x") {
+            root.isHovered = false;
+            root.hoveredWorkspace = null;
+            return;
+        }
+
+        // 1. Quickshell native Wayland toplevel activation via live lookup
+        var top = root.findLiveToplevel(addr);
+        if (top) {
+            try {
+                if (top.wayland && typeof top.wayland.activate === "function") {
+                    top.wayland.activate();
+                    root.isHovered = false;
+                    root.hoveredWorkspace = null;
+                    return;
+                }
+            } catch(e) {}
+        }
+
+        // 2. Dispatch focus targeting the specific window address via Hyprland Lua or legacy fallback
+        if (Hyprland.usingLua !== false) {
+            Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.focus({ address = \"" + addr + "\" })"]);
+        } else {
             var hexOnly = addr.startsWith("0x") ? addr.slice(2) : addr;
             Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "address:0x" + hexOnly]);
         }
@@ -428,14 +486,11 @@ Item {
                                                 onClicked: {
                                                     wsItem.modelData.activate();
                                                     if (iconGroup.modelData && iconGroup.modelData.address) {
-                                                        var addr = root.formatAddress(iconGroup.modelData.address);
-                                                        if (addr !== "" && addr !== "0x0" && addr !== "0x") {
-                                                            var hexOnly = addr.startsWith("0x") ? addr.slice(2) : addr;
-                                                            Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "address:0x" + hexOnly]);
-                                                        }
+                                                        root.focusWindow(iconGroup.modelData);
+                                                    } else {
+                                                        root.isHovered = false;
+                                                        root.hoveredWorkspace = null;
                                                     }
-                                                    root.isHovered = false;
-                                                    root.hoveredWorkspace = null;
                                                 }
                                             }
                                         }

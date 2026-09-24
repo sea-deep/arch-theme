@@ -103,16 +103,17 @@ map ?                           exec "sh -c '$HOME/.config/zathura/zathura-menu.
 
 # Eye-Comfort Dark Mode Toggle ('d')
 map d                           recolor
-map <C-r>                       recolor
+map <C-d>                       recolor
 
-# Document Reload & Refresh ('r' reloads the document — DOES NOT ROTATE)
-map r                           reload
-map R                           reload
-map <F5>                        reload
-
-# Document Rotation (explicit key combinations only)
+# Document Rotation ('r' rotates clockwise, 'R' rotates counter-clockwise)
+map r                           rotate rotate-cw
+map R                           rotate rotate-ccw
 map <C-Left>                    rotate rotate-ccw
 map <C-Right>                   rotate rotate-cw
+
+# Document Reload & Refresh
+map <F5>                        reload
+map <C-r>                       reload
 
 # File Management & Dialogs (Intuitive standard shortcuts)
 map o                           file_chooser

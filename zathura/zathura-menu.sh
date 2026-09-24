@@ -28,7 +28,8 @@ show_cheatsheet() {
 <b>Essential Controls:</b>
   • <b>Right-Click / m</b> — Open this Action Menu
   • <b>d</b> — Toggle Eye-Comfort Dark Mode (recolor)
-  • <b>r</b> — Reload Document (refresh)
+  • <b>r / R</b> — Rotate Document (Clockwise / Counter-Clockwise)
+  • <b>F5 / Ctrl+R</b> — Reload Document (refresh)
   • <b>Ctrl+O / o</b> — Open Document File Picker
   • <b>Tab / i</b> — Table of Contents / Outline Index
   • <b>Ctrl+F / /</b> — Search / Find in Document
@@ -68,9 +69,9 @@ OPTIONS=(
     "➕  Zoom In                       [ + / = ]"
     "➖  Zoom Out                      [ - ]"
     "🔄  Reset Zoom (100%)             [ 0 ]"
-    "🔁  Reload Document               [ r ]"
-    "↷  Rotate Clockwise              [ Ctrl+Right ]"
-    "↶  Rotate Counter-Clockwise      [ Ctrl+Left ]"
+    "↷  Rotate Clockwise              [ r / Ctrl+Right ]"
+    "↶  Rotate Counter-Clockwise      [ R / Ctrl+Left ]"
+    "🔁  Reload Document               [ F5 / Ctrl+R ]"
     "🖨️  Print Document                [ Ctrl+P / p ]"
     "📋  Copy Document File Path       [ y ]"
     "ℹ️  Document Information          [ :info ]"

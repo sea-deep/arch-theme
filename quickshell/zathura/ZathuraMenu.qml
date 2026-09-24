@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
+import Quickshell.Hyprland
 import Quickshell.Io
 import "../theme"
 
@@ -12,8 +13,22 @@ PanelWindow {
     anchors.bottom: true
     anchors.left: true
     anchors.right: true
-    WlrLayershell.layer: WlrLayer.Top
+    WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: root.showing ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+
+    Connections {
+        target: Hyprland
+        function onActiveToplevelChanged() {
+            if (root.showing) {
+                UiState.zathuraMenuVisible = false
+            }
+        }
+        function onFocusedWorkspaceChanged() {
+            if (root.showing) {
+                UiState.zathuraMenuVisible = false
+            }
+        }
+    }
 
     color: "transparent"
     property bool showing: UiState.zathuraMenuVisible

@@ -186,3 +186,52 @@ map q                           quit
 map <C-q>                       quit
 map <C-w>                       quit
 map <Esc>                       abort
+
+# ── Fullscreen Mode Bindings ──────────────────────────────────────────────────
+# Action & Context Menu in Fullscreen
+map [fullscreen] <Button3>       exec /home/dipak/.config/zathura/zathura-menu.sh
+map [fullscreen] m               exec /home/dipak/.config/zathura/zathura-menu.sh
+map [fullscreen] M               exec /home/dipak/.config/zathura/zathura-menu.sh
+map [fullscreen] <F1>            exec /home/dipak/.config/zathura/zathura-menu.sh
+map [fullscreen] ?               exec /home/dipak/.config/zathura/zathura-menu.sh
+
+# Dark Mode in Fullscreen
+map [fullscreen] d               recolor
+map [fullscreen] <C-d>           recolor
+
+# Rotation in Fullscreen
+map [fullscreen] r               rotate rotate-cw
+map [fullscreen] <C-Right>       rotate rotate-cw
+map [fullscreen] R               rotate rotate-ccw
+map [fullscreen] <S-r>           rotate rotate-ccw
+map [fullscreen] <C-Left>        rotate rotate-ccw
+
+# Navigation & Zoom in Fullscreen
+map [fullscreen] <F5>            reload
+map [fullscreen] <C-r>           reload
+map [fullscreen] o               file_chooser
+map [fullscreen] <C-o>           file_chooser
+map [fullscreen] p               print
+map [fullscreen] <C-p>           print
+map [fullscreen] <Tab>           toggle_index
+map [fullscreen] i               toggle_index
+map [fullscreen] <C-f>           feedkeys /
+map [fullscreen] /               feedkeys /
+map [fullscreen] j               scroll down
+map [fullscreen] k               scroll up
+map [fullscreen] <Down>          scroll down
+map [fullscreen] <Up>            scroll up
+map [fullscreen] <Space>         scroll full-down
+map [fullscreen] <S-Space>       scroll full-up
+map [fullscreen] =               zoom in
+map [fullscreen] +               zoom in
+map [fullscreen] -               zoom out
+map [fullscreen] 0               zoom 100
+map [fullscreen] w               adjust_window width
+map [fullscreen] f               adjust_window best-fit
+map [fullscreen] D               toggle_page_mode
+map [fullscreen] <F11>           toggle_fullscreen
+map [fullscreen] y               copy_filepath
+map [fullscreen] q               quit
+map [fullscreen] <Esc>           abort
+

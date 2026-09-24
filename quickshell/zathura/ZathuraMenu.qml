@@ -13,7 +13,7 @@ PanelWindow {
     anchors.left: true
     anchors.right: true
     WlrLayershell.layer: WlrLayer.Top
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+    WlrLayershell.keyboardFocus: root.showing ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
     color: "transparent"
     property bool showing: UiState.zathuraMenuVisible
@@ -50,35 +50,34 @@ PanelWindow {
     }
 
     readonly property var menuItems: [
-        { name: "Toggle Dark Mode", icon: "󰌵", key: "d", wtype: "-k d" },
-        { name: "Open Document...", icon: "󰈔", key: "Ctrl+O", wtype: "-M ctrl -k o -m ctrl" },
-        { name: "Table of Contents", icon: "󰂺", key: "Tab", wtype: "-k Tab" },
-        { name: "Find in Document", icon: "󰍉", key: "Ctrl+F", wtype: "-M ctrl -k f -m ctrl" },
-        { name: "Two-Page (Book) View", icon: "󰘚", key: "Shift+D", wtype: "-M shift -k d -m shift" },
-        { name: "Fit Page to Width", icon: "󰤄", key: "w", wtype: "-k w" },
-        { name: "Fit Whole Page", icon: "󰊓", key: "f", wtype: "-k f" },
-        { name: "Zoom In", icon: "󰐕", key: "+", wtype: "-k equal" },
-        { name: "Zoom Out", icon: "󰍴", key: "-", wtype: "-k minus" },
-        { name: "Reset Zoom (100%)", icon: "󰁨", key: "0", wtype: "-k 0" },
-        { name: "Rotate Clockwise", icon: "󰑕", key: "r", wtype: "-k r" },
-        { name: "Rotate Counter-CW", icon: "󰑖", key: "R", wtype: "-M shift -k r -m shift" },
-        { name: "Reload Document", icon: "󰑐", key: "F5", wtype: "-k F5" },
-        { name: "Print Document", icon: "󰐪", key: "Ctrl+P", wtype: "-M ctrl -k p -m ctrl" },
-        { name: "Copy File Path", icon: "󰅍", key: "y", wtype: "-k y" },
-        { name: "Toggle Fullscreen", icon: "󰍹", key: "F11", wtype: "-k F11" },
-        { name: "Quit Zathura", icon: "󰅖", key: "q", wtype: "-k q" }
+        { name: "Toggle Dark Mode", icon: "󰌵", key: "d", action: "recolor" },
+        { name: "Open Document...", icon: "󰈔", key: "Ctrl+O", action: "open" },
+        { name: "Table of Contents", icon: "󰂺", key: "Tab", action: "table_of_contents" },
+        { name: "Find in Document", icon: "󰍉", key: "Ctrl+F", action: "search" },
+        { name: "Two-Page (Book) View", icon: "󰘚", key: "Shift+D", action: "two_page" },
+        { name: "Fit Page to Width", icon: "󰤄", key: "w", action: "fit_width" },
+        { name: "Fit Whole Page", icon: "󰊓", key: "f", action: "fit_page" },
+        { name: "Zoom In", icon: "󰐕", key: "+", action: "zoom_in" },
+        { name: "Zoom Out", icon: "󰍴", key: "-", action: "zoom_out" },
+        { name: "Reset Zoom (100%)", icon: "󰁨", key: "0", action: "zoom_100" },
+        { name: "Rotate Clockwise", icon: "󰑕", key: "r", action: "rotate_cw" },
+        { name: "Rotate Counter-CW", icon: "󰑖", key: "R", action: "rotate_ccw" },
+        { name: "Reload Document", icon: "󰑐", key: "F5", action: "reload" },
+        { name: "Print Document", icon: "󰐪", key: "Ctrl+P", action: "print" },
+        { name: "Copy File Path", icon: "󰅍", key: "y", action: "copy_path" },
+        { name: "Toggle Fullscreen", icon: "󰍹", key: "F11", action: "fullscreen" },
+        { name: "Quit Zathura", icon: "󰅖", key: "q", action: "quit" }
     ]
 
     function executeItem(item) {
         if (!item) return
+        root.positioned = false
         UiState.zathuraMenuVisible = false
-        if (item.wtype && item.wtype !== "") {
-            Quickshell.execDetached([
-                "bash",
-                "-c",
-                "sleep 0.08 && wtype " + item.wtype
-            ])
-        }
+        Quickshell.execDetached([
+            "bash",
+            Quickshell.shellPath("scripts/zathura-action.sh"),
+            item.action
+        ])
     }
 
     Process {
@@ -97,7 +96,6 @@ PanelWindow {
         }
     }
 
-    // Safety fallback timer so menu is never permanently invisible if cursorQuery hangs
     Timer {
         interval: 80
         running: root.showing && !root.positioned
@@ -114,7 +112,7 @@ PanelWindow {
         var popupW = popup.fullWidth
         var popupH = popup.fullHeight
 
-        // Pop immediately next to cursor (4px offset to avoid directly clipping mouse point)
+        // Pop near cursor: default opens right and down from cursor
         var targetX = cx + 4
         if (targetX + popupW > screenW - 12) {
             targetX = cx - popupW - 4
@@ -319,21 +317,34 @@ PanelWindow {
                                     elide: Text.ElideRight
                                 }
 
-                                // Shortcut badge
+                                // Shortcut key badge (High-contrast, clearly visible)
                                 Rectangle {
-                                    Layout.preferredHeight: 18
-                                    implicitWidth: keyText.implicitWidth + 10
+                                    Layout.preferredHeight: 19
+                                    implicitWidth: keyText.implicitWidth + 12
                                     radius: 4
-                                    color: (rowDelegate.isSelected || rowDelegate.isHovered) ? Theme.bgLight : Theme.surfaceVariant
+                                    color: (rowDelegate.isSelected || rowDelegate.isHovered) ? Theme.surfaceVariant : Theme.bgDark
+                                    border.color: (rowDelegate.isSelected || rowDelegate.isHovered) ? Theme.accent : Theme.surfaceVariant
+                                    border.width: 1
+
+                                    Behavior on border.color {
+                                        ColorAnimation { duration: Theme.durationFast }
+                                    }
+                                    Behavior on color {
+                                        ColorAnimation { duration: Theme.durationFast }
+                                    }
 
                                     Text {
                                         id: keyText
                                         anchors.centerIn: parent
                                         text: rowDelegate.modelData.key
-                                        color: (rowDelegate.isSelected || rowDelegate.isHovered) ? Theme.accent : Theme.fgMuted
-                                        font.family: Theme.fontFamilySans
+                                        color: (rowDelegate.isSelected || rowDelegate.isHovered) ? Theme.accent : Theme.fg
+                                        font.family: Theme.fontFamily
                                         font.pixelSize: 10
-                                        font.weight: Theme.fontWeight
+                                        font.weight: Font.DemiBold
+
+                                        Behavior on color {
+                                            ColorAnimation { duration: Theme.durationFast }
+                                        }
                                     }
                                 }
                             }

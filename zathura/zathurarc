@@ -120,7 +120,7 @@ map o                           file_chooser
 map <C-o>                       file_chooser
 map p                           print
 map <C-p>                       print
-map <C-s>                       write
+map <C-s>                       feedkeys ":write<Return>"
 
 # Search & Outline / Table of Contents
 map <C-f>                       feedkeys /

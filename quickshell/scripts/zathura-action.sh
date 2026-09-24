@@ -80,7 +80,7 @@ case "$ACTION" in
         wtype -k r 2>/dev/null || true
         ;;
     rotate_ccw)
-        wtype -M shift -k r -m shift 2>/dev/null || wtype -k R 2>/dev/null || true
+        wtype -M ctrl -k Left -m ctrl 2>/dev/null || wtype -M shift -k r -m shift 2>/dev/null || true
         ;;
     zoom_in)
         wtype -k equal 2>/dev/null || wtype -k plus 2>/dev/null || true

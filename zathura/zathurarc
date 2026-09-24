@@ -95,21 +95,22 @@ set selection-clipboard         "clipboard"
 
 # ── Navigation & Keybindings (Beginner-Friendly & Power-User Controls) ────────
 # Action & Context Menu (Right-Click or 'm' / 'F1' / '?' pops native Quickshell menu near cursor)
-map <Button3>                   exec "qs ipc call zathuraMenu toggle"
-map m                           exec "qs ipc call zathuraMenu toggle"
-map M                           exec "qs ipc call zathuraMenu toggle"
-map <F1>                        exec "qs ipc call zathuraMenu toggle"
-map ?                           exec "qs ipc call zathuraMenu toggle"
+map <Button3>                   exec /home/dipak/.config/zathura/zathura-menu.sh
+map m                           exec /home/dipak/.config/zathura/zathura-menu.sh
+map M                           exec /home/dipak/.config/zathura/zathura-menu.sh
+map <F1>                        exec /home/dipak/.config/zathura/zathura-menu.sh
+map ?                           exec /home/dipak/.config/zathura/zathura-menu.sh
 
 # Eye-Comfort Dark Mode Toggle ('d')
 map d                           recolor
 map <C-d>                       recolor
 
-# Document Rotation ('r' rotates clockwise, 'R' rotates counter-clockwise)
+# Document Rotation ('r' rotates clockwise, 'R' / '<S-r>' / '<C-Left>' rotates counter-clockwise)
 map r                           rotate rotate-cw
-map R                           rotate rotate-ccw
-map <C-Left>                    rotate rotate-ccw
 map <C-Right>                   rotate rotate-cw
+map R                           rotate rotate-ccw
+map <S-r>                       rotate rotate-ccw
+map <C-Left>                    rotate rotate-ccw
 
 # Document Reload & Refresh
 map <F5>                        reload

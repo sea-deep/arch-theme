@@ -94,12 +94,12 @@ set guioptions                  "sv"
 set selection-clipboard         "clipboard"
 
 # ── Navigation & Keybindings (Beginner-Friendly & Power-User Controls) ────────
-# Action & Context Menu (Right-Click or 'm' / 'F1' / '?' for full interactive menu)
-map <Button3>                   exec "sh -c '$HOME/.config/zathura/zathura-menu.sh \"$DBUS\" \"$FILE\" \"$PAGE\"'"
-map m                           exec "sh -c '$HOME/.config/zathura/zathura-menu.sh \"$DBUS\" \"$FILE\" \"$PAGE\"'"
-map M                           exec "sh -c '$HOME/.config/zathura/zathura-menu.sh \"$DBUS\" \"$FILE\" \"$PAGE\"'"
-map <F1>                        exec "sh -c '$HOME/.config/zathura/zathura-menu.sh \"$DBUS\" \"$FILE\" \"$PAGE\"'"
-map ?                           exec "sh -c '$HOME/.config/zathura/zathura-menu.sh \"$DBUS\" \"$FILE\" \"$PAGE\"'"
+# Action & Context Menu (Right-Click or 'm' / 'F1' / '?' pops native Quickshell menu near cursor)
+map <Button3>                   exec "qs ipc call zathuraMenu toggle"
+map m                           exec "qs ipc call zathuraMenu toggle"
+map M                           exec "qs ipc call zathuraMenu toggle"
+map <F1>                        exec "qs ipc call zathuraMenu toggle"
+map ?                           exec "qs ipc call zathuraMenu toggle"
 
 # Eye-Comfort Dark Mode Toggle ('d')
 map d                           recolor

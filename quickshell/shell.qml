@@ -12,6 +12,7 @@ import "clipboard" as Clipboard
 import "launcher" as Launcher
 import "screenshot" as Screenshot
 import "recorder" as Recorder
+import "zathura" as ZathuraDoc
 import Quickshell.Services.UPower
 
 ShellRoot {
@@ -132,6 +133,7 @@ ShellRoot {
     Launcher.Launcher {}
     Screenshot.ScreenshotMenu {}
     Recorder.RecorderMenu {}
+    ZathuraDoc.ZathuraMenu {}
 
     LazyLoader {
         active: UiState.settingsVisible
@@ -293,6 +295,20 @@ ShellRoot {
         target: "screenshot"
         function toggle() {
             UiState.toggleScreenshot()
+        }
+    }
+
+    IpcHandler {
+        target: "zathuraMenu"
+        function toggle() {
+            UiState.toggleZathuraMenu()
+        }
+        function open() {
+            UiState.closeOverlays()
+            UiState.zathuraMenuVisible = true
+        }
+        function close() {
+            UiState.zathuraMenuVisible = false
         }
     }
 

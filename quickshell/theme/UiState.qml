@@ -228,6 +228,7 @@ Singleton {
     property bool launcherVisible: false
     property bool clipboardVisible: false
     property string clipboardScreen: ""
+    property bool zathuraMenuVisible: false
     property bool isDragging: false
     property int cursorX: -1
     property int cursorY: -1
@@ -243,6 +244,7 @@ Singleton {
         || launcherVisible
         || emojiVisible
         || clipboardVisible
+        || zathuraMenuVisible
         || settingsVisible
         || screenshotVisible
         || recorderMenuVisible
@@ -373,11 +375,18 @@ Singleton {
         bluetoothVisible = false
         screenshotVisible = false
         recorderMenuVisible = false
+        zathuraMenuVisible = false
     }
 
     function toggleEmoji() {
         const shouldOpen = !emojiVisible
         closeOverlays()
         emojiVisible = shouldOpen
+    }
+
+    function toggleZathuraMenu() {
+        const shouldOpen = !zathuraMenuVisible
+        closeOverlays()
+        zathuraMenuVisible = shouldOpen
     }
 }

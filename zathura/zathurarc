@@ -48,10 +48,10 @@ set index-active-bg             "#39c5bb"
 set index-active-fg             "#16161e"
 
 # Document Recolor Mode (Eye-Comfort Dark Mode)
-# Replaces blazing white page backgrounds with Tokyo Night deep charcoal.
-# NOTE: 'recolor-keephue false' is CRITICAL for high performance:
-# Avoids heavy CPU-side HSL matrix math on millions of pixels per frame.
-set recolor                     "true"
+# Replaces white page backgrounds with Tokyo Night deep charcoal when toggled.
+# NOTE: Default is set to false so documents open in their original (light / OG) form.
+# Press 'd' to toggle dark mode at any time.
+set recolor                     "false"
 set recolor-lightcolor          "#1a1b26"
 set recolor-darkcolor           "#c0caf5"
 set recolor-keephue             "false"
@@ -84,60 +84,103 @@ set zoom-step                   10
 set zoom-min                    10
 set zoom-max                    1000
 
-# Clean Window Decorations
+# Clean Window Decorations & Scrollbars
+# 's' = statusbar, 'v' = vertical scrollbar (visual progress & click-drag scrolling)
 set window-title-basename       "true"
 set window-title-home-tilde     "true"
-set guioptions                  "s"
+set guioptions                  "sv"
 
 # System Clipboard Integration (Direct Wayland wl-copy)
 set selection-clipboard         "clipboard"
 
-# ── Navigation & Keybindings (Authentic Zathura Vim Controls) ─────────────────
-# Recolor / Dark mode toggle
-map r                           recolor
+# ── Navigation & Keybindings (Beginner-Friendly & Power-User Controls) ────────
+# Action & Context Menu (Right-Click or 'm' / 'F1' / '?' for full interactive menu)
+map <Button3>                   exec "sh -c '$HOME/.config/zathura/zathura-menu.sh \"$DBUS\" \"$FILE\" \"$PAGE\"'"
+map m                           exec "sh -c '$HOME/.config/zathura/zathura-menu.sh \"$DBUS\" \"$FILE\" \"$PAGE\"'"
+map M                           exec "sh -c '$HOME/.config/zathura/zathura-menu.sh \"$DBUS\" \"$FILE\" \"$PAGE\"'"
+map <F1>                        exec "sh -c '$HOME/.config/zathura/zathura-menu.sh \"$DBUS\" \"$FILE\" \"$PAGE\"'"
+map ?                           exec "sh -c '$HOME/.config/zathura/zathura-menu.sh \"$DBUS\" \"$FILE\" \"$PAGE\"'"
 
-# Continuous Scrolling (Snappy, discrete steps — zero animation timer lag)
+# Eye-Comfort Dark Mode Toggle ('d')
+map d                           recolor
+map <C-r>                       recolor
+
+# Document Reload & Refresh ('r' reloads the document — DOES NOT ROTATE)
+map r                           reload
+map R                           reload
+map <F5>                        reload
+
+# Document Rotation (explicit key combinations only)
+map <C-Left>                    rotate rotate-ccw
+map <C-Right>                   rotate rotate-cw
+
+# File Management & Dialogs (Intuitive standard shortcuts)
+map o                           file_chooser
+map <C-o>                       file_chooser
+map p                           print
+map <C-p>                       print
+map <C-s>                       write
+
+# Search & Outline / Table of Contents
+map <C-f>                       feedkeys /
+map /                           feedkeys /
+map <Tab>                       toggle_index
+map i                           toggle_index
+
+# Continuous & Discrete Scrolling
 map j                           scroll down
 map k                           scroll up
 map <Down>                      scroll down
 map <Up>                        scroll up
 map h                           scroll left
 map l                           scroll right
+map <Left>                      scroll left
+map <Right>                     scroll right
 
-# Half-page and full-page scrolling
+# Half-Page & Full-Page Navigation
 map u                           scroll half-up
-map d                           scroll half-down
 map <C-u>                       scroll half-up
 map <C-d>                       scroll half-down
 map J                           scroll full-down
 map K                           scroll full-up
 map <Space>                     scroll full-down
 map <S-Space>                   scroll full-up
+map <PageDown>                  scroll full-down
+map <PageUp>                    scroll full-up
 
-# Jump to Top / Bottom
+# Jump to Document Top / Bottom
 map gg                          goto top
 map G                           goto bottom
+map <Home>                      goto top
+map <End>                       goto bottom
 
-# Zooming
+# Zoom Controls (Standard + / - / 0 and Ctrl equivalents)
 map =                           zoom in
 map +                           zoom in
+map <C-=>                       zoom in
+map <C-+>                       zoom in
 map -                           zoom out
+map <C-->                       zoom out
 map 0                           zoom 100
+map <C-0>                       zoom 100
+
+# Window Fit Modes ('w' for width, 'f' / 's' for fit-page)
+map w                           adjust_window width
 map a                           adjust_window width
+map f                           adjust_window best-fit
 map s                           adjust_window best-fit
 
-# Dual-page / Book reading layout toggle
+# Reading Layouts (Dual-page book mode & distraction-free Zen mode)
 map D                           toggle_page_mode
-
-# Zen mode (hide/show statusbar for distraction-free reading)
 map b                           toggle_statusbar
+map <F11>                       toggle_fullscreen
 
-# Document Reload & Rotation
-map R                           reload
-map <C-r>                       reload
-map <C-Left>                    rotate rotate-ccw
-map <C-Right>                   rotate rotate-cw
+# Copy File Path to Clipboard
+map y                           copy_filepath
+map <C-c>                       copy_filepath
 
-# Quit / Close
+# Quit / Close Document
 map q                           quit
 map <C-q>                       quit
+map <C-w>                       quit
+map <Esc>                       abort

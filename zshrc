@@ -10,6 +10,7 @@ export GTK_USE_PORTAL="1"
 export QT_QPA_PLATFORMTHEME="qt5ct"
 export QT_QPA_PLATFORM="wayland;xcb"
 export QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
+export SAL_USE_VCLPLUGIN="qt6"
 
 # --- PATH ---
 export JAVA_HOME="/usr/lib/jvm/java-21-openjdk"
